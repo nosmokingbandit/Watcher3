@@ -60,7 +60,8 @@ class DelugeRPC(object):
             if error:
                 return {'response': False, 'error': error}
         except Exception as e:
-            return {'response': False, 'error': str(e)[1:-1]}
+            logging.error('Deluge Add Torrent.', exc_info=True)
+            return {'response': False, 'error': str(e)}
 
         try:
             def_download_path = client.call('core.get_config')['download_location']
@@ -87,14 +88,14 @@ class DelugeRPC(object):
                 return {'response': True, 'downloadid': download_id}
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
-                return {'response': False, 'error': str(e)[1:-1]}
+                return {'response': False, 'error': str(e)}
         elif data['type'] == 'torrent':
             try:
                 download_id = client.call('core.add_torrent_url', data['torrentfile'], options)
                 return {'response': True, 'downloadid': download_id}
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
-                return {'response': False, 'error': str(e)[1:-1]}
+                return {'response': False, 'error': str(e)}
         return
 
 
@@ -193,7 +194,7 @@ class DelugeWeb(object):
             raise
         except Exception as e:
             logging.error('Delugeweb add_torrent', exc_info=True)
-            return {'response': False, 'error': str(e)[1:-1]}
+            return {'response': False, 'error': str(e)}
 
     @staticmethod
     def _get_torrent_file(torrent_url, deluge_url):
@@ -234,7 +235,7 @@ class DelugeWeb(object):
             return response['result']
         except Exception as e:
             logging.error('delugeweb get_download_dir', exc_info=True)
-            return {'response': False, 'error': str(e)[1:-1]}
+            return {'response': False, 'error': str(e)}
 
     @staticmethod
     def _read(response):
