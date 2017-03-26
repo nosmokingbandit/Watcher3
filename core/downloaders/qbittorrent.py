@@ -52,12 +52,8 @@ class QBittorrent(object):
         user = conf['user']
         password = conf['pass']
 
-        # check cookie validity while getting default download dir
-        download_dir = QBittorrent._get_download_dir(base_url)
-
-        if not download_dir:
-            if QBittorrent._login(base_url, user, password) is not True:
-                return {'response': False, 'error': 'Incorrect usename or password.'}
+        if QBittorrent.cookie is None:
+            QBittorrent._login(base_url, user, password)
 
         download_dir = QBittorrent._get_download_dir(base_url)
 
