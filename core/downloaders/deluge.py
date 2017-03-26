@@ -147,12 +147,8 @@ class DelugeWeb(object):
             'Max': 255
         }
 
-        # check cookie validity while getting default download dir
-        download_dir = DelugeWeb._get_download_dir(url)
-
-        if not download_dir:
-            password = conf['pass']
-            if DelugeWeb._login(url, password) is not True:
+        if DelugeWeb.cookie is None:
+            if DelugeWeb._login(url, conf['pass']) is not True:
                 return {'response': False, 'error': 'Incorrect usename or password.'}
 
         download_dir = DelugeWeb._get_download_dir(url)
