@@ -187,7 +187,7 @@ class DelugeWeb(object):
         request.add_header('cookie', DelugeWeb.cookie)
 
         try:
-            response = DelugeWeb._read(Url.open(request))
+            response = DelugeWeb._read(Url.open(request, read_bytes=True))
             if response['result'] is True:
                 downloadid = Torrent.get_hash(data['torrentfile'])
                 return {'response': True, 'downloadid': downloadid}
@@ -234,7 +234,7 @@ class DelugeWeb(object):
         request.add_header('cookie', DelugeWeb.cookie)
 
         try:
-            response = DelugeWeb._read(Url.open(request))
+            response = DelugeWeb._read(Url.open(request, read_bytes=True))
             return response['result']
         except Exception as e:
             logging.error('delugeweb get_download_dir', exc_info=True)
