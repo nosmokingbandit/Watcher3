@@ -207,14 +207,14 @@ class DelugeWeb(object):
         request = Url.request(deluge_url, post_data=post_data, headers=DelugeWeb.headers)
         request.add_header('cookie', DelugeWeb.cookie)
         try:
-            response = DelugeWeb._read(Url.open(request))
+            response = DelugeWeb._read(Url.open(request, read_bytes=True))
             if response['error'] is None:
                 return {'response': True, 'torrentfile': response['result']}
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
             logging.error('Delugeweb download_torrent_from_url', exc_info=True)
-            return {'response': False, 'error': str(e)[1:-1]}
+            return {'response': False, 'error': str(e)}
 
     @staticmethod
     def _get_download_dir(url):
