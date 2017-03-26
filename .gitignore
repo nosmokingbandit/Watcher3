@@ -1,0 +1,24 @@
+#  User's Files   #
+*.sqlite
+config.cfg
+static/images/posters/*
+logs/*
+watcher.zip
+core/version
+core/rss/imdb
+db/*
+
+# Compiled #
+*.pyc
+
+# System Files #
+.Spotlight-V100
+.Trashes
+.DS_Store
+desktop.ini
+Thumbs.db
+TODO
+
+# Readme #
+README.md
+ISSUE_TEMPLATE.md
