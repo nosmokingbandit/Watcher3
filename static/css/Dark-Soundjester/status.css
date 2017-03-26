@@ -1,0 +1,8 @@
+ul#movie_list { justify-content: center; }
+ul#movie_list li div span.status{ color: white; }
+ul#movie_list li div span.found{ background-color: #3fc344; }
+ul#movie_list li div span.finished { background-color: #3c773e; }
+#status_pop_up { background: black; }
+ul#movie_list.list li:nth-child(odd) div{ background-color: #000; }
+ul#movie_list.compact li div{ border-color: #000; } /* border: none breaks layout */
+ul#movie_list.compact li:nth-child(odd) div{ background-color: #000; }

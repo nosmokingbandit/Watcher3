@@ -1,0 +1,462 @@
+select{
+    height: 2em;
+    font-size: 0.85em;
+}
+
+i{
+    margin: 0 0 0 0;
+    font-size: 1.5em;
+}
+
+h1{
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0.5em 0 0.5em 0;
+    display: inline-block;
+}
+
+h2{
+    font-size: 1.35em;
+    padding: 0;
+    margin: 1.5em 0 .25em 0;
+}
+
+h3{
+    font-size: 1.25em;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+ul{
+    clear: none;
+    list-style: none;
+}
+
+div#content{
+    margin: 1.5em auto 1.5em auto;
+    width: 80%;
+    max-width: 1024px;
+    clear: both;
+}
+
+div#content a{
+    font-weight: bold;
+}
+
+div#content ul.wide{
+    max-width: 1024px;
+    min-width: 640px;
+}
+
+div#content ul li{
+    padding: 0;
+}
+
+.bbord{
+    border-bottom: 1px solid #252c35;
+    display: block;
+}
+
+span.bbord{
+    margin: 0;
+    padding: 0;
+}
+
+div#content ul li.rbord{
+    border-right: 1px solid #ccc;
+}
+
+div#content ul li.lbord{
+    border-left: 1px solid #ccc;
+}
+
+div#content ul li.indent{
+    padding-left: 1.5em;
+}
+
+.sub_cat{
+    font-size: 1.125em;
+    font-weight: 700;
+    height: 2.5em;
+    line-height: 2.5em;
+}
+
+/* server */
+div.server li{
+    line-height: 2.5em;
+}
+
+div.server span#restart, span#shutdown{
+    margin: 0 1em 0 0;
+    cursor: pointer;
+}
+
+div.server span#update_check{
+    cursor: pointer;
+}
+
+/* Search */
+div.search li{
+    line-height: 2.5em;
+}
+
+input#retention{
+    width: 4em;
+}
+
+/* Quality */
+div.quality div.quality_profile{
+    margin-bottom: 2em;
+    padding: 0 1em 1em 1em;
+    background-color: #151c25;
+    border-radius: 4px;
+    padding: 1em;
+    overflow: auto;
+    position: relative;
+}
+
+div.quality div.quality_profile input{
+    background-color: #080f18;
+}
+
+div.quality div.quality_profile div.name{
+    font-size: 1.5em;
+    margin: 0 0 1em 0;
+}
+
+div.quality div.quality_profile span.sub_heading{
+    font-size: 1.25em;
+    font-weight: bold;
+    clear: both;
+    line-height: 1.25em;
+}
+
+div.quality div.quality_profile div.sources{
+    float: left;
+    width: 30%
+}
+div.quality div.quality_profile div.sources ul{
+    margin-top: 0.5em;
+    border-right: 1px solid #bdbdbd;
+}
+
+div.quality div.quality_profile ul li{
+    margin-left: 0.75em;
+    line-height: 2.0em;
+    display: inline-block;
+    width: calc(100% - 0.75em);
+}
+
+div.quality div.quality_profile div#filters,
+div.quality div.quality_profile div#toggles{
+    float: right;
+    width: 67%;
+}
+
+div.quality div.quality_profile div#filters input{
+    width: calc(100% - 0.75em);
+    margin-bottom: 1em;
+}
+
+div.quality div.quality_profile div#toggles{
+    margin-top: 2em;
+}
+
+div.quality div.quality_profile div#toggles ul{
+    margin-top: 1em;
+}
+
+div.quality div#add_new_profile{
+    margin-bottom: 1.5em;
+}
+
+div.quality table#sources{
+    padding: 1em;
+    border-radius: 4px;
+    text-align: center;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+div.quality table#sources tr{
+    border-radius: 4px;
+    height: 2em;
+}
+
+td:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+td:last-child {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+div.quality table#sources tr:nth-child(even){
+    background: #151c25;
+}
+
+div.quality table#sources input{
+    background: #080f18;
+}
+
+div.quality table#aliases{
+    width: 100%;
+}
+
+div.quality table#aliases td:first-child{
+    width: 1px;
+}
+
+div.quality table#aliases input{
+    margin-left: 1em;
+    width: 60%;
+}
+
+div.quality i.delete_profile{
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+}
+
+
+/* Providers */
+div.plugins ul{
+    background-color: #151c25;
+}
+
+div.providers li{
+    line-height: 2.5em;
+}
+
+div.providers ul#providers{
+    overflow: hidden;
+}
+
+div.providers ul#newznab_list,
+div.providers ul#torznab_list,{
+    float: left;
+    width: 100%;
+}
+
+div.providers ul#newznab_list li,
+div.providers ul#torznab_list li{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+
+div.providers i.newznab_check,
+div.providers i.torznab_check,
+div.providers i.torrent_check{
+    width: 1.2em;
+    text-align: left;
+    flex: 0 1 auto;
+}
+
+div.providers i.newznab_clear, div.providers i.newznab_test,
+div.providers i.torznab_clear, div.providers i.torznab_test{
+    width: 1.5em;
+    text-align: center;
+    flex: 0 1 auto;
+}
+
+div.providers input.newznab_url, div.providers input.newznab_api,
+div.providers input.torznab_url, div.providers input.torznab_api{
+    flex: 1 0 auto;
+    margin: 0 0.5em;
+}
+
+div.providers li.add_newznab_row,
+div.providers li.add_torznab_row{
+    margin: 0 0 2em 0;
+}
+
+div.providers ul#torrentindexer_list li.torrent_indexer{
+    width: 49%;
+    display: inline-block;
+}
+
+
+/* downloader */
+
+div.downloader li{
+    line-height: 2.5em;
+}
+
+ul#enabled_source span{
+    margin: 0 2em 0 0;
+
+}
+
+ul#usenet, ul#torrent{
+    margin: 0 0 2em 0;
+}
+
+ul#sabnzbd, ul#nzbget, ul#transmission, ul#delugerpc, ul#delugeweb, ul#qbittorrent, ul#rtorrentscgi, ul#rtorrenthttp{
+    margin: 0 0 1em 2em;
+    display: none;
+}
+
+span.test_connection{
+    cursor: pointer;
+}
+
+/* post processing */
+div.postprocessing li{
+    line-height: 2.5em;
+}
+
+ul#postprocessing{
+    margin-bottom: 2.5em;
+}
+
+ul#renamer, ul#mover{
+    margin: 0 0 1em 2em;
+}
+
+ul#postprocessing li span.taglist{
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: .75em;
+}
+
+ul#remote_mapping li:nth-child(1){
+    font-size: 0.8em;
+}
+
+ul#remote_mapping li.remote_mapping_row{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0.25em 0;
+}
+
+ul#remote_mapping li.remote_mapping_row span{
+    flex: 0 1 auto;
+    margin-right: 0.5em;
+}
+
+ul#remote_mapping li.remote_mapping_row input{
+    flex: 1 0 auto;
+    margin-right: 1.5em;
+}
+
+span.charlist{
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+/* plugins */
+
+div.plugins ul{
+    font-size: 1.5em;
+    padding: 1em;
+    margin-bottom: 2em;
+    background-color: #151c25;
+    border-radius: 4px;
+}
+
+div.plugins ul li{
+    padding: 0;
+    margin: 0;
+    line-height: 1.75em;
+}
+
+div.plugins ul li i{
+    font-size: 1.25rem;
+}
+
+div.plugins ul li span{
+    font-size: 1.25rem;
+}
+
+div.plugins ul li i.edit_conf{
+    float: right;
+}
+
+#plugin_conf_popup{
+    border-top: 1px solid #bdbdbd;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    display: none;
+    z-index:1002;
+}
+
+/* logs */
+div.logs i{
+    font-size: 1em;
+}
+
+div.logs .bold{
+    font-weight: bold;
+}
+
+div.logs p{
+    margin-bottom: 2em;
+}
+
+span.log_dir{
+    font-family: monospace;
+}
+
+div#log_actions{
+    margin: 0 1.5em 2em 0;
+}
+
+ select#log_file, span#view_log, span#download_log{
+    margin-right: 1.5em;
+    cursor: pointer;
+}
+
+pre#log_display {
+    display: none;
+    padding: 3px;
+    font-family: monospace;
+    font-size: 0.75em;
+    max-width: 1024px;
+    background-color: #151c25;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-indent: 2em;
+}
+
+/* about */
+div.about p{
+    padding-left: 1em;
+    text-indent: 1em;
+    line-height: 1.25em;
+}
+
+ul#libraries{
+    margin-left: 1em;
+}
+
+ul#libraries li{
+    width: 30%;
+    float: left;
+}
+
+/**/
+span.tip{
+    font-size: 0.75rem;
+    margin: 0 0.25em 0 2em;
+    height: 2.5em;
+    text-align: right;
+    float: right;
+    font-weight: 500;
+}
+
+div#save{
+    display: inline-block;
+    margin-top: 3em;
+    cursor: pointer;
+    clear: both;
+}

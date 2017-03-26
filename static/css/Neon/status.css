@@ -1,0 +1,99 @@
+ul#movie_list li div span.status{
+    color: #080f18;
+}
+
+/* Posters layout */
+ul#movie_list.posters span.title{
+    color: #18D8F0;
+}
+
+ul#movie_list.posters li div span.status{
+    border-color: #212121;
+}
+
+ul#movie_list.posters li div img{
+    border-color: #212121;
+}
+
+span.movie_info span.year, span.movie_info span.score, span.movie_info span.rated{
+    color: #6A6E74;
+}
+
+/* List layout */
+ul#movie_list.list{
+    border: none;
+    color: #18D8F0;
+}
+
+ul#movie_list.list li:nth-child(odd) div{
+    background-color: transparent;
+    color: #ED145A;
+}
+
+/* Compact layout */
+ul#movie_list.compact{
+    border: none;
+}
+
+ul#movie_list.compact li{
+    font-size: 1.25em;
+    line-height: 1.25em;
+    margin-bottom: 0.1em;
+}
+
+ul#movie_list.compact span.title{
+    color: #18D8F0;
+}
+
+ul#movie_list.compact li:nth-child(odd) span.title{
+    color: #ED145A;
+}
+
+ul#movie_list.compact li div span.status{
+    border-radius: 4px;
+    height: 16px;
+    width: 16px;
+}
+
+ul#movie_list.compact li div{
+    border-color: transparent; /* border: none breaks layout */
+}
+
+ul#movie_list.compact li span.movie_info{
+    line-height: inherit;
+}
+
+ul#movie_list.compact li:nth-child(odd) div{
+    background-color: transparent;
+    color: #ED145A;
+}
+
+/* status colors */
+ul#movie_list li div span.wanted{
+    background-color: #FF9800;
+}
+
+ul#movies_list li div span.searching{
+    background-color: #FFC107;
+}
+
+ul#movie_list li div span.found{
+    background-color: #CDDC39;
+}
+
+ul#movie_list li div span.snatched{
+    background-color: #00BCD4;
+}
+
+ul#movie_list li div span.finished{
+    background-color: #4CAF50;
+}
+
+ul#movie_list li div img{
+    border-color: #ffffff;
+}
+
+#status_pop_up {
+    background: #000;
+    border-top: 1px solid #fff;
+}

@@ -1,0 +1,27 @@
+body, html{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: url('../images/logo_bg.png') no-repeat 50% 50% #080f18;
+}
+
+div#content{
+    margin: 0 auto;
+    text-align: center;
+
+    height: 100%;
+}
+
+div#content span{
+    padding: 2em 0 0 0;
+    font-size: 2.5em;
+    display: block;
+}
+
+div#thinker{
+    width: 128px;
+    height: 128px;
+    bottom: calc(50% - 64px);
+    right: calc(50% - 64px);
+}

@@ -1,0 +1,47 @@
+.bbord{
+    border-bottom: 1px solid #212121;
+}
+
+div#content ul li.rbord{
+    border-right: 1px solid #eee;
+}
+
+div#content ul li.lbord{
+    border-left: 1px solid #eee;
+}
+
+/* Quality */
+div.quality div.quality_profile{
+    background-color: #bdbdbd;
+}
+
+div.quality div.quality_profile input{
+    background-color: #eee;
+}
+
+div.quality div.quality_profile div.sources ul{
+    border-right: 1px solid #bdbdbd;
+}
+
+div.quality table#sources input{
+    background: #eee;
+    border: 1px solid #bdbdbd;
+}
+
+div.quality table#sources tr:nth-child(even){
+    background: #bdbdbd;
+}
+
+/* plugins */
+div.plugins ul{
+    background-color: #bdbdbd;
+}
+
+#plugin_conf_popup{
+    border-top: 1px solid #bdbdbd;
+}
+
+/* logs */
+pre#log_display {
+    background-color: #bdbdbd;
+}

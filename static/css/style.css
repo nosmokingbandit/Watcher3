@@ -1,0 +1,167 @@
+/*
+#151c25 Dark Blue BG
+#080f18 Darker Blue BG
+#cccccc Light Gray Text/Border
+*/
+
+@import url("header.css");
+
+body{
+    width: 100%;
+    min-width: 918px;
+    min-height: 100%;
+    background-color: #080f18;
+    color: #ccc;
+    margin: 0;
+    padding: 64px 0 0 0;
+    overflow-y: scroll;
+    font-family: Raleway, sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+input, select{
+    color: #ccc;
+    outline: none;
+    border-radius: 4px;
+    border: none;
+    background-color: #151c25;
+    height: 1.5em;
+    font-size: .85em;
+    padding: 0.1em 0.5em;
+    font-family: monospace;
+    border: 1px solid #080f18;
+}
+
+a{
+    text-decoration: none;
+    color: #ccc;
+}
+
+i{
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+ul{
+    list-style: none;
+    clear: both;
+    padding: 0;
+    margin: 0;
+}
+
+.hidden{
+    display: none;
+}
+
+div#overlay {
+    display: none;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: #04080c; /* 1/2 of 080f18 */
+    z-index:1001;
+    opacity: 0.95;
+}
+
+::selection {
+  background: #f4693b; /* WebKit/Blink Browsers */
+}
+::-moz-selection {
+  background: #f4693b; /* Gecko Browsers */
+}
+
+/* loading animation */
+#thinker {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    background-color: #ccc;
+    display: none;
+    position:absolute;
+    bottom: calc(50% - 20px);
+    right: calc(50% - 20px);
+    -webkit-animation: sk-scaleout 2.0s infinite ease-in-out;
+    animation: sk-scaleout 2.0s infinite ease-in-out;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+@-webkit-keyframes sk-scaleout {
+    0% { -webkit-transform: scale(0) }
+    100% { -webkit-transform: scale(2.0);
+        opacity: 0;
+        }
+}
+
+@keyframes sk-scaleout {
+    0% { -webkit-transform: scale(0);
+        transform: scale(0);
+    }
+    100% { -webkit-transform: scale(2.0);
+            transform: scale(2.0);
+            opacity: 0;
+            }
+}
+
+::-webkit-input-placeholder {
+    font-style: italic;
+    opacity: 0.5;
+}
+::-moz-placeholder {
+    font-style: italic;
+    opacity: 0.5;
+}
+:-ms-input-placeholder {
+    font-style: italic;
+    opacity: 0.5;
+}
+:-moz-placeholder {
+    font-style: italic;
+    opacity: 0.5;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border: none;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #ccc;
+}
+::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+}
+::-webkit-scrollbar-track:hover {
+  background: transparent;
+}
+::-webkit-scrollbar-track:active {
+  background: transparent;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+div.sweet-alert h2{
+    color: #080f18;
+}
+
+div.sweet-alert button{
+    padding: 0.5em;
+    border-radius: 4px;
+}

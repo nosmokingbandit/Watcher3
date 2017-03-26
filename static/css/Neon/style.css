@@ -1,0 +1,117 @@
+/*
+Blue    18D8F0
+Red     ED145A
+Lt Gray 6A6E74
+Dk Gray 151c25
+Black   000000
+*/
+
+@import url("header.css");
+@import url('https://fonts.googleapis.com/css?family=Damion');
+@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+
+body{
+    font-family: 'Varela Round', cursive;
+    color: #fff;
+    background-color: #000;
+}
+
+input{
+    color: #fff;
+    font-family: 'Varela Round', sans-serif;
+}
+
+div#overlay {
+    background-color: #000;
+}
+
+select{
+    border: none;
+    background-color: #fff;
+    color: #000;
+    border-radius: 12px;
+    padding: .2em;
+}
+
+::selection {
+    background: #ccc; /* WebKit/Blink Browsers */
+    color: #080f18;
+}
+::-moz-selection {
+    background: #080f18; /* Gecko Browsers */
+    color: #080f18;
+}
+
+a {
+    color: #ED145A;
+}
+
+ul{
+    list-style: none;
+}
+
+::-webkit-scrollbar-track, ::-webkit-scrollbar-track:hover{
+     background-color: #000;
+}
+::-webkit-scrollbar-thumb {
+    background: #fff;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #18D8F0;
+}
+::-webkit-scrollbar-thumb:active {
+    background: #18D8F0;
+}
+
+div.sweet-alert{
+    color: #000;
+}
+
+div.sweet-alert h2{
+    color: #000;
+}
+
+::-webkit-input-placeholder {
+    color: #151c25;
+    font-style: italic;
+    opacity: 0.5;
+}
+::-moz-placeholder {
+    color: #151c25;
+    font-style: italic;
+    opacity: 0.5;
+}
+:-ms-input-placeholder {
+    color: #151c25;
+    font-style: italic;
+    opacity: 0.5;
+}
+:-moz-placeholder {
+    color: #151c25;
+    font-style: italic;
+    opacity: 0.5;
+}
+
+div#toast-container > div.toast{
+    background-image: none !important;
+}
+
+div.toast-success, div.toast-error, div.toast-info, div.toast-warning{
+    background-color: #000;
+}
+
+div.toast-success div.toast-title, div.toast-success div.toast-message{
+    color: #39FF14;
+}
+
+div.toast-message div.toast-title, div.toast-info div.toast-message{
+    color: #18D8F0;
+}
+
+div.toast-error div.toast-title, div.toast-error div.toast-message{
+    color: #ED145A;
+}
+
+div.toast-warning div.toast-title, div.toast-warning div.toast-message{
+    color: #FFCC00;
+}

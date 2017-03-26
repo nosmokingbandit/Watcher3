@@ -1,0 +1,45 @@
+div#plugin_conf_popup{
+    background-color: #080f18;
+}
+
+div#container{
+    padding: 1em;
+    max-width: 512px;
+    margin: 0 auto;
+}
+
+div#container div.title{
+    clear: both;
+    line-height: 2em;
+}
+
+div#container div.title span.name{
+    float: left;
+    display: block;
+    font-size: 2em;
+    max-width: 85%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    padding: 0 0 0.5em 0;
+}
+
+div#container div.title i{
+    margin: 0 0 0 0.5em;
+    float: right;
+}
+
+div#container ul{
+    clear: both;
+}
+
+div#container ul li{
+    line-height: 2.5em;
+    text-align: center;
+}
+
+div#container ul li span,
+div#container ul li input{
+    display: inline-block;
+    margin: 0;
+    width: 48%;
+}

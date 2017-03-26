@@ -1,0 +1,28 @@
+#header{
+    background-color: #212121;
+    border-bottom: none;
+    color: #eee;
+}
+
+#header a{
+    color: #eee;
+}
+
+#nav > a > li:hover, #nav > li:hover{
+    border-bottom: 4px solid #eee;
+}
+
+#nav li.current{
+    border-bottom: 4px solid #eee;
+}
+
+/* Dropdown Settings Menu */
+#nav ul.settings_menu{
+    background: #212121;
+    border: 1px solid #eee;
+}
+
+#nav ul.settings_menu li:hover{
+    background-color: #eee;
+    color: #212121;
+}

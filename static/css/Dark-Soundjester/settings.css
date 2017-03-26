@@ -1,0 +1,20 @@
+input[type='text']{
+    color: #212121;
+}
+
+div.quality div.quality_profile{
+    background-color: #000;
+}
+
+div.quality table#sources tr:nth-child(even){
+    background: #000;
+}
+div.plugins ul{
+    background-color: #000;
+}
+
+/* For log file viewing */
+pre#log_display {
+    border: 1px solid #bdbdbd;
+    background-color: #000;
+}

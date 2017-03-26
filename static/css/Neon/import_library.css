@@ -1,0 +1,16 @@
+input[type="number"], input[type="text"], select{
+    border-radius: 2em;
+    color: black;
+}
+
+table tr:nth-child(odd){
+    background-color: #151c25;
+}
+
+a{
+    color: #18D8F0;
+}
+
+#thinker {
+    background-color: #fff;
+}

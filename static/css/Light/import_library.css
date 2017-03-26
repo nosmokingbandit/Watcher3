@@ -1,0 +1,24 @@
+table tr:nth-child(odd){
+    background-color: #151c25;
+}
+
+/* File browser */
+div#browse{
+    background-color: #bdbdbd;
+}
+
+div#browser{
+    background-color: #eee;
+}
+
+div#browser div#current_dir{
+    background-color: #bdbdbd;
+}
+
+div#browser ul{
+    background-color: #eee;
+}
+
+div#browser ul li{
+    background-color: #bdbdbd;
+}

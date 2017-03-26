@@ -1,0 +1,38 @@
+### BEGIN INIT INFO
+# Provides:          watcher
+# Required-Start:    $local_fs $network
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: watcher
+# Description:       watcher server
+### END INIT INFO
+
+####
+# Watcher systemd run script
+#
+# How to use
+#
+#    - Modify ExecStart= to poitn toward your Python binary and Watcher script
+#
+#    - Modify User= and Group= to the user/group to run Watcher as.
+#
+#    - Append additional options to ExecStart= if desired
+#      -a [address] Address to host Watcher. Default 0.0.0.0.
+#      -p [port]    Port to host Watcher. Default 9090
+#      -b           Open browser on launch.
+####
+
+[Unit]
+Description=Watcher Daemon
+
+[Service]
+User=watcher
+Group=watcher
+
+Type=forking
+GuessMainPID=no
+ExecStart=/usr/bin/python2.7 /opt/watcher/watcher.py -d
+Restart=no
+[Install]
+WantedBy=multi-user.target

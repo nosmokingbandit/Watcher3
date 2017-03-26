@@ -1,0 +1,56 @@
+/* search bar */
+input#search_input, button#search_button{
+    border: none;
+    background-color: transparent;
+    color: #fff;
+    font-family: 'Varela Round', sans-serif;
+}
+
+button#search_button:hover{
+    background-color: transparent;
+    color: #18D8F0;
+}
+
+ul#movie_list li span img{
+    border: 1px solid #ccc;
+}
+
+span.quickadd{
+    background-color: #000;
+    color: #ED145A;
+}
+
+span.quickadd:hover{
+    color: #18D8F0;
+}
+
+/* loading animation */
+#thinker {
+    background-color: #fff;
+}
+
+#info_pop_up {
+    background: #000;
+    border-top: 1px solid #fff;
+}
+
+::-webkit-input-placeholder {
+    color: #fff;
+    font-style: italic;
+    opacity: 0.25;
+}
+::-moz-placeholder {
+    color: #fff;
+    font-style: italic;
+    opacity: 0.25;
+}
+:-ms-input-placeholder {
+    color: #fff;
+    font-style: italic;
+    opacity: 0.25;
+}
+:-moz-placeholder {
+    color: #fff;
+    font-style: italic;
+    opacity: 0.25;
+}

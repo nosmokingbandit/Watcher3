@@ -1,0 +1,74 @@
+i{
+    font-size: 1.5em;
+}
+
+div#container{
+    padding: 1em;
+    max-width: 912px;
+    margin: 0 auto;
+}
+
+div#title{
+    margin: 0 0 1em 0;
+    line-height: 2em;
+    height: 2em;
+    width: 100%;
+    overflow: hidden;
+}
+
+div#title span#title{
+    font-size: 2em;
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div#title i{
+    float: right;
+}
+
+div#title div#quality{
+    float: right;
+    overflow: hidden;
+    height: 2em;
+    font-size: 1.25em;
+}
+
+div#title div#quality select{
+    font-size: 1em;
+    margin-right: 0.5em;
+}
+
+div#media{
+    margin: 0 0 1em 0;
+    overflow: hidden;
+}
+
+div#media img#poster{
+    height: 360px;
+    float: left;
+    border-radius: 4px;
+    max-width: 255px;
+}
+
+iframe#trailer{
+    float: right;
+    border-radius: 4px;
+    top: 0px;
+    right: 0px;
+    background: url('../../images/logo_bg.png') no-repeat 50% 50% transparent;
+}
+
+/* Bottom row info */
+div#plot{
+}
+
+div#plot p{
+    font-size: 1.25em;
+}
+
+div#additional_info p{
+    margin: 0 1em 1em 0;
+    float: left;
+}

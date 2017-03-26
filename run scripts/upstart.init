@@ -1,0 +1,15 @@
+#author ""
+#description "Upstart Script to run Watcher as a service on Ubuntu/Debian based systems, as well as others"
+
+#Set username for the process.
+setuid root
+
+#This is the install directory
+env DIR=/opt/watcher
+
+setgid nogroup
+start on runlevel [2345]
+stop on runlevel [016]
+
+#respawn
+exec /usr/bin/python2.7 /opt/watcher/watcher.py -d

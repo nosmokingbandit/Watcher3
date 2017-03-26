@@ -1,0 +1,28 @@
+/* search bar */
+
+input#search_input{
+    background-color: #212121;
+    color: #eee;
+}
+
+button#search_button{
+    border: none;
+    color: #eee;
+    background-color: #212121;
+}
+
+button#search_button:hover{
+    background-color: #eee;
+    color: #212121;
+}
+
+/* results fade-in */
+span.quickadd{
+    background-color: #212121;
+    color: white;
+}
+
+#info_pop_up {
+    background: #eee;
+    border-top: 1px solid #212121;
+}

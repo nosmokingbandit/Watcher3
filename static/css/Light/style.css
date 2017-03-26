@@ -1,0 +1,71 @@
+/*
+#eeeeee Lt Gray
+#bdbdbd Md Gray
+#212121 Black
+*/
+
+@import url("header.css");
+
+body{
+    background-color: #eeeeee;
+    color: #212121;
+}
+
+input, select{
+    color: #212121;
+    background-color: #bdbdbd;
+}
+
+a{
+    color: #212121;
+}
+
+div#overlay {
+    background-color: #212121;
+}
+
+::selection {
+  background: #f4693b; /* WebKit/Blink Browsers */
+}
+::-moz-selection {
+  background: #f4693b; /* Gecko Browsers */
+}
+
+/* loading animation */
+#thinker {
+    background-color: #212121;
+}
+
+::-webkit-input-placeholder {
+    color: #eee;
+    font-style: italic;
+    opacity: 1;
+}
+::-moz-placeholder {
+    font-style: italic;
+    opacity: 1;
+}
+:-ms-input-placeholder {
+    font-style: italic;
+    opacity: 1;
+}
+:-moz-placeholder {
+    font-style: italic;
+    opacity: 1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #212121;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #212121;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #212121;
+}
+
+div.sweet-alert h2{
+    color: #212121;
+}

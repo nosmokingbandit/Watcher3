@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# PROVIDE: watcher
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf.local or /etc/rc.conf
+# to enable this service:
+#
+# watcher_enable (bool):       Set to NO by default.
+#                       Set it to YES to enable it.
+# watcher_user:        The user account watcher daemon runs as what
+#                       you want it to be. It uses 'media' user by
+#                       default. Do not sets it as empty or it will run
+#                       as root. Be sure to chown the watcher directory with the user.
+# watcher_group:       The group account watcher daemon runs as what
+#                       you want it to be. It uses 'media' group by
+#                       default. Do not sets it as empty or it will run
+#                       as wheel.
+# watcher_data_dir:    Directory where watcher configuration
+#                       data is stored. Usually in the Watcher intall directory.
+#                       Default: /usr/share/watcher
+
+. /etc/rc.subr
+name="watcher"
+rcvar="${name}_enable"
+load_rc_config ${name}
+
+: ${watcher_enable:="NO"}
+: ${watcher_user:="media"}
+: ${watcher_group:="media"}
+: ${watcher_data_dir:="/usr/share/watcher"}
+: ${watcher_pidfile="/var/run/watcher/watcher.pid"}
+
+pidfile=${watcher_pidfile}
+command="/usr/local/bin/python"
+command_args="${watcher_data_dir}/watcher.py --daemon --pid ${pidfile}"
+
+start_precmd="watcher_prestart"
+watcher_prestart() {
+        export LC_CTYPE="en_US.UTF-8"
+
+        if [ -f ${pidfile} ]; then
+                rm -f $pidfile
+                echo "Removing stale pidfile."
+        elif [ ! -d ${pidfile%/*} ]; then
+                echo "Creating pidfile."
+                install -d -o $watcher_user -g $watcher_group ${pidfile%/*}
+        fi
+
+        if [ ! -d ${watcher_data_dir} ]; then
+                echo "Creating data directory."
+                install -d -o ${watcher_user} -g ${watcher_group} ${watcher_data_dir}
+        fi
+}
+
+run_rc_command "$1"
