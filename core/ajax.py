@@ -97,7 +97,6 @@ class Ajax(object):
             self.predb.check_one(data)
             if core.CONFIG['Search']['searchafteradd']:
                 if self.searcher.search(imdbid, title, year, quality):
-                    # if we don't need to wait to grab the movie do it now.
                     if core.CONFIG['Search']['autograb']:
                         self.snatcher.auto_grab(data)
 

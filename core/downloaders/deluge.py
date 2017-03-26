@@ -238,7 +238,7 @@ class DelugeWeb(object):
             return response['result']
         except Exception as e:
             logging.error('delugeweb get_download_dir', exc_info=True)
-            return {'response': False, 'error': str(e.reason)[1:-1]}
+            return {'response': False, 'error': str(e)[1:-1]}
 
     @staticmethod
     def _read(response):
@@ -276,4 +276,4 @@ class DelugeWeb(object):
             raise
         except Exception as e:
             logging.error('DelugeWeb test_connection', exc_info=True)
-            return '{}.'.format(e.reason)
+            return '{}.'.format(e)
