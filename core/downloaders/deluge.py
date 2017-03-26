@@ -24,7 +24,7 @@ class DelugeRPC(object):
         '''
 
         host = data['host']
-        port = int(data['port'])
+        port = data['port']
         user = data['user']
         password = data['pass']
 
@@ -64,7 +64,7 @@ class DelugeRPC(object):
             return {'response': False, 'error': str(e)}
 
         try:
-            def_download_path = client.call('core.get_config')['download_location']
+            def_download_path = client.call('core.get_config')[b'download_location'].decode('utf-8')
         except Exception as e:
             logging.error('Unable to get download path.', exc_info=True)
             return {'response': False, 'error': 'Unable to get download path.'}
@@ -84,14 +84,14 @@ class DelugeRPC(object):
 
         if data['type'] == 'magnet':
             try:
-                download_id = client.call('core.add_torrent_magnet', data['torrentfile'], options)
+                download_id = client.call('core.add_torrent_magnet', data['torrentfile'], options).decode('utf-8')
                 return {'response': True, 'downloadid': download_id}
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
                 return {'response': False, 'error': str(e)}
         elif data['type'] == 'torrent':
             try:
-                download_id = client.call('core.add_torrent_url', data['torrentfile'], options)
+                download_id = client.call('core.add_torrent_url', data['torrentfile'], options).decode('utf-8')
                 return {'response': True, 'downloadid': download_id}
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
