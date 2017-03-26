@@ -451,7 +451,13 @@ $(document).ready(function () {
             delugerpc[$this.attr("id")] = is_checked($this);
         });
         $("ul#delugerpc li input").not("[type=button]").each(function(){
-            delugerpc[$(this).attr("id")] = $(this).val();
+            $this = $(this);
+            if($this.attr("type") == "number"){
+                delugerpc[$this.attr("id")] = parseInt($this.val());
+            } else {
+                delugerpc[$this.attr("id")] = $this.val();
+            }
+
         });
         $("ul#delugerpc li select").each(function(){
             delugerpc[$(this).attr("id")] = $(this).val()
