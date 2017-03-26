@@ -70,7 +70,7 @@ class QBittorrent(object):
         post_data['category'] = conf['category']
 
         url = '{}command/download'.format(base_url)
-        post_data = urllib.urlencode(post_data)
+        post_data = urllib.parse.urlencode(post_data)
         request = Url.request(url, post_data=post_data)
         request.add_header('cookie', QBittorrent.cookie)
 
@@ -82,7 +82,7 @@ class QBittorrent(object):
             raise
         except Exception as e:
             logging.error('QBittorrent connection test failed.', exc_info=True)
-            return {'response': False, 'error': str(e.reason)}
+            return {'response': False, 'error': str(e)}
 
     @staticmethod
     def _get_download_dir(base_url):
@@ -94,7 +94,7 @@ class QBittorrent(object):
             return response['save_path']
         except Exception as e:
             logging.error('QBittorrent unable to get download dir.', exc_info=True)
-            return {'response': False, 'error': str(e.reason)}
+            return {'response': False, 'error': str(e)}
 
     @staticmethod
     def get_torrents(base_url):
@@ -106,11 +106,7 @@ class QBittorrent(object):
     @staticmethod
     def _login(url, username, password):
 
-        data = {'username': username,
-                'password': password
-                }
-
-        post_data = urllib.urlencode(data)
+        post_data = urllib.parse.urlencode({'username': username, 'password': password})
 
         url = '{}login'.format(url)
         request = Url.request(url, post_data=post_data)
@@ -118,7 +114,7 @@ class QBittorrent(object):
         try:
             response = urllib.request.urlopen(request)
             QBittorrent.cookie = response.headers.get('Set-Cookie')
-            result = response.read()
+            result = response.read().decode('utf-8')
             response.close()
 
             if result == 'Ok.':
@@ -132,4 +128,4 @@ class QBittorrent(object):
             raise
         except Exception as e:
             logging.error('qbittorrent test_connection', exc_info=True)
-            return '{}.'.format(str(e.reason))
+            return '{}.'.format(str(e))
