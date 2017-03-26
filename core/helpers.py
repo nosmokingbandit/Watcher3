@@ -30,12 +30,13 @@ class Url(object):
     def request(url, post_data=None, headers={}):
 
         headers['User-Agent'] = random.choice(Url.user_agents)
+        if isinstance(post_data, str):
+            post_data = post_data.encode('utf-8')
 
         if post_data:
             request = urllib.request.Request(url, post_data, headers=headers)
         else:
             request = urllib.request.Request(url, headers=headers)
-
         return request
 
     @staticmethod
