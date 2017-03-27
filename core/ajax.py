@@ -105,7 +105,7 @@ class Ajax(object):
         data = json.loads(data)
         tmdbid = data['id']
 
-        movie = json.loads(self.tmdb._search_tmdbid(tmdbid)[0])
+        movie = self.tmdb._search_tmdbid(tmdbid)[0]
         movie['imdbid'] = movie.pop('imdb_id')
 
         if movie['poster_path']:
