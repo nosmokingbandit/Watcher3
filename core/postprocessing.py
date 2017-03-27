@@ -85,7 +85,7 @@ class Postprocessing(object):
         # remove any invalid characters
         for (k, v) in data.items():
             # but we have to keep the path unmodified
-            if k != 'path' and type(v) == str:
+            if k != 'path' and k != 'movie_file' and type(v) == str:
                 data[k] = re.sub(r'[:"*?<>|]+', '', v)
 
         # At this point we have all of the information we're going to get.
@@ -186,7 +186,7 @@ class Postprocessing(object):
         # remove any invalid characters
         for (k, v) in data.items():
             # but we have to keep the path unmodified
-            if k != 'path' and type(v) == str:
+            if k != 'path' and k != 'movie_file' and type(v) == str:
                 data[k] = re.sub(r'[:"*?<>|]+', '', v)
 
         # At this point we have all of the information we're going to get.
