@@ -807,12 +807,8 @@ class Postprocessing(object):
         # Create hardlink
 
         if config['createhardlink']:
-            logging.info('Creating hardlink from {} to {}.'.format(new_file_location, data['orig_filename']))
-            if os.name == 'nt':
-                import ctypes
-                ctypes.windll.kernel32.CreateHardLinkA(data['orig_filename'], new_file_location, 0)
-            else:
-                os.link(new_file_location, data['orig_filename'])
+            logging.info('Creating hardlink from {} to {}.'.format(new_file_location, data['original_file']))
+            os.link(new_file_location, data['original_file'])
 
         logging.info('Copying and renaming any extra files.')
 
