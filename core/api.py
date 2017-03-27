@@ -181,10 +181,10 @@ class API(object):
 
         if imdbid:
             logging.info('API request add movie imdb {}'.format(imdbid))
-            return self.ajax.add_wanted_imdbid(imdbid, quality)
+            return self.ajax.add_wanted_imdbid(imdbid, quality=quality)
         else:
             logging.info('API request add movie tmdb {}'.format(tmdbid))
-            return self.ajax.add_wanted_tmdbid(tmdbid, quality)
+            return self.ajax.add_wanted_tmdbid(tmdbid, quality=quality)
 
     def removemovie(self, imdbid):
         ''' Remove movie from wanted list

@@ -107,6 +107,7 @@ class Ajax(object):
 
         movie = self.tmdb._search_tmdbid(tmdbid)[0]
         movie['imdbid'] = movie.pop('imdb_id')
+        movie['quality'] = data.get('quality', 'Default')
 
         if movie['poster_path']:
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
@@ -162,19 +163,19 @@ class Ajax(object):
 
         response = {}
 
-        data = self.tmdb._search_imdbid(imdbid)
+        movie = self.tmdb._search_imdbid(imdbid)
 
-        if not data:
+        if not movie:
             response['status'] = 'false'
             response['message'] = '{} not found on TMDB.'.format(imdbid)
             return response
         else:
-            data = data[0]
+            movie = movie[0]
 
-        data['imdbid'] = imdbid
-        data['quality'] = quality
+        movie['imdbid'] = imdbid
+        movie['quality'] = quality
 
-        return self.add_wanted_movie(json.dumps(data))
+        return self.add_wanted_movie(json.dumps(movie))
 
     @cherrypy.expose
     def add_wanted_tmdbid(self, tmdbid, quality='Default'):
