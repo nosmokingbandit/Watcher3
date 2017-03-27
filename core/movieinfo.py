@@ -142,14 +142,12 @@ class TMDB(object):
                 logging.warning(results.get('status_code'))
                 return ['']
             else:
-                movie = response
+                return [results]
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa
             logging.error('Error searching for TMDBID on TMDB.', exc_info=True)
             return ['']
-
-        return [movie]
 
     def get_imdbid(self, tmdbid=None, title=None, year=''):
         ''' Gets imdbid from tmdbid
