@@ -52,7 +52,7 @@ class Status(object):
             if not search_result['resolution']:
                 search_result['resolution'] = 'Unknown'
 
-            search_result = self.score.score([search_result], quality_profile='import')[0]
+            search_result = self.score.score([search_result], imported=True)[0]
 
             if self.sql.write('SEARCHRESULTS', search_result):
                 return True
