@@ -78,7 +78,7 @@ class Sabnzbd():
         request = Url.request(url)
 
         try:
-            response = json.load(Url.open(request))
+            response = json.loads(Url.open(request))
 
             if response['status'] is True and len(response['nzo_ids']) > 0:
                 downloadid = response['nzo_ids'][0]
