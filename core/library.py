@@ -292,15 +292,14 @@ class Metadata(object):
 
         movie['alternative_titles'] = ','.join(a_t)
 
-        dates = [None]
+        dates = []
         for i in movie['release_dates']['results']:
             for d in i['release_dates']:
                 if d['type'] == 4:
                     dates.append(d['release_date'])
 
-        digital_date = max(dates)
-        if digital_date:
-            movie['digital_release_date'] = digital_date[:10]
+        if dates:
+            movie['digital_release_date'] = max(dates)[:10]
 
         if movie.get('quality') is None:
             movie['quality'] = 'Default'
