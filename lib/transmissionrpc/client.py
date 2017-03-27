@@ -18,9 +18,10 @@ from six import PY3, integer_types, string_types, iteritems
 if PY3:
     from urllib.parse import urlparse
     from urllib.request import urlopen
+    from urllib.request import Request
 else:
     from urlparse import urlparse
-    from urllib2 import urlopen, Request
+    from urllib2 import urlopen
 
 def debug_httperror(error):
     """
@@ -375,7 +376,7 @@ class Client(object):
         if parsed_uri.scheme in ['ftp', 'ftps', 'http', 'https']:
             # there has been some problem with T's built in torrent fetcher,
             # use a python one instead
-            req = Request(torrent, headers={'User-Agent' : 'TransmissionRPC'})
+            req = Request(torrent, headers={'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"})
             torrent_file = urlopen(req)
             torrent_data = torrent_file.read()
             torrent_data = base64.b64encode(torrent_data).decode('utf-8')
