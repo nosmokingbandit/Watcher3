@@ -72,11 +72,11 @@ class Postprocessing(object):
         data['path'] = self.map_remote(data['path'])
 
         # get the actual movie file name
-        data['filename'] = self.get_filename(data['path'])
+        data['movie_file'] = self.get_movie_file(data['path'])
 
-        if data['filename']:
+        if data['movie_file']:
             logging.info('Parsing release name for information.')
-            data.update(self.metadata.parse_filename(data['filename']))
+            data.update(self.metadata.parse_filename(data['movie_file']))
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -107,13 +107,13 @@ class Postprocessing(object):
             imdbid = response['data'].get('imdbid')
             resolution = response['data'].get('resolution')
             rated = response['data'].get('rated')
-            original_file = response['data'].get('orig_filename')
-            new_file_location = response['data'].get('new_file_location')
+            original_file = response['data'].get('original_file')
+            finished_file = response['data'].get('finished_file')
             downloadid = response['data'].get('downloadid')
             finished_date = response['data'].get('finished_date')
             quality = response['data'].get('quality')
 
-            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date, quality)
+            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
             logging.info(response)
         else:
@@ -173,11 +173,11 @@ class Postprocessing(object):
         data['path'] = self.map_remote(data['path'])
 
         # get the actual movie file name
-        data['filename'] = self.get_filename(data['path'])
+        data['movie_file'] = self.get_movie_file(data['path'])
 
-        if data['filename']:
+        if data['movie_file']:
             logging.info('Parsing release name for information.')
-            data.update(self.metadata.parse_filename(data['filename']))
+            data.update(self.metadata.parse_filename(data['movie_file']))
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -196,7 +196,6 @@ class Postprocessing(object):
             logging.warning(response)
         elif data['mode'] == 'complete':
             logging.info('Post-processing as Complete.')
-
             response = self.complete(data)
 
             title = response['data'].get('title')
@@ -204,13 +203,13 @@ class Postprocessing(object):
             imdbid = response['data'].get('imdbid')
             resolution = response['data'].get('resolution')
             rated = response['data'].get('rated')
-            original_file = response['data'].get('orig_filename')
-            new_file_location = response['data'].get('new_file_location')
+            original_file = response['data'].get('original_file')
+            finished_file = response['data'].get('finished_file')
             downloadid = response['data'].get('downloadid')
             finished_date = response['data'].get('finished_date')
             quality = response['data'].get('quality')
 
-            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date, quality)
+            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
             logging.info(response)
         else:
@@ -225,7 +224,7 @@ class Postprocessing(object):
 
         return json.dumps(response, indent=2, sort_keys=True)
 
-    def get_filename(self, path):
+    def get_movie_file(self, path):
         ''' Looks for the filename of the movie being processed
         :param path: str url-passed path to download dir
 
@@ -315,7 +314,7 @@ class Postprocessing(object):
         # Still no luck? Try to get the info from TMDB
         else:
             logging.info('Unable to find local data for release. Attempting to get info from file.')
-            data.update(self.metadata.get_metadata(data['filename']))
+            data.update(self.metadata.get_metadata(data['movie_file']))
         if data:
             if not data.get('quality'):
                 data['quality'] = 'Default'
@@ -450,7 +449,6 @@ class Postprocessing(object):
 
         Returns dict of post-processing results
         '''
-
         config = core.CONFIG['Postprocessing']
 
         # dict we will json.dump and send back to downloader
@@ -514,13 +512,13 @@ class Postprocessing(object):
         # renamer
         if config['renamerenabled']:
             result['tasks']['renamer'] = {'enabled': 'true'}
-            result['data']['orig_filename'] = result['data']['filename']
+            result['data']['original_file'] = result['data']['movie_file']
             response = self.renamer(data)
             if response is None:
                 result['tasks']['renamer']['response'] = 'false'
             else:
-                path = os.path.split(data['filename'])[0]
-                data['filename'] = os.path.join(path, response)
+                path = os.path.split(data['movie_file'])[0]
+                data['movie_file'] = os.path.join(path, response)
                 result['tasks']['renamer']['response'] = 'true'
         else:
             logging.info('Renamer disabled.')
@@ -533,14 +531,14 @@ class Postprocessing(object):
             if response is False:
                 result['tasks']['mover']['response'] = 'false'
             else:
-                data['new_file_location'] = response
+                data['finished_file'] = response
                 result['tasks']['mover']['response'] = 'true'
         else:
             logging.info('Mover disabled.')
             result['tasks']['mover'] = {'enabled': 'false'}
 
         if data.get('imdbid'):
-            self.sql.update('MOVIES', 'finished_file', result['data'].get('new_file_location'), 'imdbid', data['imdbid'])
+            self.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
 
         # Delete leftover dir. Skip if createhardlinks enabled or if mover disabled/failed
         if config['cleanupenabled']:
@@ -650,8 +648,8 @@ class Postprocessing(object):
             return None
 
         # existing absolute path
-        abs_path_old = data['filename']
-        file_path = os.path.split(data['filename'])[0]
+        abs_path_old = data['movie_file']
+        file_path = os.path.split(data['movie_file'])[0]
 
         # get the extension
         ext = os.path.splitext(abs_path_old)[1]
@@ -670,7 +668,7 @@ class Postprocessing(object):
         # new absolute path
         abs_path_new = os.path.join(file_path, new_name)
 
-        logging.info('Renaming {} to {}'.format(os.path.basename(data['filename']), new_name))
+        logging.info('Renaming {} to {}'.format(os.path.basename(data['movie_file']), new_name))
         try:
             os.rename(abs_path_old, abs_path_new)
         except (SystemExit, KeyboardInterrupt):
@@ -756,7 +754,7 @@ class Postprocessing(object):
             logging.error('Mover failed: Could not create directory {}.'.format(target_folder), exc_info=True)
             return False
 
-        current_file_path = data['filename']
+        current_file_path = data['movie_file']
         current_path, file_name = os.path.split(current_file_path)
         # If finished_file exists, recycle or remove
         if data.get('finished_file'):
@@ -802,7 +800,7 @@ class Postprocessing(object):
             logging.error('Mover failed: Could not move file.', exc_info=True)
             return False
 
-        new_file_location = os.path.join(target_folder, os.path.basename(data['filename']))
+        new_file_location = os.path.join(target_folder, os.path.basename(data['movie_file']))
 
         # Create hardlink
 
