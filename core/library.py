@@ -66,13 +66,13 @@ class ImportDirectory(object):
                   }
 
         title = '{}.{}.{}.{}.{}.{}.{}'.format(movie['title'],
-                                               movie['year'],
-                                               result['resolution'],
-                                               movie['source'],
-                                               movie['audiocodec'],
-                                               movie['videocodec'],
-                                               movie['releasegroup']
-                                               )
+                                              movie['year'],
+                                              result['resolution'],
+                                              movie['source'],
+                                              movie['audiocodec'],
+                                              movie['videocodec'],
+                                              movie['releasegroup']
+                                              )
 
         while len(title) > 0 and title[-1] == '.':
             title = title[:-1]
@@ -170,13 +170,12 @@ class Metadata(object):
 
         metadata = {}
         try:
-            # with createParser(filepath) as parser:
-            parser = createParser(filepath)
-            extractor = extractMetadata(parser)
+            with createParser(filepath) as parser:
+                extractor = extractMetadata(parser)
             filedata = extractor.exportDictionary(human=False)
             parser.stream._input.close()
 
-        except Exception as e:
+        except Exception as e: #noqa
             logging.error('Unable to parse metadata from file header.', exc_info=True)
             return metadata
 
