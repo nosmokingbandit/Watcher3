@@ -4,6 +4,7 @@ import os
 import sys
 import threading
 import cherrypy
+from base64 import b16encode
 import core
 from core import config, library, plugins, poster, scoreresults, searcher, snatcher, sqldb, updatestatus, version
 from core.providers import torrent, newznab
@@ -828,7 +829,7 @@ class Ajax(object):
         else:
             tmp_qualities = {}
             for k, v in profiles.items():
-                q = v.encode('hex')
+                q = b16encode(v.encode('ascii')).decode('ascii')
                 if not self.sql.update('MOVIES', 'quality', q, 'quality', k):
                     return json.dumps({'response': False, 'error': 'Unable to change {} to temporary quality {}'.format(k, q)})
                 else:
