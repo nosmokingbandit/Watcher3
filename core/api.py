@@ -79,6 +79,11 @@ class API(object):
         return
 
     def GET(self, **params):
+        ''' GET request handler to post-processing.
+        Don't use this. It only exists for testing purposes. Sending a GET
+            is much easier than POST when testing changes.
+        '''
+
         serverkey = core.CONFIG['Server']['apikey']
 
         if 'apikey' not in params:

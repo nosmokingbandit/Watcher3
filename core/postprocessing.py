@@ -721,7 +721,7 @@ class Postprocessing(object):
                 logging.info('Removing additional file {}'.format(i))
                 try:
                     os.remove(os.path.join(path, i))
-                except Exception as e:
+                except Exception as e: #noqa
                     logging.warning('Unable to remove {}'.format(i), exc_info=True)
         return
 
