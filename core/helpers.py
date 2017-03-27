@@ -40,14 +40,13 @@ class Url(object):
         return request
 
     @staticmethod
-    def encode(s, is_url=False):
+    def encode(s):
         ''' URL-encode strings
         Do not use with full url, only passed params
         '''
 
-        if not is_url:
-            s = s.translate(Url.trans)
-            s = ''.join([i for i in s if i not in punctuation])
+        s = s.translate(Url.trans)
+        s = ''.join([i for i in s if i not in punctuation])
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
         s = urllib.parse.quote(s.replace(b' ', b'+'), safe='+').lower()
         return s

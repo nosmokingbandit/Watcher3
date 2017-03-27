@@ -59,7 +59,7 @@ class Sabnzbd():
         base_url = 'http://{}:{}/sabnzbd/api?apikey={}'.format(host, port, api)
 
         mode = 'addurl'
-        name = Url.encode(data['guid'], is_url=True)
+        name = urllib.parse.quote(data['guid'])
         nzbname = Url.encode(data['title'])
         cat = conf['category']
         priority_keys = {
