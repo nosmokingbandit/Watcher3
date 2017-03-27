@@ -62,7 +62,8 @@ class ImportDirectory(object):
                   'downloadid': None,
                   'guid': None,
                   'resolution': movie.get('resolution'),
-                  'size': movie.get('size', '')
+                  'size': movie.get('size', ''),
+                  'freeleech': 0
                   }
 
         title = '{}.{}.{}.{}.{}.{}.{}'.format(movie['title'],
