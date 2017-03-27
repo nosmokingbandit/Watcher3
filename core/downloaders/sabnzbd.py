@@ -37,7 +37,7 @@ class Sabnzbd():
             raise
         except Exception as e:
             logging.error('Sabnzbd connection test failed.', exc_info=True)
-            return '{}.'.format(e.reason)
+            return '{}.'.format(str(e))
 
     # returns dict {'status': <>, 'nzo_ids': [<>] }
     @staticmethod
@@ -90,4 +90,4 @@ class Sabnzbd():
 
         except Exception as e:
             logging.error('Unable to send NZB to Sabnzbd.', exc_info=True)
-            return {'response': False, 'error': str(e.reason)}
+            return {'response': False, 'error': str(e)}
