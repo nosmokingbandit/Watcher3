@@ -553,6 +553,11 @@ class SQL(object):
         Create the new table, then copy data from TMP table
         '''
         for table, schema in diff.items():
+            if table not in existing:
+                logging.info('Creating table {}'.format(table))
+                print('Creating table {}'.format(table))
+                getattr(self, table).create(self.engine)
+                continue
             logging.info('Modifying table {}.'.format(table))
             print('Modifying table {}'.format(table))
             for name, kind in schema.items():
