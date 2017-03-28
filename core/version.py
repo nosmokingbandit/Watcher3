@@ -124,7 +124,7 @@ class GitUpdater(object):
 
         if self.git_available[2] == 0:
             self.current_hash = self.git.get_current_hash()
-            core.CURRENT_HASH = self.current_hash[0]
+            core.CURRENT_HASH = self.current_hash[0].decode('utf-8')
         return
 
     def check_git_available(self):
@@ -226,8 +226,8 @@ class GitUpdater(object):
             else:
                 result['status'] = 'behind'
                 result['behind_count'] = behind_count
-                result['local_hash'] = local_hash
-                result['new_hash'] = commit_list[0]
+                result['local_hash'] = local_hash.decode('utf-8')
+                result['new_hash'] = commit_list[0].decode('utf-8')
                 core.UPDATE_STATUS = result
                 logging.info('Update found:')
                 logging.info(result)
@@ -251,7 +251,7 @@ class ZipUpdater(object):
     def __init__(self):
         self.version_file = os.path.join('core', 'version')
         self.current_hash = self.get_current_hash()
-        core.CURRENT_HASH = self.current_hash
+        core.CURRENT_HASH = self.current_hash.decode('utf-8')
         return
 
     def get_current_hash(self):
@@ -272,7 +272,7 @@ class ZipUpdater(object):
             if hash:
                 with open(self.version_file, 'w') as f:
                     f.write(hash)
-        core.CURRENT_HASH = hash
+        core.CURRENT_HASH = hash.decode('utf-8')
         return hash
 
     def get_newest_hash(self):
@@ -344,8 +344,8 @@ class ZipUpdater(object):
         else:
             result['status'] = 'behind'
             result['behind_count'] = behind_count
-            result['local_hash'] = local_hash
-            result['new_hash'] = newest_hash
+            result['local_hash'] = local_hash.decode('utf-8')
+            result['new_hash'] = newest_hash.decode('utf-8')
             core.UPDATE_STATUS = result
             return result
 
