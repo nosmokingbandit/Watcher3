@@ -13,11 +13,11 @@ class AddMovie():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/add_movie.css?v=02.22')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}add_movie.css?v=02.22'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_info_popup.css?v=02.22')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_info_popup.css?v=02.22'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/add_movie/main.js?v=02.02b')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/add_movie\.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}add_movie\.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_info_popup\.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_info_popup\.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/add_movie/main\.js?v=03.28')
 
         with doc:
             Header.insert_header(current="add_movie")

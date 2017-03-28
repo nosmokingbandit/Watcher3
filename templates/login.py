@@ -17,15 +17,15 @@ class Login(object):
             meta(name='robots', content='noindex, nofollow')
             meta(name='url_base', content=core.URL_BASE)
 
-            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/style.css?v=03.15')
-            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/{}style.css?v=03.15'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/login.css?v=02.22')
-            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/{}login.css?v=02.22'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/style\.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/{}style\.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/login\.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/auth/static/css/{}login\.css?v=03.28'.format(core.CONFIG['Server']['theme']))
             link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Raleway')
             link(rel='stylesheet', href=core.URL_BASE + '/auth/static/font-awesome/css/font-awesome.css')
             script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
             script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js')
-            script(type='text/javascript', src=core.URL_BASE + '/auth/static/js/login/main.js?v=02.02b')
+            script(type='text/javascript', src=core.URL_BASE + '/auth/static/js/login/main\.js?v=03.28')
 
         with doc:
             with div(id='content'):
