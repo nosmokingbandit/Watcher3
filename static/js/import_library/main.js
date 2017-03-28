@@ -96,6 +96,7 @@ $(document).ready(function() {
         e.preventDefault();
         var last_response_len = false;
         $.ajax(url_base + '/ajax/scan_library', {
+            method: "POST",
             data: {"directory": directory, "minsize": minsize, "recursive": recursive},
             xhrFields: {
                 onprogress: function(e)
