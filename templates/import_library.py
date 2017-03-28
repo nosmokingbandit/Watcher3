@@ -51,20 +51,22 @@ class ImportLibrary():
                             i(id='select_dir', cls='fa fa-check-circle')
                             i(id='close_browser', cls='fa fa-times-circle')
 
-                with div(id='wait'):
+                with div(id='wait_scanning', cls='hidden'):
                     span('Scanning library for new movies.')
                     br()
                     span('This may take several minutes.')
                     br()
-                    span(id='progress_report')
+                    with span(id='scan_progress'):
+                        span(cls='progress_bar')
+                    span(id='scan_progress_text')
 
                 with div(id='list_files'):
                     span(json.dumps(core.RESOLUTIONS), cls='hidden', id='resolution_list')
-                    with div(id='review'):
+                    with div(id='scan_success', cls='hidden'):
                         span('The following movies have been found.', cls='title')
                         br()
                         span('Review and un-check any unwanted files.')
-                        with table(cls='files', id='complete'):
+                        with table(cls='files'):
                             with tr():
                                 th('Import')
                                 th('File Path')
@@ -72,11 +74,11 @@ class ImportLibrary():
                                 th('IMDB ID')
                                 th('Source')
                                 th('Size')
-
+                    with div(id='scan_missing', cls='hidden'):
                         span('The following movies are missing key data.', cls='title')
                         br()
                         span('Please fill out or correct IMDB ID and source, or uncheck to ignore.')
-                        with table(cls='files', id='incomplete'):
+                        with table(cls='files'):
                             with tr():
                                 th('Import')
                                 th('File Path')
@@ -93,6 +95,24 @@ class ImportLibrary():
                     span('Importing selected movies.')
                     br()
                     span('This may take several minutes.')
+                    br()
+                    with span(id='import_progress'):
+                        span(cls='progress_bar')
+                    span(id='import_progress_text')
+
+                with div(id='import_results', cls='hidden'):
+                    with table(id='import_success', cls='hidden'):
+                        span('Imported:')
+                        with tr():
+                            th('Title')
+                            th('IMDB ID')
+                    with table(id='import_error', cls='hidden'):
+                        with tr():
+                            th('File')
+                            th('Error')
+                    with a(id='finished', href=u'{}/status'.format(core.URL_BASE), cls='hidden'):
+                        i(cls='fa fa-thumbs-o-up')
+                        span('Cool')
 
             div(id='overlay')
             div(id='thinker')

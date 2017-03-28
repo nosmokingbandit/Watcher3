@@ -652,22 +652,22 @@ class Ajax(object):
             metadata['size'] = os.path.getsize(path)
             metadata['finished_file'] = path
             metadata['human_size'] = Conversions.human_file_size(metadata['size'])
-            metadata['progress'] = '{} of {}'.format(index + 1, length)
+            progress = [index + 1, length]
             if not metadata.get('imdbid'):
                 logging.info('IMDB unknown for import {}'.format(metadata['title']))
-                yield json.dumps({'incomplete': metadata})
+                yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                 continue
             if metadata['imdbid'] in library:
                 logging.info('Import {} already in library, ignoring.'.format(metadata['title']))
-                yield json.dumps({'in_library': metadata})
+                yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
                 continue
             elif not metadata.get('resolution'):
                 logging.info('Resolution/Source unknown for import {}'.format(metadata['title']))
-                yield json.dumps({'incomplete': metadata})
+                yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                 continue
             else:
                 logging.info('All data found for import {}'.format(metadata['title']))
-                yield json.dumps({'complete': metadata})
+                yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
 
     scan_library._cp_config = {'response.stream': True}
 
@@ -686,7 +686,7 @@ class Ajax(object):
         Creates dict {'success': [], 'failed': []} and
             appends movie data to the appropriate list.
 
-        Returns str html of success/failed movie imports
+        Yeilds generator object of json objects
         '''
 
         movie_data = json.loads(movie_data)
@@ -694,7 +694,10 @@ class Ajax(object):
 
         fake_results = []
 
-        results = {'success': [], 'failed': []}
+        success = []
+
+        length = len(movie_data) + len(corrected_movies)
+        progress = 1
 
         if corrected_movies:
             for data in corrected_movies:
@@ -704,26 +707,33 @@ class Ajax(object):
                     data.update(tmdbdata)
                     movie_data.append(data)
                 else:
-                    data['error'] = 'Unable to find "{}" on TMDB.'.format(data['imdbid'])
-                    results['failed'].append(data)
+                    logging.error('Unable to find {} on TMDB.'.format(data['imdbid']))
+                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'reason': 'Unable to find {} on TMDB.'.format(data['imdbid'])})
+                    progress += 1
 
         for movie in movie_data:
             if movie['imdbid']:
                 movie['status'] = 'Disabled'
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
-                    results['success'].append(movie)
                     fake_results.append(self.library.fake_search_result(movie))
+                    yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                    progress += 1
+                    success.append(movie)
+                    continue
                 else:
                     movie['error'] = response['error']
-                    results['failed'].append(movie)
+                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
+                    progress += 1
+                    continue
             else:
-                movie['error'] = 'IMDB ID invalid or missing.'
-                results['failed'].append(movie)
+                logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': 'IMDB ID invalid or missing.'})
+                progress += 1
 
         fake_results = self.score.score(fake_results, imported=True)
 
-        for i in results['success']:
+        for i in success:
             score = None
             for r in fake_results:
                 if r['imdbid'] == i['imdbid']:
@@ -735,7 +745,7 @@ class Ajax(object):
 
         self.sql.write_search_results(fake_results)
 
-        return import_library.ImportLibrary.render_complete(results['success'], results['failed'])
+    submit_import._cp_config = {'response.stream': True}
 
     @cherrypy.expose
     def list_files(self, current_dir, move_dir):

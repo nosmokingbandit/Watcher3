@@ -90,7 +90,7 @@ $(document).ready(function() {
         var recursive = is_checked($("i#recursive"))
 
         $("div#directory_info").hide();
-        $("div#wait").fadeIn();
+        $("div#wait_scanning").fadeIn();
         $("div#list_files").fadeIn();
 
         e.preventDefault();
@@ -118,8 +118,7 @@ $(document).ready(function() {
         })
         .done(function(data)
         {
-            $('div#wait span#progress_report').text('');
-            $("div#wait").slideUp();
+            $("div#wait_scanning").slideUp();
             $('span#import').slideDown();
         })
         .fail(function(data)
@@ -129,18 +128,26 @@ $(document).ready(function() {
         });
     });
 
-    function render_movie(movie){
+    function render_movie(response){
         // Renders movie output from scanner
-        // movie: Object of movie metadata
+        // response: response from ajax handler
         // Appends html to appropriate table in DOM
-        var $progress_report = $('div#wait span#progress_report');
-        if(movie['in_library']){
-            var movie = movie['in_library']
-            $progress_report.text(`Processing ${movie['progress']}`)
+
+        var $scan_progress_bar = $('span#scan_progress span.progress_bar');
+        var progress_percent = (response['progress'][0] / response['progress'][1]) * 100 + '%';
+        var $scan_progress_text = $('span#scan_progress_text');
+        var progress_text = `${response['progress'][0]} / ${response['progress'][1]}`
+
+        var movie = response['movie']
+
+        if(response['response'] == 'in_library'){
+            $scan_progress.width(progress_percent);
+            $scan_progress_text.text(progress_text);
             return
-        }else if(movie['complete']){
-            var movie = movie['complete']
-            $progress_report.text(`Processing ${movie['progress']}`)
+        }else if(response['response'] == 'complete'){
+            $('div#scan_success').show()
+            $scan_progress_bar.width(progress_percent);
+            $scan_progress_text.text(progress_text);
             var short_path = movie['path'].replace(directory, '')
             var select = resolution_select;
             select.children(`option`).removeAttr('selected')
@@ -168,12 +175,13 @@ $(document).ready(function() {
                         ${movie['human_size']}
                     </td>
             `
-            $('table#complete').append(row);
+            $('div#scan_success table').append(row);
             return
         }
-        else if(movie['incomplete']){
-            var movie = movie['incomplete']
-            $progress_report.text(`Processing ${movie['progress']}`)
+        else if(response['response'] == 'incomplete'){
+            $('div#scan_missing').show();
+            $scan_progress_bar.width(progress_percent);
+            $scan_progress_text.text(progress_text);
             var size = movie['size']
             var short_path = movie['path'].replace(directory, '')
             var select = resolution_select;
@@ -203,11 +211,10 @@ $(document).ready(function() {
                         ${movie['human_size']}
                     </td>
             `
-            $('table#incomplete').append(row);
+            $('div#scan_missing table').append(row);
             return
         }
     }
-
 
     // Send import instructions
     $content.on("click", "span#import", function(){
@@ -235,7 +242,7 @@ $(document).ready(function() {
 
     function _get_movie_data(){
         movie_data = [];
-        var $rows = $("table#complete tr")
+        var $rows = $("div#scan_success table tr")
         $.each($rows, function(){
             $this = $(this);
             if(is_checked($this.find("i"))){
@@ -251,10 +258,10 @@ $(document).ready(function() {
 
     function _get_corrected_movies(){
         corrected_movies = []
-        var $crows = $("table#incomplete tr");
+        var $rows = $("div#scan_missing table tr")
         var cancel = false;
 
-        $.each($crows, function(idx, elem){
+        $.each($rows, function(idx, elem){
             $elem = $(elem);
             if(is_checked($elem.find("i"))){
                 var imdbid = $elem.find("input.input_imdbid").val();
@@ -281,17 +288,63 @@ $(document).ready(function() {
 
     function _submit_import(movie_data, corrected_movies){
         $("div#list_files").hide();
-        $('div#wait_import').fadeIn();
-        $("div#thinker").fadeIn();
-        $.post(url_base + "/ajax/submit_import", {"movie_data":movie_data, "corrected_movies": corrected_movies})
-        .done(function(r){
-            $content.html(r)
+        $('div#wait_importing').fadeIn();
+        $('div#import_results').fadeIn();
 
-            $('div#wait_import').fadeOut();
-            $("div#thinker").fadeOut();
-            $("div#results").fadeIn();
-
+        var $import_progress_text = $('div#wait_importing span#import_progress_text');
+        var $import_progress_bar = $('span#import_progress span.progress_bar');
+        var $success_table = $('table#import_success')
+        var $error_table = $('table#import_error')
+        var last_response_len = false;
+        $.ajax(url_base + '/ajax/submit_import', {
+            method: "POST",
+            data: {"movie_data":movie_data, "corrected_movies": corrected_movies},
+            xhrFields: {
+                onprogress: function(e)
+                {
+                    var response_update;
+                    var response = e.currentTarget.response;
+                    if(last_response_len === false){
+                        response_update = response;
+                        last_response_len = response.length;
+                    } else {
+                        response_update = response.substring(last_response_len);
+                        last_response_len = response.length;
+                    }
+                    var r = JSON.parse(response_update);
+                    var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                    var progress_percent = (r['progress'][0] / r['progress'][1]) * 100 + '%';
+                    $import_progress_text.text(progress_text)
+                    $import_progress_bar.width(progress_percent)
+                    if(r['response'] === true){
+                        $success_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['movie']['imdbid']}</td>
+                                   </tr>`
+                        $success_table.append(row)
+                    } else {
+                        $imporerror_tablet_error.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['error']}</td>
+                                   </tr>`
+                        $error_table.append(row)
+                    }
+                }
+            }
         })
+        .done(function(data)
+        {
+            $('div#wait_importing span#import_progress').text('');
+            $("div#wait_importing").slideUp();
+            $('a#finished').slideDown();
+        })
+        .fail(function(data)
+        {
+            var err = data.status + ' ' + data.statusText
+            toastr.error(err);
+        });
     }
 
     function is_checked(checkbox){

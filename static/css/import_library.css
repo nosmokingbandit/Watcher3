@@ -112,18 +112,38 @@ span#start_scan{
     margin: 3em auto 0 auto;
 }
 
-div#wait{
-    display: none;
+div#wait_scanning,
+div#wait_importing{
     margin-bottom: 2em;
+}
+
+span#scan_progress,
+span#import_progress{
+    display: block;
+    margin: 0.5em auto 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 1em;
+    width: 10em;
+    position: relative;
+}
+
+span#span_progress_text,
+span#import_progress_text{
+    text-align: center;
+}
+
+span.progress_bar{
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background-color: #ccc;
 }
 
 a span{
     vertical-align: middle;
-}
-
-span#not_found{
-    font-size: 1.5em;
-    line-height: 2.0em;
 }
 
 /* Files list*/
