@@ -108,6 +108,7 @@ class Ajax(object):
         movie = self.tmdb._search_tmdbid(tmdbid)[0]
         movie['imdbid'] = movie.pop('imdb_id')
         movie['quality'] = data.get('quality', 'Default')
+        movie['status'] = data.get('status', 'Wanted')
 
         if movie['poster_path']:
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
