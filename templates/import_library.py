@@ -107,85 +107,9 @@ class ImportLibrary():
         html = ''
 
         for i in subdirs:
-            html += li(i)
+            html += str(li(i))
 
         return str(html)
-
-    @staticmethod
-    def render_review(review_movies, incomplete_movies):
-        with div(id='list_files') as div_list:
-            if not review_movies and not incomplete_movies:
-                with span('No movies found.', id='not_found'):
-                    br()
-                    with a(href=u'{}/import_library'.format(core.URL_BASE)):
-                        i(cls='fa fa-caret-left')
-                        span('Return')
-            else:
-                if review_movies:
-                    with div(id='review'):
-                        span('The following movies have been found.', cls='title')
-                        br()
-                        span('Review and un-check any unwanted files.', cls='title')
-                        with table(cls='files'):
-                            with tr():
-                                th('Import')
-                                th('File Path')
-                                th('Title')
-                                th('IMDB ID')
-                                th('Source')
-                                th('Size')
-                            for path, movie in review_movies.items():
-                                source = movie['resolution']
-                                with tr():
-                                    td(json.dumps(movie), cls='hidden data')
-                                    with td():
-                                        i(cls='fa fa-check-square checkbox', value='True')
-                                    td(path, cls='short_name')
-                                    td(movie['title'])
-                                    td(movie['imdbid'])
-                                    with td():
-                                        with select(cls='input_resolution'):
-                                            for src in core.RESOLUTIONS:
-                                                if src == source:
-                                                    option(src, value=src, selected='selected')
-                                                else:
-                                                    option(src, value=src)
-                                    td(u'{} MB'.format(movie['size'] / 1024**2))
-                if incomplete_movies:
-                    with div(id='incomplete'):
-                        span('The following movies are missing key data.', cls='title')
-                        br()
-                        span('Please fill out or correct IMDB ID and source, or uncheck to ignore.', cls='title')
-                        with table(cls='files'):
-                            with tr():
-                                th('Import')
-                                th('File Path')
-                                th('Title')
-                                th('IMDB ID')
-                                th('Source')
-                                th('Size')
-                            for path, movie in incomplete_movies.items():
-                                source = movie.get('resolution', 'BluRay-1080P')
-                                with tr():
-                                    td(json.dumps(movie), cls='hidden data')
-                                    with td():
-                                        i(cls='fa fa-check-square checkbox', value='True')
-                                    td(path, cls='short_name')
-                                    td(movie.get('title'))
-                                    with td():
-                                        input(type='text', placeholder='tt0123456', cls='input_imdbid', value=movie['imdbid'] or '')
-                                    with td():
-                                        with select(cls='input_resolution'):
-                                            for src in core.RESOLUTIONS:
-                                                if src == source:
-                                                    option(src, value=src, selected='selected')
-                                                else:
-                                                    option(src, value=src)
-                                    td(u'{} MB'.format(movie['size'] / 1024**2))
-                with span(id='import'):
-                    i(cls='fa fa-check-circle')
-                    span('Import')
-        return str(div_list)
 
     @staticmethod
     def render_complete(successful, failed):
