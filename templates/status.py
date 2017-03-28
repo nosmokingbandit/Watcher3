@@ -16,11 +16,11 @@ class Status():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=02.22')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=02.22'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=02.22')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=02.22'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=02.17')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=03.28')
 
         with doc:
             Header.insert_header(current="status")
