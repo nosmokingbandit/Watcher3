@@ -5,11 +5,11 @@
 setuid root
 
 #This is the install directory
-env DIR=/opt/watcher
+env DIR=/opt/watcher3
 
 setgid nogroup
 start on runlevel [2345]
 stop on runlevel [016]
 
 #respawn
-exec /usr/bin/python2.7 /opt/watcher/watcher.py -d
+exec /usr/bin/python3 /opt/watcher3/watcher.py -d

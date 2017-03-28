@@ -29,8 +29,8 @@ load_rc_config ${name}
 : ${watcher_enable:="NO"}
 : ${watcher_user:="media"}
 : ${watcher_group:="media"}
-: ${watcher_data_dir:="/usr/share/watcher"}
-: ${watcher_pidfile="/var/run/watcher/watcher.pid"}
+: ${watcher_data_dir:="/usr/share/watcher3"}
+: ${watcher_pidfile="/var/run/watcher3/watcher.pid"}
 
 pidfile=${watcher_pidfile}
 command="/usr/local/bin/python"
