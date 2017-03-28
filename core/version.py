@@ -72,7 +72,7 @@ class Git(object):
                                      )
             output, error = p.communicate()
             exit_status = p.returncode
-            return (output.rstrip(), error, exit_status)
+            return (output.decode('utf-8').rstrip(), error, exit_status)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
@@ -124,7 +124,7 @@ class GitUpdater(object):
 
         if self.git_available[2] == 0:
             self.current_hash = self.git.get_current_hash()
-            core.CURRENT_HASH = self.current_hash[0].decode('utf-8')
+            core.CURRENT_HASH = self.current_hash[0]
         return
 
     def check_git_available(self):
@@ -226,8 +226,8 @@ class GitUpdater(object):
             else:
                 result['status'] = 'behind'
                 result['behind_count'] = behind_count
-                result['local_hash'] = local_hash.decode('utf-8')
-                result['new_hash'] = commit_list[0].decode('utf-8')
+                result['local_hash'] = local_hash
+                result['new_hash'] = commit_list[0]
                 core.UPDATE_STATUS = result
                 logging.info('Update found:')
                 logging.info(result)
