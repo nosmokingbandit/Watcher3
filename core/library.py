@@ -3,6 +3,7 @@ import os
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 from core.movieinfo import TMDB
+from base64 import b16encode
 from core import sqldb
 import PTN
 import datetime
@@ -83,7 +84,8 @@ class ImportDirectory(object):
 
         result['title'] = title
 
-        result['guid'] = movie.get('guid') or 'IMPORT{}'.format(title.encode("hex").zfill(16)[:16])
+        fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+        result['guid'] = movie.get('guid', fake_guid)
 
         return result
 
