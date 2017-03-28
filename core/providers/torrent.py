@@ -4,6 +4,7 @@ import datetime
 import time
 import xml.etree.cElementTree as ET
 import core
+from core import sqldb
 from core.proxy import Proxy
 from core.helpers import Url
 from core.providers.base import NewzNabProvider
@@ -22,6 +23,7 @@ class Torrent(NewzNabProvider):
 
     def __init__(self):
         self.feed_type = 'torrent'
+        self.sql = sqldb.SQL()
         return
 
     def search_all(self, imdbid, title, year):
@@ -49,7 +51,19 @@ class Torrent(NewzNabProvider):
                 url_base = url_base + '/'
             apikey = indexer[1]
 
-            r = self.search_newznab(url_base, apikey, t='search', cat=2000, q=imdbid)
+            caps = self.sql.torznab_caps(url_base)
+            if not caps:
+                caps = self._get_caps(url_base)
+                if caps is None:
+                    logging.error('Unable to get caps for {}'.format(url_base))
+                    continue
+
+            if 'imdbid' in caps:
+                logging.info('{} supports imdbid search.'.format(url_base))
+                r = self.search_newznab(url_base, apikey, t='movie', cat=2000, imdbid=imdbid)
+            else:
+                logging.info('{} does not support imdbid search, using q={}'.format(url_base, term))
+                r = self.search_newznab(url_base, apikey, t='search', cat=2000, q=term)
             for i in r:
                 results.append(i)
 
@@ -126,6 +140,26 @@ class Torrent(NewzNabProvider):
                     results.append(i)
 
         return results
+
+    def _get_caps(self, url):
+        ''' Gets caps for indexer url
+        url: string url of torznab indexer
+
+        Stores caps in CAPS table
+
+        Returns list of caps
+        '''
+        caps_url = '{}?t=caps'.format(url)
+
+        request = Url.request(caps_url)
+
+        xml = Url.open(request)
+        root = ET.fromstring(xml)
+        caps = root[0].find('movie-search').attrib['supportedParams']
+
+        self.sql.write('CAPS', {'url': url, 'caps': caps})
+
+        return caps.split(',')
 
 
 class Rarbg(object):
