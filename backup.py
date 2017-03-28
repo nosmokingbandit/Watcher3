@@ -13,7 +13,7 @@ def backup(require_confirm=True):
     # check for files and paths
     if not os.path.isfile('watcher.sqlite'):
         if require_confirm is True:
-            if raw_input('Database watcher.sqlite not found. Continue? (y/N): ').lower() != 'y':
+            if input('Database watcher.sqlite not found. Continue? (y/N): ').lower() != 'y':
                 return
         database = False
     else:
@@ -21,7 +21,7 @@ def backup(require_confirm=True):
 
     if not os.path.isfile('config.cfg'):
         if require_confirm is True:
-            if raw_input('Config config.cfg not found. Continue? (y/N): ').lower() != 'y':
+            if input('Config config.cfg not found. Continue? (y/N): ').lower() != 'y':
                 return
         config = False
     else:
@@ -29,7 +29,7 @@ def backup(require_confirm=True):
 
     if not os.path.isdir(posterpath):
         if require_confirm is True:
-            if raw_input('Config config.cfg not found. Continue? (y/N): ').lower() != 'y':
+            if input('Config config.cfg not found. Continue? (y/N): ').lower() != 'y':
                 return
         posters = False
     else:
@@ -80,7 +80,7 @@ def restore(require_confirm=True):
         return
 
     if require_confirm is True:
-        ans = raw_input('Restoring backup. This will overwrite existing '
+        ans = input('Restoring backup. This will overwrite existing '
                         'database, config, and posters. Continue? (y/N):  ')
         if ans.lower() != 'y':
             return
