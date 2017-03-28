@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ##########################################
 ######## DO NOT MODIFY THIS FILE! ########
@@ -26,8 +26,8 @@
 import json
 import os
 import sys
-import urllib
-import urllib2
+import urllib.request
+import urllib.parse
 
 POSTPROCESS_SUCCESS = 93
 POSTPROCESS_ERROR = 94
@@ -55,10 +55,10 @@ else:
     data['mode'] = 'failed'
 
 url = u'{}/postprocessing/'.format(watcherhost)
-post_data = urllib.urlencode(data)
+post_data = urllib.parse.urlencode(data)
 
-request = urllib2.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib2.urlopen(request, timeout=600).read())
+request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urllib.request.urlopen(request, timeout=600).read())
 
 if response.get('status') == 'finished':
     sys.exit(POSTPROCESS_SUCCESS)

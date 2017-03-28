@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # ======================================== #
 # ============= INSTRUCTIONS ============= #
 
@@ -15,8 +15,8 @@ label = 'Watcher'
 # ======================================== #
 import json
 import sys
-import urllib
-import urllib2
+import urllib.request
+import urllib.parse
 
 data = {}
 
@@ -41,10 +41,10 @@ data['guid'] = downloadid
 data['mode'] = 'complete'
 
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.urlencode(data)
+post_data = urllib.parse.urlencode(data)
 
-request = urllib2.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib2.urlopen(request, timeout=600).read())
+request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urllib.request.urlopen(request, timeout=600).read())
 
 if response['status'] == 'finished':
     sys.exit(0)
