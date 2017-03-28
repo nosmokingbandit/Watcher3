@@ -129,7 +129,7 @@ $(document).ready(function() {
     });
 
     function render_movie(movie){
-        // Renders movie output from sanner
+        // Renders movie output from scanner
         // movie: Object of movie metadata
         // Appends html to appropriate table in DOM
         var $progress_report = $('div#wait span#progress_report');
@@ -142,7 +142,8 @@ $(document).ready(function() {
             $progress_report.text(`Processing ${movie['progress']}`)
             var short_path = movie['path'].replace(directory, '')
             var select = resolution_select;
-            select.find(`option[value="${movie['resolution']}"]`).attr('selected', 'selected')
+            select.children(`option`).removeAttr('selected')
+            select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
             row = `
                 <tr>
                     <td>
@@ -159,7 +160,7 @@ $(document).ready(function() {
                         ${movie['imdbid']}
                     </td>
                     <td>
-                        ${resolution_select[0].outerHTML}
+                        ${select[0].outerHTML}
 
                     </td>
                     <td>
@@ -176,7 +177,8 @@ $(document).ready(function() {
             var short_path = movie['path'].replace(directory, '')
             var select = resolution_select;
             var imdbid = movie['imdbid'] || '';
-            select.find(`option[value="${movie['resolution'].toLowerCase()}"]`).attr('selected', 'selected')
+            select.children(`option`).removeAttr('selected');
+            select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
             row = `
                 <tr>
                     <td>
@@ -193,7 +195,7 @@ $(document).ready(function() {
                         <input type='text' class='input_imdbid', placeholder='tt0123456' value=${imdbid}></input>
                     </td>
                     <td>
-                        ${resolution_select[0].outerHTML}
+                        ${select[0].outerHTML}
 
                     </td>
                     <td>
