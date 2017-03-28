@@ -251,7 +251,7 @@ class ZipUpdater(object):
     def __init__(self):
         self.version_file = os.path.join('core', 'version')
         self.current_hash = self.get_current_hash()
-        core.CURRENT_HASH = self.current_hash.decode('utf-8')
+        core.CURRENT_HASH = self.current_hash
         return
 
     def get_current_hash(self):
@@ -261,6 +261,8 @@ class ZipUpdater(object):
         If not, gets newest hash from GIT and creates version file
 
         Sets core.CURRENT_HASH as current commit hash
+
+        Returns str current hash version
         '''
 
         if os.path.isfile(self.version_file):
@@ -268,12 +270,12 @@ class ZipUpdater(object):
                 hash = f.read()
             return hash
         else:
-            hash = self.get_newest_hash()
-            if hash:
+            new_hash = self.get_newest_hash()
+            if new_hash:
                 with open(self.version_file, 'w') as f:
-                    f.write(hash)
-        core.CURRENT_HASH = hash.decode('utf-8')
-        return hash
+                    f.write(new_hash)
+        core.CURRENT_HASH = new_hash
+        return new_hash
 
     def get_newest_hash(self):
         api_url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
@@ -344,8 +346,8 @@ class ZipUpdater(object):
         else:
             result['status'] = 'behind'
             result['behind_count'] = behind_count
-            result['local_hash'] = local_hash.decode('utf-8')
-            result['new_hash'] = newest_hash.decode('utf-8')
+            result['local_hash'] = local_hash
+            result['new_hash'] = newest_hash
             core.UPDATE_STATUS = result
             return result
 
