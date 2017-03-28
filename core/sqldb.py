@@ -73,6 +73,10 @@ class SQL(object):
                                    Column('guid', TEXT),
                                    Column('status', TEXT)
                                    )
+        self.CAPS = Table('CAPS', self.metadata,
+                          Column('url', TEXT),
+                          Column('caps', TEXT)
+                          )
 
         # {TABLENAME: [(new_col, old_col), (new_col, old_col)]}
         self.convert_names = {'MOVIES':
@@ -124,9 +128,10 @@ class SQL(object):
         return False
 
     def write(self, TABLE, DB_STRING):
-        '''
-        Takes dict DB_STRING and writes to TABLE.
-        DB_STRING must have key:val matching Column:Value in table.
+        ''' Writes row to table
+        TABLE: str name of db table
+        DB_STRING: dict of columns:values to write
+
         Returns Bool on success.
         '''
 
@@ -229,7 +234,7 @@ class SQL(object):
         Returns list of dicts with all information in MOVIES
         '''
 
-        logging.info('Retreving list of user\'s movies.')
+        logging.info('Retrieving list of user\'s movies.')
         TABLE = 'MOVIES'
 
         command = 'SELECT * FROM {} ORDER BY title ASC'.format(TABLE)
@@ -255,7 +260,7 @@ class SQL(object):
         Returns dict of first match
         '''
 
-        logging.info('Retreving details for {}.'.format(idval))
+        logging.info('Retrieving details for {}.'.format(idval))
 
         command = 'SELECT * FROM MOVIES WHERE {}="{}"'.format(idcol, idval)
 
@@ -288,7 +293,7 @@ class SQL(object):
         else:
             sort = 'DESC'
 
-        logging.info('Retreving Search Results for {}.'.format(imdbid))
+        logging.info('Retrieving Search Results for {}.'.format(imdbid))
         TABLE = 'SEARCHRESULTS'
 
         command = 'SELECT * FROM {} WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(TABLE, imdbid, sort)
@@ -308,7 +313,7 @@ class SQL(object):
         Returns dict {guid:status, guid:status, etc}
         '''
 
-        logging.info('Retreving Marked Results for {}.'.format(imdbid))
+        logging.info('Retrieving Marked Results for {}.'.format(imdbid))
 
         TABLE = 'MARKEDRESULTS'
 
@@ -473,7 +478,7 @@ class SQL(object):
         Returns dict
         '''
 
-        logging.info('Retreving search result details for {}.'.format(idval.split('&')[0]))
+        logging.info('Retrieving search result details for {}.'.format(idval.split('&')[0]))
 
         command = 'SELECT * FROM SEARCHRESULTS WHERE {}="{}"'.format(idcol, idval)
 
@@ -601,5 +606,23 @@ class SQL(object):
 
         logging.info('Database updated')
         print('Database updated.')
+
+    def torznab_caps(self, url):
+        ''' Gets caps list for torznab providers
+        url: str url of torznab indexer
+
+        Returns list of caps ie ['q', 'imdbid'] or None if not found
+        '''
+
+        logging.info('Retreiving caps for {}'.format(url))
+
+        command = 'SELECT "caps" FROM CAPS WHERE url="{}"'.format(url)
+
+        row = self.execute(command)
+        caps = row.fetchone()
+        if caps is None:
+            return None
+        else:
+            return caps[0].split(',')
 
 # pylama:ignore=W0401
