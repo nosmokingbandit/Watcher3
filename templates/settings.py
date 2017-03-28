@@ -731,7 +731,7 @@ class Settings():
                      'so Watcher can access files.')
                 br()
                 span('See the ')
-                a('wiki', href='https://github.com/nosmokingbandit/watcher/wiki', target='_blank')
+                a('wiki', href='https://github.com/nosmokingbandit/watcher3/wiki', target='_blank')
                 span('for more information.')
             for remote, local in c[c_s]['RemoteMapping'].items():
                 with li(cls='remote_mapping_row'):
@@ -776,7 +776,7 @@ class Settings():
                 self.render_plugins(finished, 'finished')
 
             with span('See the '):
-                a('wiki', href='https://github.com/nosmokingbandit/watcher/wiki', target='_blank')
+                a('wiki', href='https://github.com/nosmokingbandit/watcher3/wiki', target='_blank')
                 span(' for plugin instructions.')
 
         with div(id='save', cat='plugins'):
@@ -853,7 +853,7 @@ class Settings():
             h2(u'Source')
             with p():
                 span(u'Watcher is hosted and maintained on GitHub. You may view the repository at ')
-                a(u'https://github.com/', href='https://github.com/nosmokingbandit/watcher')
+                a(u'https://github.com/', href='https://github.com/nosmokingbandit/watcher3')
 
             h2(u'License')
             with p():
