@@ -27,7 +27,7 @@ class Update():
         with doc:
             with div(id='content'):
                 div(id='thinker')
-                span(u'Updating', cls='msg')
+                span('Updating', cls='msg')
 
         return doc.render()
 

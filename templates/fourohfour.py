@@ -22,9 +22,9 @@ class FourOhFour():
         with doc:
             with div(id='content'):
                 with span(cls='msg'):
-                    span(u'404')
+                    span('404')
                     br()
-                    span(u'Page Not Found')
+                    span('Page Not Found')
 
         return doc.render()
 

@@ -110,7 +110,7 @@ class ImportLibrary():
                         with tr():
                             th('File')
                             th('Error')
-                    with a(id='finished', href=u'{}/status'.format(core.URL_BASE), cls='hidden'):
+                    with a(id='finished', href='{}/status'.format(core.URL_BASE), cls='hidden'):
                         i(cls='fa fa-thumbs-o-up')
                         span('Cool')
 
@@ -153,10 +153,10 @@ class ImportLibrary():
                         th('IMDB ID')
                     for movie in successful:
                         with tr():
-                            td(u'{} ({})'.format(movie['title'], movie['year']))
+                            td('{} ({})'.format(movie['title'], movie['year']))
                             td(movie['imdbid'])
 
-            with a(id='finished', href=u'{}/status'.format(core.URL_BASE)):
+            with a(id='finished', href='{}/status'.format(core.URL_BASE)):
                 i(cls='fa fa-thumbs-o-up')
                 span('Cool')
         return str(div_results)

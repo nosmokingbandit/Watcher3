@@ -49,7 +49,7 @@ class Status():
                 self.movie_list()
 
             with div(id='import'):
-                with a(href=u'{}/import_library'.format(core.URL_BASE)):
+                with a(href='{}/import_library'.format(core.URL_BASE)):
                     i(cls='fa fa-hdd-o', id='import_library')
                     span('Import existing library.')
 
@@ -71,26 +71,26 @@ class Status():
         movie_list = ul(id='movie_list')
         with movie_list:
             for data in movies:
-                poster_path = core.URL_BASE + u'/static/images/posters/{}.jpg'.format(data['imdbid'])
+                poster_path = core.URL_BASE + '/static/images/posters/{}.jpg'.format(data['imdbid'])
                 with li(cls='movie', imdbid=data['imdbid']):
                     with div():
                         status = data['status']
                         if status == 'Wanted':
-                            span(u'Wanted', cls='status wanted')
+                            span('Wanted', cls='status wanted')
                             span('1', cls='status_sort hidden')
                         elif status == 'Found':
-                            span(u'Found', cls='status found')
+                            span('Found', cls='status found')
                             span('2', cls='status_sort hidden')
                         elif status == 'Snatched':
-                            span(u'Snatched', cls='status snatched')
+                            span('Snatched', cls='status snatched')
                             span('3', cls='status_sort hidden')
                         elif status in ['Finished', 'Disabled']:
-                            span(u'Finished', cls='status finished')
+                            span('Finished', cls='status finished')
                             span('4', cls='status_sort hidden')
                         else:
-                            span(u'Status Unknown', cls='status wanted')
+                            span('Status Unknown', cls='status wanted')
 
-                        img(src=poster_path, alt=u'Poster for {}'.format(data['imdbid']))
+                        img(src=poster_path, alt='Poster for {}'.format(data['imdbid']))
 
                         with span(cls='movie_info'):
                             span(data['title'], cls='title', title=data['title'])

@@ -21,9 +21,9 @@ class Restart():
         with doc:
             with div(id='content'):
                 div(id='thinker')
-                span(u'Restarting', cls='msg')
-                with span(u'Timeout Exceeded.', cls='error'):
-                    p(u'Watcher is taking too long to restart, please check your logs and restart manually.')
+                span('Restarting', cls='msg')
+                with span('Timeout Exceeded.', cls='error'):
+                    p('Watcher is taking too long to restart, please check your logs and restart manually.')
 
         return doc.render()
 

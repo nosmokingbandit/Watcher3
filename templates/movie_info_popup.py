@@ -27,7 +27,7 @@ class MovieInfoPopup():
         if data['poster_path'] is None:
             data['poster_path'] = core.URL_BASE + '/static/images/missing_poster.jpg'
         else:
-            data['poster_path'] = u'http://image.tmdb.org/t/p/w300{}'.format(data['poster_path'])
+            data['poster_path'] = 'http://image.tmdb.org/t/p/w300{}'.format(data['poster_path'])
 
         container = div(id='container')
         with container:
@@ -52,8 +52,8 @@ class MovieInfoPopup():
                 p(data['overview'])
             with div(id='additional_info'):
                 with a(href=tmdb_url, target='_blank'):
-                    p(u'TMDB Score: {}'.format(data['vote_average']))
-                span(u'Theatrical Release Date: {}'.format(data['release_date']))
+                    p('TMDB Score: {}'.format(data['vote_average']))
+                span('Theatrical Release Date: {}'.format(data['release_date']))
             div(data_json, id='hidden_data', cls='hidden')
 
         return str(container)

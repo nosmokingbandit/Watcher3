@@ -13,7 +13,7 @@ class MovieStatusPopup():
 
         data = self.sql.get_movie_details('imdbid', imdbid)
         if data:
-            poster_path = core.URL_BASE + u'/static/images/posters/{}.jpg'.format(data['imdbid'])
+            poster_path = core.URL_BASE + '/static/images/posters/{}.jpg'.format(data['imdbid'])
             title = data['title']
             year = str(data['year'])
             quality = data['quality']
@@ -23,7 +23,7 @@ class MovieStatusPopup():
         with container:
             script(src=core.URL_BASE + '/static/js/status/movie_status_popup.js?v=03.28')
             if not data:
-                span(u'Unable to get movie information from database. Check logs for more information.')
+                span('Unable to get movie information from database. Check logs for more information.')
                 return doc.render()
 
             with div(id='title'):
@@ -48,9 +48,9 @@ class MovieStatusPopup():
                     i(id='predb', cls='fa fa-check-circle', title='Verified releases found on predb.me')
                 else:
                     i(id='predb', cls='fa fa-circle-o', title='No releases found on predb.me')
-                span(u'Theatrical Release Date: {}'.format(data['release_date']))
+                span('Theatrical Release Date: {}'.format(data['release_date']))
                 with a(href=url, target='_blank'):
-                    span(u'Score: {}'.format(data['score']))
+                    span('Score: {}'.format(data['score']))
             with div(id='options'):
                 i(cls='fa fa-save', id='update_options')
                 with span('Status: ', id='status'):
@@ -85,8 +85,8 @@ class MovieStatusPopup():
         with result_list:
 
             if not results:
-                li(u'Nothing found yet.', cls='title bold')
-                li(u'Next automatic search scheduled for {}'.format(Conversions.human_datetime(core.NEXT_SEARCH)), cls='title')
+                li('Nothing found yet.', cls='title bold')
+                li('Next automatic search scheduled for {}'.format(Conversions.human_datetime(core.NEXT_SEARCH)), cls='title')
             else:
                 for idx, res in enumerate(results):
                     kind = res['type']
@@ -99,9 +99,9 @@ class MovieStatusPopup():
 
                     # applied bottom border to all but last element
                     if idx == len(results) - 1:
-                        bbord = u''
+                        bbord = ''
                     else:
-                        bbord = u'bbord'
+                        bbord = 'bbord'
                     with li(cls='title bold'):
                         span(title, cls='name', title=title)
                         with span(cls='buttons'):
@@ -110,9 +110,9 @@ class MovieStatusPopup():
                             i(cls='fa fa-download', id='manual_download', kind=kind, guid=guid)
                             i(cls='fa fa-ban', id='mark_bad', guid=guid)
                     with li(cls='data ' + bbord):
-                        span(u'Type:')
+                        span('Type:')
                         span(kind, cls='bold')
-                        span(u' Status:')
+                        span(' Status:')
                         if status == 'Snatched':
                             span(status, cls='status_text bold snatched', guid=guid)
                         elif status == 'Bad':
@@ -121,16 +121,16 @@ class MovieStatusPopup():
                             span(status, cls='status_text bold finished', guid=guid)
                         else:
                             span(status, cls='status_text bold', guid=guid)
-                        span(u' Size:')
+                        span(' Size:')
                         span(size, cls='bold')
-                        span(u' Score:')
+                        span(' Score:')
                         span(res['score'], cls='bold')
-                        span(u' Source:')
+                        span(' Source:')
                         with span(res.get('indexer', ''), cls='bold'):
                             if res['freeleech'] == 1:
                                 span(cls='fa fa-asterisk', title='Freeleech')
                         if pubdate:
-                            span(u' Published: ')
+                            span(' Published: ')
                             span(pubdate, cls='bold')
 
         return str(result_list)
