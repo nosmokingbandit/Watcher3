@@ -784,7 +784,7 @@ class Ajax(object):
         if not tmdbid:
             return json.dumps({'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)})
 
-        movie = json.loads(self.tmdb._search_tmdbid(tmdbid)[0])
+        movie = self.tmdb._search_tmdbid(tmdbid)[0]
         movie['imdbid'] = movie.pop('imdb_id')
 
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
