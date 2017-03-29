@@ -414,7 +414,7 @@ class ZipUpdater(object):
         zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, core.CONFIG['Server']['gitbranch'])
         request = Url.request(zip_url)
         try:
-            zip_response = Url.open(request)
+            zip_response = Url.open(request, read_bytes=True)
             with open(update_zip, 'wb') as f:
                 f.write(zip_response)
             del zip_response
@@ -437,7 +437,7 @@ class ZipUpdater(object):
         core.UPDATE_STATUS = None
 
         logging.info('Moving update files.')
-        subfolder = 'watcher-{}'.format(core.CONFIG['Server']['gitbranch'])
+        subfolder = 'Watcher3-{}'.format(core.CONFIG['Server']['gitbranch'])
         update_files_path = os.path.join(update_path, subfolder)
         try:
             files = os.listdir(update_files_path)
