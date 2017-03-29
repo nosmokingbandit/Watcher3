@@ -44,9 +44,9 @@ class NewzNabProvider(object):
 
         try:
             if proxy_enabled and Proxy.whitelist(url) is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             return self.parse_newznab_xml(response)
         except (SystemExit, KeyboardInterrupt):
@@ -88,9 +88,9 @@ class NewzNabProvider(object):
 
             try:
                 if proxy_enabled and Proxy.whitelist(url) is True:
-                    response = Proxy.bypass(request)
+                    response = Proxy.bypass(request)['body']
                 else:
-                    response = Url.open(request)
+                    response = Url.open(request)['body']
 
                 return self.parse_newznab_xml(response)
             except (SystemExit, KeyboardInterrupt):
@@ -215,7 +215,7 @@ class NewzNabProvider(object):
 
         request = Url.request(url)
         try:
-            response = Url.open(request)
+            response = Url.open(request)['body']
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa

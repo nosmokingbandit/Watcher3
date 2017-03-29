@@ -153,7 +153,7 @@ class Torrent(NewzNabProvider):
 
         request = Url.request(caps_url)
 
-        xml = Url.open(request)
+        xml = Url.open(request)['body']
         root = ET.fromstring(xml)
         caps = root[0].find('movie-search').attrib['supportedParams']
 
@@ -194,9 +194,9 @@ class Rarbg(object):
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             results = json.loads(response).get('torrent_results')
             if results:
@@ -234,9 +234,9 @@ class Rarbg(object):
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             results = json.loads(response).get('torrent_results')
             if results:
@@ -257,9 +257,7 @@ class Rarbg(object):
         request = Url.request(url)
 
         try:
-            response = Url.open(request)
-
-            result = json.loads(response)
+            result = json.loads(Url.open(request)['body'])
             token = result.get('token')
             return token
         except (SystemExit, KeyboardInterrupt):
@@ -307,9 +305,9 @@ class LimeTorrents(object):
 
         try:
             if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return LimeTorrents.parse(response, imdbid)
@@ -332,9 +330,9 @@ class LimeTorrents(object):
 
         try:
             if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return LimeTorrents.parse(response, None)
@@ -402,9 +400,9 @@ class ExtraTorrent(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return ExtraTorrent.parse(response, imdbid)
@@ -427,9 +425,9 @@ class ExtraTorrent(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return ExtraTorrent.parse(response, None)
@@ -493,9 +491,9 @@ class SkyTorrents(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.skytorrents.in') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return SkyTorrents.parse(response, imdbid)
@@ -562,9 +560,9 @@ class Torrentz2(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return Torrentz2.parse(response, imdbid)
@@ -587,9 +585,9 @@ class Torrentz2(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return Torrentz2.parse(response, None)
@@ -656,9 +654,9 @@ class ThePirateBay(object):
         request.add_header('Cookie', 'lw=s')
         try:
             if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return ThePirateBay.parse(response, imdbid)
@@ -681,9 +679,9 @@ class ThePirateBay(object):
         request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Proxy.bypass(request)
+                response = Proxy.bypass(request)['body']
             else:
-                response = Url.open(request)
+                response = Url.open(request)['body']
 
             if response:
                 return ThePirateBay.parse(response, None)

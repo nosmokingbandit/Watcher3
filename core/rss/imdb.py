@@ -32,7 +32,7 @@ class ImdbRss(object):
             logging.info('Syncing rss IMDB watchlist {}'.format(url))
             request = Url.request(url)
             try:
-                response = Url.open(request)
+                response = Url.open(request)['body']
             except (SystemExit, KeyboardInterrupt):
                 raise
             except Exception as e: # noqa

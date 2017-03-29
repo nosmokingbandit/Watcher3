@@ -8,10 +8,18 @@ import random
 import unicodedata
 from lib import bencode
 from string import punctuation
+import ssl
+import core
 
 
 class Url(object):
     ''' Creates url requests and sanitizes urls '''
+
+    ctx = ssl.create_default_context()
+
+    no_verify_ctx = ssl.create_default_context()
+    no_verify_ctx.check_hostname = False
+    no_verify_ctx.verify_mode = ssl.CERT_NONE
 
     user_agents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
                    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
@@ -56,17 +64,31 @@ class Url(object):
         ''' Opens and reads request
         request: object urllib.request request
 
-        Returns str or bytes if read_bytes=True
-        '''
+        Creates dict of response headers and read() output
 
-        r = urllib.request.urlopen(request, timeout=timeout)
+        {'headers': {...}, 'body': '...'}
+        Body will be str or bytes based on read_bytes
+
+        Returns dict
+        '''
+        if core.CONFIG['Server']['verifyssl']:
+            context = Url.ctx
+        else:
+            context = Url.no_verify_ctx
+        d = {}
+
+        r = urllib.request.urlopen(request, timeout=timeout, context=context)
         response = r.read()
         r.close()
 
+        d['headers'] = r.headers
+
         if read_bytes:
-            return response
+            d['body'] = response
         else:
-            return response.decode('utf-8')
+            d['body'] = response.decode('utf-8')
+
+        return d
 
 
 class Conversions(object):
@@ -116,7 +138,7 @@ class Torrent(object):
         else:
             try:
                 req = Url.request(url)
-                torrent = urllib.request.urlopen(req)
+                torrent = Url.open(req, read_bytes=True)['body']
                 metadata = bencode.decode(torrent)
                 hashcontents = bencode.encode(metadata['info'])
                 return hashlib.sha1(hashcontents).hexdigest()

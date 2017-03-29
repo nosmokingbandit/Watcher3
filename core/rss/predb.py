@@ -78,7 +78,7 @@ class PreDB(object):
         request = Url.request(url)
 
         try:
-            response = Url.open(request)
+            response = Url.open(request)['body']
             results_xml = response.replace('&', '%26')
             items = self.parse_predb_xml(results_xml)
             return items

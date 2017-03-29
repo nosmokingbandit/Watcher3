@@ -82,8 +82,7 @@ class TMDB(object):
         self.use_token()
 
         try:
-            response = Url.open(request)
-            results = json.loads(response)
+            results = json.loads(Url.open(request)['body'])
             if results.get('success') == 'false':
                 return None
             else:
@@ -107,8 +106,7 @@ class TMDB(object):
         self.use_token()
 
         try:
-            response = Url.open(request)
-            results = json.loads(response)
+            results = json.loads(Url.open(request)['body'])
             if results['movie_results'] == []:
                 return ['']
             else:
@@ -136,8 +134,7 @@ class TMDB(object):
         self.use_token()
 
         try:
-            response = Url.open(request)
-            results = json.loads(response)
+            results = json.loads(Url.open(request)['body'])
             if results.get('status_code'):
                 logging.warning(results.get('status_code'))
                 return ['']
@@ -177,8 +174,7 @@ class TMDB(object):
             self.use_token()
 
             try:
-                response = Url.open(request)
-                results = json.loads(response)
+                results = json.loads(Url.open(request)['body'])
                 results = results['results']
                 if results:
                     tmdbid = results[0]['id']
@@ -198,8 +194,7 @@ class TMDB(object):
         self.use_token()
 
         try:
-            response = Url.open(request)
-            results = json.loads(response)
+            results = json.loads(Url.open(request)['body'])
             return results.get('imdb_id')
         except Exception as e: # noqa
             logging.error('Error attempting to get IMDBID from TMDB.', exc_info=True)
@@ -226,8 +221,7 @@ class Trailer(object):
         tries = 0
         while tries < 3:
             try:
-                response = Url.open(request)
-                results = json.loads(response)
+                results = json.loads(Url.open(request)['body'])
                 return results['items'][0]['id']['videoId']
             except (SystemExit, KeyboardInterrupt):
                 raise

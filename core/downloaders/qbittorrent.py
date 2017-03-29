@@ -90,7 +90,7 @@ class QBittorrent(object):
             url = '{}query/preferences'.format(base_url)
             request = Url.request(url)
             request.add_header('cookie', QBittorrent.cookie)
-            response = json.loads(Url.open(request))
+            response = json.loads(Url.open(request)['body'])
             return response['save_path']
         except Exception as e:
             logging.error('QBittorrent unable to get download dir.', exc_info=True)
@@ -112,17 +112,15 @@ class QBittorrent(object):
         request = Url.request(url, post_data=post_data)
 
         try:
-            response = urllib.request.urlopen(request)
-            QBittorrent.cookie = response.headers.get('Set-Cookie')
-            result = response.read().decode('utf-8')
-            response.close()
+            response = Url.open(request)
+            QBittorrent.cookie = response['headers'].get('Set-Cookie')
 
-            if result == 'Ok.':
+            if response['body'] == 'Ok.':
                 return True
-            elif result == 'Fails.':
+            elif response['body'] == 'Fails.':
                 return 'Incorrect usename or password'
             else:
-                return result
+                return response['body']
 
         except (SystemExit, KeyboardInterrupt):
             raise

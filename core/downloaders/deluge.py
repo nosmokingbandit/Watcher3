@@ -1,6 +1,5 @@
 import logging
 import json
-import urllib.request
 import zlib
 
 from lib.deluge_client import DelugeRPCClient
@@ -184,7 +183,8 @@ class DelugeWeb(object):
         request.add_header('cookie', DelugeWeb.cookie)
 
         try:
-            response = DelugeWeb._read(Url.open(request, read_bytes=True))
+            response = Url.open(request, read_bytes=True)
+            response = DelugeWeb._read(response['body'])
             if response['result'] is True:
                 downloadid = Torrent.get_hash(data['torrentfile'])
                 return {'response': True, 'downloadid': downloadid}
@@ -207,7 +207,8 @@ class DelugeWeb(object):
         request = Url.request(deluge_url, post_data=post_data, headers=DelugeWeb.headers)
         request.add_header('cookie', DelugeWeb.cookie)
         try:
-            response = DelugeWeb._read(Url.open(request, read_bytes=True))
+            response = Url.open(request, read_bytes=True)
+            response = DelugeWeb._read(response['body'])
             if response['error'] is None:
                 return {'response': True, 'torrentfile': response['result']}
         except (SystemExit, KeyboardInterrupt):
@@ -231,7 +232,8 @@ class DelugeWeb(object):
         request.add_header('cookie', DelugeWeb.cookie)
 
         try:
-            response = DelugeWeb._read(Url.open(request, read_bytes=True))
+            response = Url.open(request, read_bytes=True)
+            response = DelugeWeb._read(response['body'])
             return response['result']
         except Exception as e:
             logging.error('delugeweb get_download_dir', exc_info=True)
@@ -258,13 +260,14 @@ class DelugeWeb(object):
         request = Url.request(url, post_data, headers=DelugeWeb.headers)
 
         try:
-            response = urllib.request.urlopen(request)
-            DelugeWeb.cookie = response.headers.get('Set-Cookie')
+            response = Url.open(request, read_bytes=True)
+            DelugeWeb.cookie = response['headers'].get('Set-Cookie')
 
             if DelugeWeb.cookie is None:
                 return 'Incorrect password.'
 
-            if response.msg == 'OK':
+            body = DelugeWeb._read(response['body'])
+            if body['error'] is None:
                 return True
             else:
                 return response.msg

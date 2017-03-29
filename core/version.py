@@ -281,15 +281,13 @@ class ZipUpdater(object):
         api_url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
         request = Url.request(api_url)
         try:
-            response = Url.open(request)
-            result = json.loads(response)
-            hash = result['sha']
+            result = json.loads(Url.open(request)['body'])
+            return result['sha']
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa
             logging.error('Could not get newest hash from git.', exc_info=True)
             return None
-        return hash
 
     def update_check(self):
         ''' Gets commit delta from GIT
@@ -327,8 +325,7 @@ class ZipUpdater(object):
 
         request = Url.request(compare_url)
         try:
-            response = Url.open(request)
-            result = json.loads(response)
+            result = json.loads(Url.open(request)['body'])
             behind_count = result['behind_by']
         except (SystemExit, KeyboardInterrupt):
             raise
@@ -414,10 +411,10 @@ class ZipUpdater(object):
         zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, core.CONFIG['Server']['gitbranch'])
         request = Url.request(zip_url)
         try:
-            zip_response = Url.open(request, read_bytes=True)
+            zip_bytes = Url.open(request, read_bytes=True)['body']
             with open(update_zip, 'wb') as f:
-                f.write(zip_response)
-            del zip_response
+                f.write(zip_bytes)
+            del zip_bytes
         except Exception as e:
             logging.error('Could not download latest Zip.', exc_info=True)
             return False

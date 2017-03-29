@@ -38,7 +38,7 @@ class Poster():
             else:
                 request = Url.request(poster_url)
                 try:
-                    result = Url.open(request, read_bytes=True)
+                    poster_bytes = Url.open(request, read_bytes=True)['body']
                 except (SystemExit, KeyboardInterrupt):
                     raise
                 except Exception as e:
@@ -46,8 +46,8 @@ class Poster():
 
                 try:
                     with open(new_poster_path, 'wb') as output:
-                        output.write(result)
-                    del result
+                        output.write(poster_bytes)
+                    del poster_bytes
                 except (SystemExit, KeyboardInterrupt):
                     raise
                 except Exception as e: # noqa
