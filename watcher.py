@@ -2,7 +2,6 @@ import argparse
 import locale
 import logging
 import os
-import ssl
 import sys
 import webbrowser
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
@@ -27,7 +26,6 @@ core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
 os.chdir(core.PROG_PATH)
 
 if __name__ == '__main__':
-    ssl._create_default_https_context = ssl._create_unverified_context
 
     # have to set locale for date parsing
     try:
