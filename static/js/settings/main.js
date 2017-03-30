@@ -262,7 +262,12 @@ $(document).ready(function () {
         // Gets entered info, even if not saved
         var data = {}
         $(inputs).each(function(){
-            data[$(this).attr("id")] = $(this).val()
+            $this = $(this);
+            if($this.attr('type') == 'number'){
+                data[$this.attr('id')] = parseInt($this.val())
+            } else {
+                data[$this.attr('id')] = $this.val()
+            }
         });
 
         $(checkboxes).each(function(){
