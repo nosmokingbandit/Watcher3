@@ -62,7 +62,7 @@ else:
     data['mode'] = 'failed'
 
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data)
+post_data = urllib.parse.urlencode(data).encode('ascii')
 
 request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 

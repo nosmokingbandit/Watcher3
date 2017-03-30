@@ -41,7 +41,7 @@ data['guid'] = downloadid
 data['mode'] = 'complete'
 
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data)
+post_data = urllib.parse.urlencode(data).encode('ascii')
 
 request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 response = json.loads(urllib.request.urlopen(request, timeout=600).read())
