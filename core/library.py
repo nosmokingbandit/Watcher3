@@ -123,7 +123,7 @@ class Metadata(object):
         Returns dict
         '''
 
-        logging.info('Gathering metada for {}.'.format(filepath))
+        logging.info('Gathering metadata for {}.'.format(filepath))
 
         data = {
             'title': '',
