@@ -98,8 +98,8 @@ class Postprocessing(object):
 
             response = self.complete(data)
 
-            response['data'].pop('backlog')
-            response['data'].pop('predb')
+            response['data'].pop('backlog', None)
+            response['data'].pop('predb', None)
             response['data'].pop('source', None)
 
             title = response['data'].get('title')
