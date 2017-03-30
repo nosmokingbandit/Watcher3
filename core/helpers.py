@@ -13,7 +13,7 @@ import core
 import logging
 
 
-logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.ERROR)
+logging.getLogger('lib.requests').setLevel(logging.CRITICAL)
 
 
 class Url(object):
