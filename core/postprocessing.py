@@ -617,17 +617,19 @@ class Postprocessing(object):
         for k, v in data.items():
             k = "{"+k+"}"
             if k in string:
-                string = string.replace(k, v)
+                new_string = string.replace(k, v)
 
-        while '  ' in string:
-            string = string.replace('  ', ' ')
+        while '  ' in new_string:
+            new_string = new_string.replace('  ', ' ')
 
-        while len(string) > 1 and string[-1] == ' ':
-            string = string[:-1]
+        while len(string) > 1 and new_string[-1] == ' ':
+            new_string = new_string[:-1]
 
-        string = self.map_remote(string)
+        new_string = self.map_remote(new_string)
 
-        return self.sanitize(string)
+        logging.debug('Created path {} from {}'.format(new_string, string))
+
+        return self.sanitize(new_string)
 
     def renamer(self, data):
         ''' Renames movie file based on renamerstring.
