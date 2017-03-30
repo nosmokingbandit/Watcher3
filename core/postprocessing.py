@@ -100,7 +100,7 @@ class Postprocessing(object):
 
             response['data'].pop('backlog')
             response['data'].pop('predb')
-            response['data'].pop('source')
+            response['data'].pop('source', None)
 
             title = response['data'].get('title')
             year = response['data'].get('year')
