@@ -26,10 +26,9 @@ class PopularMoviesFeed(object):
         movies = None
 
         logging.info('Syncing popular movie feed.')
-        request = Url.request('https://s3.amazonaws.com/popular-movies/movies.json',
-                              headers={'User-Agent': 'Mozilla/5.0'})
+
         try:
-            movies = json.loads(Url.open(request)['body'])
+            movies = json.loads(Url.open('https://s3.amazonaws.com/popular-movies/movies.json').text)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa

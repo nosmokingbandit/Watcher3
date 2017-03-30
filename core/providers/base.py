@@ -1,5 +1,5 @@
 import xml.etree.cElementTree as ET
-import urllib
+import urllib.parse
 import logging
 
 import core
@@ -40,13 +40,11 @@ class NewzNabProvider(object):
 
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        request = Url.request(url)
-
         try:
             if proxy_enabled and Proxy.whitelist(url) is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             return self.parse_newznab_xml(response)
         except (SystemExit, KeyboardInterrupt):
@@ -84,13 +82,11 @@ class NewzNabProvider(object):
 
             logging.info('RSS_SYNC: {}api?t=movie&cat=2000&extended=1&offset=0&apikey=APIKEY'.format(url_base))
 
-            request = Url.request(url)
-
             try:
                 if proxy_enabled and Proxy.whitelist(url) is True:
-                    response = Proxy.bypass(request)['body']
+                    response = Url.open(url, proxy_bypass=True).text
                 else:
-                    response = Url.open(request)['body']
+                    response = Url.open(url).text
 
                 return self.parse_newznab_xml(response)
             except (SystemExit, KeyboardInterrupt):
@@ -213,9 +209,8 @@ class NewzNabProvider(object):
 
         url = '{}/api?apikey={}&t=search&id=tt0063350'.format(indexer, apikey)
 
-        request = Url.request(url)
         try:
-            response = Url.open(request)['body']
+            response = Url.open(url).text
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa

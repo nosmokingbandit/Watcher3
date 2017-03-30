@@ -75,14 +75,12 @@ class TMDB(object):
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
 
-        request = Url.request(url)
-
         while self.get_tokens() < 3:
             sleep(0.3)
         self.use_token()
 
         try:
-            results = json.loads(Url.open(request)['body'])
+            results = json.loads(Url.open(url).text)
             if results.get('success') == 'false':
                 return None
             else:
@@ -99,14 +97,13 @@ class TMDB(object):
 
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
-        request = Url.request(url)
 
         while self.get_tokens() < 3:
             sleep(0.5)
         self.use_token()
 
         try:
-            results = json.loads(Url.open(request)['body'])
+            results = json.loads(Url.open(url).text)
             if results['movie_results'] == []:
                 return ['']
             else:
@@ -125,16 +122,13 @@ class TMDB(object):
 
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
-        request = Url.request(url)
-
-        request = Url.request(url)
 
         while self.get_tokens() < 3:
             sleep(0.3)
         self.use_token()
 
         try:
-            results = json.loads(Url.open(request)['body'])
+            results = json.loads(Url.open(url).text)
             if results.get('status_code'):
                 logging.warning(results.get('status_code'))
                 return ['']
@@ -167,14 +161,13 @@ class TMDB(object):
             year = Url.normalize(year)
 
             url = 'https://api.themoviedb.org/3/search/movie?api_key={}&language=en-US&query={}&year={}&page=1&include_adult=false'.format(_k(b'tmdb'), title, year)
-            request = Url.request(url)
 
             while self.get_tokens() < 3:
                 sleep(0.3)
             self.use_token()
 
             try:
-                results = json.loads(Url.open(request)['body'])
+                results = json.loads(Url.open(url).text)
                 results = results['results']
                 if results:
                     tmdbid = results[0]['id']
@@ -187,14 +180,13 @@ class TMDB(object):
                 return None
 
         url = 'https://api.themoviedb.org/3/movie/{}?api_key={}'.format(tmdbid, _k(b'tmdb'))
-        request = Url.request(url)
 
         while self.get_tokens() < 3:
             sleep(0.3)
         self.use_token()
 
         try:
-            results = json.loads(Url.open(request)['body'])
+            results = json.loads(Url.open(url).text)
             return results.get('imdb_id')
         except Exception as e: # noqa
             logging.error('Error attempting to get IMDBID from TMDB.', exc_info=True)
@@ -212,16 +204,14 @@ class Trailer(object):
         Returns str or None
         '''
 
-
-        search_string = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
         search_term = Url.normalize((title_date + '+trailer'))
 
-        request = Url.request(search_string)
+        url = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
 
         tries = 0
         while tries < 3:
             try:
-                results = json.loads(Url.open(request)['body'])
+                results = json.loads(Url.open(url).text)
                 return results['items'][0]['id']['videoId']
             except (SystemExit, KeyboardInterrupt):
                 raise

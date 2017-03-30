@@ -1,6 +1,5 @@
 import logging
 import json
-import zlib
 
 from lib.deluge_client import DelugeRPCClient
 
@@ -26,6 +25,8 @@ class DelugeRPC(object):
         port = data['port']
         user = data['user']
         password = data['pass']
+
+        print(type(port))
 
         client = DelugeRPCClient(host, port, user, password)
         try:
@@ -179,12 +180,12 @@ class DelugeWeb(object):
         DelugeWeb.command_id += 1
 
         post_data = json.dumps(command)
-        request = Url.request(url, post_data=post_data, headers=DelugeWeb.headers)
-        request.add_header('cookie', DelugeWeb.cookie)
+        headers = DelugeWeb.headers
+        headers['cookie'] = DelugeWeb.cookie
 
         try:
-            response = Url.open(request, read_bytes=True)
-            response = DelugeWeb._read(response['body'])
+            response = Url.open(url, post_data=post_data, headers=DelugeWeb.headers)
+            response = json.loads(response.text)
             if response['result'] is True:
                 downloadid = Torrent.get_hash(data['torrentfile'])
                 return {'response': True, 'downloadid': downloadid}
@@ -204,11 +205,11 @@ class DelugeWeb(object):
                    }
         DelugeWeb.command_id += 1
         post_data = json.dumps(command)
-        request = Url.request(deluge_url, post_data=post_data, headers=DelugeWeb.headers)
-        request.add_header('cookie', DelugeWeb.cookie)
+        headers = DelugeWeb.headers
+        headers['cookie'] = DelugeWeb.cookie
         try:
-            response = Url.open(request, read_bytes=True)
-            response = DelugeWeb._read(response['body'])
+            response = Url.open(deluge_url, post_data=post_data, headers=headers)
+            response = json.loads(response.text)
             if response['error'] is None:
                 return {'response': True, 'torrentfile': response['result']}
         except (SystemExit, KeyboardInterrupt):
@@ -228,23 +229,16 @@ class DelugeWeb(object):
 
         post_data = json.dumps(command)
 
-        request = Url.request(url, post_data=post_data, headers=DelugeWeb.headers)
-        request.add_header('cookie', DelugeWeb.cookie)
+        headers = DelugeWeb.headers
+        headers['cookie'] = DelugeWeb.cookie
 
         try:
-            response = Url.open(request, read_bytes=True)
-            response = DelugeWeb._read(response['body'])
+            response = Url.open(url, post_data=post_data, headers=headers)
+            response = json.loads(response.text)
             return response['result']
         except Exception as e:
             logging.error('delugeweb get_download_dir', exc_info=True)
             return {'response': False, 'error': str(e)}
-
-    @staticmethod
-    def _read(response):
-        ''' Reads gzipped json response into dict
-        '''
-
-        return json.loads(zlib.decompress(response, 16+zlib.MAX_WBITS))
 
     @staticmethod
     def _login(url, password):
@@ -257,16 +251,14 @@ class DelugeWeb(object):
 
         post_data = json.dumps(command)
 
-        request = Url.request(url, post_data, headers=DelugeWeb.headers)
-
         try:
-            response = Url.open(request, read_bytes=True)
-            DelugeWeb.cookie = response['headers'].get('Set-Cookie')
+            response = Url.open(url, post_data=post_data, headers=DelugeWeb.headers)
+            DelugeWeb.cookie = response.headers.get('Set-Cookie')
 
             if DelugeWeb.cookie is None:
                 return 'Incorrect password.'
 
-            body = DelugeWeb._read(response['body'])
+            body = json.loads(response.text)
             if body['error'] is None:
                 return True
             else:

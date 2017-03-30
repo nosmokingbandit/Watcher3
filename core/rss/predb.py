@@ -75,10 +75,8 @@ class PreDB(object):
 
         url = 'http://predb.me/?cats=movies&search={}&rss=1'.format(title_year)
 
-        request = Url.request(url)
-
         try:
-            response = Url.open(request)['body']
+            response = Url.open(url).text
             results_xml = response.replace('&', '%26')
             items = self.parse_predb_xml(results_xml)
             return items

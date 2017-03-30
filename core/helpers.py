@@ -4,22 +4,22 @@ from random import choice as rc
 import hashlib
 import urllib.request
 import urllib.parse
+from lib import requests
 import random
 import unicodedata
 from lib import bencode
 from string import punctuation
-import ssl
 import core
+import logging
+
+
+logging.getLogger('requests.packages.urllib3').setLevel(logging.ERROR)
 
 
 class Url(object):
     ''' Creates url requests and sanitizes urls '''
 
-    ctx = ssl.create_default_context()
-
-    no_verify_ctx = ssl.create_default_context()
-    no_verify_ctx.check_hostname = False
-    no_verify_ctx.verify_mode = ssl.CERT_NONE
+    proxies = None
 
     user_agents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
                    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
@@ -35,19 +35,6 @@ class Url(object):
     trans = {i: ' ' for i in map(ord, '+.-_')}
 
     @staticmethod
-    def request(url, post_data=None, headers={}):
-
-        headers['User-Agent'] = random.choice(Url.user_agents)
-        if isinstance(post_data, str):
-            post_data = post_data.encode('utf-8')
-
-        if post_data:
-            request = urllib.request.Request(url, post_data, headers=headers)
-        else:
-            request = urllib.request.Request(url, headers=headers)
-        return request
-
-    @staticmethod
     def normalize(s):
         ''' URL-encode strings
         Do not use with full url, only passed params
@@ -60,35 +47,37 @@ class Url(object):
         return s
 
     @staticmethod
-    def open(request, timeout=30, read_bytes=False):
-        ''' Opens and reads request
-        request: object urllib.request request
+    def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):
+        ''' Assemles requests call
+        url: str url to requests
+        post-data: dict data to send via post
+        timeout: int seconds to wait for timeout
+        headers: dict headers to send with request
+        stream: bool whether or not to read bytes from response
+        proxy_bypass: bool bypass proxy if any are enabled
 
-        Creates dict of response headers and read() output
+        Sets default timeout and random user-agent
 
-        {'headers': {...}, 'body': '...'}
-        Body will be str or bytes based on read_bytes
-
-        Returns dict
+        Returns object requests response
         '''
-        if core.CONFIG['Server']['verifyssl']:
-            context = Url.ctx
+
+        headers['User-Agent'] = random.choice(Url.user_agents)
+
+        verifySSL = True if core.CONFIG['Server']['verifyssl'] else False
+
+        kwargs = {'timeout': timeout, 'verify': verifySSL, 'stream': stream, 'headers': headers}
+
+        if not proxy_bypass:
+            kwargs['proxies'] = Url.proxies
+
+        if post_data:
+            kwargs['data'] = post_data
+            print(kwargs)
+            r = requests.post(url, **kwargs)
         else:
-            context = Url.no_verify_ctx
-        d = {}
+            r = requests.get(url, **kwargs)
 
-        r = urllib.request.urlopen(request, timeout=timeout, context=context)
-        response = r.read()
-        r.close()
-
-        d['headers'] = r.headers
-
-        if read_bytes:
-            d['body'] = response
-        else:
-            d['body'] = response.decode('utf-8')
-
-        return d
+        return r
 
 
 class Conversions(object):
@@ -137,8 +126,7 @@ class Torrent(object):
             return url.split('&')[0].split(':')[-1]
         else:
             try:
-                req = Url.request(url)
-                torrent = Url.open(req, read_bytes=True)['body']
+                torrent = Url.open(url, stream=True).content
                 metadata = bencode.decode(torrent)
                 hashcontents = bencode.encode(metadata['info'])
                 return hashlib.sha1(hashcontents).hexdigest()

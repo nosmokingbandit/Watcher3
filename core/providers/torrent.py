@@ -149,11 +149,9 @@ class Torrent(NewzNabProvider):
 
         Returns list of caps
         '''
-        caps_url = '{}?t=caps'.format(url)
+        url = '{}?t=caps'.format(url)
 
-        request = Url.request(caps_url)
-
-        xml = Url.open(request)['body']
+        xml = Url.open(url).text
         root = ET.fromstring(xml)
         caps = root[0].find('movie-search').attrib['supportedParams']
 
@@ -189,14 +187,12 @@ class Rarbg(object):
 
         url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=search&search_imdb={}&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token, imdbid)
 
-        request = Url.request(url)
-
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             results = json.loads(response).get('torrent_results')
             if results:
@@ -229,14 +225,12 @@ class Rarbg(object):
 
         url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=list&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token)
 
-        request = Url.request(url)
-
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             results = json.loads(response).get('torrent_results')
             if results:
@@ -254,10 +248,8 @@ class Rarbg(object):
     def get_token():
         url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token'
 
-        request = Url.request(url)
-
         try:
-            result = json.loads(Url.open(request)['body'])
+            result = json.loads(Url.open(url).text)
             token = result.get('token')
             return token
         except (SystemExit, KeyboardInterrupt):
@@ -301,13 +293,12 @@ class LimeTorrents(object):
         logging.info('Searching LimeTorrents for {}.'.format(term))
 
         url = 'https://www.limetorrents.cc/searchrss/{}'.format(term)
-        request = Url.request(url)
 
         try:
             if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return LimeTorrents.parse(response, imdbid)
@@ -326,13 +317,12 @@ class LimeTorrents(object):
         logging.info('Fetching latest RSS from LimeTorrents.')
 
         url = 'https://www.limetorrents.cc/rss/16/'
-        request = Url.request(url)
 
         try:
             if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return LimeTorrents.parse(response, None)
@@ -379,7 +369,7 @@ class LimeTorrents(object):
                 result['seeders'] = int(seed_str)
 
                 results.append(result)
-            except Exception as e:
+            except Exception as e: #noqa
                 logging.error('Error parsing LimeTorrents XML.', exc_info=True)
                 continue
 
@@ -397,12 +387,11 @@ class ExtraTorrent(object):
 
         url = 'https://www.extratorrent.cc/rss.xml?type=search&cid=4&search={}'.format(term)
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return ExtraTorrent.parse(response, imdbid)
@@ -422,12 +411,11 @@ class ExtraTorrent(object):
 
         url = 'https://www.extratorrent.cc/rss.xml?cid=4&type=today'
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return ExtraTorrent.parse(response, None)
@@ -469,7 +457,7 @@ class ExtraTorrent(object):
                 result['seeders'] = 0 if seeders == '---' else seeders
 
                 results.append(result)
-            except Exception as e:
+            except Exception as e: #noqa
                 logging.error('Error parsing ExtraTorrent XML.', exc_info=True)
                 continue
 
@@ -488,12 +476,11 @@ class SkyTorrents(object):
 
         url = 'https://www.skytorrents.in/rss/all/ed/1/{}'.format(term)
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.skytorrents.in') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return SkyTorrents.parse(response, imdbid)
@@ -557,12 +544,11 @@ class Torrentz2(object):
 
         url = 'https://www.torrentz2.eu/feed?f={}'.format(term)
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return Torrentz2.parse(response, imdbid)
@@ -582,12 +568,11 @@ class Torrentz2(object):
 
         url = 'https://www.torrentz2.eu/feed?f=movies'
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return Torrentz2.parse(response, None)
@@ -632,7 +617,7 @@ class Torrentz2(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e:
+            except Exception as e: #noqa
                 logging.error('Error parsing Torrentz2 XML.', exc_info=True)
                 continue
 
@@ -650,13 +635,12 @@ class ThePirateBay(object):
 
         url = 'https://www.thepiratebay.org/search/{}/0/99/200'.format(imdbid)
 
-        request = Url.request(url)
-        request.add_header('Cookie', 'lw=s')
+        headers = {'Cookie': 'lw=s'}
         try:
             if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True, headers=headers).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url, headers=headers).text
 
             if response:
                 return ThePirateBay.parse(response, imdbid)
@@ -676,12 +660,11 @@ class ThePirateBay(object):
 
         url = 'https://www.thepiratebay.org/browse/201/0/3/0'
 
-        request = Url.request(url)
         try:
             if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Proxy.bypass(request)['body']
+                response = Url.open(url, proxy_bypass=True).text
             else:
-                response = Url.open(request)['body']
+                response = Url.open(url).text
 
             if response:
                 return ThePirateBay.parse(response, None)
@@ -731,7 +714,7 @@ class ThePirateBay(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e:
+            except Exception as e: #noqa
                 logging.error('Error parsing ThePirateBay XML.', exc_info=True)
                 continue
 

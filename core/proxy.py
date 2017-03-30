@@ -1,9 +1,7 @@
-import socket
 import urllib.request
-
-from lib import socks
 import core
 import logging
+from core.helpers import Url
 
 logging = logging.getLogger(__name__)
 
@@ -25,14 +23,25 @@ class Proxy(object):
 
             if core.CONFIG['Server']['Proxy']['type'] == 'socks5':
                 logging.info('Creating socket for SOCKS5 proxy at {}:{}'.format(host, port))
-                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, host, port, username=user, password=password)
-                Proxy.proxy_socket = socket.socket = socks.socksocket
-                socks.wrapmodule(urllib.request)
+                if user and password:
+                    addr = 'socks5://{}:{}@{}:{}'.format(user, password, host, port)
+                else:
+                    addr = 'socks5://{}:{}'.format(host, port)
+
+                proxies = {'http': addr, 'https': addr}
+                Url.proxies = proxies
+
                 Proxy.on = True
             elif core.CONFIG['Server']['Proxy']['type'] == 'socks4':
                 logging.info('Creating socket for SOCKS4 proxy at {}:{}'.format(host, port))
-                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, host, port, username=user, password=password)
-                Proxy.proxy_socket = socket.socket = socks.socksocket
+                if user and password:
+                    addr = 'socks4://{}:{}@{}:{}'.format(user, password, host, port)
+                else:
+                    addr = 'socks4://{}:{}'.format(host, port)
+
+                proxies = {'http': addr, 'https': addr}
+                Url.proxies = proxies
+
                 Proxy.on = True
             elif core.CONFIG['Server']['Proxy']['type'] == 'http(s)':
                 logging.info('Creating HTTP(S) proxy at {}:{}'.format(host, port))
@@ -52,9 +61,8 @@ class Proxy(object):
                 else:
                     logging.warning('HTTP-only proxy. HTTPS traffic will not be tunneled through proxy.')
 
-                proxy = urllib.request.ProxyHandler(proxies)
-                opener = urllib.request.build_opener(proxy)
-                urllib.request.install_opener(opener)
+                Url.proxies = proxies
+
                 Proxy.on = True
             else:
                 logging.warning('Invalid proxy type {}'.format(core.CONFIG['Server']['Proxy']['type']))
@@ -64,13 +72,15 @@ class Proxy(object):
 
     @staticmethod
     def destroy():
-        # restore socket
-        urllib.request.socket.socket = Proxy.default_socket
-        # disable http/s proxies
-        proxy_handler = urllib.request.ProxyHandler({})
-        opener = urllib.request.build_opener(proxy_handler)
-        urllib.request.install_opener(opener)
-        Proxy.on = False
+        if Proxy.on:
+            # restore socket
+            # urllib.request.socket.socket = Proxy.default_socket
+            # disable http/s proxies
+            Url.proxies = None
+            Proxy.on = False
+            return
+        else:
+            return
 
     @staticmethod
     def whitelist(url):
@@ -82,7 +92,7 @@ class Proxy(object):
         '''
         whitelist = core.CONFIG['Server']['Proxy']['whitelist'].split(',')
 
-        if len(whitelist) == ['']:
+        if whitelist == ['']:
             return False
 
         for i in whitelist:
@@ -110,7 +120,9 @@ class Proxy(object):
         urllib.request.socket.socket = Proxy.default_socket
 
         response = Proxy.bypass_opener.open(request)
+        result = response.read().decode('utf-8')
+        response.close()
 
         urllib.request.socket.socket = Proxy.proxy_socket
 
-        return response
+        return result

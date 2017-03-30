@@ -1,6 +1,5 @@
 import logging
 import json
-import urllib
 import urllib.request
 
 import core
@@ -70,12 +69,9 @@ class QBittorrent(object):
         post_data['category'] = conf['category']
 
         url = '{}command/download'.format(base_url)
-        post_data = urllib.parse.urlencode(post_data)
-        request = Url.request(url, post_data=post_data)
-        request.add_header('cookie', QBittorrent.cookie)
-
+        headers = {'cookie': QBittorrent.cookie}
         try:
-            Url.open(request)  # QBit returns an empty string
+            Url.open(url, post_data=post_data, headers=headers)  # QBit returns an empty string
             downloadid = Torrent.get_hash(data['torrentfile'])
             return {'response': True, 'downloadid': downloadid}
         except (SystemExit, KeyboardInterrupt):
@@ -88,9 +84,8 @@ class QBittorrent(object):
     def _get_download_dir(base_url):
         try:
             url = '{}query/preferences'.format(base_url)
-            request = Url.request(url)
-            request.add_header('cookie', QBittorrent.cookie)
-            response = json.loads(Url.open(request)['body'])
+            headers = {'cookie': QBittorrent.cookie}
+            response = json.loads(Url.open(url, headers=headers).text)
             return response['save_path']
         except Exception as e:
             logging.error('QBittorrent unable to get download dir.', exc_info=True)
@@ -99,28 +94,25 @@ class QBittorrent(object):
     @staticmethod
     def get_torrents(base_url):
         url = '{}query/torrents'.format(base_url)
-        request = Url.request(url)
-        request.add_header('cookie', QBittorrent.cookie)
-        return Url.open(request)
+        headers = {'cookie': QBittorrent.cookie}
+        return Url.open(url, headers=headers)
 
     @staticmethod
     def _login(url, username, password):
 
-        post_data = urllib.parse.urlencode({'username': username, 'password': password})
+        post_data = {'username': username, 'password': password}
 
         url = '{}login'.format(url)
-        request = Url.request(url, post_data=post_data)
-
         try:
-            response = Url.open(request)
-            QBittorrent.cookie = response['headers'].get('Set-Cookie')
+            response = Url.open(url, post_data=post_data)
+            QBittorrent.cookie = response.headers.get('Set-Cookie')
 
-            if response['body'] == 'Ok.':
+            if response.text == 'Ok.':
                 return True
-            elif response['body'] == 'Fails.':
+            elif response.text == 'Fails.':
                 return 'Incorrect usename or password'
             else:
-                return response['body']
+                return response.text
 
         except (SystemExit, KeyboardInterrupt):
             raise

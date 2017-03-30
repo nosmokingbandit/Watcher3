@@ -278,10 +278,9 @@ class ZipUpdater(object):
         return new_hash
 
     def get_newest_hash(self):
-        api_url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
-        request = Url.request(api_url)
+        url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
         try:
-            result = json.loads(Url.open(request)['body'])
+            result = json.loads(Url.open(url).text)
             return result['sha']
         except (SystemExit, KeyboardInterrupt):
             raise
@@ -321,11 +320,10 @@ class ZipUpdater(object):
             core.UPDATE_STATUS = result
             return result
 
-        compare_url = '{}/compare/{}...{}'.format(core.GIT_API, newest_hash, local_hash)
+        url = '{}/compare/{}...{}'.format(core.GIT_API, newest_hash, local_hash)
 
-        request = Url.request(compare_url)
         try:
-            result = json.loads(Url.open(request)['body'])
+            result = json.loads(Url.open(url).text)
             behind_count = result['behind_by']
         except (SystemExit, KeyboardInterrupt):
             raise
@@ -409,9 +407,8 @@ class ZipUpdater(object):
 
         logging.info('Downloading latest Zip.')
         zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, core.CONFIG['Server']['gitbranch'])
-        request = Url.request(zip_url)
         try:
-            zip_bytes = Url.open(request, read_bytes=True)['body']
+            zip_bytes = Url.open(zip_url, stream=True).content
             with open(update_zip, 'wb') as f:
                 f.write(zip_bytes)
             del zip_bytes

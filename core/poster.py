@@ -36,9 +36,8 @@ class Poster():
                 shutil.copy2(poster_url, new_poster_path)
 
             else:
-                request = Url.request(poster_url)
                 try:
-                    poster_bytes = Url.open(request, read_bytes=True)['body']
+                    poster_bytes = Url.open(poster_url, stream=True).content
                 except (SystemExit, KeyboardInterrupt):
                     raise
                 except Exception as e:

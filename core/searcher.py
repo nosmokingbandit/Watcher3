@@ -148,7 +148,6 @@ class Searcher():
 
         Returns Bool if movie is found.
         '''
-
         proxy.Proxy.create()
 
         results = []

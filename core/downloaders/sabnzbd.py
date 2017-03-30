@@ -26,10 +26,8 @@ class Sabnzbd():
 
         url = 'http://{}:{}/sabnzbd/api?apikey={}&mode=server_stats'.format(host, port, api)
 
-        request = Url.request(url)
-
         try:
-            response = Url.open(request)['body']
+            response = Url.open(url).text
             if 'error' in response:
                 return response
             return True
@@ -75,10 +73,8 @@ class Sabnzbd():
 
         url = base_url + command_url
 
-        request = Url.request(url)
-
         try:
-            response = json.loads(Url.open(request)['body'])
+            response = json.loads(Url.open(url).text)
 
             if response['status'] is True and len(response['nzo_ids']) > 0:
                 downloadid = response['nzo_ids'][0]
