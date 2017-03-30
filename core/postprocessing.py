@@ -45,6 +45,8 @@ class Postprocessing(object):
         Returns str json.dumps(dict) to post-process reqesting application.
         '''
 
+        config = core.CONFIG['Postprocessing']
+
         logging.info('#################################')
         logging.info('Post-processing request received.')
         logging.info('#################################')
@@ -83,10 +85,11 @@ class Postprocessing(object):
         data.update(self.get_movie_info(data))
 
         # remove any invalid characters
-        for (k, v) in data.items():
+        for k, v in data.items():
             # but we have to keep the path unmodified
+            repl = config['replaceillegal']
             if k != 'path' and k != 'movie_file' and type(v) == str:
-                data[k] = re.sub(r'[:"*?<>|]+', '', v)
+                data[k] = re.sub(r'[:"*?<>|]+', repl, v)
 
         # At this point we have all of the information we're going to get.
         if data['mode'] == 'failed':
@@ -183,8 +186,6 @@ class Postprocessing(object):
         Returns dict of any gathered information
         '''
 
-        config = core.CONFIG['Postprocessing']
-
         # try to get searchresult using guid first then downloadid
         logging.info('Searching local database for guid.')
         result = self.sql.get_single_search_result('guid', data['guid'])
@@ -219,16 +220,10 @@ class Postprocessing(object):
         else:
             logging.info('Unable to find local data for release. Attempting to get info from file.')
             data.update(self.metadata.get_metadata(data['movie_file']))
+
         if data:
             if not data.get('quality'):
                 data['quality'] = 'Default'
-
-            repl = config['replaceillegal']
-
-            for (k, v) in data.items():
-                if type(v) == str:
-                    data[k] = re.sub(r'[:"*?<>|]+', repl, v)
-
             return data
         else:
             return {}
