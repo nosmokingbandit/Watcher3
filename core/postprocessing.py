@@ -461,7 +461,7 @@ class Postprocessing(object):
         # mark guid in both results tables
         logging.info('Marking guid as Finished.')
         guid_result = {}
-        if data['guid']:
+        if data['guid'] and data.get('imdbid'):
             if self.update.searchresults(data['guid'], 'Finished', movie_info=data):
                 guid_result['update_SEARCHRESULTS'] = 'true'
             else:
@@ -476,7 +476,7 @@ class Postprocessing(object):
             result['tasks'][data['guid']] = guid_result
 
         # if we have a guid2, do it all again
-        if 'guid2' in data.keys():
+        if 'guid2' in data.keys() and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
             if self.update.searchresults(data['guid2'], 'Finished', movie_info=data):
@@ -613,11 +613,11 @@ class Postprocessing(object):
 
         Returns str new path
         '''
-
+        new_string = string
         for k, v in data.items():
             k = "{"+k+"}"
-            if k in string:
-                new_string = string.replace(k, v)
+            if k in new_string:
+                new_string = new_string.replace(k, v)
 
         while '  ' in new_string:
             new_string = new_string.replace('  ', ' ')
