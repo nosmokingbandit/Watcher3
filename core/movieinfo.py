@@ -63,7 +63,7 @@ class TMDB(object):
         Returns list results or str error/fail message
         '''
 
-        title = Url.encode(title)
+        title = Url.normalize(title)
 
         url = 'https://api.themoviedb.org/3/search/movie?page=1&include_adult=false&'
         if title[-4:].isdigit():
@@ -163,8 +163,8 @@ class TMDB(object):
             return None
 
         if not tmdbid:
-            title = Url.encode(title)
-            year = Url.encode(year)
+            title = Url.normalize(title)
+            year = Url.normalize(year)
 
             url = 'https://api.themoviedb.org/3/search/movie?api_key={}&language=en-US&query={}&year={}&page=1&include_adult=false'.format(_k(b'tmdb'), title, year)
             request = Url.request(url)
@@ -212,9 +212,9 @@ class Trailer(object):
         Returns str or None
         '''
 
-        search_term = Url.encode((title_date + '+trailer'))
 
         search_string = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
+        search_term = Url.normalize((title_date + '+trailer'))
 
         request = Url.request(search_string)
 

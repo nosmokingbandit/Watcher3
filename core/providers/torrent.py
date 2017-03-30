@@ -41,7 +41,7 @@ class Torrent(NewzNabProvider):
 
         results = []
 
-        term = Url.encode('{}+{}'.format(title, year))
+        term = Url.normalize('{}+{}'.format(title, year))
 
         for indexer in torz_indexers:
             if indexer[2] is False:
@@ -69,8 +69,8 @@ class Torrent(NewzNabProvider):
 
         torrent_indexers = core.CONFIG['Indexers']['Torrent']
 
-        title = Url.encode(title)
-        year = Url.encode(year)
+        title = Url.normalize(title)
+        year = Url.normalize(year)
 
         if torrent_indexers['rarbg']:
             rarbg_results = Rarbg.search(imdbid)

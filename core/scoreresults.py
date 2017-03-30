@@ -269,8 +269,8 @@ class ScoreResults():
                     result['score'] += 20
                     lst.append(result)
                     continue
-                test = Url.encode(result['title'])
-                matches = [fuzz.partial_ratio(Url.encode(title), test) for title in titles]
+                test = Url.normalize(result['title'])
+                matches = [fuzz.partial_ratio(Url.normalize(title), test) for title in titles]
                 if any([match > 70 for match in matches]):
                     result['score'] += (max(matches) / 5)
                     lst.append(result)

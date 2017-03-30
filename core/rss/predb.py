@@ -71,7 +71,7 @@ class PreDB(object):
         Returns list of found rss entries or None if not found.
         '''
 
-        title_year = Url.encode(title_year)
+        title_year = Url.normalize(title_year)
 
         url = 'http://predb.me/?cats=movies&search={}&rss=1'.format(title_year)
 

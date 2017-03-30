@@ -60,7 +60,7 @@ class Sabnzbd():
 
         mode = 'addurl'
         name = urllib.parse.quote(data['guid'])
-        nzbname = Url.encode(data['title'])
+        nzbname = Url.normalize(data['title'])
         cat = conf['category']
         priority_keys = {
             'Paused': '-2',

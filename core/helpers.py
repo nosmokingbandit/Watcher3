@@ -48,7 +48,7 @@ class Url(object):
         return request
 
     @staticmethod
-    def encode(s):
+    def normalize(s):
         ''' URL-encode strings
         Do not use with full url, only passed params
         '''
