@@ -98,9 +98,9 @@ class Postprocessing(object):
 
             response = self.complete(data)
 
-            response['data'].pop('backlog', None)
-            response['data'].pop('predb', None)
-            response['data'].pop('source', None)
+            response['data'].pop('backlog', '')
+            response['data'].pop('predb', '')
+            response['data'].pop('source', '')
 
             title = response['data'].get('title')
             year = response['data'].get('year')
