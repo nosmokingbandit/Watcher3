@@ -15,8 +15,8 @@ class Head(object):
         meta(name='url_base', content=core.URL_BASE)
         meta(name='notifications', content=json.dumps([i for i in core.NOTIFICATIONS if i is not None]))
 
-        link(rel='stylesheet', href=core.URL_BASE + '/static/css/style.css?v=03.28')
-        link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}style.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+        link(rel='stylesheet', href=core.URL_BASE + '/static/css/style.css?v=04.03')
+        link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}style.css?v=04.03'.format(core.CONFIG['Server']['theme']))
         link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Raleway')
         link(rel='stylesheet', href=core.URL_BASE + '/static/font-awesome/css/font-awesome.css')
         link(rel='stylesheet', href=core.URL_BASE + '/static/js/sweetalert-master/dist/sweetalert.css')

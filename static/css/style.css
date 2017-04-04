@@ -20,6 +20,10 @@ body{
     font-size: 16px;
 }
 
+button{
+    font-family: Raleway, sans-serif;
+}
+
 input, select{
     color: #ccc;
     outline: none;
@@ -31,6 +35,10 @@ input, select{
     padding: 0.1em 0.5em;
     font-family: monospace;
     border: 1px solid #080f18;
+}
+
+p{
+    line-height: 1.5em;
 }
 
 a{
