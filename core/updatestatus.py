@@ -1,6 +1,6 @@
 import logging
 
-from core import sqldb, library, scoreresults
+from core import sqldb, library, scoreresults, searcher
 import os
 
 logging = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ class Status(object):
             if movie_info is None:
                 logging.warning('Metadata not supplied, unable to create SEARCHRESULTS entry.')
                 return False
-            search_result = self.library.fake_search_result(movie_info)
+            search_result = searcher.Searcher.fake_search_result(movie_info)
             search_result['indexer'] = 'Post-Processing Import'
             search_result['title'] = movie_info['title']
             search_result['size'] = os.path.getsize(movie_info.get('orig_filename', '.'))

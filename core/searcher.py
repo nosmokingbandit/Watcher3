@@ -5,6 +5,7 @@ import core
 from core import scoreresults, snatcher, sqldb, updatestatus, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
+from base64 import b16encode
 from fuzzywuzzy import fuzz
 
 logging = logging.getLogger(__name__)
@@ -463,3 +464,50 @@ class Searcher():
                 return True
             else:
                 return False
+
+    @staticmethod
+    def fake_search_result(movie):
+        ''' Generated fake search result for imported movies
+        movie: dict of movie info
+
+        Resturns dict to match SEARCHRESULTS table
+        '''
+
+        result = {'status': 'Finished',
+                  'info_link': '#',
+                  'pubdate': None,
+                  'title': None,
+                  'imdbid': movie['imdbid'],
+                  'torrentfile': None,
+                  'indexer': 'Library Import',
+                  'date_found': str(datetime.date.today()),
+                  'score': None,
+                  'type': 'import',
+                  'downloadid': None,
+                  'guid': None,
+                  'resolution': movie.get('resolution'),
+                  'size': movie.get('size', ''),
+                  'releasegroup': movie.get('releasegroup', ''),
+                  'freeleech': 0
+                  }
+
+        title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
+                                           movie['year'],
+                                           movie.get('resolution', ''),
+                                           movie.get('audiocodec', ''),
+                                           movie.get('videocodec', ''),
+                                           movie.get('releasegroup', '')
+                                           )
+
+        while len(title) > 0 and title[-1] == '.':
+            title = title[:-1]
+
+        while '..' in title:
+            title = title.replace('..', '.')
+
+        result['title'] = title
+
+        fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+        result['guid'] = movie.get('guid', fake_guid)
+
+        return result
