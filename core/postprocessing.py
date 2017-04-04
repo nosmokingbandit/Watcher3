@@ -55,19 +55,19 @@ class Postprocessing(object):
         for key in ['apikey', 'mode', 'guid', 'path']:
             if key not in data:
                 logging.warning('Missing key {}'.format(key))
-                return json.dumps({'response': 'false',
+                return json.dumps({'response': False,
                                   'error': 'missing key: {}'.format(key)})
 
         # check if api key is correct
         if data['apikey'] != core.CONFIG['Server']['apikey']:
             logging.warning('Incorrect API key.'.format(key))
-            return json.dumps({'response': 'false',
+            return json.dumps({'response': False,
                               'error': 'incorrect api key'})
 
         # check if mode is valid
         if data['mode'] not in ['failed', 'complete']:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': 'false',
+            return json.dumps({'response': False,
                               'error': 'invalid mode value'})
 
         # modify path based on remote mapping
@@ -88,7 +88,7 @@ class Postprocessing(object):
         for k, v in data.items():
             # but we have to keep the path unmodified
             repl = config['replaceillegal']
-            if k != 'path' and k != 'movie_file' and type(v) == str:
+            if k != 'path' and k != 'movie_file' and k != 'url' and type(v) == str:
                 data[k] = re.sub(r'[:"*?<>|]+', repl, v)
 
         # At this point we have all of the information we're going to get.
@@ -121,7 +121,7 @@ class Postprocessing(object):
             logging.info(response)
         else:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': 'false',
+            return json.dumps({'response': False,
                                'error': 'invalid mode value'}, indent=2, sort_keys=True)
 
         logging.info('#################################')
@@ -257,14 +257,14 @@ class Postprocessing(object):
 
         if data['guid']:  # guid can be empty string
             if self.update.searchresults(data['guid'], 'Bad'):
-                guid_result['update_SEARCHRESULTS'] = 'true'
+                guid_result['update_SEARCHRESULTS'] = True
             else:
-                guid_result['update_SEARCHRESULTS'] = 'false'
+                guid_result['update_SEARCHRESULTS'] = False
 
             if self.update.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
-                guid_result['update_MARKEDRESULTS'] = 'true'
+                guid_result['update_MARKEDRESULTS'] = True
             else:
-                guid_result['update_MARKEDRESULTS'] = 'false'
+                guid_result['update_MARKEDRESULTS'] = False
 
         # create result entry for guid
         result['tasks']['guid'] = guid_result
@@ -274,52 +274,52 @@ class Postprocessing(object):
             logging.info('Marking guid2 as Bad.')
             guid2_result = {'url': data['guid2']}
             if self.update.searchresults(data['guid2'], 'Bad'):
-                guid2_result['update SEARCHRESULTS'] = 'true'
+                guid2_result['update SEARCHRESULTS'] = True
             else:
-                guid2_result['update SEARCHRESULTS'] = 'false'
+                guid2_result['update SEARCHRESULTS'] = False
 
             if self.update.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
-                guid2_result['update_MARKEDRESULTS'] = 'true'
+                guid2_result['update_MARKEDRESULTS'] = True
             else:
-                guid2_result['update_MARKEDRESULTS'] = 'false'
+                guid2_result['update_MARKEDRESULTS'] = False
             # create result entry for guid2
             result['tasks']['guid2'] = guid2_result
 
         # set movie status
         if data['imdbid']:
             logging.info('Setting MOVIE status.')
-            r = str(self.update.movie_status(data['imdbid'])).lower()
+            r = self.update.movie_status(data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
-            r = 'false'
+            r = False
         result['tasks']['update_movie_status'] = r
 
         # delete failed files
         if config['cleanupfailed']:
-            result['tasks']['cleanup'] = {'enabled': 'true', 'path': data['path']}
+            result['tasks']['cleanup'] = {'enabled': True, 'path': data['path']}
 
             logging.info('Deleting leftover files from failed download.')
             if self.cleanup(data['path']) is True:
-                result['tasks']['cleanup']['response'] = 'true'
+                result['tasks']['cleanup']['response'] = True
             else:
-                result['tasks']['cleanup']['response'] = 'false'
+                result['tasks']['cleanup']['response'] = False
         else:
-            result['tasks']['cleanup'] = {'enabled': 'false'}
+            result['tasks']['cleanup'] = {'enabled': False}
 
         # grab the next best release
         if core.CONFIG['Search']['autograb']:
-            result['tasks']['autograb'] = {'enabled': 'true'}
+            result['tasks']['autograb'] = {'enabled': True}
             logging.info('Grabbing the next best release.')
             if data.get('imdbid') and data.get('quality'):
                 if self.snatcher.auto_grab(data):
-                    r = 'true'
+                    r = True
                 else:
-                    r = 'false'
+                    r = False
             else:
-                r = 'false'
+                r = False
             result['tasks']['autograb']['response'] = r
         else:
-            result['tasks']['autograb'] = {'enabled': 'false'}
+            result['tasks']['autograb'] = {'enabled': False}
 
         # all done!
         result['status'] = 'finished'
@@ -362,14 +362,14 @@ class Postprocessing(object):
         guid_result = {}
         if data['guid'] and data.get('imdbid'):
             if self.update.searchresults(data['guid'], 'Finished', movie_info=data):
-                guid_result['update_SEARCHRESULTS'] = 'true'
+                guid_result['update_SEARCHRESULTS'] = True
             else:
-                guid_result['update_SEARCHRESULTS'] = 'false'
+                guid_result['update_SEARCHRESULTS'] = False
 
             if self.update.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
-                guid_result['update_MARKEDRESULTS'] = 'true'
+                guid_result['update_MARKEDRESULTS'] = True
             else:
-                guid_result['update_MARKEDRESULTS'] = 'false'
+                guid_result['update_MARKEDRESULTS'] = False
 
             # create result entry for guid
             result['tasks'][data['guid']] = guid_result
@@ -379,15 +379,15 @@ class Postprocessing(object):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
             if self.update.searchresults(data['guid2'], 'Finished', movie_info=data):
-                guid2_result['update_SEARCHRESULTS'] = 'true'
+                guid2_result['update_SEARCHRESULTS'] = True
             else:
-                guid2_result['update_SEARCHRESULTS'] = 'false'
+                guid2_result['update_SEARCHRESULTS'] = False
 
             if self.update.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
                                          ):
-                guid2_result['update_MARKEDRESULTS'] = 'true'
+                guid2_result['update_MARKEDRESULTS'] = True
             else:
-                guid2_result['update_MARKEDRESULTS'] = 'false'
+                guid2_result['update_MARKEDRESULTS'] = False
 
             # create result entry for guid2
             result['tasks'][data['guid2']] = guid2_result
@@ -400,67 +400,67 @@ class Postprocessing(object):
                 self.ajax.add_wanted_movie(json.dumps(data))
 
             logging.info('Setting MOVIE status.')
-            r = str(self.update.movie_status(data['imdbid'])).lower()
+            r = self.update.movie_status(data['imdbid'])
             self.sql.update('MOVIES', 'finished_date', result['data']['finished_date'], 'imdbid', data['imdbid'])
             self.sql.update('MOVIES', 'finished_score', result['data'].get('finished_score'), 'imdbid', data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
-            r = 'false'
+            r = False
         result['tasks']['update_movie_status'] = r
 
         # renamer
         if config['renamerenabled']:
-            result['tasks']['renamer'] = {'enabled': 'true'}
+            result['tasks']['renamer'] = {'enabled': True}
             result['data']['original_file'] = result['data']['movie_file']
             response = self.renamer(data)
             if response is None:
-                result['tasks']['renamer']['response'] = 'false'
+                result['tasks']['renamer']['response'] = False
             else:
                 path = os.path.split(data['movie_file'])[0]
                 data['movie_file'] = os.path.join(path, response)
-                result['tasks']['renamer']['response'] = 'true'
+                result['tasks']['renamer']['response'] = True
         else:
             logging.info('Renamer disabled.')
-            result['tasks']['mover'] = {'enabled': 'false'}
+            result['tasks']['mover'] = {'enabled': False}
 
         # mover
         if config['moverenabled']:
-            result['tasks']['mover'] = {'enabled': 'true'}
+            result['tasks']['mover'] = {'enabled': True}
             response = self.mover(data)
             if response is False:
-                result['tasks']['mover']['response'] = 'false'
+                result['tasks']['mover']['response'] = False
             else:
                 data['finished_file'] = response
-                result['tasks']['mover']['response'] = 'true'
+                result['tasks']['mover']['response'] = True
         else:
             logging.info('Mover disabled.')
-            result['tasks']['mover'] = {'enabled': 'false'}
+            result['tasks']['mover'] = {'enabled': False}
 
         if data.get('imdbid'):
             self.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
 
         # Delete leftover dir. Skip if createhardlinks enabled or if mover disabled/failed
         if config['cleanupenabled']:
-            result['tasks']['cleanup'] = {'enabled': 'true'}
+            result['tasks']['cleanup'] = {'enabled': True}
 
             if config['createhardlink']:
                 logging.info('Hardlink creation enabled. Skipping Cleanup.')
-                result['tasks']['cleanup']['response'] = 'skipped'
+                result['tasks']['cleanup']['response'] = None
                 return result
 
             # fail if mover disabled or failed
             if config['moverenabled'] is False or \
-                    result['tasks']['mover']['response'] == 'false':
+                    result['tasks']['mover']['response'] is False:
                 logging.info('Mover either disabled or failed. Skipping Cleanup.')
-                result['tasks']['cleanup']['response'] = 'false'
+                result['tasks']['cleanup']['response'] = False
             else:
                 if self.cleanup(data['path']):
-                    r = 'true'
+                    r = True
                 else:
-                    r = 'false'
+                    r = False
                 result['tasks']['cleanup']['response'] = r
         else:
-            result['tasks']['cleanup'] = {'enabled': 'false'}
+            result['tasks']['cleanup'] = {'enabled': False}
 
         # all done!
         result['status'] = 'finished'
