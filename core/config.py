@@ -102,6 +102,22 @@ class Config():
                 d[k] = u[k]
         return d
 
+    def dump(self, config=core.CONFIG):
+        ''' Writes config to file
+        config: dict of config  <default core.CONFIG>
+
+        Opposite of stash. Writes config to disk
+
+        Returns bool
+        '''
+        try:
+            with open(self.file, 'w') as f:
+                json.dump(config, f, indent=4, sort_keys=True)
+        except Exception as e: #noqa
+            return False
+
+        return True
+
     def stash(self, config=None):
         ''' Stores entire config as dict to core.CONFIG
         config: dict config file contents <optional>
