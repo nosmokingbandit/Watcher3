@@ -1,25 +1,29 @@
 import os
-
+import json
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 from core.movieinfo import TMDB
-from base64 import b16encode
 from core import sqldb
+from core.helpers import Url
 import PTN
 import datetime
 import logging
+import uuid
+import xml.etree.cElementTree as ET
+import csv
 
 logging = logging.getLogger(__name__)
+
+sql = sqldb.SQL()
 
 
 class ImportDirectory(object):
 
     def __init__(self):
-        self.tmdb = TMDB()
-        self.sql = sqldb.SQL()
         return
 
-    def scan_dir(self, directory, minsize=500, recursive=True):
+    @staticmethod
+    def scan_dir(directory, minsize=500, recursive=True):
         ''' Scans directory for movie files
         directory: str base directory of movie library
         minsize: int minimum filesize in MB <default 500>
@@ -33,7 +37,7 @@ class ImportDirectory(object):
         files = []
         try:
             if recursive:
-                files = self._walk(directory)
+                files = ImportDirectory._walk(directory)
             else:
                 files = [os.path.join(directory, i) for i in os.listdir(directory) if os.path.isfile(os.path.join(directory, i))]
         except Exception as e:
@@ -43,53 +47,8 @@ class ImportDirectory(object):
 
         return {'files': files}
 
-    def fake_search_result(self, movie):
-        ''' Generated fake search result for imported movies
-        movie: dict of movie info
-
-        Resturns dict to match SEARCHRESULTS table
-        '''
-
-        result = {'status': 'Finished',
-                  'info_link': '#',
-                  'pubdate': None,
-                  'title': None,
-                  'imdbid': movie['imdbid'],
-                  'torrentfile': None,
-                  'indexer': 'Library Import',
-                  'date_found': str(datetime.date.today()),
-                  'score': None,
-                  'type': 'import',
-                  'downloadid': None,
-                  'guid': None,
-                  'resolution': movie.get('resolution'),
-                  'size': movie.get('size', ''),
-                  'freeleech': 0
-                  }
-
-        title = '{}.{}.{}.{}.{}.{}.{}'.format(movie['title'],
-                                              movie['year'],
-                                              result['resolution'],
-                                              movie['source'],
-                                              movie['audiocodec'],
-                                              movie['videocodec'],
-                                              movie['releasegroup']
-                                              )
-
-        while len(title) > 0 and title[-1] == '.':
-            title = title[:-1]
-
-        while '..' in title:
-            title = title.replace('..', '.')
-
-        result['title'] = title
-
-        fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
-        result['guid'] = movie.get('guid', fake_guid)
-
-        return result
-
-    def _walk(self, directory):
+    @staticmethod
+    def _walk(directory):
         ''' Recursively gets all files in dir
         dir: directory to scan for files
 
@@ -102,10 +61,253 @@ class ImportDirectory(object):
             logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
             full_path = os.path.join(directory, i)
             if os.path.isdir(full_path):
-                files = files + self._walk(full_path)
+                files = files + ImportDirectory._walk(full_path)
             else:
                 files.append(full_path)
         return files
+
+
+class ImportKodiLibrary(object):
+
+    @staticmethod
+    def get_movies(url):
+        ''' Gets list of movies from kodi server
+        url: str url of kodi server
+
+        url should include auth info if required.
+
+        Gets movies from kodi, reformats list, and adds resolution/source info.
+        Since Kodi doesn't care about souce we default to BluRay-<resolution>
+
+        Returns list of dicts of movies
+        '''
+
+        krequest = {"jsonrpc": "2.0",
+                    "method": "VideoLibrary.GetMovies",
+                    "params": {
+                        "filter": {
+                            "field": "playcount",
+                            "operator": "is",
+                            "value": "0"
+                        },
+                        "limits": {
+                            "start": 0,
+                            "end": 0
+                        },
+                        "properties": [
+                            "title",
+                            "year",
+                            "imdbnumber",
+                            "file",
+                            "streamdetails"
+                        ],
+                        "sort": {
+                            "order": "ascending",
+                            "method": "label",
+                            "ignorearticle": True
+                        }
+                    },
+                    "id": "libMovies"
+                    }
+
+        logging.info('Retreiving movies from Kodi.')
+        url = '{}/jsonrpc?request={}'.format(url, json.dumps(krequest))
+
+        try:
+            response = Url.open(url)
+        except Exception as e:
+            logging.error('Unable to reach Kodi server.', exc_info=True)
+            return {'response': False, 'error': str(e.args[0].reason).split(']')[-1]}
+
+        if response.status_code != 200:
+            if response.status_code == 401:
+                return {'response': False, 'error': 'Incorrect credentials.'}
+            elif response.status_code == 403:
+                return {'response': False, 'error': 'Unauthorized credentials.'}
+            elif response.status_code == 404:
+                return {'response': False, 'error': 'Server not found.'}
+            else:
+                return {'response': False, 'error': 'Error {}'.format(response.status_code)}
+
+        library = [i['imdbid'] for i in sql.get_user_movies()]
+        movies = []
+
+        today = str(datetime.date.today())
+        for i in json.loads(response.text)['result']['movies']:
+            if i['imdbnumber'] in library:
+                logging.info('{} in library, skipping.'.format(i['imdbidnumber']))
+                continue
+
+            movie = {}
+            movie['title'] = i['title']
+            movie['year'] = i['year']
+            movie['imdbid'] = i['imdbnumber']
+            movie['file'] = i['file']
+            movie['added_date'] = movie['finished_date'] = today
+            movie['audiocodec'] = i['streamdetails']['audio'][0].get('codec')
+            if movie['audiocodec'] == 'dca' or movie['audiocodec'].startswith('dts'):
+                movie['audiocodec'] = 'DTS'
+            movie['videocodec'] = i['streamdetails']['video'][0].get('codec')
+            width = i['streamdetails']['video'][0]['width']
+            if width > 1920:
+                movie['resolution'] = 'BluRay-4K'
+            elif 1920 >= width > 1440:
+                movie['resolution'] = 'BluRay-1080P'
+            elif 1440 >= width > 720:
+                movie['resolution'] = 'BluRay-720P'
+            else:
+                movie['resolution'] = 'DVD-SD'
+
+            movies.append(movie)
+
+        return {'response': True, 'movies': movies}
+
+
+class ImportPlexLibrary(object):
+
+    @staticmethod
+    def get_libraries(url, token):
+        ''' Gets list of libraries in server url
+        url: url and port of plex server
+        token: plex auth token for server
+
+        Returns list of dicts
+        '''
+
+        headers = {'X-Plex-Token': token}
+
+        url = '{}/library/sections'.format(url)
+
+        try:
+            r = Url.open(url, headers=headers)
+            xml = r.text
+        except Exception as e: #noqa
+            logging.error('Unable to contact Plex server.', exc_info=True)
+            return {'response', False, 'error', 'Unable to contact Plex server.'}
+
+        libs = []
+        try:
+            root = ET.fromstring(xml)
+
+            for directory in root.findall('Directory'):
+                lib = directory.attrib
+                lib['path'] = directory.find('Location').attrib['path']
+                libs.append(lib)
+        except Exception as e: #noqa
+            logging.error('Unable to parse Plex xml.', exc_info=True)
+            return {'response', False, 'error', 'Unable to parse Plex xml.'}
+
+        return {'response': True, 'libraries': libs}
+
+    @staticmethod
+    def get_movies(server, libid, token):
+
+        headers = {'X-Plex-Token': token}
+        url = '{}/library/sections/{}/all'.format(server, libid)
+
+        try:
+            r = Url.open(url, headers=headers)
+            xml = r.text
+        except Exception as e: #noqa
+            logging.error('Unable to contact Plex server.', exc_info=True)
+            return {'response', False, 'error', 'Unable to contact Plex server.'}
+
+        movies = []
+        try:
+            root = ET.fromstring(xml)
+
+            for i in root:
+                movie = {}
+
+                movies.append(movie)
+
+        except Exception as e: #noqa
+            logging.error('Unable to parse Plex xml.', exc_info=True)
+            return {'response', False, 'error', 'Unable to parse Plex xml.'}
+
+        return {'response': True, 'movies': movies}
+
+    @staticmethod
+    def get_token(username=None, password=None):
+        ''' Gets auth token for plex
+        username: str username of plex account
+        password: str password of plex account
+
+        Returns str token or None
+        '''
+
+        plex_url = 'https://plex.tv/users/sign_in.json'
+        post_data = {'user[login]': username,
+                     'user[password]': password
+                     }
+        headers = {'X-Plex-Client-Identifier': str(uuid.getnode()),
+                   'X-Plex-Product': 'Watcher',
+                   'X-Plex-Version': '1.0'}
+
+        try:
+            r = Url.open(plex_url, post_data=post_data, headers=headers)
+            return json.loads(r.text)['user'].get('authentication_token')
+        except Exception as e: #noqa
+            logging.error('Unable to get Plex token.', exc_info=True)
+            return None
+
+    @staticmethod
+    def read_csv(csv_text):
+        library = [i['imdbid'] for i in sql.get_user_movies()]
+        try:
+            movies = []
+            reader = csv.DictReader(csv_text.splitlines())
+            for row in reader:
+                movies.append(dict(row))
+        except Exception as e: #noqa
+            return {'response': False, 'error': e}
+
+        parsed_movies = []
+        incomplete = []
+        today = str(datetime.date.today())
+        for movie in movies:
+            complete = True
+            parsed = {}
+
+            db_id = movie['MetaDB Link'].split('/')[-1]
+            if db_id.startswith('tt'):
+                if db_id in library:
+                    continue
+                else:
+                    parsed['imdbid'] = db_id
+            elif all(i.isdigit() for i in db_id):
+                parsed['tmdbid'] = db_id
+            else:
+                complete = False
+
+            parsed['title'] = movie['Title']
+            parsed['year'] = movie['Year']
+
+            parsed['added_date'] = parsed['finished_date'] = today
+
+            parsed['audiocodec'] = movie['Audio Codec']
+            if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
+                parsed['audiocodec'] = 'DTS'
+
+            width = int(movie['Width'])
+            if width > 1920:
+                parsed['resolution'] = 'BluRay-4K'
+            elif 1920 >= width > 1440:
+                parsed['resolution'] = 'BluRay-1080P'
+            elif 1440 >= width > 720:
+                parsed['resolution'] = 'BluRay-720P'
+            else:
+                parsed['resolution'] = 'DVD-SD'
+
+            parsed['size'] = int(movie['Part Size as Bytes'])
+            parsed['file'] = movie['Part File']
+
+            if complete:
+                parsed_movies.append(parsed)
+            else:
+                incomplete.append(parsed)
+
+        return {'response': True, 'movies': parsed_movies, 'incomplete': incomplete}
 
 
 class Metadata(object):
@@ -263,7 +465,8 @@ class Metadata(object):
         ''' Takes movie data and converts to a database-writable dict
         movie: dict of movie information
 
-        Used to prepare movie data for write into MOVIES
+        Used to prepare TMDB's movie response for write into MOVIES
+        Must include Watcher-specific keys ie resolution,
         Makes sure all keys match and are present.
         Sorts out alternative titles and digital release dates
 
@@ -271,12 +474,15 @@ class Metadata(object):
         '''
 
         if not movie.get('imdbid'):
-            movie['imdbid'] = movie.pop('imdb_id')
+            movie['imdbid'] = 'N/A'
 
         if movie.get('release_date'):
             movie['year'] = movie['release_date'][:4]
         else:
             movie['year'] = 'N/A'
+
+        if movie.get('added_date') is None:
+            movie['added_date'] = str(datetime.date.today())
 
         movie['poster'] = 'images/poster/{}.jpg'.format(movie['imdbid'])
         movie['plot'] = movie['overview']
@@ -307,7 +513,9 @@ class Metadata(object):
         if movie.get('quality') is None:
             movie['quality'] = 'Default'
 
-        required_keys = ('added_date', 'alternative_titles', 'digital_release_date', 'imdbid', 'tmdbid', 'title', 'year', 'poster', 'plot', 'url', 'score', 'release_date', 'rated', 'status', 'quality', 'addeddate', 'backlog')
+        movie['finished_file'] = movie.get('finished_file')
+
+        required_keys = ('added_date', 'alternative_titles', 'digital_release_date', 'imdbid', 'tmdbid', 'title', 'year', 'poster', 'plot', 'url', 'score', 'release_date', 'rated', 'status', 'quality', 'addeddate', 'backlog', 'finished_file', 'finished_date')
 
         movie = {k: v for k, v in movie.items() if k in required_keys}
 

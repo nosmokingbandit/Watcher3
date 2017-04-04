@@ -93,7 +93,7 @@ class TMDB(object):
 
     def _search_imdbid(self, imdbid):
 
-        url = 'https://api.themoviedb.org/3/find/{}?language=en-US&external_source=imdb_id'.format(imdbid)
+        url = 'https://api.themoviedb.org/3/find/{}?language=en-US&external_source=imdb_id&append_to_response=alternative_titles,external_ids,release_dates'.format(imdbid)
 
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
@@ -133,6 +133,7 @@ class TMDB(object):
                 logging.warning(results.get('status_code'))
                 return ['']
             else:
+                results['imdbid'] = results.pop('imdb_id')
                 return [results]
         except (SystemExit, KeyboardInterrupt):
             raise
@@ -141,7 +142,7 @@ class TMDB(object):
             return ['']
 
     def get_imdbid(self, tmdbid=None, title=None, year=''):
-        ''' Gets imdbid from tmdbid
+        ''' Gets imdbid from tmdbid or title and year
         tmdbid: str TMDB movie id #
         title: str movie title
         year str year of movie release

@@ -8,30 +8,8 @@ $(document).ready(function() {
     })
 
     var $content = $("div#content");
-    // set default state for pseudo checkboxes
-    $("i.checkbox").each(function(){
-        $this = $(this);
-        if ($this.attr("value") == "True" ){
-            $this.removeClass("fa-square-o");
-            $this.addClass("fa-check-square");
-        }
-    });
 
-    // toggle checkbox status
-    $content.on("click", "i.checkbox", function(){
-        $this = $(this);
-        // turn on
-        if( $this.attr("value") == "False" ){
-            $this.attr("value", "True");
-            $this.removeClass("fa-square-o");
-            $this.addClass("fa-check-square");
-        // turn off
-        } else if ($this.attr("value") == "True" ){
-            $this.attr("value", "False");
-            $this.removeClass("fa-check-square");
-            $this.addClass("fa-square-o");
-        }
-    });
+// Import directory
 
     // file browser
     $file_list = $("ul#file_list");
@@ -95,7 +73,7 @@ $(document).ready(function() {
 
         e.preventDefault();
         var last_response_len = false;
-        $.ajax(url_base + '/ajax/scan_library', {
+        $.ajax(url_base + '/ajax/scan_library_directory', {
             method: "POST",
             data: {"directory": directory, "minsize": minsize, "recursive": recursive},
             xhrFields: {
@@ -119,7 +97,13 @@ $(document).ready(function() {
         .done(function(data)
         {
             $("div#wait_scanning").slideUp();
-            $('span#import').slideDown();
+            if($('div#scan_success table').length == 1 && $('div#scan_missing table').length == 1){
+                $('div#no_new_movies').slideDown();
+                $('span#import').slideUp();
+                return
+            } else {
+                $('span#import').slideDown();
+            }
         })
         .fail(function(data)
         {
@@ -129,7 +113,7 @@ $(document).ready(function() {
     });
 
     function render_movie(response){
-        // Renders movie output from scanner
+        // Renders movie output from importer
         // response: response from ajax handler
         // Appends html to appropriate table in DOM
 
@@ -144,7 +128,7 @@ $(document).ready(function() {
             $scan_progress.width(progress_percent);
             $scan_progress_text.text(progress_text);
             return
-        }else if(response['response'] == 'complete'){
+        } else if(response['response'] == 'complete'){
             $('div#scan_success').show()
             $scan_progress_bar.width(progress_percent);
             $scan_progress_text.text(progress_text);
@@ -229,12 +213,12 @@ $(document).ready(function() {
             return false
         } else {
 
-            movie_data = JSON.stringify(movie_data)
-            corrected_movies = JSON.stringify(corrected_movies);
-
             if(corrected_movies === false){
                 return false
             }
+
+            movie_data = JSON.stringify(movie_data)
+            corrected_movies = JSON.stringify(corrected_movies);
 
             _submit_import(movie_data, corrected_movies)
         }
@@ -247,8 +231,7 @@ $(document).ready(function() {
             $this = $(this);
             if(is_checked($this.find("i"))){
                 metadata = JSON.parse($this.find('span.data').text());
-                source = $this.find("select.input_resolution").val();
-                metadata['resolution'] = source;
+                metadata['resolution'] = $this.find("select.input_resolution").val();
                 metadata['filepath'] = directory + $.trim($this.find("td.short_name").text());
                 movie_data.push(metadata);
             }
@@ -296,9 +279,9 @@ $(document).ready(function() {
         var $success_table = $('table#import_success')
         var $error_table = $('table#import_error')
         var last_response_len = false;
-        $.ajax(url_base + '/ajax/submit_import', {
+        $.ajax(url_base + '/ajax/import_dir', {
             method: "POST",
-            data: {"movie_data":movie_data, "corrected_movies": corrected_movies},
+            data: {"movie_data": movie_data, "corrected_movies": corrected_movies},
             xhrFields: {
                 onprogress: function(e)
                 {
@@ -324,7 +307,7 @@ $(document).ready(function() {
                                    </tr>`
                         $success_table.append(row)
                     } else {
-                        $imporerror_tablet_error.show()
+                        $error_table.show()
                         var row = `<tr>
                                        <td>${r['movie']['title']}</td>
                                        <td>${r['error']}</td>
@@ -336,7 +319,6 @@ $(document).ready(function() {
         })
         .done(function(data)
         {
-            $('div#wait_importing span#import_progress').text('');
             $("div#wait_importing").slideUp();
             $('a#finished').slideDown();
         })
@@ -346,6 +328,434 @@ $(document).ready(function() {
             toastr.error(err);
         });
     }
+
+// Kodi Import
+    $("div#start_import_kodi").click(function(){
+        var scheme = $('select#scheme').val();
+        var address = $('input#kodi_address').val();
+        if(!address){
+            highlight($('input#kodi_address'));
+            return false
+        }
+
+        var port = $('input#kodi_port').val();
+        if(!port){
+            highlight($('input#kodi_port'));
+            return false
+        }
+
+        var user = $('input#kodi_user').val();
+        var password = $('input#kodi_pass').val();
+
+        if(user && password){
+            var url = `${scheme}${user}:${password}@${address}:${port}`
+        } else {
+            var url = `${scheme}${address}:${port}`
+        }
+
+        $('div#kodi_server_info').slideUp();
+        $('div#thinker').fadeIn();
+
+        $.post(url_base + '/ajax/get_kodi_movies/', {'url': url})
+        .done(function(r){
+            response = JSON.parse(r);
+
+            if(!response['response']){
+                toastr.error(response['error'])
+                $('div#thinker').fadeOut();
+                $('div#kodi_server_info').slideDown();
+                return false
+            }
+
+            var movies = response['movies']
+            if(movies.length == 0){
+                $('div#no_new_movies').slideDown();
+                $('div#thinker').fadeOut();
+                return false
+            }
+            var $table = $('div#kodi_response table')
+            $.each(movies, function(index, movie){
+                var select = resolution_select;
+                select.children(`option`).removeAttr('selected')
+                select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
+                row = `<tr>
+                            <td>
+                                <i class='fa fa-check-square checkbox', value='True'/>
+                                <span class='hidden data'>${JSON.stringify(movie)}</span>
+                            </td>
+                            <td class='file_location' data-original="${movie['file']}">
+                                ${movie['file']}
+                            </td>
+                            <td>
+                                ${movie['title']}
+                            </td>
+                            <td>
+                                ${movie['imdbid']}
+                            </td>
+                            <td class='resolution'>
+                                ${select[0].outerHTML}
+                            </td>
+                      `
+                $table.append(row)
+            });
+
+            $('div#thinker').fadeOut();
+            $('div#kodi_response').slideDown();
+            $('span#kodi_import').slideDown();
+
+        });
+    })
+
+    $("button#kodi_apply_remote").click(function(){
+        var local = $('input#kodi_local_path').val()
+        var remote = $('input#kodi_remote_path').val()
+
+        $('div#kodi_response table td.file_location').each(function(index, elem){
+            var $elem = $(elem);
+            var new_path = $elem.text().replace(remote, local)
+            $elem.text(new_path);
+        })
+    })
+
+    $("button#kodi_reset_remote").click(function(){
+        $('div#kodi_response table td.file_location').each(function(index, elem){
+            var $elem = $(elem);
+            $elem.text($elem.attr('data-original'));
+        })
+    })
+
+    $('span#kodi_import').click(function(){
+        var movies = [];
+        $('div#kodi_response table tr').each(function(index, elem){
+            var $row = $(elem);
+            if(!is_checked($row.find('i.checkbox'))){
+                return 'continue'
+            }
+
+            movie = JSON.parse($row.find('span.data').text())
+            movie['finished_file'] = $row.find('td.file_location').text().trim()
+            movie['resolution'] = $row.find('td.resolution select').val();
+            movies.push(movie);
+        })
+
+        $('div#kodi_response').slideUp();
+        $('div#kodi_import_results').slideDown();
+        $('div#kodi_wait_importing').slideDown();
+
+        var $import_progress_text = $('div#kodi_wait_importing span#import_progress_text');
+        var $import_progress_bar = $('div#kodi_wait_importing span.progress_bar');
+        var $success_table = $('table#kodi_import_success')
+        var $error_table = $('table#kodi_import_error')
+        var last_response_len = false;
+        $.ajax(url_base + '/ajax/import_kodi', {
+            method: "POST",
+            data: {"movies": JSON.stringify(movies)},
+            xhrFields: {
+                onprogress: function(e)
+                {
+                    var response_update;
+                    var response = e.currentTarget.response;
+                    if(last_response_len === false){
+                        response_update = response;
+                        last_response_len = response.length;
+                    } else {
+                        response_update = response.substring(last_response_len);
+                        last_response_len = response.length;
+                    }
+                    var r = JSON.parse(response_update);
+                    var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                    var progress_percent = (r['progress'][0] / r['progress'][1]) * 100 + '%';
+                    $import_progress_text.text(progress_text)
+                    $import_progress_bar.width(progress_percent)
+                    if(r['response'] === true){
+                        $success_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['movie']['imdbid']}</td>
+                                   </tr>`
+                        $success_table.append(row)
+                    } else {
+                        $error_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['error']}</td>
+                                   </tr>`
+                        $error_table.append(row)
+                    }
+                }
+            }
+        })
+        .done(function(data)
+        {
+            $("div#kodi_wait_importing").slideUp();
+            $('a#finished').slideDown();
+        })
+        .fail(function(data)
+        {
+            var err = data.status + ' ' + data.statusText
+            toastr.error(err);
+        });
+
+    });
+
+// Plex Import
+    $('div#start_import_plex').click(function(){
+        var file_input = document.getElementById('plex_csv');
+        if(file_input.files.length == 0){
+            highlight($('input#plex_csv'));
+            return false
+        }
+
+        post_data = new FormData();
+        post_data.append('file_input', file_input.files[0])
+
+        $('div#plex_csv_form').slideUp();
+        $('div#thinker').fadeIn();
+
+        $.ajax({
+            url: url_base+'/ajax/upload_plex_csv',
+            type: 'POST',
+            data: post_data,
+            processData: false,
+            contentType: false
+        }).done(function(r){
+            response = JSON.parse(r);
+
+            if(!response['response']){
+                toastr.error(response['error'])
+                $('div#thinker').fadeOut();
+                $('div#plex_csv_form').slideDown();
+                return false
+            }
+
+            var movies = response['movies']
+            var incomplete = response['incomplete']
+            if(movies.length == 0 && incomplete.length == 0){
+                $('div#no_new_movies').slideDown();
+                $('div#thinker').fadeOut();
+                return false
+            }
+            var $table = $('div#plex_parsed_csv table#complete');
+            $.each(movies, function(index, movie){
+                var select = resolution_select;
+                select.children(`option`).removeAttr('selected')
+                select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
+                console.log(movie)
+                if(movie['imdbid']){
+                    id = movie['imdbid']
+                } else if(movie['tmdbid']) {
+                    id = movie['tmdbid']
+                }
+
+                row = `<tr>
+                            <td>
+                                <i class='fa fa-check-square checkbox', value='True'/>
+                                <span class='hidden data'>${JSON.stringify(movie)}</span>
+                            </td>
+                            <td class='file_location' data-original="${movie['file']}">
+                                ${movie['file']}
+                            </td>
+                            <td>
+                                ${movie['title']}
+                            </td>
+                            <td>
+                                ${id}
+                            </td>
+                            <td class='resolution'>
+                                ${select[0].outerHTML}
+                            </td>
+                      `
+                $table.append(row)
+                $table.show();
+            });
+
+            if(incomplete.length != 0){
+                var $table = $('div#plex_parsed_csv table#incomplete')
+                $.each(incomplete, function(index, movie){
+                    var select = resolution_select;
+                    select.children(`option`).removeAttr('selected')
+                    select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
+                    if(movie['imdbid']){
+                        id = movie['imdbid']
+                    } else {
+                        id = movie['tmdbid']
+                    }
+
+                    row = `<tr>
+                                <td>
+                                    <i class='fa fa-check-square checkbox', value='True'/>
+                                    <span class='hidden data'>${JSON.stringify(movie)}</span>
+                                </td>
+                                <td class='file_location' data-original="${movie['file']}">
+                                    ${movie['file']}
+                                </td>
+                                <td>
+                                    ${movie['title']}
+                                </td>
+                                <td>
+                                    <input type='text' class='input_imdbid', placeholder='tt0123456' value=${imdbid}></input>
+                                </td>
+                                <td class='resolution'>
+                                    ${select[0].outerHTML}
+                                </td>
+                          `
+                    $table.append(row)
+                    $table.show();
+
+                });
+            }
+
+            $('div#plex_parsed_csv').slideDown();
+            $('div#thinker').fadeOut();
+        });
+    });
+
+    $("button#plex_apply_remote").click(function(){
+        var local = $('input#plex_local_path').val()
+        var remote = $('input#plex_remote_path').val()
+
+        $('div#plex_parsed_csv table td.file_location').each(function(index, elem){
+            var $elem = $(elem);
+            var new_path = $elem.text().replace(remote, local)
+            $elem.text(new_path);
+        })
+    })
+
+    $("button#plex_reset_remote").click(function(){
+        $('div#plex_parsed_csv table td.file_location').each(function(index, elem){
+            var $elem = $(elem);
+            $elem.text($elem.attr('data-original'));
+        })
+    })
+
+    $('span#plex_import').click(function(){
+        var cancel = false;
+        var movie_data = [];
+        $('div#plex_parsed_csv table#complete tr').each(function(index, elem){
+            var $row = $(elem);
+            if(!is_checked($row.find('i.checkbox'))){
+                return 'continue'
+            }
+
+            movie = JSON.parse($row.find('span.data').text())
+            movie['finished_file'] = $row.find('td.file_location').text().trim()
+            movie['resolution'] = $row.find('td.resolution select').val();
+            movie_data.push(movie);
+        })
+
+        var corrected_movies = [];
+        $('div#plex_parsed_csv table#incomplete tr').each(function(index, elem){
+            var $row = $(elem);
+            if(!is_checked($row.find('i.checkbox'))){
+                return 'continue'
+            }
+
+            movie = JSON.parse($row.find('span.data').text())
+            movie['finished_file'] = $row.find('td.file_location').text().trim();
+            movie['imdbid'] = $row.find('input.input_imdbid').val();
+            if(movie['imdbid'] == ''){
+                highlight($row.find('input.input_imdbid'));
+                cancel = true;
+                return
+            }
+            movie['resolution'] = $row.find('td.resolution select').val();
+            corrected_movies.push(movie);
+        });
+
+        if(corrected_movies.length == 0 && movie_data.length == 0){
+            toastr.warning("All imports disabled.");
+        }
+
+        if(cancel){
+            return false
+        }
+
+        $('div#plex_parsed_csv').slideUp();
+        $('div#plex_import_results').slideDown();
+        $('div#plex_wait_importing').slideDown();
+
+        var $import_progress_text = $('div#plex_wait_importing span#import_progress_text');
+        var $import_progress_bar = $('div#plex_wait_importing span.progress_bar');
+        var $success_table = $('table#plex_import_success')
+        var $error_table = $('table#plex_import_error')
+        var last_response_len = false;
+        $.ajax(url_base + '/ajax/import_plex_csv', {
+            method: "POST",
+            data: {"movie_data": JSON.stringify(movie_data), "corrected_movies": JSON.stringify(corrected_movies)},
+            xhrFields: {
+                onprogress: function(e)
+                {
+                    var response_update;
+                    var response = e.currentTarget.response;
+                    if(last_response_len === false){
+                        response_update = response;
+                        last_response_len = response.length;
+                    } else {
+                        response_update = response.substring(last_response_len);
+                        last_response_len = response.length;
+                    }
+                    var r = JSON.parse(response_update);
+                    var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                    var progress_percent = (r['progress'][0] / r['progress'][1]) * 100 + '%';
+                    $import_progress_text.text(progress_text)
+                    $import_progress_bar.width(progress_percent)
+                    if(r['response'] === true){
+                        $success_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['movie']['imdbid']}</td>
+                                   </tr>`
+                        $success_table.append(row)
+                    } else {
+                        $error_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['error']}</td>
+                                   </tr>`
+                        $error_table.append(row)
+                    }
+                }
+            }
+        })
+        .done(function(data)
+        {
+            $("div#plex_wait_importing").slideUp();
+            $('a#finished').slideDown();
+        })
+        .fail(function(data)
+        {
+            var err = data.status + ' ' + data.statusText
+            toastr.error(err);
+        });
+
+    });
+
+
+// General UI
+    // set default state for pseudo checkboxes
+    $("i.checkbox").each(function(){
+        $this = $(this);
+        if ($this.attr("value") == "True" ){
+            $this.removeClass("fa-square-o");
+            $this.addClass("fa-check-square");
+        }
+    });
+
+    // toggle checkbox status
+    $content.on("click", "i.checkbox", function(){
+        $this = $(this);
+        // turn on
+        if( $this.attr("value") == "False" ){
+            $this.attr("value", "True");
+            $this.removeClass("fa-square-o");
+            $this.addClass("fa-check-square");
+        // turn off
+        } else if ($this.attr("value") == "True" ){
+            $this.attr("value", "False");
+            $this.removeClass("fa-check-square");
+            $this.addClass("fa-square-o");
+        }
+    });
 
     function is_checked(checkbox){
         // Turns value of checkbox "True"/"False" into bool

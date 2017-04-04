@@ -29,13 +29,13 @@ class Ajax(object):
     def __init__(self):
         self.tmdb = TMDB()
         self.config = config.Config()
-        self.library = library.ImportDirectory()
         self.metadata = library.Metadata()
         self.predb = predb.PreDB()
         self.plugins = plugins.Plugins()
         self.searcher = searcher.Searcher()
         self.score = scoreresults.ScoreResults()
         self.sql = sqldb.SQL()
+        self.library = library
         self.poster = poster.Poster()
         self.snatcher = snatcher.Snatcher()
         self.update = updatestatus.Status()
@@ -82,6 +82,8 @@ class Ajax(object):
         ''' Adds movie to Wanted list.
         :param data: str json.dumps(dict) of info to add to database.
 
+        data MUST inlcude tmdb id as data['id']
+
         Writes data to MOVIES table.
         If Search on Add enabled,
             searches for movie immediately in separate thread.
@@ -106,7 +108,8 @@ class Ajax(object):
         tmdbid = data['id']
 
         movie = self.tmdb._search_tmdbid(tmdbid)[0]
-        movie['imdbid'] = movie.pop('imdb_id')
+        movie.update(data)
+
         movie['quality'] = data.get('quality', 'Default')
         movie['status'] = data.get('status', 'Wanted')
 
@@ -617,7 +620,7 @@ class Ajax(object):
         return json.dumps(response)
 
     @cherrypy.expose
-    def scan_library(self, directory, minsize, recursive):
+    def scan_library_directory(self, directory, minsize, recursive):
         ''' Calls library to scan directory for movie files
         directory: str directory to scan
         minsize: str minimum file size in mb, coerced to int
@@ -638,9 +641,9 @@ class Ajax(object):
         Yeilds generator object of json objects
         '''
 
-        recursive = bool(recursive)
+        recursive = json.loads(recursive)
         minsize = int(minsize)
-        files = self.library.scan_dir(directory, minsize, recursive)
+        files = self.library.ImportDirectory.scan_dir(directory, minsize, recursive)
         if files.get('error'):
             yield json.dumps({'error': files['error']})
             raise StopIteration()
@@ -669,10 +672,10 @@ class Ajax(object):
                 logging.info('All data found for import {}'.format(metadata['title']))
                 yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
 
-    scan_library._cp_config = {'response.stream': True}
+    scan_library_directory._cp_config = {'response.stream': True}
 
     @cherrypy.expose
-    def submit_import(self, movie_data, corrected_movies):
+    def import_dir(self, movie_data, corrected_movies):
         ''' Imports list of movies in data
         movie_data: list of dicts of movie info ready to import
         corrected_movies: list of dicts of user-corrected movie info
@@ -716,13 +719,12 @@ class Ajax(object):
                 movie['status'] = 'Disabled'
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
-                    fake_results.append(self.library.fake_search_result(movie))
+                    fake_results.append(self.searcher.fake_search_result(movie))
                     yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                     progress += 1
                     success.append(movie)
                     continue
                 else:
-                    movie['error'] = response['error']
                     yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
                     progress += 1
                     continue
@@ -745,7 +747,7 @@ class Ajax(object):
 
         self.sql.write_search_results(fake_results)
 
-    submit_import._cp_config = {'response.stream': True}
+    import_dir._cp_config = {'response.stream': True}
 
     @cherrypy.expose
     def list_files(self, current_dir, move_dir):
@@ -785,7 +787,6 @@ class Ajax(object):
             return json.dumps({'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)})
 
         movie = self.tmdb._search_tmdbid(tmdbid)[0]
-        movie['imdbid'] = movie.pop('imdb_id')
 
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
 
@@ -852,3 +853,185 @@ class Ajax(object):
                     return json.dumps({'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)})
 
             return json.dumps({'response': True, 'message': 'Quality profiles updated.'})
+
+    @cherrypy.expose
+    def get_kodi_movies(self, url):
+        ''' Gets list of movies from kodi server
+        url: str url of kodi server
+
+        Calls Kodi import method to gather list.
+
+        Returns list of dicts of movies
+        '''
+
+        return json.dumps(library.ImportKodiLibrary.get_movies(url))
+
+    @cherrypy.expose
+    def import_kodi(self, movies):
+        ''' Imports list of movies in movies from Kodi library
+        movie_data: JSON list of dicts of movies
+
+        Iterates through movies and gathers all required metadata.
+
+        If imported, generates and stores fake search result.
+
+        Creates dict {'success': [], 'failed': []} and
+            appends movie data to the appropriate list.
+
+        Yeilds generator object of json objects
+        '''
+
+        movies = json.loads(movies)
+
+        fake_results = []
+
+        success = []
+
+        length = len(movies)
+        progress = 1
+
+        print(movies[0])
+
+        for movie in movies:
+
+            tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
+            if not tmdb_data.get('id'):
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': 'Unable to find {} on TMDB.'.format(movie['imdbid'])})
+                progress += 1
+                continue
+            else:
+                movie['id'] = tmdb_data['id']
+                movie['size'] = 0
+                movie['status'] = 'Disabled'
+
+            response = json.loads(self.add_wanted_movie(json.dumps(movie)))
+            if response['response'] is True:
+                fake_results.append(self.searcher.fake_search_result(movie))
+                yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                progress += 1
+                success.append(movie)
+                continue
+            else:
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
+                progress += 1
+                continue
+
+        fake_results = self.score.score(fake_results, imported=True)
+
+        for i in success:
+            score = None
+            for r in fake_results:
+                if r['imdbid'] == i['imdbid']:
+                    score = r['score']
+                    break
+
+            if score:
+                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+
+        self.sql.write_search_results(fake_results)
+
+    import_kodi._cp_config = {'response.stream': True}
+
+    @cherrypy.expose
+    def get_plex_libraries(self, server, username, password):
+        if core.CONFIG['External']['plex_tokens'].get(server) is None:
+            token = library.ImportPlexLibrary.get_token(username, password)
+            if token is None:
+                return json.dumps({'response': False, 'error': 'Unable to get Plex token.'})
+            else:
+                core.CONFIG['External']['plex_tokens'][server] = token
+                self.config.dump(core.CONFIG)
+        else:
+            token = core.CONFIG['External']['plex_tokens'][server]
+
+        return json.dumps(library.ImportPlexLibrary.get_libraries(server, token))
+
+    @cherrypy.expose
+    def upload_plex_csv(self, file_input):
+        try:
+            csv_text = file_input.file.read().decode('utf-8')
+            file_input.file.close()
+        except Exception as e: #noqa
+            print(e)
+            return
+
+        if csv_text:
+            return json.dumps(library.ImportPlexLibrary.read_csv(csv_text))
+
+        return
+
+    @cherrypy.expose
+    def import_plex_csv(self, movie_data, corrected_movies):
+        ''' Imports list of movies genrated by csv import
+        movie_data: list of dicts of movie info ready to import
+        corrected_movies: list of dicts of user-corrected movie info
+
+        Iterates through corrected_movies and attmpts to get metadata again if required.
+
+        If imported, generates and stores fake search result.
+
+        Creates dict {'success': [], 'failed': []} and
+            appends movie data to the appropriate list.
+
+        Yeilds generator object of json objects
+        '''
+
+        movie_data = json.loads(movie_data)
+        corrected_movies = json.loads(corrected_movies)
+
+        fake_results = []
+
+        success = []
+
+        length = len(movie_data) + len(corrected_movies)
+        progress = 1
+
+        if corrected_movies:
+            for data in corrected_movies:
+                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])[0]
+                if tmdbdata:
+                    data['year'] = tmdbdata['release_date'][:4]
+                    data.update(tmdbdata)
+                    movie_data.append(data)
+                else:
+                    logging.error('Unable to find {} on TMDB.'.format(data['imdbid']))
+                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'reason': 'Unable to find {} on TMDB.'.format(data['imdbid'])})
+                    progress += 1
+
+        for movie in movie_data:
+            if movie['imdbid']:
+                movie['status'] = 'Disabled'
+                tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
+                movie.update(tmdb_data)
+                print(movie)
+                response = json.loads(self.add_wanted_movie(json.dumps(movie)))
+                if response['response'] is True:
+                    fake_results.append(self.searcher.fake_search_result(movie))
+                    yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                    progress += 1
+                    success.append(movie)
+                    continue
+                else:
+                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
+                    progress += 1
+                    continue
+            else:
+                logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': 'IMDB ID invalid or missing.'})
+                progress += 1
+
+        fake_results = self.score.score(fake_results, imported=True)
+
+        for i in success:
+            score = None
+            for r in fake_results:
+                if r['imdbid'] == i['imdbid']:
+                    score = r['score']
+                    break
+
+            if score:
+                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+
+        self.sql.write_search_results(fake_results)
+
+    import_dir._cp_config = {'response.stream': True}
