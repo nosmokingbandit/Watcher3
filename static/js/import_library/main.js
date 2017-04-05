@@ -1,7 +1,7 @@
 $(document).ready(function() {
     var url_base = $("meta[name='url_base']").attr("content");
     var directory = "";
-    var resolutions = JSON.parse($('#resolution_list').text());
+    var resolutions = JSON.parse($('#resolution_list').text()) || null;
     resolution_select = $("<select class='input_resolution'></select>");
     $.each(resolutions, function(i, v){
         resolution_select.append(`<option value=${v}>${v}</option>`)
@@ -540,7 +540,7 @@ $(document).ready(function() {
                 var select = resolution_select;
                 select.children(`option`).removeAttr('selected')
                 select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
-                console.log(movie)
+
                 if(movie['imdbid']){
                     id = movie['imdbid']
                 } else if(movie['tmdbid']) {
@@ -730,6 +730,196 @@ $(document).ready(function() {
 
     });
 
+// CP Import
+    $('div#start_import_cp').click(function(){
+        var scheme = $('select#scheme').val();
+        var address = $('input#cp_address').val();
+        if(!address){
+            highlight($('input#cp_address'));
+            return false
+        }
+        var port = $('input#cp_port').val();
+        if(!port){
+            highlight($('input#cp_port'));
+            return false
+        }
+        var key = $('input#cp_key').val();
+        if(!key){
+            highlight($('input#kodi_port'));
+            return false
+        }
+
+        var url = scheme + address + ':' + port
+
+        $('div#cp_server_info').slideUp();
+        $('div#thinker').fadeIn();
+
+        $.post(url_base+'/ajax/get_cp_movies', {'url': url, 'apikey': key})
+        .done(function(r){
+            response = JSON.parse(r)
+            if(response['response'] !== true){
+                $('div#cp_server_info').slideDown();
+                $('div#thinker').fadeOut();
+                toastr.error(response['error'])
+                return false
+            }
+
+            if(response['movies'].length == 0){
+                $('div#thinker').fadeOut();
+                $('div#no_new_movies').slideDown();
+                return false
+            }
+
+            $finished_table = $('div#cp_response table#finished');
+            $wanted_table = $('div#cp_response table#wanted');
+
+            var quality_select =  $(`<select class='input_quality'></select>`);
+            $.each(JSON.parse($('span#profile_list').text()), function(i, v){
+                if(v == 'Default'){
+                    quality_select.append(`<option value=${v} selected>${v}</option>`)
+                } else{
+                    quality_select.append(`<option value=${v}>${v}</option>`)
+                }
+            })
+
+            $.each(response['movies'], function(index, movie){
+                var select = resolution_select;
+                select.children(`option`).removeAttr('selected')
+                select.children(`option[value="${movie['resolution']}"]`).attr('selected', 'selected');
+
+                if(movie['status'] === 'Disabled'){
+                    var $row = $(`<tr>
+                                    <td>
+                                        <i class='fa fa-check-square checkbox', value='True'/>
+                                        <span class='hidden data'>${JSON.stringify(movie)}</span>
+                                    </td>
+                                    <td>
+                                        ${movie['title']}
+                                    </td>
+                                    <td>
+                                        ${movie['imdbid']}
+                                    </td>
+                                    <td class='resolution'>
+                                        ${select[0].outerHTML}
+                                    </td>
+                               </tr>`)
+                    $finished_table.append($row)
+                    $finished_table.show();
+                } else {
+                    var $row = $(`<tr>
+                                    <td>
+                                        <i class='fa fa-check-square checkbox', value='True'/>
+                                        <span class='hidden data'>${JSON.stringify(movie)}</span>
+                                    </td>
+                                    <td>
+                                        ${movie['title']}
+                                    </td>
+                                    <td>
+                                        ${movie['imdbid']}
+                                    </td>
+                                    <td class='profile'>
+                                        ${quality_select[0].outerHTML}
+                                    </td>
+                               </tr>`)
+                    $wanted_table.append($row)
+                    $wanted_table.show();
+                }
+            });
+
+            $('div#thinker').fadeOut();
+            $('div#cp_response').slideDown();
+        })
+    });
+
+    $('span#cp_import').click(function(){
+        finished_movies = []
+        $('div#cp_response table#finished tr').each(function(index, elem){
+            var $row = $(elem);
+            if(!is_checked($row.find('i.checkbox'))){
+                return 'continue'
+            }
+
+            movie = JSON.parse($row.find('span.data').text())
+            movie['resolution'] = $row.find('td.resolution select').val();
+            finished_movies.push(movie);
+        });
+
+        wanted_movies = []
+        $('div#cp_response table#wanted tr').each(function(index, elem){
+            var $row = $(elem);
+            if(!is_checked($row.find('i.checkbox'))){
+                return 'continue'
+            }
+
+            movie = JSON.parse($row.find('span.data').text())
+            movie['resolution'] = $row.find('td.resolution select').val();
+            wanted_movies.push(movie);
+        });
+
+        if(finished_movies.length == 0 && wanted_movies.length == 0){
+            toastr.warning("All imports disabled.");
+            return false
+        }
+
+        $('div#cp_response').slideUp();
+        $('div#cp_import_results').slideDown();
+        $('div#cp_wait_importing').slideDown();
+
+        var $import_progress_text = $('div#cp_wait_importing span#import_progress_text');
+        var $import_progress_bar = $('div#cp_wait_importing span.progress_bar');
+        var $success_table = $('table#cp_import_success')
+        var $error_table = $('table#cp_import_error')
+        var last_response_len = false;
+        $.ajax(url_base + '/ajax/import_cp_movies', {
+            method: "POST",
+            data: {"wanted": JSON.stringify(wanted_movies), "finished": JSON.stringify(finished_movies)},
+            xhrFields: {
+                onprogress: function(e)
+                {
+                    var response_update;
+                    var response = e.currentTarget.response;
+                    if(last_response_len === false){
+                        response_update = response;
+                        last_response_len = response.length;
+                    } else {
+                        response_update = response.substring(last_response_len);
+                        last_response_len = response.length;
+                    }
+                    console.log(response_update)
+                    var r = JSON.parse(response_update);
+                    var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                    var progress_percent = (r['progress'][0] / r['progress'][1]) * 100 + '%';
+                    $import_progress_text.text(progress_text)
+                    $import_progress_bar.width(progress_percent)
+                    if(r['response'] === true){
+                        $success_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['movie']['imdbid']}</td>
+                                   </tr>`
+                        $success_table.append(row)
+                    } else {
+                        $error_table.show()
+                        var row = `<tr>
+                                       <td>${r['movie']['title']}</td>
+                                       <td>${r['error']}</td>
+                                   </tr>`
+                        $error_table.append(row)
+                    }
+                }
+            }
+        })
+        .done(function(data)
+        {
+            $("div#cp_wait_importing").slideUp();
+            $('a#finished').slideDown();
+        })
+        .fail(function(data)
+        {
+            var err = data.status + ' ' + data.statusText
+            toastr.error(err);
+        });
+    });
 
 // General UI
     // set default state for pseudo checkboxes

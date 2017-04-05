@@ -17,9 +17,9 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.03')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.03'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=04.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.04')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.04'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=04.04')
 
         with doc:
             Header.insert_header(current=None)
@@ -27,13 +27,18 @@ class ImportLibrary():
                 h1('Import Library')
                 with div(id='import_sources'):
                     with div():
+                        with a(href=core.URL_BASE + '/import_library/couchpotato'):
+                            img(src=core.URL_BASE + '/static/images/couchpotato.png', alt='CouchPotato', cls='import_source_icon')
+                            br()
+                            span('CouchPotato')
+                    with div():
                         with a(href=core.URL_BASE + '/import_library/kodi'):
                             img(src=core.URL_BASE + '/static/images/kodi.png', alt='Kodi', cls='import_source_icon')
                             br()
                             span('Kodi')
                     with div():
                         with a(href=core.URL_BASE + '/import_library/plex'):
-                            img(src=core.URL_BASE + '/static/images/plex.png', alt='Kodi', cls='import_source_icon')
+                            img(src=core.URL_BASE + '/static/images/plex.png', alt='Plex', cls='import_source_icon')
                             br()
                             span('Plex')
                     with div():
@@ -377,6 +382,95 @@ class ImportLibrary():
                             th('Title')
                             th('IMDB ID')
                     with table(id='plex_import_error', cls='hidden'):
+                        with tr():
+                            th('File')
+                            th('Error')
+                    with a(id='finished', href='{}/status'.format(core.URL_BASE), cls='hidden'):
+                        i(cls='fa fa-thumbs-o-up')
+                        span('Cool')
+
+            with div(id='no_new_movies', cls='hidden'):
+                h3('No new movies found')
+                br()
+                with a(href=core.URL_BASE+'/import_library'):
+                    i(cls='fa fa-arrow-circle-left')
+                    span('Return')
+
+            div(id='thinker')
+        return doc.render()
+
+    @expose
+    def couchpotato(self):
+        doc = dominate.document(title='Watcher')
+        doc.attributes['lang'] = 'en'
+
+        with doc.head:
+            Head.insert()
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=03.28')
+
+        with doc:
+            Header.insert_header(current=None)
+            span(json.dumps(core.RESOLUTIONS), cls='hidden', id='resolution_list')
+            span(json.dumps(list(core.CONFIG['Quality']['Profiles'].keys())), cls='hidden', id='profile_list')
+            with div(id='content'):
+                with div(id='cp_server_info'):
+                    h1('Import CouchPotato Library')
+                    h2('Enter CouchPotato server information:')
+                    with p():
+                        with select(id='scheme'):
+                            option('http://', value='http://')
+                            option('https://', value='https://')
+                        input(type='text', placeholder='localhost', id='cp_address')
+                        span(':')
+                        input(type='number', placeholder='5050', id='cp_port')
+                    with p('API Key'):
+                        input(type='text', placeholder='123456789abcdef', id='cp_key', style='width: 18em;')
+
+                    with div(id='start_import_cp'):
+                        i(cls='fa fa-cloud-download')
+                        span('Import Library')
+
+                with div(id='cp_response', cls='hidden'):
+                    h3('The following movies have been found')
+                    h3('Please review this list before submitting')
+                    br()
+                    with table(id='finished', cls='hidden'):
+                        h3('Finished movies')
+                        with tr():
+                            th('Import', style='width: 1em; text-align: center;')
+                            th('Title')
+                            th('IMDBID', style='width: 1em;')
+                            th('Source', style='width: 1em;')
+
+                    with table(id='wanted', cls='hidden'):
+                        h3('Wanted movies')
+                        with tr():
+                            th('Import', style='width: 1em; text-align: center;')
+                            th('Title')
+                            th('IMDBID', style='width: 1em;')
+                            th('Quality Profile', style='width: 1em;')
+                    with span(id='cp_import'):
+                        i(cls='fa fa-check-circle')
+                        span('Import')
+
+                with div(id='cp_wait_importing', cls='hidden'):
+                    span('Importing selected movies.')
+                    br()
+                    span('This may take several minutes.')
+                    br()
+                    with span(id='import_progress'):
+                        span(cls='progress_bar')
+                    span(id='import_progress_text')
+
+                with div(id='cp_import_results', cls='hidden'):
+                    with table(id='cp_import_success', cls='hidden'):
+                        span('Imported:')
+                        with tr():
+                            th('Title')
+                            th('IMDB ID')
+                    with table(id='cp_import_error', cls='hidden'):
                         with tr():
                             th('File')
                             th('Error')

@@ -282,6 +282,26 @@ span#plex_import{
     display: inline-block;
 }
 
+/* ========= */
+/* Import CP */
+/* ========= */
+div#start_import_cp{
+    display: inline-block;
+    cursor: pointer;
+    margin: 2em auto 0 auto;
+    font-size: 2em;
+}
+
+div#cp_response table th{
+    padding: 0 2em;
+}
+
+span#cp_import{
+    font-size: 1.5em;
+    margin-bottom: 2em;
+    display: inline-block;
+}
+
 /* Shared */
 
 div#no_new_movies{

@@ -310,6 +310,82 @@ class ImportPlexLibrary(object):
         return {'response': True, 'movies': parsed_movies, 'incomplete': incomplete}
 
 
+class ImportCPLibrary(object):
+
+    @staticmethod
+    def get_movies(url):
+        ''' Gets list of movies from CP
+        url: str full url of cp movies.list api call
+
+        Returns list of dicts of movie info
+        '''
+
+        try:
+            r = Url.open(url)
+        except Exception as e:
+            return {'response': False, 'error': e}
+        if r.status_code != 200:
+            return {'response': False, 'error': 'Error {}'.format(r.status_code)}
+        try:
+            cp = json.loads(r.text)
+        except Exception as e:
+            return {'response': False, 'error': 'Malformed json response from CouchPotato'}
+
+        if cp['total'] == 0:
+            return ['']
+
+        library = [i['imdbid'] for i in sql.get_user_movies()]
+        movies = []
+        for m in cp['movies']:
+            if m['info']['imdb'] in library:
+                continue
+            movie = {}
+            if m['status'] == 'done':
+                movie['status'] = 'Disabled'
+                for i in m['releases']:
+                    if i['status'] == 'done':
+                        name = i['info']['name']
+                        title_data = PTN.parse(name)
+
+                        movie['audiocodec'] = title_data.get('audio')
+                        movie['videocodec'] = title_data.get('codec')
+
+                        movie['size'] = i['info']['size'] * 1024 * 1024
+                        if '4K' in name or 'UHD' in name or '2160P' in name:
+                            movie['resolution'] = 'BluRay-4K'
+                        elif '1080' in name:
+                            movie['resolution'] = 'BluRay-1080P'
+                        elif '720' in name:
+                            movie['resolution'] = 'BluRay-720P'
+                        else:
+                            movie['resolution'] = 'DVD-SD'
+                        break
+                movie.setdefault('size', 0)
+                movie['quality'] = 'Default'
+            else:
+                movie['status'] = 'Wanted'
+
+            movie.setdefault('resolution', 'BluRay-1080P')
+
+            movie['title'] = m['info']['original_title']
+            movie['year'] = m['info']['year']
+            movie['overview'] = m['info']['plot']
+            movie['poster_path'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
+            movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(m['info']['tmdb_id'])
+            movie['vote_average'] = m['info']['rating']['imdb'][0]
+            movie['imdbid'] = m['info']['imdb']
+            movie['id'] = m['info']['tmdb_id']
+            movie['alternative_titles'] = {'titles': [{'iso_3166_1': 'US',
+                                                       'title': ','.join(m['info']['titles'])
+                                                       }]
+                                           }
+            movie['release_dates'] = {'results': []}
+
+            movies.append(movie)
+
+        return {'response': True, 'movies': movies}
+
+
 class Metadata(object):
 
     def __init__(self):

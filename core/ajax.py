@@ -78,13 +78,17 @@ class Ajax(object):
         return msp.html(imdbid)
 
     @cherrypy.expose
-    def add_wanted_movie(self, data):
+    def add_wanted_movie(self, data, full_metadata=False):
         ''' Adds movie to Wanted list.
         :param data: str json.dumps(dict) of info to add to database.
+        full_metadata: bool if data is complete and ready for write
 
         data MUST inlcude tmdb id as data['id']
 
         Writes data to MOVIES table.
+
+        If full_metadata is False, searches tmdb for data['id'] and updates data
+
         If Search on Add enabled,
             searches for movie immediately in separate thread.
             If Auto Grab enabled, will snatch movie if found.
@@ -107,16 +111,14 @@ class Ajax(object):
         data = json.loads(data)
         tmdbid = data['id']
 
-        movie = self.tmdb._search_tmdbid(tmdbid)[0]
-        movie.update(data)
+        if not full_metadata:
+            movie = self.tmdb._search_tmdbid(tmdbid)[0]
+            movie.update(data)
+        else:
+            movie = data
 
         movie['quality'] = data.get('quality', 'Default')
         movie['status'] = data.get('status', 'Wanted')
-
-        if movie['poster_path']:
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
-        else:
-            poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
 
         if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
             logging.info('{} already exists in library.'.format(movie['title']))
@@ -126,7 +128,7 @@ class Ajax(object):
             response['error'] = '{} already exists in library.'.format(movie['title'])
             return json.dumps(response)
 
-        if movie['poster_path']:
+        if movie.get('poster_path'):
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
         else:
             poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
@@ -851,6 +853,8 @@ class Ajax(object):
             for k, v in tmp_qualities.items():
                 if not self.sql.update('MOVIES', 'quality', v, 'quality', k):
                     return json.dumps({'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)})
+                if not self.sql.update('MOVIES', 'backlog', 0, 'quality', k):
+                    return json.dumps({'response': False, 'error': 'Unable to set backlog flag. Manual backlog search required for affected titles.'})
 
             return json.dumps({'response': True, 'message': 'Quality profiles updated.'})
 
@@ -1003,7 +1007,6 @@ class Ajax(object):
                 movie['status'] = 'Disabled'
                 tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
                 movie.update(tmdb_data)
-                print(movie)
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
                     fake_results.append(self.searcher.fake_search_result(movie))
@@ -1035,3 +1038,61 @@ class Ajax(object):
         self.sql.write_search_results(fake_results)
 
     import_dir._cp_config = {'response.stream': True}
+
+    @cherrypy.expose
+    def get_cp_movies(self, url, apikey):
+
+        url = '{}/api/{}/movie.list/'.format(url, apikey)
+
+        return json.dumps(library.ImportCPLibrary.get_movies(url))
+
+    @cherrypy.expose
+    def import_cp_movies(self, wanted, finished):
+        wanted = json.loads(wanted)
+        finished = json.loads(finished)
+
+        fake_results = []
+
+        success = []
+
+        length = len(wanted) + len(finished)
+        progress = 1
+
+        for movie in wanted:
+            response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
+            if response['response'] is True:
+                yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                progress += 1
+                continue
+            else:
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
+                progress += 1
+                continue
+
+        for movie in finished:
+            response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
+            if response['response'] is True:
+                fake_results.append(self.searcher.fake_search_result(movie))
+                yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                progress += 1
+                success.append(movie)
+                continue
+            else:
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'reason': response['error']})
+                progress += 1
+                continue
+
+        fake_results = self.score.score(fake_results, imported=True)
+
+        for i in success:
+            score = None
+            for r in fake_results:
+                if r['imdbid'] == i['imdbid']:
+                    score = r['score']
+                    break
+
+            if score:
+                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+
+        self.sql.write_search_results(fake_results)
+    import_cp_movies._cp_config = {'response.stream': True}
