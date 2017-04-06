@@ -41,7 +41,7 @@ name = urllib.parse.quote(sys.argv[3], safe='')
 url = u'http://{}:{}/sabnzbd/api?apikey={}&mode=history&output=json&search={}'.format(sabhost, sabport, sabkey, name)
 
 request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-response = urllib.request.urlopen(request, timeout=60).read()
+response = urllib.request.urlopen(request, timeout=60).read().decode('utf-8')
 
 slots = json.loads(response)['history']['slots']
 
@@ -66,7 +66,7 @@ post_data = urllib.parse.urlencode(data).encode('ascii')
 
 request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 
-response = json.loads(urllib.request.urlopen(request, timeout=600).read())
+response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(0)
