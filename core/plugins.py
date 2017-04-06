@@ -105,7 +105,7 @@ class Plugins(object):
                 else:
                     logging.warning('{} - Execution failed. Exit code {}.'.format(name, exit_code))
 
-            except Exception as e:
+            except Exception as e: #noqa
                 logging.error('Executing plugin {} failed.'.format(plugin), exc_info=True)
                 continue
 

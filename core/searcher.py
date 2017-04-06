@@ -2,10 +2,9 @@ import datetime
 import logging
 
 import core
-from core import scoreresults, snatcher, sqldb, updatestatus, proxy
+from core import library, searchresults, snatcher, sqldb, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
-from base64 import b16encode
 from fuzzywuzzy import fuzz
 
 logging = logging.getLogger(__name__)
@@ -15,12 +14,12 @@ class Searcher():
 
     def __init__(self):
         self.nn = newznab.NewzNab()
-        self.score = scoreresults.ScoreResults()
+        self.score = searchresults.Score()
         self.sql = sqldb.SQL()
         self.predb = predb.PreDB()
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
-        self.update = updatestatus.Status()
+        self.update = library.Status()
 
     def auto_search_and_grab(self):
         ''' Scheduled searcher and grabber.
@@ -140,7 +139,7 @@ class Searcher():
             found_date doesn't change and scores can be updated if the quality profile
             was modified since last search.
 
-        Sends ALL results to scoreresults.score() to be (re-)scored and filtered.
+        Sends ALL results to searchresults.Score().score() to be (re-)scored and filtered.
 
         Checks if guid matches entries in MARKEDRESULTS and
             sets status if found. Default status Available.
@@ -464,50 +463,3 @@ class Searcher():
                 return True
             else:
                 return False
-
-    @staticmethod
-    def fake_search_result(movie):
-        ''' Generated fake search result for imported movies
-        movie: dict of movie info
-
-        Resturns dict to match SEARCHRESULTS table
-        '''
-
-        result = {'status': 'Finished',
-                  'info_link': '#',
-                  'pubdate': None,
-                  'title': None,
-                  'imdbid': movie['imdbid'],
-                  'torrentfile': None,
-                  'indexer': 'Library Import',
-                  'date_found': str(datetime.date.today()),
-                  'score': None,
-                  'type': 'import',
-                  'downloadid': None,
-                  'guid': None,
-                  'resolution': movie.get('resolution'),
-                  'size': movie.get('size', ''),
-                  'releasegroup': movie.get('releasegroup', ''),
-                  'freeleech': 0
-                  }
-
-        title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
-                                           movie['year'],
-                                           movie.get('resolution', ''),
-                                           movie.get('audiocodec', ''),
-                                           movie.get('videocodec', ''),
-                                           movie.get('releasegroup', '')
-                                           )
-
-        while len(title) > 0 and title[-1] == '.':
-            title = title[:-1]
-
-        while '..' in title:
-            title = title.replace('..', '.')
-
-        result['title'] = title
-
-        fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
-        result['guid'] = movie.get('guid', fake_guid)
-
-        return result

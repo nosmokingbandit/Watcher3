@@ -6,7 +6,7 @@ import threading
 import cherrypy
 from base64 import b16encode
 import core
-from core import config, library, plugins, poster, scoreresults, searcher, snatcher, sqldb, updatestatus, version
+from core import config, library, plugins, poster, searchresults, searcher, snatcher, sqldb, version
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
 from core.movieinfo import TMDB
@@ -33,12 +33,12 @@ class Ajax(object):
         self.predb = predb.PreDB()
         self.plugins = plugins.Plugins()
         self.searcher = searcher.Searcher()
-        self.score = scoreresults.ScoreResults()
+        self.score = searchresults.Score()
         self.sql = sqldb.SQL()
         self.library = library
         self.poster = poster.Poster()
         self.snatcher = snatcher.Snatcher()
-        self.update = updatestatus.Status()
+        self.update = library.Status()
 
     @cherrypy.expose
     def search_tmdb(self, search_term):
@@ -721,7 +721,7 @@ class Ajax(object):
                 movie['status'] = 'Disabled'
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
-                    fake_results.append(self.searcher.fake_search_result(movie))
+                    fake_results.append(searchresults.generate_simulacrum(movie))
                     yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                     progress += 1
                     success.append(movie)
@@ -910,7 +910,7 @@ class Ajax(object):
 
             response = json.loads(self.add_wanted_movie(json.dumps(movie)))
             if response['response'] is True:
-                fake_results.append(self.searcher.fake_search_result(movie))
+                fake_results.append(searchresults.generate_simulacrum(movie))
                 yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                 progress += 1
                 success.append(movie)
@@ -1009,7 +1009,7 @@ class Ajax(object):
                 movie.update(tmdb_data)
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
-                    fake_results.append(self.searcher.fake_search_result(movie))
+                    fake_results.append(searchresults.generate_simulacrum(movie))
                     yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                     progress += 1
                     success.append(movie)
@@ -1072,7 +1072,7 @@ class Ajax(object):
         for movie in finished:
             response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
             if response['response'] is True:
-                fake_results.append(self.searcher.fake_search_result(movie))
+                fake_results.append(searchresults.generate_simulacrum(movie))
                 yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                 progress += 1
                 success.append(movie)

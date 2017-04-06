@@ -1,6 +1,5 @@
 import core
 import logging
-import json
 
 logging = logging.getLogger(__name__)
 

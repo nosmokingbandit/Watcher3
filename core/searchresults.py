@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from base64 import b16encode
 import json
 import core
 from core import sqldb
@@ -10,7 +11,7 @@ from fuzzywuzzy import fuzz
 logging = logging.getLogger(__name__)
 
 
-class ScoreResults():
+class Score():
 
     def __init__(self):
         self.sql = sqldb.SQL()
@@ -367,3 +368,51 @@ We do this because the jquery sortable gives higher priority items a lower
 Add 10 points for every preferred word match.
 
 """
+
+
+@staticmethod
+def generate_simulacrum(movie):
+    ''' Generates phony search result for imported movies
+    movie: dict of movie info
+
+    Resturns dict to match SEARCHRESULTS table
+    '''
+
+    result = {'status': 'Finished',
+              'info_link': '#',
+              'pubdate': None,
+              'title': None,
+              'imdbid': movie['imdbid'],
+              'torrentfile': None,
+              'indexer': 'Library Import',
+              'date_found': str(datetime.date.today()),
+              'score': None,
+              'type': 'import',
+              'downloadid': None,
+              'guid': None,
+              'resolution': movie.get('resolution'),
+              'size': movie.get('size', ''),
+              'releasegroup': movie.get('releasegroup', ''),
+              'freeleech': 0
+              }
+
+    title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
+                                       movie['year'],
+                                       movie.get('resolution', ''),
+                                       movie.get('audiocodec', ''),
+                                       movie.get('videocodec', ''),
+                                       movie.get('releasegroup', '')
+                                       )
+
+    while len(title) > 0 and title[-1] == '.':
+        title = title[:-1]
+
+    while '..' in title:
+        title = title.replace('..', '.')
+
+    result['title'] = title
+
+    fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+    result['guid'] = movie.get('guid', fake_guid)
+
+    return result

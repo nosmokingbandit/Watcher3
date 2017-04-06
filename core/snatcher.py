@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 import urllib.parse
 import core
-from core import plugins, sqldb, updatestatus
+from core import library, plugins, sqldb
 from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent
 
 logging = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class Snatcher():
     def __init__(self):
         self.plugins = plugins.Plugins()
         self.sql = sqldb.SQL()
-        self.update = updatestatus.Status()
+        self.update = library.Status()
         return
 
     def auto_grab(self, movie, minscore=0):
@@ -42,7 +42,7 @@ class Snatcher():
             year = movie['year']
             title = movie['title']
             release_date = movie['release_date']
-        except Exception as e:
+        except Exception as e: #noqa
             logging.error('Invalid movie data.', exc_info=True)
 
         search_results = self.sql.get_search_results(imdbid, quality)

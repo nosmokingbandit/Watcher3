@@ -7,7 +7,7 @@ import shutil
 
 import cherrypy
 import core
-from core import plugins, movieinfo, snatcher, sqldb, updatestatus, ajax
+from core import plugins, movieinfo, snatcher, sqldb, library, ajax
 from core.library import Metadata
 
 logging = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class Postprocessing(object):
         self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
         self.snatcher = snatcher.Snatcher()
-        self.update = updatestatus.Status()
+        self.update = library.Status()
         self.metadata = Metadata()
 
     def null(*args, **kwargs): return
