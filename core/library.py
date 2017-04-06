@@ -636,7 +636,7 @@ class Status(object):
             if movie_info is None:
                 logging.warning('Metadata not supplied, unable to create SEARCHRESULTS entry.')
                 return False
-            search_result = searchresults.generate_phony(movie_info)
+            search_result = searchresults.generate_simulacrum(movie_info)
             search_result['indexer'] = 'Post-Processing Import'
             search_result['title'] = movie_info['title']
             search_result['size'] = os.path.getsize(movie_info.get('orig_filename', '.'))
