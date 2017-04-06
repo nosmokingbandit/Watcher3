@@ -10,7 +10,6 @@ watcherapi = ''
 watcheraddress = 'http://localhost:9090/'
 
 import json
-import os
 import sys
 import urllib.request
 import urllib.parse
@@ -36,20 +35,18 @@ data['mode'] = 'complete'
 url = '{}/postprocessing/'.format(watcheraddress)
 post_data = urllib.parse.urlencode(data).encode('ascii')
 
+print('========================')
 print('URL:')
 print(url)
+print('========================')
 print('POST:')
 print(post_data)
+print('========================')
 
 request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 response = json.loads(urllib.request.urlopen(request, timeout=600).read())
 
-if response['status'] == 'finished':
-    sys.exit(0)
-elif response['status'] == 'incomplete':
-    sys.exit(1)
-else:
-    sys.exit(1)
+print(json.dumps(response, indent=4, sort_keys=True))
 
 sys.exit(0)
 
