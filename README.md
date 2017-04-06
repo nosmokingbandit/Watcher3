@@ -6,7 +6,7 @@ Watcher is a work in progress and plans to add more features in the future, but 
 
 Watcher may change frequently, so we strongly suggest you subscribe to the subreddit [/r/watcher](https://www.reddit.com/r/watcher/) to stay informed of any announcements, feature discussion, or events that require user interaction.
 
-Refer to the [wiki](https://github.com/nosmokingbandit/watcher/wiki) for more information about post-processing, start scripts, and other features.
+Refer to the [wiki](https://github.com/nosmokingbandit/Watcher3/wiki) for more information about post-processing, start scripts, and other features.
 
 ## Installation
 
@@ -19,7 +19,7 @@ It is also strongly recommended that you install [GIT](http://git-scm.com/). Thi
 If you choose to use Git follow these steps.
 
 * Open a terminal and cd to the directory you in which you want to install Watcher.
-* Run `git clone https://github.com/nosmokingbandit/watcher.git`
+* Run `git clone https://github.com/nosmokingbandit/Watcher3.git`
 * Start Watcher using `python watcher/watcher.py`
 * Open a browser and navigate to `localhost:9090`
 
@@ -27,7 +27,7 @@ If you choose to use Git follow these steps.
 
 If you do not wish to use Git, follow these steps.
 
-* Open your browser and go to `https://github.com/nosmokingbandit/watcher`
+* Open your browser and go to `https://github.com/nosmokingbandit/Watcher3`
 * Click on the green `Clone or download` button and click `Download ZIP`
 * Once done downloading, extract the ZIP to the location in which you want Watcher installed
 * Open a terminal and cd to the Watcher directory.
