@@ -554,8 +554,6 @@ class Metadata(object):
 
         if not movie.get('year') and movie.get('release_date'):
             movie['year'] = movie['release_date'][:4]
-        else:
-            movie['year'] = 'N/A'
 
         if movie.get('added_date') is None:
             movie['added_date'] = str(datetime.date.today())
