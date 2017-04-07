@@ -97,7 +97,7 @@ $(document).ready(function() {
         .done(function(data)
         {
             $("div#wait_scanning").slideUp();
-            if($('div#scan_success table').length == 1 && $('div#scan_missing table').length == 1){
+            if($('div#scan_success table.files tr').length == 1 && $('div#scan_missing table.files tr').length == 1){
                 $('div#no_new_movies').slideDown();
                 $('span#import').slideUp();
                 return
