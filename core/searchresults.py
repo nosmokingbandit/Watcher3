@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+import datetime
 
 from base64 import b16encode
 import json
@@ -71,7 +71,7 @@ class Score():
         preferred = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
         ignored = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
 
-        today = datetime.today()
+        today = datetime.datetime.today()
 
         logging.info('Scoring {} results.'.format(len(self.results)))
 
@@ -180,7 +180,7 @@ class Score():
             if result['type'] != 'nzb':
                 lst.append(result)
             else:
-                pubdate = datetime.strptime(result['pubdate'], '%d %b %Y')
+                pubdate = datetime.datetime.strptime(result['pubdate'], '%d %b %Y')
                 age = (today - pubdate).days
                 if age < retention:
                     lst.append(result)
@@ -370,7 +370,6 @@ Add 10 points for every preferred word match.
 """
 
 
-@staticmethod
 def generate_simulacrum(movie):
     ''' Generates phony search result for imported movies
     movie: dict of movie info
