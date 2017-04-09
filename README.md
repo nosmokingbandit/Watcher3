@@ -10,7 +10,7 @@ Refer to the [wiki](https://github.com/nosmokingbandit/Watcher3/wiki) for more i
 
 ## Installation
 
-Watcher requires [Python 2.7.9](https://www.python.org/) or newer. If you are running OSX or *nix you probably have python 2.7 already. If you do not, or are on Windows, make sure you install Python.
+Watcher requires [Python 3](https://www.python.org/).
 
 It is also strongly recommended that you install [GIT](http://git-scm.com/). This will allow you to update much more easily.
 
