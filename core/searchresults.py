@@ -238,7 +238,6 @@ class Score():
                 if all(word in r['title'].lower() for word in word_group):
                     logging.debug('{} found in {}, adding 10 points.'.format(word_group, r['title']))
                     r['score'] += 10
-                    break
                 else:
                     continue
 
