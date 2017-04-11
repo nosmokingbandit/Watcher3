@@ -28,7 +28,7 @@ class ImdbRss(object):
         '''
 
         if 'rss' in url:
-            list_id = filter(unicode.isdigit, url)
+            list_id = ''.join(filter(str.isdigit, url))
             logging.info('Syncing rss IMDB watchlist {}'.format(url))
             try:
                 response = Url.open(url).text
