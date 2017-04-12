@@ -69,15 +69,13 @@ class Postprocessing(object):
             return json.dumps({'response': False,
                               'error': 'invalid mode value'})
 
+        logging.debug(data)
+
         # modify path based on remote mapping
         data['path'] = self.map_remote(data['path'])
 
         # get the actual movie file name
         data['movie_file'] = self.get_movie_file(data['path'])
-
-        if data['movie_file']:
-            logging.info('Parsing release name for information.')
-            data.update(self.metadata.parse_filename(data['movie_file']))
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -142,6 +140,7 @@ class Postprocessing(object):
 
         logging.info('Finding movie file.')
         if os.path.isfile(path):
+            logging.info('Post-processing file {}.'.format(path))
             return path
         else:
             # Find the biggest file in the dir. Assume that this is the movie.
@@ -191,7 +190,6 @@ class Postprocessing(object):
         if not result:
             logging.info('Guid not found.')
             if 'downloadid' in data.keys():
-                # try to get result from downloadid
                 logging.info('Searching local database for downloadid.')
                 result = self.sql.get_single_search_result('downloadid', data['downloadid'])
                 if result:
