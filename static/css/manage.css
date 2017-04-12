@@ -1,0 +1,64 @@
+div#content{
+    margin: 2em auto 0 auto;
+    width: 100%;
+    max-width: 1024px;
+    min-width: 650px;
+    text-align: center;
+}
+
+table#movie_table{
+    margin: 0 auto;
+}
+
+table#movie_table th,
+table#movie_table tr{
+    padding: 0 1em 0 1em;
+    text-align: center;
+}
+
+table#movie_table tr:nth-child(odd){
+    background-color: #151c25;
+}
+
+table#movie_table i.checkbox{
+    font-size: 1.5em;
+}
+
+table img{
+    height: 6em;
+}
+
+div#select_actions{
+    margin: 1em auto;
+}
+
+table#actions{
+    margin: 0 auto 2em auto;
+    text-align: left;
+}
+
+table#actions td{
+    padding: 0.5em 0;
+}
+
+select{
+    height: 2em;
+    font-size: 0.85em;
+}
+
+table#errors{
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+table#errors td{
+    padding: 0.25em;
+}
+
+table#errors tr:not(:first-child) td{
+    border-top: 1px solid #ccc;
+}
+
+.sweet-alert button.confirm[disabled] ~ .la-ball-fall{
+    top: 20%;
+}

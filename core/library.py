@@ -511,7 +511,7 @@ class Metadata(object):
         if 'excess' in titledata:
             titledata.pop('excess')
 
-        if len(titledata) < 2:
+        if len(titledata) < 3:
             logging.info('Parsing filename doesn\'t look accurate. Parsing parent folder name.')
 
             path_list = os.path.split(filepath)[0].split(os.sep)
@@ -552,7 +552,7 @@ class Metadata(object):
         if not movie.get('imdbid'):
             movie['imdbid'] = 'N/A'
 
-        if not movie.get('year') and movie.get('release_date'):
+        if movie.get('release_date'):
             movie['year'] = movie['release_date'][:4]
 
         if movie.get('added_date') is None:
@@ -562,7 +562,8 @@ class Metadata(object):
         movie['plot'] = movie['overview']
         movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie['id'])
         movie['score'] = movie['vote_average']
-        if movie.get('status') != 'Disabled':
+
+        if not movie.get('status'):
             movie['status'] = 'Wanted'
         movie['added_date'] = str(datetime.date.today())
         movie['backlog'] = 0

@@ -48,10 +48,15 @@ class Status():
                     span('Finished')
                 self.movie_list()
 
+            with div(id='manage'):
+                with a(href='{}/manage'.format(core.URL_BASE)):
+                    i(cls='fa fa-briefcase', id='manage')
+                    span('Manage library')
+
             with div(id='import'):
                 with a(href='{}/import_library'.format(core.URL_BASE)):
                     i(cls='fa fa-hdd-o', id='import_library')
-                    span('Import existing library.')
+                    span('Import existing library')
 
             div(id='overlay')
             div(id='status_pop_up')

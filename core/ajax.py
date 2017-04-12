@@ -780,20 +780,34 @@ class Ajax(object):
         return json.dumps(response)
 
     @cherrypy.expose
-    def update_metadata(self, imdbid):
-        tmdbid = self.sql.get_movie_details('imdbid', imdbid).get('tmdbid')
+    def update_metadata(self, imdbid, tmdbid=None):
+        ''' Re-downloads metadata for each imdbid
+        imdbid: str imdbid of movie
+        tmdbid: str tmdbid of movie     <optional, default None>
 
-        if not tmdbid:
-            tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
-        if not tmdbid:
-            return json.dumps({'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)})
+        If tmdbid is None, looks in database for tmdbid using imdbid.
+        If that fails, looks on tmdb api for imdbid
+        If that fails returns error message
 
-        movie = self.tmdb._search_tmdbid(tmdbid)[0]
+        '''
+
+        movie = self.sql.get_movie_details('imdbid', imdbid)
+
+        if tmdbid is None:
+            tmdbid = movie.get('tmdbid')
+
+            if not tmdbid:
+                tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
+            if not tmdbid:
+                return json.dumps({'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)})
+
+        new_data = self.tmdb._search_tmdbid(tmdbid)[0]
+        new_data.pop('status')
 
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
 
-        if movie['poster_path']:
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
+        if new_data['poster_path']:
+            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
         else:
             poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
 
@@ -804,6 +818,7 @@ class Ajax(object):
                 logging.warning('Unable to remove existing poster.', exc_info=True)
                 return json.dumps({'response': False, 'error': 'Unable to remove existing poster.'})
 
+        movie.update(new_data)
         movie = self.metadata.convert_to_db(movie)
 
         self.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
@@ -814,7 +829,7 @@ class Ajax(object):
     @cherrypy.expose
     def change_quality_profile(self, profiles, imdbid=None):
         ''' Updates quality profile name
-        names: dict of profile names. k:v is currentname:newname
+        profiles: dict of profile names. k:v is currentname:newname
         imdbid: str imdbid of movie to change   <default None>
 
         Changes movie quality profiles from k in names to v in names
@@ -835,7 +850,7 @@ class Ajax(object):
         profiles = json.loads(profiles)
 
         if imdbid:
-            q = profiles.values()[0]
+            q = list(profiles.values())[0]
 
             if not self.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
                 return json.dumps({'response': False, 'error': 'Unable to update {} to quality {}'.format(imdbid, q)})
@@ -1096,3 +1111,73 @@ class Ajax(object):
 
         self.sql.write_search_results(fake_results)
     import_cp_movies._cp_config = {'response.stream': True}
+
+    @cherrypy.expose
+    def manager_update_metadata(self, movies):
+        movies = json.loads(movies)
+
+        response = {'response': True, 'errors': []}
+        for i in movies:
+            r = json.loads(self.update_metadata(i['imdbid'], tmdbid=i['tmdbid']))
+
+            if r['response'] is False:
+                response['response'] = False
+                response['errors'].append({i['imdbid']: r['error']})
+
+        return json.dumps(response)
+
+    @cherrypy.expose
+    def manager_change_quality(self, movies, quality):
+        movies = json.loads(movies)
+
+        response = {'response': True, 'errors': []}
+        for i in movies:
+            imdbid = i['imdbid']
+            r = json.loads(self.change_quality_profile(json.dumps({'Default': quality}), imdbid=imdbid))
+
+            if r['response'] is False:
+                response['response'] = False
+                response['errors'].append({'imdbid': imdbid, 'error': r['error']})
+
+        return json.dumps(response)
+
+    @cherrypy.expose
+    def manager_remove_movies(self, movies):
+        movies = json.loads(movies)
+
+        response = {'response': True, 'errors': []}
+        for i in movies:
+            r = json.loads(self.remove_movie(i['imdbid']))
+
+            if r['response'] is False:
+                response['response'] = False
+                response['errors'].append(i['imdbid'])
+
+        return json.dumps(response)
+
+    @cherrypy.expose
+    def manager_reset_movies(self, movies):
+        movies = json.loads(movies)
+
+        response = {'response': True, 'errors': []}
+        for i in movies:
+            imdbid = i['imdbid']
+            if not self.sql.purge_search_results(imdbid):
+                response['response'] = False
+                response['errors'].append({imdbid: 'Unable to purge Search Results'})
+                continue
+            db_reset = {'quality': 'Default',
+                        'status': 'Wanted',
+                        'finished_date': None,
+                        'finished_score': None,
+                        'backlog': 0,
+                        'finished_file': None
+                        }
+            if not self.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
+                    response['response'] = False
+                    response['errors'].append({imdbid: 'Unable to update Database'})
+                    continue
+            response['response'] = False
+            response['errors'].append({'imdbid': imdbid, 'error': 'THIS IS A TEST'})
+
+        return json.dumps(response)

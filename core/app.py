@@ -3,7 +3,7 @@ import core
 from core import ajax, scheduler
 from core.auth import AuthController
 from templates import (add_movie, fourohfour, import_library, restart, settings,
-                       shutdown, status, update)
+                       manage, shutdown, status, update)
 
 
 class App(object):
@@ -19,6 +19,7 @@ class App(object):
 
         self.ajax = ajax.Ajax()
         self.add_movie = add_movie.AddMovie()
+        self.manage = manage.Manage()
         self.status = status.Status()
         self.settings = settings.Settings()
         self.restart = restart.Restart()
