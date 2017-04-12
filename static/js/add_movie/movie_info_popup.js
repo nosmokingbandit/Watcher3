@@ -31,12 +31,12 @@ $(document).ready(function() {
     $('i.checkbox').click(function(){
         // turn on
         if( $(this).attr("value") == "False"){
-            $(this).attr("value", "true");
+            $(this).attr("value", "True");
             $(this).removeClass('fa-square-o');
             $(this).addClass('fa-check-square');
         // turn off
         } else if ( $(this).attr("value") == "True"){
-            $(this).attr("value", "false");
+            $(this).attr("value", "False");
             $(this).removeClass('fa-check-square');
             $(this).addClass('fa-square-o');
         }
