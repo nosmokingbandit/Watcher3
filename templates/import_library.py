@@ -17,8 +17,8 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.04')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.04'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.12'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=04.07')
 
         with doc:
@@ -55,8 +55,8 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.12'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=03.28')
 
         with doc:
@@ -212,8 +212,8 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.12'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=03.28')
 
         with doc:
@@ -309,8 +309,8 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.12'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=03.28')
 
         with doc:
@@ -406,8 +406,8 @@ class ImportLibrary():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/import_library.css?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}import_library.css?v=04.12'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/import_library/main.js?v=03.28')
 
         with doc:
