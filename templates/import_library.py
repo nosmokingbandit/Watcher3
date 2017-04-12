@@ -75,7 +75,7 @@ class ImportLibrary():
                         span('MB.')
                         br()
                         i(cls='fa fa-check-square checkbox', id='recursive', value='True')
-                        span('Scan recursively.')
+                        span('Scan recursively')
                         with div():
                             with span(id='start_scan'):
                                 i(cls='fa fa-binoculars', id='start_scan')
