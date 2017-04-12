@@ -180,7 +180,7 @@ class SQL(object):
         Returns Bool.
         '''
 
-        logging.info('Updating {}:{} to {} in {}.'.format(idcol, idval.split('&')[0], VALUE, TABLE))
+        logging.info('Updating {} to {} for col {}:{} in {}.'.format(COLUMN, VALUE, idcol, idval.split('&')[0], TABLE))
 
         sql = 'UPDATE {} SET {}=? WHERE {}=?'.format(TABLE, COLUMN, idcol)
         vals = (VALUE, idval)
