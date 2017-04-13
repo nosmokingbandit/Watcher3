@@ -139,7 +139,7 @@ class Ajax(object):
             t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
             t2.start()
 
-            if movie['status'] != 'Disabled':  # disable immediately grabbing new release for imports
+            if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 t = threading.Thread(target=thread_search_grab, args=(movie,))
                 t.start()
 

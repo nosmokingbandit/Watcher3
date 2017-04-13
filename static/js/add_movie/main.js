@@ -34,20 +34,25 @@ $(document).ready(function() {
                 var movie_list = $("#movie_list")
                 // move this to a py template or just have the post function return the html ?
                 $.each(results, function(ind, dict){
+                    console.log(dict)
                     if(dict['poster_path'] != null){
                         img_url = "http://image.tmdb.org/t/p/w300" + dict['poster_path']
                     } else {
                         img_url = url_base + "/static/images/missing_poster.jpg"
                     }
 
-                    $('<li>', {class: 'movie'}).attr('data', JSON.stringify(dict)).append(
-                        $("<span>", {class:'quickadd'}).append(
-                            $("<span>", {class: 'quickadd_text'}).text('Quick-Add'),
-                            $("<i>", {class: 'fa fa-plus button_add'})
-                            ),
-                        $('<img>', {src:img_url}),
-                        dict['title'],' ',dict['release_date'].slice(0,4)
-                    ).appendTo(movie_list)
+                    var row = `<li class='movie' data='${JSON.stringify(dict)}'>
+                                <span class='quickadd'>
+                                    <span class='quickadd_text'>
+                                        Quick-Add
+                                    </span>
+                                    <i class='fa fa-plus button_add'></i>
+                                </span>
+                                <img src='${img_url}' />
+                                ${dict['title']} ${(dict['release_date'] || '').slice(0,4)}
+                               </li>`
+
+                    movie_list.append(row)
                 });
             }
 
