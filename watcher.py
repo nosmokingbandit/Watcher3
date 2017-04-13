@@ -1,11 +1,17 @@
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates'))
+
+MIN_PYTHON = (3, 0, 0)
+if sys.version_info < MIN_PYTHON:
+    print('Python {} or newer required.'.format(MIN_PYTHON))
+    sys.exit(1)
+
 import argparse
 import locale
 import logging
-import os
-import sys
 import webbrowser
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates'))
 
 import cherrypy
 import core
@@ -16,11 +22,6 @@ from core.log import log
 
 if os.name == 'nt':
     from core.cp_plugins import systray
-
-MIN_PYTHON = (3, 0, 0)
-if sys.version_info < MIN_PYTHON:
-    print('Python {} or newer required.'.format(MIN_PYTHON))
-    sys.exit(1)
 
 core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
 os.chdir(core.PROG_PATH)
