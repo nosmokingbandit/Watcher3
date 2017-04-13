@@ -18,17 +18,18 @@ data = {}
 
 args = sys.argv
 
+data['apikey'] = watcherapi or input('API Key: ')
 download_dir = input('Download dir (parent of download): ')
-guid = input('GUID: ')
-name = input('Name: ')
 
 while download_dir[-1] in ['/', '\\']:
     download_dir = download_dir[:-1]
 
-data['apikey'] = watcherapi
+guid = input('GUID: ')
+name = input('Name: ')
+
+data['downloadid'] = input('Downloadid (optional): ') or guid
 data['name'] = name
 data['path'] = u'{}/{}'.format(download_dir, name)
-data['downloadid'] = guid
 data['guid'] = guid
 data['mode'] = 'complete'
 
