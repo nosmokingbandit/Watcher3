@@ -29,7 +29,7 @@ class Postprocessing(object):
     @cherrypy.expose
     def POST(self, **data):
         ''' Handles post-processing requests.
-        :kwparam **dara: keyword params send through POST request URL
+        :kwparam **data: keyword params send through POST request URL
 
         required kw params:
             apikey: str Watcher api key
@@ -191,13 +191,15 @@ class Postprocessing(object):
             logging.info('Guid not found.')
             if 'downloadid' in data.keys():
                 logging.info('Searching local database for downloadid.')
-                result = self.sql.get_single_search_result('downloadid', data['downloadid'])
+                result = self.sql.get_single_search_result('downloadid', str(data['downloadid']))
                 if result:
                     logging.info('Searchresult found by downloadid.')
                     if result['guid'] != data['guid']:
                         logging.info('Guid for downloadid does not match local data. '
                                      'Adding guid2 to processing data.')
                         data['guid2'] = result['guid']
+                else:
+                    logging.info('Unable to find search result with downloadid {}'.format(data['downloadid']))
         else:
             logging.info('Searchresult found by guid.')
 
