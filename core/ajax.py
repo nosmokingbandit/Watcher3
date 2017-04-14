@@ -131,7 +131,7 @@ class Ajax(object):
         if movie.get('poster_path'):
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
         else:
-            poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
+            poster_url = 'static/images/missing_poster.jpg'
 
         movie = self.metadata.convert_to_db(movie)
 
