@@ -45,7 +45,7 @@ print(post_data)
 print('========================')
 
 request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read())
+response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
 
 print(json.dumps(response, indent=4, sort_keys=True))
 
