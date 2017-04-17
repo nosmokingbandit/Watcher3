@@ -80,7 +80,7 @@
 
 import re
 import socket
-import urllib
+import urllib.parse
 import xmlrpc.client as xmlrpclib
 
 
@@ -96,7 +96,9 @@ class SCGITransport(xmlrpclib.Transport):
 
         try:
             if host:
-                host, port = urllib.splitport(host)
+                p = urllib.parse.urlparse(host)
+                host = p.hostname
+                port = p.port
                 addrinfo = socket.getaddrinfo(host, port, socket.AF_INET,
                                               socket.SOCK_STREAM)
                 sock = socket.socket(*addrinfo[0][:3])
@@ -139,10 +141,12 @@ class SCGITransport(xmlrpclib.Transport):
 class SCGIServerProxy(xmlrpclib.ServerProxy):
     def __init__(self, uri, transport=None, encoding=None, verbose=False,
                  allow_none=False, use_datetime=False):
-        type, uri = urllib.splittype(uri)
-        if type not in ('scgi'):
+        p = urllib.parse.urlparse(uri)
+        scheme = p.scheme
+        if scheme not in ('scgi'):
             raise IOError('unsupported XML-RPC protocol')
-        self.__host, self.__handler = urllib.splithost(uri)
+        self.__host = p.hostname
+        self.__handler = p.path
         if not self.__handler:
             self.__handler = '/'
 
