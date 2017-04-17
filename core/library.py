@@ -768,3 +768,42 @@ class Status(object):
         else:
             logging.error('Could not set {} to {}'.format(imdbid, status))
             return False
+
+    def get_stats(self):
+        ''' Gets stats from database for graphing
+
+        Returns Dict
+        '''
+        stats = {}
+
+        status = {'Wanted': 0,
+                  'Found': 0,
+                  'Snatched': 0,
+                  'Finished': 0
+                  }
+        years = {}
+        added_dates = {}
+
+        movies = self.sql.get_user_movies()
+
+        if not movies:
+            return {'error', 'Unable to read database'}
+
+        for movie in movies:
+            status[movie['status']] += 1
+
+            if movie['year'] not in years:
+                years[movie['year']] = 1
+            else:
+                years[movie['year']] += 1
+
+            if movie['added_date'] not in added_dates:
+                years[movie['added_date']] = 1
+            else:
+                years[movie['added_date']] += 1
+
+        stats['status'] = [[k, v] for k, v in status.items()]
+        stats['years'] = [[k, v] for k, v in years.items()]
+        stats['added_dates'] = [[k, v] for k, v in added_dates.items()]
+
+        return stats
