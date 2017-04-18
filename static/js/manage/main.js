@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var url_base = $("meta[name='url_base']").attr("content");
+
+/* Database Management */
     var $movies = $('table#movie_table tr:not(:first)');
 
     $('button#select_all').click(function(){
@@ -70,6 +72,7 @@ $(document).ready(function(){
                                Refresh page to see updated metadata`,
                         type: "success",
                         showCancelButton: false,
+                        html: true,
                         imageUrl: "",
                         confirmButtonColor: "#4CAF50",
                         confirmButtonText: "Neat",
@@ -321,6 +324,68 @@ $(document).ready(function(){
             })
         });
     });
+
+
+/* Charts */
+var stats = JSON.parse($('div.stats').text());
+
+    Morris.Donut({
+        element: $('div#chart_status .chart'),
+        data: stats['status'],
+        colors: ['#4CAF50', '#CDDC39', '#00BCD4', '#FF9800'],
+        labelColor: '#ccc',
+        labelSize: '24px'
+    })
+
+    Morris.Donut({
+        element: $('div#chart_qualities .chart'),
+        data: stats['qualities'],
+        colors: ['#4CAF50', '#03A9F4', '#673AB7', '#F44336', '#FF9800', '#FFEB3B'],
+        labelColor: '#ccc',
+        labelSize: '24px'
+    })
+
+    Morris.Bar({
+        element: $('div#chart_years .chart'),
+        data: stats['years'],
+        xkey: 'year',
+        ykeys: ['value'],
+        labels: ['Movies'],
+        barColors: ['#ccc'],
+    })
+
+    Morris.Line({
+        element: $('div#chart_added .chart'),
+        data: stats['added_dates'],
+        xkey: 'added_date',
+        ykeys: ['value'],
+        labels: ['Movies'],
+        lineColors: ['#ccc'],
+        pointFillColors: ['#080f18'],
+        pointStrokeColors: ['#ccc'],
+        xLabels: 'month',
+        smooth: false
+    })
+
+    $('svg text').css('font-family', 'Raleway')
+
+/* ui */
+
+    $('ul#subnav a').click(function(){
+        $this = $(this);
+        if($this.hasClass('active')){
+            return false
+        } else {
+            $('ul#subnav a.active').removeClass('active');
+            $this.addClass('active');
+            var id = $this.attr('id');
+            $('div#content > div').slideUp();
+            $('div#'+id).slideDown();
+
+        }
+
+
+    })
 
     /* toggle check box status */
     $('i.checkbox').click(function(){

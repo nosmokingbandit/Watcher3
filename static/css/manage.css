@@ -1,10 +1,36 @@
 div#content{
-    margin: 2em auto 0 auto;
+    margin: 0em auto 0 auto;
     width: 100%;
     max-width: 1024px;
     min-width: 650px;
     text-align: center;
 }
+
+ul#subnav{
+    width: 100%;
+    margin: 0 0 2em 0;
+}
+
+ul#subnav a{
+    padding: 0.5em 1em;
+    margin: 0;
+    font-size: 1.25em;
+    display: inline-block;
+    cursor: pointer;
+    border-top: 4px solid transparent;
+}
+
+ul#subnav li{
+
+}
+
+ul#subnav a.active,
+ul#subnav a:hover{
+    box-sizing: border-box;
+    border-top: 4px solid #ccc;
+}
+
+
 
 table#movie_table{
     margin: 0 auto;
@@ -61,4 +87,38 @@ table#errors tr:not(:first-child) td{
 
 .sweet-alert button.confirm[disabled] ~ .la-ball-fall{
     top: 20%;
+}
+
+/* Stats */
+div#stats{
+    text-align: center;
+}
+
+div#stats h1{
+    margin-top: 0;
+}
+
+div.chart_box{
+    color: #ccc;
+    overflow: auto;
+    background: #151c25;
+    border-radius: 1em;
+    margin: 2.5%;
+    padding: 2.5%;
+}
+
+div.chart_box{
+    line-height: 2em;
+}
+
+div#chart_status,
+div#chart_qualities{
+    width: 40%;
+    display: inline-block;
+    float: left;
+}
+
+div#chart_status svg path,
+div#chart_qualities svg path{
+    stroke: transparent;
 }

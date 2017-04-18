@@ -1,7 +1,7 @@
 import core
 import dominate
 from cherrypy import expose
-from core import sqldb
+from core import sqldb, library
 from dominate.tags import *
 from header import Header
 from head import Head
@@ -10,6 +10,10 @@ import json
 
 class Manage(object):
 
+    def __init__(self):
+        self.library = library.Status()
+        self.sql = sqldb.SQL()
+
     @expose
     def default(self):
         doc = dominate.document(title='Watcher')
@@ -17,62 +21,96 @@ class Manage(object):
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.12')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.12'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.12')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.18')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.18'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.18')
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/morris/morris.js')
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/raphael/raphael.js')
 
         with doc:
             Header.insert_header(current="status")
-            with div(id='content'):
-                self.movie_list()
+            self.movies = self.sql.get_user_movies()
 
-                with div(id='select_actions'):
-                    button('Select All', id='select_all')
-                    button('De-select All', id='de_select_all')
-                    button('Invert Selection', id='invert_selection')
-                with table(id='actions'):
-                    with tr():
-                        with td():
-                            with button(id='metadata_update'):
-                                i(cls='fa fa-refresh')
-                                span('Refresh Metadata')
-                        td('Re-download metadata and poster')
-                    with tr():
-                        with td():
-                            with button(id='quality'):
-                                i(cls='fa fa-filter')
-                                span('Change Quality')
-                        with td('Change Quality profile to: '):
-                            with select(id='select_quality'):
-                                for qual in core.CONFIG['Quality']['Profiles']:
-                                    if qual == 'Default':
-                                        option(qual, value=qual, selected='selected')
-                                    else:
-                                        option(qual, value=qual)
-                    with tr():
-                        with td():
-                            with button(id='remove'):
-                                i(cls='fa fa-trash')
-                                span('Remove Movies')
-                        td('Remove movie from library')
-                    with tr():
-                        with td():
-                            with button(id='reset'):
-                                i(cls='fa fa-rotate-left')
-                                span('Reset Movies')
-                        td('Remove status settings and search results')
+            with div(id='content'):
+                with ul(id='subnav'):
+                    with a(href='#', id='stats', cls='active'):
+                        li('Stats')
+                    with a(href='#', id='database'):
+                        li('Database')
+
+                with div(id='stats'):
+                    stats = self.library.get_stats()
+                    if 'error' in stats:
+                        div(stats['error'])
+                    else:
+                        div(json.dumps(stats, sort_keys=True), cls='hidden stats')
+                        with div(cls='chart_box'):
+                            with span():
+                                b('Movie Count: ')
+                                span(len(self.movies))
+                                br()
+                                b('Estimated Library Size: ')
+                                span(self.library.estimate_size())
+                        with div(id='chart_status', cls='chart_box'):
+                            h1('Status')
+                            div(cls='chart')
+                        with div(id='chart_qualities', cls='chart_box'):
+                            h1('Quality Profiles')
+                            div(cls='chart')
+                        with div(id='chart_years', cls='chart_box'):
+                            h2('Movies by Year')
+                            div(cls='chart')
+                        with div(id='chart_added', cls='chart_box'):
+                            h2('Add Frequency')
+                            div(cls='chart')
+
+                with div(id='database', cls='hidden'):
+                    self.movie_list()
+
+                    with div(id='select_actions'):
+                        button('Select All', id='select_all')
+                        button('De-select All', id='de_select_all')
+                        button('Invert Selection', id='invert_selection')
+                    with table(id='actions'):
+                        with tr():
+                            with td():
+                                with button(id='metadata_update'):
+                                    i(cls='fa fa-refresh')
+                                    span('Refresh Metadata')
+                            td('Re-download metadata and poster')
+                        with tr():
+                            with td():
+                                with button(id='quality'):
+                                    i(cls='fa fa-filter')
+                                    span('Change Quality')
+                            with td('Change Quality profile to: '):
+                                with select(id='select_quality'):
+                                    for qual in core.CONFIG['Quality']['Profiles']:
+                                        if qual == 'Default':
+                                            option(qual, value=qual, selected='selected')
+                                        else:
+                                            option(qual, value=qual)
+                        with tr():
+                            with td():
+                                with button(id='remove'):
+                                    i(cls='fa fa-trash')
+                                    span('Remove Movies')
+                            td('Remove movie from library')
+                        with tr():
+                            with td():
+                                with button(id='reset'):
+                                    i(cls='fa fa-rotate-left')
+                                    span('Reset Movies')
+                            td('Remove status settings and search results')
 
             div(id='overlay')
 
         return doc.render()
 
-    @staticmethod
-    def movie_list():
-        movies = sqldb.SQL().get_user_movies()
-
-        if movies == []:
+    def movie_list(self):
+        if self.movies == []:
             return None
-        elif not movies:
+        elif not self.movies:
             html = 'Error retrieving list of user\'s movies. Check logs for more information'
             return str(html)
 
@@ -86,19 +124,19 @@ class Manage(object):
                 th('IMDB')
                 th('Status')
                 th('Quality')
-            for data in movies:
-                poster_path = core.URL_BASE + '/static/images/posters/{}.jpg'.format(data['imdbid'])
+            for movie in self.movies:
+                poster_path = core.URL_BASE + '/static/images/posters/{}.jpg'.format(movie['imdbid'])
                 with tr():
                     with td():
                         i(cls='fa fa-square-o checkbox', value='False')
-                        span(json.dumps(data), cls='hidden data')
+                        span(json.dumps(movie, sort_keys=True), cls='hidden data')
                     with td():
                         img(src=poster_path)
-                    td(data['title'])
-                    td(data['year'])
-                    td(data['imdbid'], cls='imdbid')
+                    td(movie['title'])
+                    td(movie['year'])
+                    td(movie['imdbid'], cls='imdbid')
                     with td():
-                        status = data['status']
+                        status = movie['status']
                         if status == 'Wanted':
                             span('Wanted', cls='status wanted')
                             span('1', cls='status_sort hidden')
@@ -113,7 +151,7 @@ class Manage(object):
                             span('4', cls='status_sort hidden')
                         else:
                             span('Status Unknown', cls='status wanted')
-                    td(data['quality'])
+                    td(movie['quality'])
 
         return str(movie_table)
 

@@ -2,9 +2,10 @@ import os
 import json
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
+import core
 from core.movieinfo import TMDB
 from core import sqldb, searchresults
-from core.helpers import Url
+from core.helpers import Url, Conversions
 import PTN
 import datetime
 import logging
@@ -781,6 +782,13 @@ class Status(object):
                   'Snatched': 0,
                   'Finished': 0
                   }
+
+        qualities = {'Default': 0}
+        for i in core.CONFIG['Quality']['Profiles']:
+            if i == 'Default':
+                continue
+            qualities[i] = 0
+
         years = {}
         added_dates = {}
 
@@ -790,20 +798,49 @@ class Status(object):
             return {'error', 'Unable to read database'}
 
         for movie in movies:
-            status[movie['status']] += 1
+            if movie['status'] == 'Disabled':
+                status['Finished'] += 1
+            else:
+                status[movie['status']] += 1
+
+            if movie['quality'].startswith('{'):
+                qualities['Default'] += 1
+            else:
+                if movie['quality'] not in qualities:
+                    qualities[movie['quality']] = 1
+                else:
+                    qualities[movie['quality']] += 1
 
             if movie['year'] not in years:
                 years[movie['year']] = 1
             else:
                 years[movie['year']] += 1
 
-            if movie['added_date'] not in added_dates:
-                years[movie['added_date']] = 1
+            if movie['added_date'][:-3] not in added_dates:
+                added_dates[movie['added_date'][:-3]] = 1
             else:
-                years[movie['added_date']] += 1
+                added_dates[movie['added_date'][:-3]] += 1
 
-        stats['status'] = [[k, v] for k, v in status.items()]
-        stats['years'] = [[k, v] for k, v in years.items()]
-        stats['added_dates'] = [[k, v] for k, v in added_dates.items()]
+        stats['status'] = [{'label': k, 'value': v} for k, v in status.items()]
+        stats['qualities'] = [{'label': k, 'value': v} for k, v in qualities.items()]
+        stats['years'] = sorted([{'year': k, 'value': v} for k, v in years.items()], key=lambda k: k['year'])
+        stats['added_dates'] = sorted([{'added_date': k, 'value': v} for k, v in added_dates.items() if v is not None], key=lambda k: k['added_date'])
 
         return stats
+
+    def estimate_size(self, human=True):
+        movies = self.sql.get_user_movies()
+        files = [i['finished_file'] for i in movies if i['finished_file'] is not None]
+
+        size = 0
+
+        for i in files:
+            try:
+                size += os.path.getsize(i)
+            except Exception as e:
+                logging.warning('Unable to get filesize for {}'.format(e), exc_info=True)
+
+        if not human:
+            return size
+        else:
+            return Conversions.human_file_size(size)
