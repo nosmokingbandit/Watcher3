@@ -43,7 +43,7 @@ class Manage(object):
                     if 'error' in stats:
                         div(stats['error'])
                     else:
-                        div(json.dumps(stats, sort_keys=True), cls='hidden stats')
+                        div(json.dumps(stats), cls='hidden stats')
                         with div(cls='chart_box'):
                             with span():
                                 b('Movie Count: ')
