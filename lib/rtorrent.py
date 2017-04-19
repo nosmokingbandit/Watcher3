@@ -99,8 +99,7 @@ class SCGITransport(xmlrpclib.Transport):
                 p = urllib.parse.urlparse(host)
                 host = p.hostname
                 port = p.port
-                addrinfo = socket.getaddrinfo(host, port, socket.AF_INET,
-                                              socket.SOCK_STREAM)
+                addrinfo = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
                 sock = socket.socket(*addrinfo[0][:3])
                 sock.connect(addrinfo[0][4])
             else:
@@ -126,8 +125,7 @@ class SCGITransport(xmlrpclib.Transport):
             response_body += data
 
         # Remove SCGI headers from the response.
-        response_header, response_body = re.split(r'\n\s*?\n', response_body,
-                                                  maxsplit=1)
+        response_header, response_body = re.split(r'\n\s*?\n', response_body, maxsplit=1)
 
         if self.verbose:
             print('body:', repr(response_body))
@@ -139,13 +137,12 @@ class SCGITransport(xmlrpclib.Transport):
 
 
 class SCGIServerProxy(xmlrpclib.ServerProxy):
-    def __init__(self, uri, transport=None, encoding=None, verbose=False,
-                 allow_none=False, use_datetime=False):
+    def __init__(self, uri, transport=None, encoding=None, verbose=False, allow_none=False, use_datetime=False):
         p = urllib.parse.urlparse(uri)
         scheme = p.scheme
         if scheme not in ('scgi'):
             raise IOError('unsupported XML-RPC protocol')
-        self.__host = p.hostname
+        self.__host = p.netloc
         self.__handler = p.path
         if not self.__handler:
             self.__handler = '/'
@@ -164,15 +161,9 @@ class SCGIServerProxy(xmlrpclib.ServerProxy):
     def __request(self, methodname, params):
         # call a method on the remote server
 
-        request = xmlrpclib.dumps(params, methodname, encoding=self.__encoding,
-                                  allow_none=self.__allow_none)
+        request = xmlrpclib.dumps(params, methodname, encoding=self.__encoding, allow_none=self.__allow_none)
 
-        response = self.__transport.request(
-            self.__host,
-            self.__handler,
-            request,
-            verbose=self.__verbose
-            )
+        response = self.__transport.request(self.__host, self.__handler, request, verbose=self.__verbose)
 
         if len(response) == 1:
             response = response[0]
@@ -180,10 +171,7 @@ class SCGIServerProxy(xmlrpclib.ServerProxy):
         return response
 
     def __repr__(self):
-        return (
-            "<SCGIServerProxy for %s%s>" %
-            (self.__host, self.__handler)
-            )
+        return ("<SCGIServerProxy for %s%s>" % (self.__host, self.__handler))
 
     __str__ = __repr__
 
