@@ -90,8 +90,7 @@ class SCGITransport(xmlrpclib.Transport):
         headers = {'CONTENT_LENGTH': str(len(request_body)), 'SCGI': '1'}
         header = '\x00'.join(('%s\x00%s' % item for item in headers.items())) + '\x00'
         header = '%d:%s' % (len(header), header)
-        request_body = '%s,%s' % (header, request_body)
-
+        request_body = '{},{}'.format(header, request_body).encode('utf-8')
         sock = None
 
         try:
@@ -142,7 +141,7 @@ class SCGIServerProxy(xmlrpclib.ServerProxy):
         scheme = p.scheme
         if scheme not in ('scgi'):
             raise IOError('unsupported XML-RPC protocol')
-        self.__host = p.netloc
+        self.__host = '{}://{}'.format(p.scheme, p.netloc)
         self.__handler = p.path
         if not self.__handler:
             self.__handler = '/'
