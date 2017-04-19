@@ -25,7 +25,7 @@ class rTorrentSCGI(object):
 
         url = 'scgi://{}:{}'.format(host, port)
 
-        client = rtorrent.SCGIServerProxy(url)
+        client = rtorrent.SCGIServerProxy(url, encoding='utf-8')
 
         try:
             client.system.time()
