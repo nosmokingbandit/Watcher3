@@ -62,10 +62,11 @@ class rTorrentSCGI(object):
             else:
                 rTorrentSCGI.client.load_start(data['torrentfile'])
             downloadid = Torrent.get_hash(data['torrentfile'])
-            if conf['label']:
+            if conf['label'] and downloadid:
                 rTorrentSCGI.client.d.set_custom1(downloadid, conf['label'])
                 return {'response': True, 'downloadid': downloadid}
         except Exception as e:
+            logging.error('Unable to send torrent to rTorrent', exc_info=True)
             return {'response': False, 'error': str(e)}
 
 
