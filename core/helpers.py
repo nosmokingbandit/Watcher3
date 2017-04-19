@@ -7,7 +7,7 @@ import urllib.parse
 from lib import requests
 import random
 import unicodedata
-from lib import bencode
+from lib import bencodepy
 from string import punctuation
 import core
 import logging
@@ -126,11 +126,12 @@ class Torrent(object):
             return url.split('&')[0].split(':')[-1]
         else:
             try:
-                torrent = Url.open(url, stream=True).content
-                metadata = bencode.decode(torrent)
-                hashcontents = bencode.encode(metadata['info'])
+                r = Url.open(url, stream=True).content
+                metadata = bencodepy.decode(r)
+                hashcontents = bencodepy.encode(metadata[b'info'])
                 return hashlib.sha1(hashcontents).hexdigest()
             except Exception as e: #noqa
+                logging.error('Unable to get torrent hash', exc_info=True)
                 return None
 
 
