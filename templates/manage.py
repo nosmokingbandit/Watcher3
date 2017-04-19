@@ -21,8 +21,8 @@ class Manage(object):
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.18')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.18'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.19')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.19'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.18')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/morris/morris.js')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/raphael/raphael.js')
@@ -33,12 +33,12 @@ class Manage(object):
 
             with div(id='content'):
                 with ul(id='subnav'):
-                    with a(href='#', id='stats', cls='active'):
+                    with a(href='#stats', page='_stats'):
                         li('Stats')
-                    with a(href='#', id='database'):
+                    with a(href='#database', page='_database'):
                         li('Database')
 
-                with div(id='stats'):
+                with div(id='_stats'):
                     stats = self.library.get_stats()
                     if 'error' in stats:
                         div(stats['error'])
@@ -64,7 +64,7 @@ class Manage(object):
                             h2('Add Frequency')
                             div(cls='chart')
 
-                with div(id='database', cls='hidden'):
+                with div(id='_database', cls='hidden'):
                     self.movie_list()
 
                     with div(id='select_actions'):

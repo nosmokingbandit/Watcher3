@@ -325,6 +325,16 @@ $(document).ready(function(){
         });
     });
 
+    function get_checked_movies(){
+        var a = [];
+        $('table#movie_table tr:not(:first)').each(function(i, elem){
+            var $elem = $(elem);
+            if($elem.find('i.checkbox').attr('value') == "True"){
+                a.push(JSON.parse($elem.find('span.data').text()));
+            }
+        })
+        return a
+    }
 
 /* Charts */
 var stats = JSON.parse($('div.stats').text());
@@ -369,22 +379,33 @@ var stats = JSON.parse($('div.stats').text());
 
     $('svg text').css('font-family', 'Raleway')
 
-/* ui */
 
-    $('ul#subnav a').click(function(){
+/* ui */
+    $('div#_stats').hide();
+    $('div#_database').hide();
+
+    var sub_page = window.location.hash.slice(1);
+
+    if(sub_page){
+        $('div#_'+sub_page).show();
+        $('ul#subnav a').removeClass('active');
+        console.log('a[href="#'+sub_page+'"]')
+        $('ul#subnav a[href="#'+sub_page+'"]').addClass('active')
+    } else {
+        $('div#_stats').show();
+    }
+
+    $('ul#subnav a').click(function(e){
         $this = $(this);
         if($this.hasClass('active')){
             return false
         } else {
             $('ul#subnav a.active').removeClass('active');
             $this.addClass('active');
-            var id = $this.attr('id');
+            var page = $this.attr('page');
             $('div#content > div').slideUp();
-            $('div#'+id).slideDown();
-
+            $('div#'+page).slideDown();
         }
-
-
     })
 
     /* toggle check box status */
@@ -403,14 +424,4 @@ var stats = JSON.parse($('div.stats').text());
         }
     });
 
-    function get_checked_movies(){
-        var a = [];
-        $('table#movie_table tr:not(:first)').each(function(i, elem){
-            var $elem = $(elem);
-            if($elem.find('i.checkbox').attr('value') == "True"){
-                a.push(JSON.parse($elem.find('span.data').text()));
-            }
-        })
-        return a
-    }
 });

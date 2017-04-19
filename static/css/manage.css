@@ -90,11 +90,11 @@ table#errors tr:not(:first-child) td{
 }
 
 /* Stats */
-div#stats{
+div#_stats{
     text-align: center;
 }
 
-div#stats h1{
+div#_stats h1{
     margin-top: 0;
 }
 
