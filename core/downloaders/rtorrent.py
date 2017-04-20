@@ -88,14 +88,17 @@ class rTorrentHTTP(object):
 
         parts = urlparse(address)._asdict()
         if len(parts['netloc'].split(':')) == 1:
-            parts['netloc'] = '{}:80'.format(parts['netloc'])
+            port = 443 if parts['scheme'] == 'https' else 80
+            parts['netloc'] = '{}:{}'.format(parts['netloc'], port)
 
         if user and password:
             url = '{}://{}:{}@{}/{}'.format(parts['scheme'], user, password, parts['netloc'], parts['path'])
         else:
             url = '{}://{}/{}'.format(parts['scheme'], parts['netloc'], parts['path'])
 
-        client = xmlrpc.client.ServerProxy(url)
+        context = None if core.CONFIG['Server']['verifyssl'] else core.NO_VERIFY
+
+        client = xmlrpc.client.ServerProxy(url, context=context)
 
         try:
             client.system.time()
@@ -131,9 +134,11 @@ class rTorrentHTTP(object):
                 rTorrentHTTP.client.load(data['torrentfile'])
             else:
                 rTorrentHTTP.client.load_start(data['torrentfile'])
+
             downloadid = Torrent.get_hash(data['torrentfile'])
             if conf['label']:
                 rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
                 return {'response': True, 'downloadid': downloadid}
         except Exception as e:
+            logging.error('Unable to send torrent to ruTorrent HTTP', exc_info=True)
             return {'response': False, 'error': str(e)}

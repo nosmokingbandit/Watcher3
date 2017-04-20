@@ -1,3 +1,5 @@
+import ssl
+
 # Paths to local things
 PROG_PATH = None
 CONF_FILE = 'config.cfg'
@@ -22,14 +24,11 @@ UPDATE_LAST_CHECKED = None
 UPDATING = False
 CURRENT_HASH = None
 
-# Search Scheduler info
+# Dynamic info
 NEXT_SEARCH = None
-
-# Store settings after write. Reduces reads from file.
 CONFIG = None
-
-# A list of notification data
 NOTIFICATIONS = []
+NO_VERIFY = ssl._create_unverified_context()
 
 # Rate limiting
 TMDB_TOKENS = 35
