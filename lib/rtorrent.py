@@ -123,8 +123,8 @@ class SCGITransport(xmlrpclib.Transport):
                 break
             response_body += data
 
-        # Remove SCGI headers from the response.
-        response_header, response_body = re.split(r'\n\s*?\n', response_body, maxsplit=1)
+        # Remove SCGI headers from the response.sc
+        response_body = response_body.split('\n\n', 1)[-1]
 
         if self.verbose:
             print('body:', repr(response_body))
