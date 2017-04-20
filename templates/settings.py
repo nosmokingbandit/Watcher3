@@ -575,7 +575,8 @@ class Settings():
                 i(id='rtorrentscgienabled', cls='fa fa-circle-o radio', name='torrentdownloader', tog='rtorrentscgi', value=str(c[c_s]['Torrent']['rTorrentSCGI']['enabled']))
                 span('rTorrent SCGI', cls='sub_cat')
             with ul(id='rtorrentscgi', cls='torrent'):
-                with li('Host & Port: scgi://', cls='bbord'):
+                with li('Host & Port:', cls='bbord'):
+                    span('scgi://', style='font-family: monospace')
                     input(type='text', id='host', value=c[c_s]['Torrent']['rTorrentSCGI']['host'], style='width: 25%', placeholder='localhost:5000')
                     span(' : ')
                     input(type='number', id='port', value=c[c_s]['Torrent']['rTorrentSCGI']['port'], style='width: 25%')
