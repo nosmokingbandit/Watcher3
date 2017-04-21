@@ -92,9 +92,9 @@ class rTorrentHTTP(object):
             parts['netloc'] = '{}:{}'.format(parts['netloc'], port)
 
         if user and password:
-            url = '{}://{}:{}@{}/{}'.format(parts['scheme'], user, password, parts['netloc'], parts['path'])
+            url = '{}://{}:{}@{}{}'.format(parts['scheme'], user, password, parts['netloc'], parts['path'])
         else:
-            url = '{}://{}/{}'.format(parts['scheme'], parts['netloc'], parts['path'])
+            url = '{}://{}{}'.format(parts['scheme'], parts['netloc'], parts['path'])
 
         context = None if core.CONFIG['Server']['verifyssl'] else core.NO_VERIFY
 
