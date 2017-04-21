@@ -41,7 +41,7 @@ $(document).ready(function() {
                         img_url = url_base + "/static/images/missing_poster.jpg"
                     }
 
-                    var row = `<li class='movie' data='${JSON.stringify(dict)}'>
+                    var row = $(`<li class='movie'>
                                 <span class='quickadd'>
                                     <span class='quickadd_text'>
                                         Quick-Add
@@ -50,7 +50,8 @@ $(document).ready(function() {
                                 </span>
                                 <img src='${img_url}' />
                                 ${dict['title']} ${(dict['release_date'] || '').slice(0,4)}
-                               </li>`
+                               </li>`);
+                    row.attr('data', JSON.stringify(dict))
 
                     movie_list.append(row)
                 });
