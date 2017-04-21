@@ -4,6 +4,7 @@ import core
 import xmlrpc.client
 from core.helpers import Torrent
 from urllib.parse import urlparse
+import time
 
 logging = logging.getLogger(__name__)
 
@@ -57,14 +58,21 @@ class rTorrentSCGI(object):
                 return {'response': False, 'error': connected}
 
         try:
-            if conf['addpaused']:
-                rTorrentSCGI.client.load(data['torrentfile'])
-            else:
-                rTorrentSCGI.client.load_start(data['torrentfile'])
             downloadid = Torrent.get_hash(data['torrentfile'])
+
+            rTorrentSCGI.client.load(data['torrentfile'])
+
+            if conf['addpaused']:
+                time.sleep(1)
+                rTorrentSCGI.client.d.pause(downloadid)
+
             if conf['label'] and downloadid:
+                time.sleep(1)
                 rTorrentSCGI.client.d.set_custom1(downloadid, conf['label'])
                 return {'response': True, 'downloadid': downloadid}
+            else:
+                return {'response': True, 'downloadid': downloadid}
+
         except Exception as e:
             logging.error('Unable to send torrent to rTorrent', exc_info=True)
             return {'response': False, 'error': str(e)}
@@ -131,13 +139,14 @@ class rTorrentHTTP(object):
 
         try:
             downloadid = Torrent.get_hash(data['torrentfile'])
-            if conf['addpaused']:
-                rTorrentHTTP.client.load(data['torrentfile'])
-                rTorrentHTTP.client.d.pause(downloadid)
-            else:
-                rTorrentHTTP.client.load_start(data['torrentfile'])
 
-            if conf['label']:
+            rTorrentHTTP.client.load(data['torrentfile'])
+
+            if conf['addpaused']:
+                rTorrentHTTP.client.d.pause(downloadid)
+
+            if conf['label'] and downloadid:
+                time.sleep(1)
                 rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
                 return {'response': True, 'downloadid': downloadid}
         except Exception as e:
