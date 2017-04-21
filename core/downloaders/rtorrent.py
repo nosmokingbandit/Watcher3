@@ -75,7 +75,7 @@ class rTorrentSCGI(object):
 
         except Exception as e:
             logging.error('Unable to send torrent to rTorrent', exc_info=True)
-            return {'response': False, 'error': str(e)}
+            return {'response': False, 'error': str(e)[1:-1]}
 
 
 class rTorrentHTTP(object):
