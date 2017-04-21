@@ -130,12 +130,13 @@ class rTorrentHTTP(object):
                 return {'response': False, 'error': connected}
 
         try:
+            downloadid = Torrent.get_hash(data['torrentfile'])
             if conf['addpaused']:
                 rTorrentHTTP.client.load(data['torrentfile'])
+                rTorrentHTTP.client.d.pause(downloadid)
             else:
                 rTorrentHTTP.client.load_start(data['torrentfile'])
 
-            downloadid = Torrent.get_hash(data['torrentfile'])
             if conf['label']:
                 rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
                 return {'response': True, 'downloadid': downloadid}
