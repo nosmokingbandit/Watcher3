@@ -28,7 +28,9 @@ CURRENT_HASH = None
 NEXT_SEARCH = None
 CONFIG = None
 NOTIFICATIONS = []
-NO_VERIFY = ssl._create_unverified_context()
+NO_VERIFY = ssl.create_default_context()
+NO_VERIFY.check_hostname = False
+NO_VERIFY.verify_mode = ssl.CERT_NONE
 
 # Rate limiting
 TMDB_TOKENS = 35
