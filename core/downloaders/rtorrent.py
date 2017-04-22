@@ -60,16 +60,21 @@ class rTorrentSCGI(object):
         try:
             downloadid = Torrent.get_hash(data['torrentfile'])
 
-            rTorrentSCGI.client.load(data['torrentfile'])
-
             if conf['addpaused']:
-                time.sleep(1)
-                rTorrentSCGI.client.d.pause(downloadid)
+                rTorrentSCGI.client.load(data['torrentfile'])
+            else:
+                rTorrentSCGI.client.load_start(data['torrentfile'])
 
             if conf['label'] and downloadid:
-                time.sleep(1)
-                rTorrentSCGI.client.d.set_custom1(downloadid, conf['label'])
-                return {'response': True, 'downloadid': downloadid}
+                t = 0
+                while t < 5:
+                    if downloadid in rTorrentSCGI.client.download_list():
+                        rTorrentSCGI.client.d.set_custom1(downloadid, conf['label'])
+                        return {'response': True, 'downloadid': downloadid}
+                    time.sleep(1)
+                    t += 1
+                logging.error('Torrent hash ({}) not found in rTorrent after 5 seconds, cannot apply label.'.format(downloadid))
+                return {'response': False, 'error': 'Torrent hash not found in rTorrent after 5 seconds, cannot apply label.'}
             else:
                 return {'response': True, 'downloadid': downloadid}
 
@@ -140,15 +145,24 @@ class rTorrentHTTP(object):
         try:
             downloadid = Torrent.get_hash(data['torrentfile'])
 
-            rTorrentHTTP.client.load(data['torrentfile'])
-
             if conf['addpaused']:
-                rTorrentHTTP.client.d.pause(downloadid)
+                rTorrentHTTP.client.load(data['torrentfile'])
+            else:
+                rTorrentHTTP.client.load_start(data['torrentfile'])
 
             if conf['label'] and downloadid:
-                time.sleep(1)
-                rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
+                t = 0
+                while t < 5:
+                    if downloadid in rTorrentHTTP.client.download_list():
+                        rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
+                        return {'response': True, 'downloadid': downloadid}
+                    time.sleep(1)
+                    t += 1
+                logging.error('Torrent hash ({}) not found in rTorrent after 5 seconds, cannot apply label.'.format(downloadid))
+                return {'response': False, 'error': 'Torrent hash not found in rTorrent after 5 seconds, cannot apply label.'}
+            else:
                 return {'response': True, 'downloadid': downloadid}
+
         except Exception as e:
-            logging.error('Unable to send torrent to ruTorrent HTTP', exc_info=True)
-            return {'response': False, 'error': str(e)}
+            logging.error('Unable to send torrent to rTorrent HTTP', exc_info=True)
+            return {'response': False, 'error': str(e)[1:-1]}
