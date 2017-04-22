@@ -123,13 +123,13 @@ class Torrent(object):
     @staticmethod
     def get_hash(url, mode='torrent'):
         if url.startswith('magnet'):
-            return url.split('&')[0].split(':')[-1]
+            return url.split('&')[0].split(':')[-1].upper()
         else:
             try:
                 r = Url.open(url, stream=True).content
                 metadata = bencodepy.decode(r)
                 hashcontents = bencodepy.encode(metadata[b'info'])
-                return hashlib.sha1(hashcontents).hexdigest()
+                return hashlib.sha1(hashcontents).hexdigest().upper()
             except Exception as e: #noqa
                 logging.error('Unable to get torrent hash', exc_info=True)
                 return None
