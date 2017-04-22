@@ -1,4 +1,3 @@
-import logging
 import sys
 import webbrowser
 
@@ -6,6 +5,7 @@ import cherrypy
 import core
 from cherrypy.process import plugins
 from infi.systray import SysTrayIcon
+
 
 class SysTrayPlugin(plugins.SimplePlugin):
     '''

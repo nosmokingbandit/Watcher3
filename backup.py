@@ -81,7 +81,7 @@ def restore(require_confirm=True):
 
     if require_confirm is True:
         ans = input('Restoring backup. This will overwrite existing '
-                        'database, config, and posters. Continue? (y/N):  ')
+                    'database, config, and posters. Continue? (y/N):  ')
         if ans.lower() != 'y':
             return
 

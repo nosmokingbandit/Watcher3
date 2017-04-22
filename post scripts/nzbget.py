@@ -15,10 +15,10 @@
 ### OPTIONS                       ###
 
 # Watcher API key.
-#Apikey=
+# Apikey=
 
 # Watcher address.
-#Host=http://localhost:9090/
+# Host=http://localhost:9090/
 
 ### NZBGET POST-PROCESSING SCRIPT ###
 #####################################
@@ -66,3 +66,5 @@ elif response.get('status') == 'incomplete':
     sys.exit(POSTPROCESS_ERROR)
 else:
     sys.exit(POSTPROCESS_NONE)
+
+# pylama:ignore=E266

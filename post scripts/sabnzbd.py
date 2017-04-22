@@ -25,7 +25,7 @@ import urllib.parse
 try:
     status = int(sys.argv[7])
     guid = sys.argv[3].replace('-', ':').replace('+', '/')
-except:
+except Exception:
     print('Post-processing failed. Incorrect args.')
     sys.exit(1)
 

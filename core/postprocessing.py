@@ -55,19 +55,19 @@ class Postprocessing(object):
             if key not in data:
                 logging.warning('Missing key {}'.format(key))
                 return json.dumps({'response': False,
-                                  'error': 'missing key: {}'.format(key)})
+                                   'error': 'missing key: {}'.format(key)})
 
         # check if api key is correct
         if data['apikey'] != core.CONFIG['Server']['apikey']:
             logging.warning('Incorrect API key.'.format(key))
             return json.dumps({'response': False,
-                              'error': 'incorrect api key'})
+                               'error': 'incorrect api key'})
 
         # check if mode is valid
         if data['mode'] not in ['failed', 'complete']:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
             return json.dumps({'response': False,
-                              'error': 'invalid mode value'})
+                               'error': 'invalid mode value'})
 
         logging.debug(data)
 
@@ -146,7 +146,7 @@ class Postprocessing(object):
             # Find the biggest file in the dir. Assume that this is the movie.
             try:
                 files = os.listdir(path)
-            except Exception as e: # noqa
+            except Exception as e:  # noqa
                 logging.error('Path not found in filesystem. Will be unable to move or rename.',
                               exc_info=True)
                 return ''
@@ -513,7 +513,7 @@ class Postprocessing(object):
         '''
         new_string = string
         for k, v in data.items():
-            k = "{"+k+"}"
+            k = "{" + k + "}"
             if k in new_string:
                 new_string = new_string.replace(k, v)
 
@@ -573,7 +573,7 @@ class Postprocessing(object):
             os.rename(abs_path_old, abs_path_new)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             logging.error('Renamer failed: Could not rename file.', exc_info=True)
             return None
 
@@ -596,7 +596,7 @@ class Postprocessing(object):
             shutil.copystat = self.null
             shutil.move(abs_filepath, recycle_bin)
             return True
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             logging.error('Recycling failed: Could not move file.', exc_info=True)
             return False
 
@@ -621,7 +621,7 @@ class Postprocessing(object):
                 logging.info('Removing additional file {}'.format(i))
                 try:
                     os.remove(os.path.join(path, i))
-                except Exception as e: #noqa
+                except Exception as e:  # noqa
                     logging.warning('Unable to remove {}'.format(i), exc_info=True)
         return
 
@@ -696,7 +696,7 @@ class Postprocessing(object):
         try:
             shutil.copystat = self.null
             shutil.move(current_file_path, target_folder)
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             logging.error('Mover failed: Could not move file.', exc_info=True)
             return False
 
@@ -732,7 +732,7 @@ class Postprocessing(object):
                     try:
                         logging.info('Moving {} to {}'.format(old_abs_path, target_file))
                         shutil.copyfile(old_abs_path, target_file)
-                    except Exception as e: # noqa
+                    except Exception as e:  # noqa
                         logging.error('Mover failed: Could not copy {}.'.format(old_abs_path), exc_info=True)
         return new_file_location
 
@@ -758,7 +758,7 @@ class Postprocessing(object):
             try:
                 os.remove(path)
                 return True
-            except Exception as e: # noqa
+            except Exception as e:  # noqa
                 logging.error('Could not delete path.', exc_info=True)
                 return False
         else:

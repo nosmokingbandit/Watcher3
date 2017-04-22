@@ -1,6 +1,5 @@
 import logging
 import json
-import urllib.request
 
 import core
 from core.helpers import Torrent, Url
