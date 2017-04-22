@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # ======================================== #
 # ============= INSTRUCTIONS ============= #
@@ -19,14 +19,14 @@ conf = {
 
 import json
 import sys
-import urllib.request
-import urllib.parse
+import urllib
+import urllib2
 
 try:
     status = int(sys.argv[7])
     guid = sys.argv[3].replace('-', ':').replace('+', '/')
-except Exception:
-    print('Post-processing failed. Incorrect args.')
+except:
+    print u'Post-processing failed. Incorrect args.'
     sys.exit(1)
 
 watcheraddress = conf['watcheraddress']
@@ -37,11 +37,11 @@ sabport = conf['sabport']
 data = {'apikey': watcherapi, 'guid': ''}
 
 # get guid and nzo_id from sab history:
-name = urllib.parse.quote(sys.argv[3], safe='')
+name = urllib2.quote(sys.argv[3], safe='')
 url = u'http://{}:{}/sabnzbd/api?apikey={}&mode=history&output=json&search={}'.format(sabhost, sabport, sabkey, name)
 
-request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-response = urllib.request.urlopen(request, timeout=60).read().decode('utf-8')
+request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+response = urllib2.urlopen(request, timeout=60).read()
 
 slots = json.loads(response)['history']['slots']
 
@@ -55,18 +55,18 @@ data['path'] = sys.argv[1]
 
 # send it to Watcher
 if status == 0:
-    print('Sending {} to Watcher as Complete.'.format(name))
+    print u'Sending {} to Watcher as Complete.'.format(name)
     data['mode'] = 'complete'
 else:
-    print('Sending {} to Watcher as Failed.'.format(name))
+    print u'Sending {} to Watcher as Failed.'.format(name)
     data['mode'] = 'failed'
 
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+post_data = urllib.urlencode(data)
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+request = urllib2.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urllib2.urlopen(request, timeout=600).read())
 
 if response.get('status') == 'finished':
     sys.exit(0)
