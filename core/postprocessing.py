@@ -217,10 +217,10 @@ class Postprocessing(object):
 
         # Still no luck? Try to get the info from TMDB
         else:
-            logging.info('Unable to find local data for release. Attempting to get info from file.')
-            data.update(self.metadata.get_metadata(data['movie_file']))
+            logging.info('Unable to find local data for release. Using only data found from file.')
 
         if data:
+            data.update(self.metadata.get_metadata(data['movie_file']))
             if not data.get('quality'):
                 data['quality'] = 'Default'
             return data
