@@ -7,12 +7,22 @@
 # ========================================== #
 
 watcherapi = ''
-watcheraddress = 'http://localhost:9090/'
+watcheraddress = ''
 
 import json
 import sys
-import urllib.request
-import urllib.parse
+
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+    input = raw_input
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
 
 data = {}
 
@@ -33,8 +43,8 @@ data['path'] = u'{}/{}'.format(download_dir, name)
 data['guid'] = guid
 data['mode'] = 'complete'
 
-url = '{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+url = u'{}/postprocessing/'.format(watcheraddress)
+post_data = urlencode(data).encode('ascii')
 
 print('========================')
 print('URL:')
@@ -44,8 +54,8 @@ print('POST:')
 print(post_data)
 print('========================')
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 print(json.dumps(response, indent=4, sort_keys=True))
 

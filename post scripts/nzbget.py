@@ -26,19 +26,28 @@
 import json
 import os
 import sys
-import urllib.request
-import urllib.parse
+
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
 
 POSTPROCESS_SUCCESS = 93
 POSTPROCESS_ERROR = 94
 POSTPROCESS_NONE = 95
 
-watcherhost = os.environ['NZBPO_HOST']
+watcheraddress = os.environ['NZBPO_HOST']
 watcherapi = os.environ['NZBPO_APIKEY']
 name = os.environ['NZBPP_NZBNAME']
 data = {'apikey': watcherapi, 'guid': ''}
 
-# can be blank it from an uploaded nzb file
+# Gather info
 if os.environ['NZBPP_URL']:
     data['guid'] = os.environ['NZBPP_URL']
 
@@ -46,19 +55,19 @@ data['downloadid'] = os.environ['NZBPP_NZBID']
 
 data['path'] = os.environ['NZBPP_DIRECTORY']
 
-# set the post-processing mode
 if os.environ['NZBPP_TOTALSTATUS'] == 'SUCCESS':
-    print('Sending {} to Watcher as Complete.'.format(name))
+    print(u'Sending {} to Watcher as Complete.'.format(name))
     data['mode'] = 'complete'
 else:
-    print('Sending {} to Watcher as Failed.'.format(name))
+    print(u'Sending {} to Watcher as Failed.'.format(name))
     data['mode'] = 'failed'
 
-url = u'{}/postprocessing/'.format(watcherhost)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+# Send info
+url = u'{}/postprocessing/'.format(watcheraddress)
+post_data = urlencode(data).encode('ascii')
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(POSTPROCESS_SUCCESS)

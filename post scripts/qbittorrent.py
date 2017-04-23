@@ -8,7 +8,7 @@
 # Add api information to conf:
 
 watcherapi = 'APIKEY'
-watcheraddress = u'http://localhost:9090/'
+watcheraddress = 'http://localhost:9090/'
 category = 'Watcher'
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
@@ -16,9 +16,19 @@ category = 'Watcher'
 import json
 import os
 import sys
-import urllib.request
-import urllib.parse
 
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
+
+# Gather info
 data = {}
 
 args = sys.argv
@@ -43,11 +53,12 @@ data['downloadid'] = args[4]    # %I
 data['guid'] = args[4]
 data['mode'] = 'complete'
 
+# Send info
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+post_data = urlencode(data).encode('ascii')
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)

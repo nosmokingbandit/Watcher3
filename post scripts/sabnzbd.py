@@ -8,7 +8,7 @@
 
 conf = {
     'watcherapi': 'WATCHERAPIKEY',
-    'watcheraddress': u'http://localhost:9090/',
+    'watcheraddress': 'http://localhost:9090/',
     'sabkey': 'SABAPIKEY',
     'sabhost': 'localhost',
     'sabport': '8080'
@@ -19,14 +19,24 @@ conf = {
 
 import json
 import sys
-import urllib
-import urllib2
 
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
+
+# Gather info
 try:
     status = int(sys.argv[7])
     guid = sys.argv[3].replace('-', ':').replace('+', '/')
-except:
-    print u'Post-processing failed. Incorrect args.'
+except Exception:
+    print('Post-processing failed. Incorrect args.')
     sys.exit(1)
 
 watcheraddress = conf['watcheraddress']
@@ -36,7 +46,7 @@ sabhost = conf['sabhost']
 sabport = conf['sabport']
 data = {'apikey': watcherapi, 'guid': ''}
 
-# get guid and nzo_id from sab history:
+# get guid and nzo_id from sab history, since sab < 2.0 doesn't send with args:
 name = urllib2.quote(sys.argv[3], safe='')
 url = u'http://{}:{}/sabnzbd/api?apikey={}&mode=history&output=json&search={}'.format(sabhost, sabport, sabkey, name)
 
@@ -53,20 +63,19 @@ for dl in slots:
 
 data['path'] = sys.argv[1]
 
-# send it to Watcher
 if status == 0:
-    print u'Sending {} to Watcher as Complete.'.format(name)
+    print(u'Sending {} to Watcher as Complete.'.format(name))
     data['mode'] = 'complete'
 else:
-    print u'Sending {} to Watcher as Failed.'.format(name)
+    print(u'Sending {} to Watcher as Failed.'.format(name))
     data['mode'] = 'failed'
 
+# Send info
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.urlencode(data)
+post_data = urlencode(data).encode('ascii')
 
-request = urllib2.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-
-response = json.loads(urllib2.urlopen(request, timeout=600).read())
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(0)

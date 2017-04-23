@@ -15,9 +15,19 @@ label = 'Watcher'
 # ======================================== #
 import json
 import sys
-import urllib.request
-import urllib.parse
 
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
+
+# Gather info
 data = {}
 
 args = sys.argv
@@ -40,11 +50,12 @@ data['downloadid'] = downloadid
 data['guid'] = downloadid
 data['mode'] = 'complete'
 
+# Send info
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+post_data = urlencode(data).encode('ascii')
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)

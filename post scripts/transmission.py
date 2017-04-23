@@ -5,7 +5,7 @@
 # Add api information to conf:
 
 watcherapi = 'WATCHERAPIKEY'
-watcheraddress = u'http://localhost:9090/'
+watcheraddress = 'http://localhost:9090/'
 category = 'Watcher'
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
@@ -13,9 +13,19 @@ category = 'Watcher'
 import json
 import os
 import sys
-import urllib.request
-import urllib.parse
 
+if sys.version_info.major < 3:
+    import urllib
+    import urllib2
+    urlencode = urllib.urlencode
+    request = urllib2.Request
+    urlopen = urllib2.urlopen
+else:
+    import urllib.parse.urlencode as urlencode
+    import urllib.request as request
+    urlopen = request.urlopen
+
+# Gather info
 args = os.environ
 
 download_dir = args['TR_TORRENT_DIR']
@@ -36,11 +46,12 @@ data['downloadid'] = args['TR_TORRENT_HASH']
 data['guid'] = args['TR_TORRENT_HASH']
 data['mode'] = 'complete'
 
+# Send info
 url = u'{}/postprocessing/'.format(watcheraddress)
-post_data = urllib.parse.urlencode(data).encode('ascii')
+post_data = urlencode(data).encode('ascii')
 
-request = urllib.request.Request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urllib.request.urlopen(request, timeout=600).read().decode('utf-8'))
+request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)
