@@ -15,10 +15,10 @@
 ### OPTIONS                       ###
 
 # Watcher API key.
-# Apikey=
+#Apikey=
 
 # Watcher address.
-# Host=http://localhost:9090/
+#Host=http://localhost:9090/
 
 ### NZBGET POST-PROCESSING SCRIPT ###
 #####################################
