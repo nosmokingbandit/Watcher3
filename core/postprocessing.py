@@ -206,7 +206,7 @@ class Postprocessing(object):
         # if we found it, get local movie info
         if result:
             logging.info('Searching local database by imdbid.')
-            data = self.sql.get_movie_details('imdbid', result['imdbid'])
+            data.update(self.sql.get_movie_details('imdbid', result['imdbid']))
             if data:
                 logging.info('Movie data found locally by imdbid.')
                 data['finished_score'] = result['score']
