@@ -408,7 +408,7 @@ class SQL(object):
 
         Gets values in TABLE:column where idcol == idval
 
-        Returns list ['val1', 'val2', 'val3']
+        Returns list ['val1', 'val2', 'val3'] (list can be empty)
         '''
 
         logging.info('Getting distinct values for {} in {}'.format(idval.split('&')[0], TABLE))
@@ -419,9 +419,6 @@ class SQL(object):
 
         if data:
             data = data.fetchall()
-
-            if len(data) == 0:
-                return None
 
             lst = []
             for i in data:
