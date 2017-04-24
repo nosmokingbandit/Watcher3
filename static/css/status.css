@@ -29,6 +29,7 @@ div#key span{
     margin-right: 2em;
 }
 
+div#key span.waiting,
 div#key span.wanted,
 div#key span.found,
 div#key span.snatched,
@@ -237,14 +238,14 @@ div#import{
 }
 
 /* Status colors */
+div#key span.waiting,
+ul#movie_list li div span.waiting{
+    background-color: #607D8B;
+}
+
 div#key span.wanted,
 ul#movie_list li div span.wanted{
     background-color: #FF9800;
-}
-
-div#key span.searching,
-ul#movies_list li div span.searching{
-    background-color: #FFC107;
 }
 
 div#key span.found,

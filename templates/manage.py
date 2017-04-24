@@ -137,7 +137,10 @@ class Manage(object):
                     td(movie['imdbid'], cls='imdbid')
                     with td():
                         status = movie['status']
-                        if status == 'Wanted':
+                        if status == 'Waiting':
+                            span('Waiting', cls='status waiting')
+                            span('0', cls='status_sort hidden')
+                        elif status == 'Wanted':
                             span('Wanted', cls='status wanted')
                             span('1', cls='status_sort hidden')
                         elif status == 'Found':

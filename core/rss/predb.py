@@ -38,7 +38,8 @@ class PreDB(object):
 
         'data' requires key 'title', 'year', 'imdbid'
 
-        Checks predb rss for releases. Marks row 'found' if found.
+        Checks predb rss for releases. Marks row predb:'found' and status:'Wanted'
+            if found.
 
         Returns bool on success/failure
         '''
@@ -59,7 +60,8 @@ class PreDB(object):
 
         if self.fuzzy_match(rss_titles, test):
             logging.info('{} {} found on predb.me.'.format(title, year))
-            if self.sql.update('MOVIES', 'predb', 'found', 'imdbid', imdbid):
+            if self.sql.update('MOVIES', 'predb', 'found', 'imdbid', imdbid) and \
+               self.sql.update('MOVIES', 'status', 'Wanted', 'imdbid', imdbid):
                 return True
             else:
                 return False
@@ -82,7 +84,7 @@ class PreDB(object):
             return items
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             logging.error('Predb.me search failed.', exc_info=True)
             return None
 

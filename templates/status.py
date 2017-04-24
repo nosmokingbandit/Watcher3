@@ -16,10 +16,10 @@ class Status():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=03.28'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=04.23')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=04.23'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=04.23')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=04.23'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=03.28')
 
         with doc:
@@ -38,6 +38,8 @@ class Status():
                         option('Year', value='year')
                         option('Status', value='status_sort')
                 with div(id='key'):
+                    span(cls='waiting')
+                    span('Waiting')
                     span(cls='wanted')
                     span('Wanted')
                     span(cls='found')
@@ -80,7 +82,10 @@ class Status():
                 with li(cls='movie', imdbid=data['imdbid']):
                     with div():
                         status = data['status']
-                        if status == 'Wanted':
+                        if status == 'Waiting':
+                            span('Waiting', cls='status waiting')
+                            span('0', cls='status_sort hidden')
+                        elif status == 'Wanted':
                             span('Wanted', cls='status wanted')
                             span('1', cls='status_sort hidden')
                         elif status == 'Found':

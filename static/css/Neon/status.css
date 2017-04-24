@@ -69,6 +69,10 @@ ul#movie_list.compact li:nth-child(odd) div{
 }
 
 /* status colors */
+ul#movie_list li div span.waiting{
+    background-color: #607D8B;
+}
+
 ul#movie_list li div span.wanted{
     background-color: #FF9800;
 }

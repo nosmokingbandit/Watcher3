@@ -364,7 +364,7 @@ class ImportCPLibrary(object):
                 movie.setdefault('size', 0)
                 movie['quality'] = 'Default'
             else:
-                movie['status'] = 'Wanted'
+                movie['status'] = 'Waiting'
 
             movie.setdefault('resolution', 'BluRay-1080P')
 
@@ -567,7 +567,7 @@ class Metadata(object):
         movie['score'] = movie['vote_average']
 
         if not movie.get('status'):
-            movie['status'] = 'Wanted'
+            movie['status'] = 'Waiting'
         movie['added_date'] = str(datetime.date.today())
         movie['backlog'] = 0
         movie['tmdbid'] = movie['id']
@@ -751,17 +751,16 @@ class Status(object):
         if result_status is False:
             logging.error('Could not get SEARCHRESULTS statuses for {}'.format(imdbid))
             return False
-        elif result_status is None:
+        elif 'Finished' in result_status:
+            status = 'Finished'
+        elif 'Snatched' in result_status:
+            status = 'Snatched'
+        elif 'Available' in result_status:
+            status = 'Found'
+        elif local_details.get('predb') == 'found':
             status = 'Wanted'
         else:
-            if 'Finished' in result_status:
-                status = 'Finished'
-            elif 'Snatched' in result_status:
-                status = 'Snatched'
-            elif 'Available' in result_status:
-                status = 'Found'
-            else:
-                status = 'Wanted'
+            status = 'Waiting'
 
         logging.info('Setting MOVIES {} status to {}.'.format(imdbid, status))
         if self.sql.update('MOVIES', 'status', status, 'imdbid', imdbid):
@@ -777,7 +776,8 @@ class Status(object):
         '''
         stats = {}
 
-        status = {'Wanted': 0,
+        status = {'Waiting': 0,
+                  'Wanted': 0,
                   'Found': 0,
                   'Snatched': 0,
                   'Finished': 0

@@ -131,13 +131,6 @@ div#additional_info{
     height: 2em;
 }
 
-div#additional_info i#predb{
-    float: left;
-    font-size: 1em;
-    margin-right: 0.5em;
-    line-height: 2em;
-}
-
 div#additional_info span{
     padding: 0;
     margin: 0 1em 0em 0;

@@ -44,10 +44,6 @@ class MovieStatusPopup():
             with div(id='plot'):
                 p(data['plot'])
             with div(id='additional_info'):
-                if data['predb'] == 'found':
-                    i(id='predb', cls='fa fa-check-circle', title='Verified releases found on predb.me')
-                else:
-                    i(id='predb', cls='fa fa-circle-o', title='No releases found on predb.me')
                 span('Theatrical Release Date: {}'.format(data['release_date']))
                 with a(href=url, target='_blank'):
                     span('Score: {}'.format(data['score']))

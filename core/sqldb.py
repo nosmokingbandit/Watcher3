@@ -526,6 +526,10 @@ class SQL(object):
 
     def update_tables(self):
 
+        for i in self.get_user_movies():
+            if i['predb'] is None and i['status'] is 'Wanted':
+                self.update('MOVIES', 'status', 'Waiting', 'imdbid', i['imdbid'])
+
         existing = self._get_existing_schema()
         intended = self._get_intended_schema()
 

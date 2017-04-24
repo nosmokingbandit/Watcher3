@@ -118,7 +118,7 @@ class Ajax(object):
             movie = data
 
         movie['quality'] = data.get('quality', 'Default')
-        movie['status'] = data.get('status', 'Wanted')
+        movie['status'] = data.get('status', 'Waiting')
 
         if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
             logging.info('{} already exists in library.'.format(movie['title']))
@@ -209,7 +209,7 @@ class Ajax(object):
             data = data[0]
 
         data['quality'] = quality
-        data['status'] = 'Wanted'
+        data['status'] = 'Waiting'
 
         return self.add_wanted_movie(json.dumps(data))
 
@@ -719,6 +719,7 @@ class Ajax(object):
         for movie in movie_data:
             if movie['imdbid']:
                 movie['status'] = 'Disabled'
+                movie['predb'] = 'found'
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))
@@ -922,6 +923,7 @@ class Ajax(object):
                 movie['id'] = tmdb_data['id']
                 movie['size'] = 0
                 movie['status'] = 'Disabled'
+                movie['predb'] = 'found'
 
             response = json.loads(self.add_wanted_movie(json.dumps(movie)))
             if response['response'] is True:
@@ -1020,6 +1022,8 @@ class Ajax(object):
         for movie in movie_data:
             if movie['imdbid']:
                 movie['status'] = 'Disabled'
+                movie['predb'] = 'found'
+
                 tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
                 movie.update(tmdb_data)
                 response = json.loads(self.add_wanted_movie(json.dumps(movie)))
@@ -1085,6 +1089,9 @@ class Ajax(object):
                 continue
 
         for movie in finished:
+            movie['predb'] = 'found'
+            movie['status'] = 'Disabled'
+
             response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
             if response['response'] is True:
                 fake_results.append(searchresults.generate_simulacrum(movie))
@@ -1167,7 +1174,7 @@ class Ajax(object):
                 response['errors'].append({imdbid: 'Unable to purge Search Results'})
                 continue
             db_reset = {'quality': 'Default',
-                        'status': 'Wanted',
+                        'status': 'Waiting',
                         'finished_date': None,
                         'finished_score': None,
                         'backlog': 0,

@@ -70,8 +70,6 @@ class Searcher():
             logging.info('Performing backlog search for {} movies.'.format(len(backlog_movies)))
             logging.debug('Backlog movies: {}'.format(backlog_movies))
             for movie in backlog_movies:
-                if movie['predb'] != 'found':
-                    continue
                 imdbid = movie['imdbid']
                 title = movie['title']
                 year = movie['year']
@@ -388,8 +386,6 @@ class Searcher():
         backlog_movies = []
 
         for i in movies:
-            if i['predb'] != 'found':
-                continue
             if i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
                 logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
                 backlog_movies.append(i)
@@ -416,14 +412,12 @@ class Searcher():
         for i in movies:
             if i['backlog'] != 1:
                 continue
-            if i['predb'] != 'found':
-                continue
 
             title = i['title']
             year = i['year']
             status = i['status']
 
-            if status in ['Wanted', 'Found', 'Snatched']:
+            if status in ('Wanted', 'Found', 'Snatched'):
                 rss_movies.append(i)
                 logging.info('{} {} is {}. Will look for new releases in RSS feed.'.format(title, year, status))
             if status == 'Finished' and keepsearching is True:

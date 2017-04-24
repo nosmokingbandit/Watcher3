@@ -37,6 +37,11 @@ ul#movie_list.compact li div span.status{
 }
 
 /* Status colors */
+div#key span.waiting,
+ul#movie_list li div span.waiting{
+    background-color: #607D8B;
+}
+
 div#key span.wanted,
 ul#movie_list li div span.wanted{
     background-color: #FF9800;
