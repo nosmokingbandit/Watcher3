@@ -27,9 +27,11 @@ if sys.version_info.major < 3:
     request = urllib2.Request
     urlopen = urllib2.urlopen
 else:
-    import urllib.parse.urlencode as urlencode
-    import urllib.request as request
-    urlopen = request.urlopen
+    import urllib.parse
+    import urllib.request
+    request = urllib.request.Request
+    urlencode = urllib.parse.urlencode
+    urlopen = urllib.request.urlopen
 
 # Gather info
 try:

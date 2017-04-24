@@ -20,9 +20,11 @@ if sys.version_info.major < 3:
     urlopen = urllib2.urlopen
     input = raw_input
 else:
-    import urllib.parse.urlencode as urlencode
-    import urllib.request as request
-    urlopen = request.urlopen
+    import urllib.parse
+    import urllib.request
+    request = urllib.request.Request
+    urlencode = urllib.parse.urlencode
+    urlopen = urllib.request.urlopen
 
 data = {}
 
