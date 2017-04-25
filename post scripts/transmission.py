@@ -32,7 +32,7 @@ args = os.environ
 
 download_dir = args['TR_TORRENT_DIR']
 
-while download_dir[-1] in ['/', '\\']:
+while download_dir[-1] in ('/', '\\'):
     download_dir = download_dir[:-1]
 
 parent_folder = os.path.split(download_dir)[-1]

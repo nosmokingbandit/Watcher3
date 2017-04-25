@@ -136,7 +136,7 @@ class Config():
                 config = json.load(f)
 
         repl = config['Postprocessing']['replaceillegal']
-        if repl in ['"', '*', '?', '<', '>', '|', ':']:
+        if repl in ('"', '*', '?', '<', '>', '|', ':'):
             config['Postprocessing']['replaceillegal'] = ''
 
         core.CONFIG = config

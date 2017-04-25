@@ -94,7 +94,7 @@ class Status():
                         elif status == 'Snatched':
                             span('Snatched', cls='status snatched')
                             span('3', cls='status_sort hidden')
-                        elif status in ['Finished', 'Disabled']:
+                        elif status in ('Finished', 'Disabled'):
                             span('Finished', cls='status finished')
                             span('4', cls='status_sort hidden')
                         else:

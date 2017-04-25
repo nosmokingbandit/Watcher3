@@ -75,7 +75,7 @@ class MovieStatusPopup():
         if not core.CONFIG['Downloader']['Sources']['usenetenabled']:
             results = [res for res in results if res['type'] != 'nzb']
         if not core.CONFIG['Downloader']['Sources']['torrentenabled']:
-            results = [res for res in results if res['type'] not in ['torrent', 'magnet']]
+            results = [res for res in results if res['type'] not in ('torrent', 'magnet')]
 
         result_list = ul(id='result_list')
         with result_list:

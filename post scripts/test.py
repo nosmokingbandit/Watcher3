@@ -33,7 +33,7 @@ args = sys.argv
 data['apikey'] = watcherapi or input('API Key: ')
 download_dir = input('Download dir (parent of download): ')
 
-while download_dir[-1] in ['/', '\\']:
+while download_dir[-1] in ('/', '\\'):
     download_dir = download_dir[:-1]
 
 guid = input('GUID: ')

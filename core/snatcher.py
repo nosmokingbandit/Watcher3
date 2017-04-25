@@ -55,7 +55,7 @@ class Snatcher():
         if not core.CONFIG['Downloader']['Sources']['usenetenabled']:
             search_results = [i for i in search_results if i['type'] != 'nzb']
         if not core.CONFIG['Downloader']['Sources']['torrentenabled']:
-            search_results = [i for i in search_results if i['type'] not in ['torrent', 'magnet']]
+            search_results = [i for i in search_results if i['type'] not in ('torrent', 'magnet')]
 
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results for enabled downloader.'.format(imdbid))
@@ -91,7 +91,7 @@ class Snatcher():
                 self.snatch(result)
                 return True
             # if doing a re-search, if top ranked result is Snatched we have nothing to do.
-            if status in ['Snatched', 'Finished']:
+            if status in ('Snatched', 'Finished'):
                 logging.info('Top-scoring release for {} has already been snatched.'.format(imdbid))
                 return False
 
@@ -124,7 +124,7 @@ class Snatcher():
             else:
                 return {'response': False, 'message': 'NZB submitted but nzb snatching is disabled.'}
 
-        if data['type'] in ['torrent', 'magnet']:
+        if data['type'] in ('torrent', 'magnet'):
             if core.CONFIG['Downloader']['Sources']['torrentenabled']:
                 response = self.snatch_torrent(data)
             else:

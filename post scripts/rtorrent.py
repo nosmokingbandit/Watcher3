@@ -41,7 +41,7 @@ if label != tor_label:
     sys.exit(0)
 
 
-while path[-1] in ['/', '\\']:
+while path[-1] in ('/', '\\'):
     path = path[:-1]
 
 data['apikey'] = watcherapi

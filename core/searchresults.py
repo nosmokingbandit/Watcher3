@@ -202,7 +202,7 @@ class Score():
         logging.info('Checking torrent seeds.')
         lst = []
         for result in self.results:
-            if result['type'] not in ['torrent', 'magnet']:
+            if result['type'] not in ('torrent', 'magnet'):
                 lst.append(result)
             else:
                 if int(result['seeders']) >= seeds:

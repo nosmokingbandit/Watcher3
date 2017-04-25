@@ -51,7 +51,7 @@ class Postprocessing(object):
         logging.info('#################################')
 
         # check for required keys
-        for key in ['apikey', 'mode', 'guid', 'path']:
+        for key in ('apikey', 'mode', 'guid', 'path'):
             if key not in data:
                 logging.warning('Missing key {}'.format(key))
                 return json.dumps({'response': False,
@@ -64,7 +64,7 @@ class Postprocessing(object):
                                'error': 'incorrect api key'})
 
         # check if mode is valid
-        if data['mode'] not in ['failed', 'complete']:
+        if data['mode'] not in ('failed', 'complete'):
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
             return json.dumps({'response': False,
                                'error': 'invalid mode value'})

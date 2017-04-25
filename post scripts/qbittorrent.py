@@ -37,7 +37,7 @@ args = sys.argv
 
 download_dir = args[2]          # %D
 
-while download_dir[-1] in ['/', '\\']:
+while download_dir[-1] in ('/', '\\'):
     download_dir = download_dir[:-1]
 
 parent_folder = os.path.split(download_dir)[-1]

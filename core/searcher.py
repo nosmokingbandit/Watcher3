@@ -297,7 +297,7 @@ class Searcher():
 
         keep = []
         for result in results:
-            if result['type'] in ['torrent', 'magnet', 'import']:
+            if result['type'] in ('torrent', 'magnet', 'import'):
                 keep.append(result)
             for indexer in active:
                 if indexer in result['guid']:
