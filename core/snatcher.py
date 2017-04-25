@@ -151,12 +151,12 @@ class Snatcher():
             response = sabnzbd.Sabnzbd.add_nzb(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to Sabnzbd.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'sabnzbd', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to Sabnzbd.'.format(title))
                     return {'response': True, 'message': 'Sent to SABnzbd.', 'downloader': 'SABnzb', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -171,12 +171,12 @@ class Snatcher():
             response = nzbget.Nzbget.add_nzb(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to NZBGet.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'nzbget', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to NZBGet.'.format(title))
                     return {'response': True, 'message': 'Sent to NZBGet.', 'downloader': 'NZBGet', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -197,12 +197,12 @@ class Snatcher():
             response = transmission.Transmission.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to NZBGet.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'transmission', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to NZBGet.'.format(title))
                     return {'response': True, 'message': 'Sent to Transmission.', 'downloader': 'Transmission', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -217,12 +217,12 @@ class Snatcher():
             response = qbittorrent.QBittorrent.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to QBittorrent.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'qbittorrent', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to QBittorrent.'.format(title))
                     return {'response': True, 'message': 'Sent to QBittorrent.', 'downloader': 'QBitorrent', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -237,12 +237,12 @@ class Snatcher():
             response = deluge.DelugeRPC.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to DelugeRPC.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'delugerpc', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to DelugeRPC.'.format(title))
                     return {'response': True, 'message': 'Sent to Deluge.', 'downloader': 'Deluge', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -257,12 +257,12 @@ class Snatcher():
             response = deluge.DelugeWeb.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to DelugeWeb.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'delugeweb', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to DelugeWeb.'.format(title))
                     return {'response': True, 'message': 'Sent to Deluge.', 'downloader': 'Deluge', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -277,12 +277,12 @@ class Snatcher():
             response = rtorrent.rTorrentSCGI.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to rTorrent.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'rtorrentscgi', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to rTorrent.'.format(title))
                     return {'response': True, 'message': 'Sent to rTorrent.', 'downloader': 'rTorrent', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
@@ -290,19 +290,19 @@ class Snatcher():
             else:
                 return response
 
-        # If sending to rTorrentSCGI
+        # If sending to rTorrentHTTP via ruTorrent plugin
         rtorrent_conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']
         if rtorrent_conf['enabled'] is True:
             logging.info('Sending {} to rTorrent.'.format(kind))
             response = rtorrent.rTorrentHTTP.add_torrent(data)
 
             if response['response'] is True:
+                logging.info('Successfully sent {} to rTorrent.'.format(title))
 
-                # store downloadid in database
                 self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
+                self.sql.update('SEARCHRESULTS', 'download_client', 'rtorrenthttp', 'guid', guid)
 
                 if self.update_status_snatched(guid, imdbid):
-                    logging.info('Successfully sent {} to rTorrent.'.format(title))
                     return {'response': True, 'message': 'Sent to rTorrent.', 'downloader': 'rTorrent', 'downloadid': response['downloadid']}
                 else:
                     return {'response': False, 'error': 'Could not mark '
