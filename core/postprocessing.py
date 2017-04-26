@@ -44,8 +44,6 @@ class Postprocessing(object):
         Returns str json.dumps(dict) to post-process reqesting application.
         '''
 
-        config = core.CONFIG['Postprocessing']
-
         logging.info('#################################')
         logging.info('Post-processing request received.')
         logging.info('#################################')
@@ -80,13 +78,6 @@ class Postprocessing(object):
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
         data.update(self.get_movie_info(data))
-
-        # remove any invalid characters
-        for k, v in data.items():
-            # but we have to keep the path unmodified
-            repl = config['replaceillegal']
-            if k != 'path' and k != 'movie_file' and k != 'url' and type(v) == str:
-                data[k] = re.sub(r'[:"*?<>|]+', repl, v)
 
         # At this point we have all of the information we're going to get.
         if data['mode'] == 'failed':
