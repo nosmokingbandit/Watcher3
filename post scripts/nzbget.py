@@ -78,4 +78,4 @@ elif response.get('status') == 'incomplete':
 else:
     sys.exit(POSTPROCESS_NONE)
 
-# pylama:ignore=E266
+# pylama:ignore=E266,E265

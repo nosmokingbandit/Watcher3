@@ -701,8 +701,9 @@ class Status(object):
     def mark_bad(self, guid, imdbid=None):
         ''' Marks search result as Bad
         :param guid: str download link for nzb/magnet/torrent file.
+        imdbid: str imdbid of movie
 
-        Calls self method to update both db tables
+        Calls searchresults method to update both db tables
         Tries to find imdbid if not supplied.
         If imdbid is available or found, executes self.movie_status()
 

@@ -23,6 +23,16 @@ class Config():
         Automatically assigns random values to searchtimehr, searchtimemin,
             installupdatehr, installupdatemin, and apikey.
 
+        Config template is stored as core/base_config.cfg
+
+        When adding keys to the base config:
+            Keys will have no spaces, hypens, underscores or other substitutions
+                for a space. Simply crush everything into one word.
+            Keys that access another dictionary should be capitalized. This can
+                be done in the way that makes most sense in context, but should
+                try to mimic camel case.
+            Keys that access a non-dictionary value should be lowercase.
+
         Returns str 'Config Saved' on success. Throws execption on failure.
         '''
 

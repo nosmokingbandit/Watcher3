@@ -946,8 +946,6 @@ class Ajax(object):
         length = len(movies)
         progress = 1
 
-        print(movies[0])
-
         for movie in movies:
 
             tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
