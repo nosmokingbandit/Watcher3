@@ -182,7 +182,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(url, headers=headers)
             xml = r.text
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
@@ -194,7 +194,7 @@ class ImportPlexLibrary(object):
                 lib = directory.attrib
                 lib['path'] = directory.find('Location').attrib['path']
                 libs.append(lib)
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to parse Plex xml.', exc_info=True)
             return {'response', False, 'error', 'Unable to parse Plex xml.'}
 
@@ -209,7 +209,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(url, headers=headers)
             xml = r.text
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
@@ -222,7 +222,7 @@ class ImportPlexLibrary(object):
 
                 movies.append(movie)
 
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to parse Plex xml.', exc_info=True)
             return {'response', False, 'error', 'Unable to parse Plex xml.'}
 
@@ -248,7 +248,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(plex_url, post_data=post_data, headers=headers)
             return json.loads(r.text)['user'].get('authentication_token')
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to get Plex token.', exc_info=True)
             return None
 
@@ -260,7 +260,7 @@ class ImportPlexLibrary(object):
             reader = csv.DictReader(csv_text.splitlines())
             for row in reader:
                 movies.append(dict(row))
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             return {'response': False, 'error': e}
 
         parsed_movies = []
@@ -457,7 +457,7 @@ class Metadata(object):
             filedata = extractor.exportDictionary(human=False)
             parser.stream._input.close()
 
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             logging.error('Unable to parse metadata from file header.', exc_info=True)
             return metadata
 
