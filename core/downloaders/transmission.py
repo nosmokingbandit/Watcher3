@@ -87,3 +87,28 @@ class Transmission(object):
         except Exception as e:
             logging.error('Unable to send torrent to TransmissionRPC.', exc_info=True)
             return {'response': False, 'error': str(e)}
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Torrent']['Transmission']
+
+        host = conf['host']
+        port = conf['port']
+        user = conf['user']
+        password = conf['pass']
+
+        client = transmissionrpc.Client(host, port, user=user, password=password)
+
+        try:
+            client.remove_torrent([downloadid], delete_data=True)
+            return True
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False

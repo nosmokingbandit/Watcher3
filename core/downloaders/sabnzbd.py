@@ -37,7 +37,6 @@ class Sabnzbd():
             logging.error('Sabnzbd connection test failed.', exc_info=True)
             return '{}.'.format(str(e))
 
-    # returns dict {'status': <>, 'nzo_ids': [<>] }
     @staticmethod
     def add_nzb(data):
         ''' Adds nzb file to sab to download
@@ -87,3 +86,27 @@ class Sabnzbd():
         except Exception as e:
             logging.error('Unable to send NZB to Sabnzbd.', exc_info=True)
             return {'response': False, 'error': str(e)}
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Usenet']['Sabnzbd']
+
+        host = conf['host']
+        port = conf['port']
+        api = conf['api']
+
+        url = 'http://{}:{}/sabnzbd/api?apikey={}&mode=queue&name=delete&value={}&output=json'.format(host, port, api, downloadid)
+
+        try:
+            response = json.loads(Url.open(url).text)
+            return response.get('status', False)
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False

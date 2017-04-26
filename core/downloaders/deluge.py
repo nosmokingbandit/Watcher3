@@ -26,8 +26,6 @@ class DelugeRPC(object):
         user = data['user']
         password = data['pass']
 
-        print(type(port))
-
         client = DelugeRPCClient(host, port, user, password)
         try:
             error = client.connect()
@@ -97,6 +95,31 @@ class DelugeRPC(object):
                 logging.error('Unable to send magnet.', exc_info=True)
                 return {'response': False, 'error': str(e)}
         return
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Torrent']['DelugeRPC']
+
+        host = conf['host']
+        port = conf['port']
+        user = conf['user']
+        password = conf['pass']
+
+        client = DelugeRPCClient(host, port, user, password)
+
+        try:
+            client.connect()
+            return client.call('core.remove_torrent', downloadid, True)
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False
 
 
 class DelugeWeb(object):
@@ -269,3 +292,8 @@ class DelugeWeb(object):
         except Exception as e:
             logging.error('DelugeWeb test_connection', exc_info=True)
             return '{}.'.format(e)
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Just a placeholder '''
+        return None

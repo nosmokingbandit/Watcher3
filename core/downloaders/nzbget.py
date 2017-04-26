@@ -23,13 +23,12 @@ class Nzbget():
         user = data['user']
         passw = data['pass']
 
-        https = False
-        if https:
-            url = u"https://{}:{}/{}:{}/xmlrpc".format(host, port, user, passw)
-            nzbg_server = ServerProxy(url)
+        if not host.startswith('http'):
+            url = 'http://{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
         else:
-            url = u"http://{}:{}/{}:{}/xmlrpc".format(host, port, user, passw)
-            nzbg_server = ServerProxy(url)
+            url = '{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
+
+        nzbg_server = ServerProxy(url)
 
         try:
             nzbg_server.version()
@@ -55,11 +54,10 @@ class Nzbget():
         user = conf['user']
         passw = conf['pass']
 
-        https = False
-        if https:
-            url = u"https://{}:{}/{}:{}/xmlrpc".format(host, port, user, passw)
+        if not host.startswith('http'):
+            url = 'http://{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
         else:
-            url = u"http://{}:{}/{}:{}/xmlrpc".format(host, port, user, passw)
+            url = '{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
 
         nzbg_server = ServerProxy(url)
 
@@ -90,3 +88,32 @@ class Nzbget():
         except Exception as e:
             logging.error('Unable to add NZB to NZBGet.')
             return {'response': False, 'error': str(e)}
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Usenet']['NzbGet']
+
+        host = conf['host']
+        port = conf['port']
+        user = conf['user']
+        passw = conf['pass']
+
+        if not host.startswith('http'):
+            url = 'http://{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
+        else:
+            url = '{}:{}/{}:{}/xmlrpc'.format(host, port, user, passw)
+
+        nzbg_server = ServerProxy(url)
+
+        try:
+            return nzbg_server.editqueue('GroupDelete', 0, '', [int(downloadid)])
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False

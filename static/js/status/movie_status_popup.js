@@ -189,7 +189,8 @@ $(document).ready(function() {
 
         $.post(url_base + "/ajax/mark_bad", {
             "guid":guid,
-            "imdbid":imdbid
+            "imdbid":imdbid,
+            "cancel_download": true
         })
         .done(function(r){
             response = JSON.parse(r);

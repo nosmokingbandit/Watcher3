@@ -118,3 +118,39 @@ class QBittorrent(object):
         except Exception as e:
             logging.error('qbittorrent test_connection', exc_info=True)
             return '{}.'.format(str(e))
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
+
+        host = conf['host']
+        port = conf['port']
+        base_url = '{}:{}/'.format(host, port)
+
+        user = conf['user']
+        password = conf['pass']
+
+        if QBittorrent.cookie is None:
+            if QBittorrent._login(base_url, user, password) is not True:
+                return False
+
+        post_data = {}
+
+        post_data['hashes'] = downloadid.lower()
+
+        url = '{}command/deletePerm'.format(base_url)
+        headers = {'cookie': QBittorrent.cookie}
+
+        try:
+            Url.open(url, post_data=post_data, headers=headers)  # QBit returns an empty string
+            return True
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False

@@ -309,9 +309,11 @@ class Ajax(object):
             return json.dumps({'response': False, 'error': 'Unable to get download information from the database. Check logs for more information.'})
 
     @cherrypy.expose
-    def mark_bad(self, guid, imdbid):
+    def mark_bad(self, guid, imdbid, cancel_download=False):
         ''' Marks guid as bad in SEARCHRESULTS and MARKEDRESULTS
-        :param guid: srt guid to mark
+        :param guid: str guid to mark
+        :param imdbid: str imdbid # of movie to mark
+        cancel_download: bool send command to download client to cancel download
 
         Returns str json.dumps(dict)
         '''
@@ -319,7 +321,41 @@ class Ajax(object):
         if self.update.mark_bad(guid, imdbid=imdbid):
             response = {'response': True, 'message': 'Marked as Bad.'}
         else:
-            response = {'response': False, 'error': 'Could not mark release as bad. Check logs for more information.'}
+            response = {'response': False, 'error': 'Could not mark release as bad.'}
+
+        if cancel_download:
+            c = False
+            r = self.sql.get_single_search_result('guid', guid)
+
+            if r['status'] != 'Snatched':
+                return json.dumps(response)
+
+            client = r['download_client'] if r else None
+            downloadid = r['downloadid'] if r else None
+            if not client:
+                logging.info('Download client not found, cannot cancel download.')
+                return json.dumps(response)
+            elif client == 'nzbget':
+                c = nzbget.Nzbget.cancel_download(downloadid)
+            elif client == 'sabnzbd':
+                c = sabnzbd.Sabnzbd.cancel_download(downloadid)
+            elif client == 'qbittorrent':
+                c = qbittorrent.QBittorrent.cancel_download(downloadid)
+            elif client == 'delugerpc':
+                c = deluge.DelugeRPC.cancel_download(downloadid)
+            elif client == 'delugeweb':
+                logging.warning('DelugeWeb API does not support torrent removal.')
+            elif client == 'transmission':
+                c = transmission.Transmission.cancel_download(downloadid)
+            elif client == 'rtorrentscgi':
+                c = rtorrent.rTorrentSCGI.cancel_download(downloadid)
+            elif client == 'rtorrenthttp':
+                c = rtorrent.rTorrentHTTP.cancel_download(downloadid)
+
+            if not c:
+                response['response'] = False
+                response['error'] = response.get('error', '') + ' Could not remove download from client.'
+
         return json.dumps(response)
 
     @cherrypy.expose

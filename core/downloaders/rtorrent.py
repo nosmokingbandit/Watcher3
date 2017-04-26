@@ -82,6 +82,34 @@ class rTorrentSCGI(object):
             logging.error('Unable to send torrent to rTorrent', exc_info=True)
             return {'response': False, 'error': str(e)[1:-1]}
 
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Torrent']['rTorrentSCGI']
+
+        if rTorrentSCGI.client is None:
+            connected = rTorrentSCGI.test_connection(conf)
+            if connected is not True:
+                return False
+
+        try:
+            mc = xmlrpc.client.MultiCall(rTorrentSCGI.client)
+            mc.d.custom5.set(downloadid, '1')
+            mc.d.delete_tied(downloadid)
+            mc.d.erase(downloadid)
+            for i in mc():
+                print(i)
+            return True
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False
+
 
 class rTorrentHTTP(object):
 
@@ -166,3 +194,30 @@ class rTorrentHTTP(object):
         except Exception as e:
             logging.error('Unable to send torrent to rTorrent HTTP', exc_info=True)
             return {'response': False, 'error': str(e)[1:-1]}
+
+    @staticmethod
+    def cancel_download(downloadid):
+        ''' Cancels download in client
+        downloadid: int download id
+
+        Returns bool
+        '''
+        logging.info('Cancelling download # {}'.format(downloadid))
+
+        conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']
+
+        if rTorrentHTTP.client is None:
+            connected = rTorrentHTTP.test_connection(conf)
+            if connected is not True:
+                return {'response': False, 'error': connected}
+
+        try:
+            mc = xmlrpc.client.MultiCall(rTorrentHTTP.client)
+            mc.d.custom5.set(downloadid, '1')
+            mc.d.delete_tied(downloadid)
+            mc.d.erase(downloadid)
+            mc()
+            return True
+        except Exception as e:
+            logging.error('Unable to cancel download.', exc_info=True)
+            return False
