@@ -211,10 +211,11 @@ class Postprocessing(object):
             logging.info('Unable to find local data for release. Using only data found from file.')
 
         if data:
-            data.update(self.metadata.get_metadata(data['movie_file']))
-            if not data.get('quality'):
+            mdata = self.metadata.get_metadata(data['movie_file'])
+            mdata.update(data)
+            if not mdata.get('quality'):
                 data['quality'] = 'Default'
-            return data
+            return mdata
         else:
             return {}
 
