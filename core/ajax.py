@@ -1222,3 +1222,7 @@ class Ajax(object):
             response['errors'].append({'imdbid': imdbid, 'error': 'THIS IS A TEST'})
 
         return json.dumps(response)
+
+    @cherrypy.expose
+    def generate_stats(self):
+        return json.dumps(self.update.get_stats())

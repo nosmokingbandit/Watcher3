@@ -337,48 +337,77 @@ $(document).ready(function(){
     }
 
 /* Charts */
-var stats = JSON.parse($('div.stats').text());
 
-    Morris.Donut({
-        element: $('div#chart_status .chart'),
-        data: stats['status'],
-        colors: ['#607D8B', '#FF9800', '#CDDC39', '#00BCD4', '#4CAF50'],
-        labelColor: '#ccc',
-        labelSize: '24px'
+    $('span#generate_stats').click(function(){
+        var $this = $(this);
+        var $i = $this.find('i');
+        $i.removeClass('fa-chart-bar');
+        $i.addClass('fa-circle faa-burst animated');
+
+        var $stats_container = $('div#stats_container');
+        $stats_container.slideDown();
+
+        $.each($('div.chart'), function(i, elem){
+            $(elem).empty()
+        })
+
+        $.get(url_base + "/ajax/generate_stats")
+        .done(function(r){
+            var stats = JSON.parse(r)
+            render_charts(stats)
+
+            $i.removeClass('fa-circle faa-burst animated');
+            $i.addClass('fa-chart-bar');
+
+
+        })
     })
 
-    Morris.Donut({
-        element: $('div#chart_qualities .chart'),
-        data: stats['qualities'],
-        colors: ['#03A9F4', '#673AB7', '#F44336', '#FF9800', '#FFEB3B', '#4CAF50'],
-        labelColor: '#ccc',
-        labelSize: '24px'
-    })
+    function render_charts(stats){
+        /* Renders charts of library stats
+        stats: JSON object of stats
+        */
 
-    Morris.Bar({
-        element: $('div#chart_years .chart'),
-        data: stats['years'],
-        xkey: 'year',
-        ykeys: ['value'],
-        labels: ['Movies'],
-        barColors: ['#ccc'],
-    })
+        Morris.Donut({
+            element: $('div#chart_status .chart'),
+            data: stats['status'],
+            colors: ['#607D8B', '#FF9800', '#CDDC39', '#00BCD4', '#4CAF50'],
+            labelColor: '#ccc',
+            labelSize: '24px'
+        })
 
-    Morris.Line({
-        element: $('div#chart_added .chart'),
-        data: stats['added_dates'],
-        xkey: 'added_date',
-        ykeys: ['value'],
-        labels: ['Movies'],
-        lineColors: ['#ccc'],
-        pointFillColors: ['#080f18'],
-        pointStrokeColors: ['#ccc'],
-        xLabels: 'month',
-        smooth: false
-    })
+        Morris.Donut({
+            element: $('div#chart_qualities .chart'),
+            data: stats['qualities'],
+            colors: ['#03A9F4', '#673AB7', '#F44336', '#FF9800', '#FFEB3B', '#4CAF50'],
+            labelColor: '#ccc',
+            labelSize: '24px'
+        })
 
-    $('svg text').css('font-family', 'Raleway')
+        Morris.Bar({
+            element: $('div#chart_years .chart'),
+            data: stats['years'],
+            xkey: 'year',
+            ykeys: ['value'],
+            labels: ['Movies'],
+            barColors: ['#ccc'],
+        })
 
+        Morris.Line({
+            element: $('div#chart_added .chart'),
+            data: stats['added_dates'],
+            xkey: 'added_date',
+            ykeys: ['value'],
+            labels: ['Movies'],
+            lineColors: ['#ccc'],
+            pointFillColors: ['#080f18'],
+            pointStrokeColors: ['#ccc'],
+            xLabels: 'month',
+            smooth: false
+        })
+
+        $('svg text').css('font-family', 'Raleway')
+    }
 
 /* ui */
     $('div#_stats').hide();
@@ -389,10 +418,10 @@ var stats = JSON.parse($('div.stats').text());
     if(sub_page){
         $('div#_'+sub_page).show();
         $('ul#subnav a').removeClass('active');
-        console.log('a[href="#'+sub_page+'"]')
         $('ul#subnav a[href="#'+sub_page+'"]').addClass('active')
     } else {
-        $('div#_stats').show();
+        $('div#_database').show();
+        $('ul#subnav a[href="#database"]').addClass('active')
     }
 
     $('ul#subnav a').click(function(e){

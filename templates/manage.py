@@ -21,9 +21,9 @@ class Manage(object):
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.19')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.19'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.26')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.27')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.27'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.27')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/morris/morris.js')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/raphael/raphael.js')
 
@@ -33,36 +33,10 @@ class Manage(object):
 
             with div(id='content'):
                 with ul(id='subnav'):
-                    with a(href='#stats', page='_stats'):
-                        li('Stats')
                     with a(href='#database', page='_database'):
                         li('Database')
-
-                with div(id='_stats'):
-                    stats = self.library.get_stats()
-                    if 'error' in stats:
-                        div(stats['error'])
-                    else:
-                        div(json.dumps(stats), cls='hidden stats')
-                        with div(cls='chart_box'):
-                            with span():
-                                b('Movie Count: ')
-                                span(len(self.movies))
-                                br()
-                                b('Estimated Library Size: ')
-                                span(self.library.estimate_size())
-                        with div(id='chart_status', cls='chart_box'):
-                            h1('Status')
-                            div(cls='chart')
-                        with div(id='chart_qualities', cls='chart_box'):
-                            h1('Quality Profiles')
-                            div(cls='chart')
-                        with div(id='chart_years', cls='chart_box'):
-                            h2('Movies by Year')
-                            div(cls='chart')
-                        with div(id='chart_added', cls='chart_box'):
-                            h2('Add Frequency')
-                            div(cls='chart')
+                    with a(href='#stats', page='_stats'):
+                        li('Stats')
 
                 with div(id='_database', cls='hidden'):
                     self.movie_list()
@@ -102,6 +76,34 @@ class Manage(object):
                                     i(cls='fa fa-rotate-left')
                                     span('Reset Movies')
                             td('Remove status settings and search results')
+
+                with div(id='_stats'):
+                    with div(id='stats_container', cls='hidden'):
+                        with div(cls='chart_box'):
+                            with span():
+                                b('Movie Count: ')
+                                span(len(self.movies))
+                                br()
+                                b('Estimated Library Size: ')
+                                span(self.library.estimate_size())
+                        with div(id='chart_status', cls='chart_box'):
+                            h1('Status')
+                            div(cls='chart')
+                        with div(id='chart_qualities', cls='chart_box'):
+                            h1('Quality Profiles')
+                            div(cls='chart')
+                        with div(id='chart_years', cls='chart_box'):
+                            h2('Movies by Year')
+                            div(cls='chart')
+                        with div(id='chart_added', cls='chart_box'):
+                            h2('Add Frequency')
+                            div(cls='chart')
+
+                    with div(cls='chart_box'):
+                        with span(id='generate_stats'):
+                            i(cls='fa fa-bar-chart')
+                            dominate.util.text(' Generate Stats')
+                        span('Generating stats for a large library may take some time', cls='tip')
 
             div(id='overlay')
 
