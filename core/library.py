@@ -480,6 +480,8 @@ class Metadata(object):
                     filedata['resolution'] = '720P'
                 else:
                     filedata['resolution'] = 'SD'
+            else:
+                filedata['resolution'] = 'SD'
 
             if filedata.get('audio[1]'):
                 metadata['audiocodec'] = filedata['audio[1]'].get('compression').replace('A_', '')
