@@ -342,7 +342,7 @@ var stats = JSON.parse($('div.stats').text());
     Morris.Donut({
         element: $('div#chart_status .chart'),
         data: stats['status'],
-        colors: ['#4CAF50', '#CDDC39', '#00BCD4', '#FF9800'],
+        colors: ['#607D8B', '#FF9800', '#CDDC39', '#00BCD4', '#4CAF50'],
         labelColor: '#ccc',
         labelSize: '24px'
     })

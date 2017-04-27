@@ -23,7 +23,7 @@ class Manage(object):
             Head.insert()
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.19')
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.19'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.18')
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.26')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/morris/morris.js')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/raphael/raphael.js')
 
