@@ -405,17 +405,18 @@ class Metadata(object):
         logging.info('Gathering metadata for {}.'.format(filepath))
 
         data = {
-            'title': '',
-            'year': '',
-            'resolution': '',
-            'releasegroup': '',
-            'audiocodec': '',
-            'videocodec': '',
-            'source': '',
-            'imdbid': '',
-            'size': '',
+            'title': None,
+            'year': None,
+            'resolution': None,
+            'rated': None,
+            'imdbid': None,
+            'videocodec': None,
+            'audiocodec': None,
+            'releasegroup': None,
+            'source': None,
+            'quality': None,
             'path': filepath
-            }
+        }
 
         titledata = self.parse_filename(filepath)
         data.update(titledata)
