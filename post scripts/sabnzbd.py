@@ -26,12 +26,14 @@ if sys.version_info.major < 3:
     urlencode = urllib.urlencode
     request = urllib2.Request
     urlopen = urllib2.urlopen
+    urlquote = urllib.quote
 else:
     import urllib.parse
     import urllib.request
     request = urllib.request.Request
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
+    urlquote = urllib.parse.quote
 
 # Gather info
 try:
@@ -49,11 +51,11 @@ sabport = conf['sabport']
 data = {'apikey': watcherapi, 'guid': ''}
 
 # get guid and nzo_id from sab history, since sab < 2.0 doesn't send with args:
-name = urllib2.quote(sys.argv[3], safe='')
+name = urlquote(sys.argv[3], safe='')
 url = u'http://{}:{}/sabnzbd/api?apikey={}&mode=history&output=json&search={}'.format(sabhost, sabport, sabkey, name)
 
-request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-response = urllib2.urlopen(request, timeout=60).read()
+req = request(url, headers={'User-Agent': 'Mozilla/5.0'})
+response = urlopen(req, timeout=60).read().decode('utf-8')
 
 slots = json.loads(response)['history']['slots']
 
@@ -76,8 +78,8 @@ else:
 url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
-request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+req = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
+response = json.loads(urlopen(req, timeout=600).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(0)
