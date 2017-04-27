@@ -30,10 +30,8 @@ ul#subnav a:hover{
     border-top: 4px solid #ccc;
 }
 
-
-
 table#movie_table{
-    margin: 0 auto;
+    margin: 1em auto;
 }
 
 table#movie_table th,

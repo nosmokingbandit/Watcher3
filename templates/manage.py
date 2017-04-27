@@ -39,12 +39,12 @@ class Manage(object):
                         li('Stats')
 
                 with div(id='_database', cls='hidden'):
-                    self.movie_list()
-
                     with div(id='select_actions'):
                         button('Select All', id='select_all')
                         button('De-select All', id='de_select_all')
                         button('Invert Selection', id='invert_selection')
+                    self.movie_list()
+
                     with table(id='actions'):
                         with tr():
                             with td():
