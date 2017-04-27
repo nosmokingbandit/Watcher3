@@ -496,18 +496,6 @@ class Metadata(object):
         '''
         logging.info('Parsing {} for movie information.'.format(filepath))
 
-        # This is our base dict. Contains all neccesary keys, though they can all be empty if not found.
-        metadata = {
-            'title': '',
-            'year': '',
-            'resolution': '',
-            'releasegroup': '',
-            'audiocodec': '',
-            'videocodec': '',
-            'source': '',
-            'imdbid': ''
-            }
-
         titledata = PTN.parse(os.path.basename(filepath))
         # this key is useless
         if 'excess' in titledata:
@@ -527,17 +515,14 @@ class Metadata(object):
             titledata['title'] = title[:-1]
 
         # Make sure this matches our key names
-        if 'codec' in titledata:
-            titledata['videocodec'] = titledata.pop('codec')
-        if 'audio' in titledata:
-            titledata['audiocodec'] = titledata.pop('audio')
-        if 'quality' in titledata:
-            titledata['source'] = titledata.pop('quality')
-        if 'group' in titledata:
-            titledata['releasegroup'] = titledata.pop('group')
-        metadata.update(titledata)
+        if 'year' in titledata:
+            titledata['year'] = str(titledata['year'])
+        titledata['videocodec'] = titledata.pop('codec', None)
+        titledata['audiocodec'] = titledata.pop('audio', None)
+        titledata['source'] = titledata.pop('quality', None)
+        titledata['releasegroup'] = titledata.pop('group', None)
 
-        return metadata
+        return titledata
 
     def convert_to_db(self, movie):
         ''' Takes movie data and converts to a database-writable dict
