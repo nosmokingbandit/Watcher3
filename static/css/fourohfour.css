@@ -3,7 +3,7 @@ body, html{
     height: 100%;
     margin: 0;
     padding: 0;
-    background: url('../../images/logo_bg.png') no-repeat 50% 50% #080f18;
+    background: url('../images/logo_bg.png') no-repeat 50% 50% #080f18;
 }
 
 div#content{

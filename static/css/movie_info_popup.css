@@ -57,7 +57,7 @@ iframe#trailer{
     border-radius: 4px;
     top: 0px;
     right: 0px;
-    background: url('../../images/logo_bg.png') no-repeat 50% 50% transparent;
+    background: url('../images/logo_bg.png') no-repeat 50% 50% transparent;
 }
 
 /* Bottom row info */

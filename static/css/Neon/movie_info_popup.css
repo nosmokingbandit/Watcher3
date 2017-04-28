@@ -9,7 +9,7 @@ div#info_pop_up a{
 
 
 iframe#trailer{
-    background: url('../../images/logo_bg.png') no-repeat 50% 50% transparent;
+    background: url('../images/logo_bg.png') no-repeat 50% 50% transparent;
 }
 
 /* Quality slide in panel */
