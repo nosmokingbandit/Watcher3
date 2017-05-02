@@ -174,11 +174,8 @@ class ImdbRssSync(object):
     @staticmethod
     def sync_rss():
         logging.info('Running automatic IMDB rss sync.')
-        rss_url = core.CONFIG['Search']['Watchlists']['imdbrss']
-
         imdb_rss = imdb.ImdbRss()
-
-        imdb_rss.get_rss(rss_url)
+        imdb_rss.get_rss()
         return
 
 

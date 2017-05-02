@@ -98,6 +98,9 @@ class Config():
 
         new_config = self._merge(base_config, config)
 
+        if type(new_config['Search']['Watchlists']['imdbrss']) == str:
+            new_config['Search']['Watchlists']['imdbrss'] = new_config['Search']['Watchlists']['imdbrss'].split(',')
+
         with open(self.file, 'w') as f:
             json.dump(new_config, f, indent=4, sort_keys=True)
 

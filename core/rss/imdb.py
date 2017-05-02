@@ -1,3 +1,4 @@
+import core
 from core import ajax, sqldb
 from core.movieinfo import TMDB
 from core.helpers import Url
@@ -6,7 +7,6 @@ import json
 import logging
 import os
 import xml.etree.cElementTree as ET
-import time
 
 logging = logging.getLogger(__name__)
 
@@ -16,9 +16,11 @@ class ImdbRss(object):
         self.tmdb = TMDB()
         self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
+        self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
+        self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
         return
 
-    def get_rss(self, url):
+    def get_rss(self):
         ''' Gets rss feed from imdb
         :param rss_url: str url to rss feed
 
@@ -27,31 +29,59 @@ class ImdbRss(object):
         Returns True or None on success or failure (due to exception or empty movie list)
         '''
 
-        if 'rss' in url:
+        movies = []
+        for url in core.CONFIG['Search']['Watchlists']['imdbrss']:
+            if 'rss' not in url:
+                continue
+
             list_id = ''.join(filter(str.isdigit, url))
             logging.info('Syncing rss IMDB watchlist {}'.format(url))
             try:
                 response = Url.open(url).text
-            except (SystemExit, KeyboardInterrupt):
-                raise
             except Exception as e: # noqa
                 logging.error('IMDB rss request.', exc_info=True)
-                return None
+                continue
 
-            movies = self.parse_xml(response)
+            lastbuilddate = self.parse_build_date(response)
 
-        else:
-            return None
+            if os.path.isfile(self.data_file):
+                with open(self.data_file, 'r') as f:
+                    last_sync = json.load(f).get(list_id) or 'Sat, 01 Jan 2000 00:00:00 GMT'
+            else:
+                last_sync = 'Sat, 01 Jan 2000 00:00:00 GMT'
 
-        self.lastbuilddate = self.parse_build_date(response)
+            last_sync = datetime.strptime(last_sync, self.date_format)
 
-        if movies:
-            logging.info('Found {} movies in watchlist.'.format(len(movies)))
-            self.sync_new_movies(movies, list_id)
-            logging.info('IMDB sync complete.')
-            return True
-        else:
-            return None
+            for i in self.parse_xml(response):
+                pub_date = datetime.strptime(i['pubDate'], self.date_format)
+
+                if last_sync >= pub_date:
+                    break
+                else:
+                    if i not in movies:
+                        title = i['title']
+                        imdbid = i['imdbid'] = i['link'].split('/')[-2]
+                        movies.append(i)
+                        logging.info('Found new watchlist movie: {} {}'.format(title, imdbid))
+
+            logging.info('Storing last synced date.')
+            if os.path.isfile(self.data_file):
+                with open(self.data_file, 'r+') as f:
+                    date_log = json.load(f)
+                    date_log[list_id] = lastbuilddate
+                    f.seek(0)
+                    json.dump(date_log, f)
+            else:
+                with open(self.data_file, 'w') as f:
+                    date_log = {list_id: lastbuilddate}
+                    json.dump(date_log, f)
+
+            if movies:
+                lastbuilddate = self.parse_build_date(response)
+                logging.info('Found {} movies in watchlist {}.'.format(len(movies), list_id))
+                self.sync_new_movies(movies, list_id, lastbuilddate)
+
+        logging.info('IMDB sync complete.')
 
     def parse_xml(self, feed):
         ''' Turns rss into python dict
@@ -87,7 +117,7 @@ class ImdbRss(object):
         for i in root.iter('lastBuildDate'):
             return i.text
 
-    def sync_new_movies(self, movies, list_id):
+    def sync_new_movies(self, new_movies, list_id, lastbuilddate):
         ''' Adds new movies from rss feed
         :params movies: list of dicts of movies
         list_id: str id # of watch list
@@ -100,52 +130,20 @@ class ImdbRss(object):
 
         Does not return
         '''
-        data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
-
-        date_format = '%a, %d %b %Y %H:%M:%S %Z'
-        new_rss_movies = []
-
-        if os.path.isfile(data_file):
-            with open(data_file, 'r') as f:
-                last_sync = json.load(f).get(list_id) or 'Sat, 01 Jan 2000 00:00:00 GMT'
-        else:
-            last_sync = 'Sat, 01 Jan 2000 00:00:00 GMT'
-
-        logging.info('Last synced this watchlist on {}+0800'.format(last_sync))
-
-        last_sync = datetime.strptime(last_sync, date_format)
-
-        for i in movies:
-            pub_date = datetime.strptime(i['pubDate'], date_format)
-
-            if last_sync >= pub_date:
-                break
-
-            title = i['title']
-            link = i['link']
-            imdbid = link.split('/')[-2]
-
-            logging.info('Found new watchlist movie: {} {}'.format(title, imdbid))
-
-            new_rss_movies.append(imdbid)
 
         # check if movies already exists
 
         existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
 
-        movies_to_add = [i for i in new_rss_movies if i not in existing_movies]
+        movies_to_add = [i for i in new_movies if i not in existing_movies]
 
         # do quick-add procedure
-        for imdbid in movies_to_add:
+        for movie in movies_to_add:
+            imdbid = movie['imdbid']
             movie_info = self.tmdb._search_imdbid(imdbid)[0]
             if not movie_info:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
-            logging.info('Adding movie {} {} from imdb watchlist.'.format(title, imdbid))
+            logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
             movie_info['quality'] = 'Default'
             self.ajax.add_wanted_movie(json.dumps(movie_info))
-            time.sleep(1)
-
-        logging.info('Storing last synced date.')
-        with open(data_file, 'w') as f:
-            json.dump({list_id: self.lastbuilddate}, f)

@@ -193,7 +193,12 @@ $(document).ready(function () {
         })
         $("ul#watchlists :input").each(function(){
             $this = $(this);
-            if($this.attr("type") == "number"){
+            if($this.attr("id") == "imdbrss"){
+                watchlists["imdbrss"] = $this.val().split(",").map(function(item){
+                                            return item.trim();
+                                        });
+            }
+            else if($this.attr("type") == "number"){
                 watchlists[$this.attr("id")] = parseInt($this.val());
             }
             else{

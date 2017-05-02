@@ -28,7 +28,7 @@ def settings_page(page):
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/plugin_conf_popup.css?v=03.28')
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}plugin_conf_popup.css?v=03.28'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/settings/main.js?v=03.30')
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/settings/save_settings.js?v=03.28')
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/settings/save_settings.js?v=05.02')
 
         with doc:
             Header.insert_header(current="settings")
@@ -228,9 +228,11 @@ class Settings():
 
             with li():
                 i(id='imdbsync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['imdbsync']))
-                span('Sync imdb watch list ')
-                input(type='text', id='imdbrss', value=c[c_s]['Watchlists']['imdbrss'], placeholder="http://rss.imdb.com/user/...", style="width:18em;")
-                span(' every ')
+                span('Sync imdb watchlists ')
+                input(type='text', id='imdbrss', value=','.join(c[c_s]['Watchlists']['imdbrss']), placeholder="http://rss.imdb.com/user/...", style="width:22em;")
+                span('Separate multiple lists with commas.', cls='tip')
+            with li(cls='indent bbord'):
+                span('Sync every ')
                 input(type='number', min='15', id='imdbfrequency', value=c[c_s]['Watchlists']['imdbfrequency'], style='width: 3.0em')
                 span(' minutes.')
                 span('*Requires restart.', cls='tip')
