@@ -191,10 +191,6 @@ div.sweet-alert button{
 
 /* Breakpoint 1 */
 @media only screen and (max-width: 918px) {
-    body{
-        background-color: black;
-    }
-
     div#content{
         margin: 0 auto;
         max-width: 100%;
@@ -205,17 +201,8 @@ div.sweet-alert button{
 
 /* Breakpoint 2 */
 @media only screen and (max-width: 620px) {
-    body{
-        min-width: 500px;
-    }
-
     div#content{
         width: 100%;
         min-width: 0px;
-    }
-}
-
-@media only screen and (max-width: 499px) {
-    body{
     }
 }
