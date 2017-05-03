@@ -8,7 +8,6 @@
 
 body{
     width: 100%;
-    min-width: 918px;
     min-height: 100%;
     background-color: #080f18;
     color: #ccc;
@@ -67,6 +66,13 @@ ul{
 
 .hidden{
     display: none;
+}
+
+div#content{
+    margin: 0 auto;
+    width: 60%;
+    min-width: 650px;
+    text-align: center;
 }
 
 div#overlay {
@@ -142,6 +148,7 @@ div#overlay {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-button {
   width: 0px;
   height: 0px;
@@ -180,4 +187,35 @@ div.sweet-alert h2{
 div.sweet-alert button{
     padding: 0.5em;
     border-radius: 4px;
+}
+
+/* Breakpoint 1 */
+@media only screen and (max-width: 918px) {
+    body{
+        background-color: black;
+    }
+
+    div#content{
+        margin: 0 auto;
+        max-width: 100%;
+        text-align: center;
+        min-width: 628px;
+    }
+}
+
+/* Breakpoint 2 */
+@media only screen and (max-width: 620px) {
+    body{
+        min-width: 500px;
+    }
+
+    div#content{
+        width: 100%;
+        min-width: 0px;
+    }
+}
+
+@media only screen and (max-width: 499px) {
+    body{
+    }
 }

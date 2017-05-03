@@ -1,11 +1,3 @@
-div#content{
-    margin: 0em auto 0 auto;
-    width: 100%;
-    max-width: 1024px;
-    min-width: 650px;
-    text-align: center;
-}
-
 ul#subnav{
     width: 100%;
     margin: 0 0 2em 0;

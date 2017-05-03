@@ -1,18 +1,32 @@
-div#content{
-    margin: 0 auto;
-    width: 60%;
-    max-width: 1024px;
-    min-width: 650px;
-    text-align: center;
-}
-
 div#view_config{
     height: 3em;
-    line-height: 3em;
+    line-height: 1.5em;
+    margin: 0.5em 0;
+    overflow: auto;
+}
+
+div#view_config ul#list_style li{
+    float: left;
+    width: 1.5em;
+    margin: 0.5em;
+}
+
+div#view_config ul#list_style li.selected{
+    background-color: #ccc;
+    color: black;
+    border-radius: 0.25em;
+}
+
+div#sort_order{
+    float: right;
+    height: 1.5em;
+    display: inline-table;
+    margin: 0.5em 0 0.5em 1em;
 }
 
 div#view_config select{
-    margin-right: 1em;
+    margin: 0 0.5em 0 1em;
+    height:2em;
 }
 
 div#key{
@@ -271,4 +285,29 @@ ul#movie_list li div span.finished{
     bottom: 0;
     display: none;
     z-index:1002;
+}
+
+/* Breakpoint 1 */
+@media only screen and (max-width: 918px) {
+    ul#movie_list.compact,
+    div#key{
+        margin-left: 0.5em;
+    }
+
+}
+
+/* Breakpoint 2 */
+@media only screen and (max-width: 620px) {
+    ul#movie_list.list li{
+        font-size: 0.8em;
+    }
+
+    ul#movie_list.posters li div{
+        width: 130px;
+    }
+
+    ul#movie_list.posters li div img{
+        height: 198px;
+    }
+
 }

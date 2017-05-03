@@ -11,7 +11,7 @@ class Header():
 
         with div(id='header'):
             with div(id='header_container'):
-                img(src=core.URL_BASE + '/static/images/logo.png', alt='')
+                span(id='logo')
                 with ul(id='nav'):
                     if current == 'settings':
                         cls = 'settings current'

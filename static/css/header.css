@@ -15,10 +15,17 @@
 #header_container{
     max-width: 1024px;
     margin: 0 auto;
+    position: relative;
+    height: 100%;
 }
 
-#header img{
-    padding-left: 8px;
+#header span#logo{
+    background: url('/static/images/logo.png') no-repeat;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0.5em;
+    z-index: -10;
 }
 
 #nav{
@@ -89,4 +96,37 @@
 #nav li.settings:hover .settings_menu{
     display: block;
     z-index: 1;
+}
+
+/* Breakpoint 2 */
+@media only screen and (max-width: 625px) {
+
+    div#header_container{
+        text-align: center;
+
+    }
+
+    #header{
+        min-width: 375px;
+        margin: 0 auto;
+    }
+
+    #header span#logo{
+        background: none;
+    }
+
+    #nav{
+        float: none;
+        text-align: center;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+    }
+
+    #nav li{
+        float: none;
+        flex: 0 1 auto;
+        font-size: 1.25em;
+        padding: 0 1em;
+    }
 }

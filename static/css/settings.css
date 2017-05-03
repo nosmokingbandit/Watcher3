@@ -1,3 +1,8 @@
+div#content{
+    text-align: left;
+    margin-bottom: 2em;
+}
+
 select{
     height: 2em;
     font-size: 0.85em;
@@ -37,20 +42,13 @@ ul{
     list-style: none;
 }
 
-div#content{
-    margin: 1.5em auto 1.5em auto;
-    width: 80%;
-    max-width: 1024px;
-    clear: both;
-}
-
 div#content a{
     font-weight: bold;
 }
 
 div#content ul.wide{
     max-width: 1024px;
-    min-width: 640px;
+    min-width: 620px;
 }
 
 div#content ul li{
@@ -100,6 +98,10 @@ div.server span#update_check{
     cursor: pointer;
 }
 
+ul#power_commands{
+    margin: 0 0 0 1em;
+}
+
 /* Search */
 div.search li{
     line-height: 2.5em;
@@ -140,6 +142,7 @@ div.quality div.quality_profile div.sources{
     float: left;
     width: 30%
 }
+
 div.quality div.quality_profile div.sources ul{
     margin-top: 0.5em;
     border-right: 1px solid #bdbdbd;
@@ -456,7 +459,50 @@ span.tip{
 
 div#save{
     display: inline-block;
-    margin-top: 3em;
+    margin: 3em 0 0 1em;
     cursor: pointer;
     clear: both;
+}
+
+/* Breakpoint 1 */
+@media only screen and (max-width: 918px) {
+
+}
+
+/* Breakpoint 2 */
+@media only screen and (max-width: 620px) {
+    div#content{
+
+    }
+
+    h1,
+    h2{
+        margin-left: 0.5em
+    }
+
+    div#content ul.wide{
+        margin: 0 1em;
+        min-width: 0px;
+    }
+
+    span.tip:not(.no-break){
+        font-size: 0.75rem;
+        margin: 0 0.25em 0.5em 2em;
+        text-align: left;
+        float: none;
+        display: block;
+        width: 100%;
+    }
+
+    div.quality div.quality_profile{
+        font-size: 0.8em;
+    }
+
+    div.quality div.quality_profile ul li{
+        margin: 0;
+    }
+
+    div.quality div.quality_profile span.tip{
+        margin-bottom: 0.25em;
+    }
 }

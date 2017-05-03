@@ -23,10 +23,10 @@ def settings_page(page):
         with doc.head:
             meta(name='git_url', content=core.GIT_URL)
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/settings.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}settings.css?v=03.28'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/plugin_conf_popup.css?v=03.28')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}plugin_conf_popup.css?v=03.28'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/settings.css?v=05.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}settings.css?v=05.03'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/plugin_conf_popup.css?v=05.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}plugin_conf_popup.css?v=05.03'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/settings/main.js?v=03.30')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/settings/save_settings.js?v=05.02')
 
@@ -112,7 +112,7 @@ class Settings():
                 span('Check for updates every ')
                 input(type='number', min='8', id='checkupdatefrequency', value=c[c_s]['checkupdatefrequency'], style='width: 2.25em')
                 span(' hours.')
-                span('Checks at program start and every X hours afterward. *Requires restart.', cls='tip')
+                span('Checks at startup and every X hours afterward. *Requires restart.', cls='tip')
             with li(cls='bbord'):
                 i(id='installupdates', cls='fa fa-square-o checkbox', value=str(c[c_s]['installupdates']))
                 span('Automatically install updates at ')
@@ -157,7 +157,7 @@ class Settings():
             with li('Whitelist', cls='indent'):
                 input(type='text', id='whitelist', value=c[c_s]['Proxy']['whitelist'], placeholder='http://localhost:5075, http://localhost:5060', style='width:24em')
         h2()
-        with ul():
+        with ul(id='power_commands'):
             with li():
                 with span(id='restart'):
                     i(cls='fa fa-refresh')
@@ -224,7 +224,7 @@ class Settings():
                 span(' points to FreeLeech torrents.')
 
         h2('Watchlists')
-        with ul(id='watchlists'):
+        with ul(id='watchlists', cls='wide'):
 
             with li():
                 i(id='imdbsync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['imdbsync']))
@@ -315,7 +315,7 @@ class Settings():
             with div(cls='name bold'):
                 if name == 'Default':
                     span('Default')
-                    span('Used for Quick-Add and default API quality.', cls='tip')
+                    span('Used for Quick-Add and default API quality.', cls='tip no-break')
                 else:
                     input(value=name, type='text', cls='name')
 
@@ -330,7 +330,7 @@ class Settings():
 
             with div(id='filters'):
                 with span('Filters', cls='sub_heading'):
-                    span('Make groups with ampersands ( & ) and split groups with commas ( , )', cls='tip')
+                    span('Make groups with ampersands and split groups with commas', cls='tip')
                 with ul():
                     with li('Required words:', cls='bold'):
                         span('Releases must contain one of these words or groups.', cls='tip')
@@ -339,7 +339,7 @@ class Settings():
                     with li('Preferred words:', cls='bold'):
                         span('Releases with these words score higher.', cls='tip')
                     with li():
-                        input(type='text', id='preferredwords', value=profile['preferredwords'])
+                        input(type='text', id='preferredwords', value=profile['preferredwords'], placeholder='x264, mvk & aac')
                     with li('Ignored words:', cls='bold'):
                         span('Releases with these words are ignored.', cls='tip')
                     with li():
@@ -352,10 +352,10 @@ class Settings():
                         i(id='scoretitle', cls='fa fa-square-o checkbox', value=str(profile['scoretitle']))
                         span('Score and filter titles.')
                     with li():
-                        span('May need to disable for non-English results. Can cause incorrect downloads', cls='tip')
+                        span('May need to disable for non-English results.', cls='tip')
                     with li():
                         i(id='prefersmaller', cls='fa fa-square-o checkbox', value=str(profile['prefersmaller']))
-                        span('Prefer smaller file sizes for identically-scored releases.')
+                        span('Prefer smaller file sizes.')
 
             if name != 'Default':
                 i(cls='fa fa-trash delete_profile')

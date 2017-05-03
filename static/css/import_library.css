@@ -22,14 +22,6 @@ table i{
     margin: 0 0.5em;
 }
 
-div#content{
-    margin: 2em auto 0 auto;
-    width: 100%;
-    max-width: 1024px;
-    min-width: 650px;
-    text-align: center;
-}
-
 /* ======= */
 /* Chooser */
 /* ======= */

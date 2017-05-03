@@ -6,12 +6,6 @@ body, html{
     background: url('../images/logo_bg.png') no-repeat 50% 50% #080f18;
 }
 
-div#content{
-    margin: 0 auto;
-    text-align: center;
-    height: 100%;
-}
-
 div#content span.msg{
     padding: 2em 0 0 0;
     font-size: 2.5em;

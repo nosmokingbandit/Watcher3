@@ -21,8 +21,8 @@ class Manage(object):
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=04.27')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=04.27'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/manage.css?v=05.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}manage.css?v=05.03'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/manage/main.js?v=04.27')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/morris/morris.js')
             script(type='text/javascript', src=core.URL_BASE + '/static/js/raphael/raphael.js')

@@ -3,14 +3,15 @@
     margin: 0 auto;
     width: 60%;
     max-width: 1024px;
+    min-width: 614px;
 }
 
 input#search_input{
-    height: 32px;
-    width: calc(100% - 64px);
     font-size: 2em;
-    padding: 8px;
-    margin: 32px 0;
+    height: 1em;
+    width: calc(100% - 2em);
+    padding: .25em;
+    margin: 1em 0;
     border: none;
     background-color: #151c25;
     border-radius: 4px 0 0 4px;
@@ -19,20 +20,29 @@ input#search_input{
 
 button#search_button{
     float: right;
-    width: 48px;
-    height: 48px;
-    margin: 32px 0;
+    font-size: 2em;
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    margin: 1em 0;
     outline: none;
     color: #ccc;
     background-color: #151c25;
     border-radius: 0 4px 4px 0;
 	border: none;
+    padding: 0;
 }
 
 button#search_button:hover{
     background-color: #ccc;
     color: #151c25;
     border-radius: 4px;
+}
+
+button#search_button i{
+    vertical-align: baseline;
+    font-size: 1em;
+
 }
 
 /* results fade-in */
@@ -105,4 +115,31 @@ i.button_add{
     bottom: 0;
     display: none;
     z-index:1002;
+}
+
+/* Breakpoint 1 */
+@media only screen and (max-width: 918px) {
+
+}
+
+/* Breakpoint 2 */
+@media only screen and (max-width: 620px) {
+    #search_box{
+        margin: 0 auto;
+        width: 100%;
+        min-width: 0px;
+    }
+
+    ul#movie_list li.movie{
+        width: 130px;
+    }
+
+    ul#movie_list li.movie img{
+        height: 195px;
+    }
+
+    span.quickadd{
+        top: 0;
+    }
+
 }

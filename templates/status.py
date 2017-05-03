@@ -16,27 +16,29 @@ class Status():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=04.23')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=04.23'.format(core.CONFIG['Server']['theme']))
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=04.23')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=04.23'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=03.28')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=05.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=05.03'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=05.03')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=05.03'.format(core.CONFIG['Server']['theme']))
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=05.03')
 
         with doc:
             Header.insert_header(current="status")
             with div(id='content'):
                 with div(id='view_config'):
-                    span('Display: ')
-                    with select(id='list_style'):
-                        options = ['Posters', 'List', 'Compact']
-                        for opt in options:
-                            option(opt, value=opt.lower())
-                    span('Order By: ')
-                    with select(id='list_sort'):
-                        options = ['Status', 'Title', 'Year']
-                        option('Title', value='title')
-                        option('Year', value='year')
-                        option('Status', value='status_sort')
+                    with ul(id='list_style'):
+                        with li(id='posters', title='Display as Posters'):
+                            i(cls='fa fa-th')
+                        with li(id='list', title='Display as List'):
+                            i(cls='fa fa-th-list')
+                        with li(id='compact', title='Display as Compact List'):
+                            i(cls='fa fa-list')
+                    with div(id='sort_order'):
+                        with select(id='list_sort'):
+                            option('Title', value='title')
+                            option('Year', value='year')
+                            option('Status', value='status_sort')
+                        i(cls='fa', id='sort_direction')
                 with div(id='key'):
                     span(cls='waiting')
                     span('Waiting')
