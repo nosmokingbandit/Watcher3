@@ -36,23 +36,15 @@ div#key{
 }
 
 div#key span{
-    height: 3em;
-    line-height: 3em;
+    height: 1.5em;
+    line-height: 1.5em;
+    font-size: 0.85em;
     display: block;
     float: left;
-    margin-right: 2em;
-}
-
-div#key span.waiting,
-div#key span.wanted,
-div#key span.found,
-div#key span.snatched,
-div#key span.finished{
-    border-radius: 2px;
-    margin-top: .75em;
-    height: 1.5em;
-    width: 1.5em;
-    margin-right: 0.5em;
+    margin-right: 1em;
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    color: black;
 }
 
 ul#movie_list{

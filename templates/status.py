@@ -16,8 +16,8 @@ class Status():
 
         with doc.head:
             Head.insert()
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=05.03')
-            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=05.03'.format(core.CONFIG['Server']['theme']))
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/status.css?v=05.04')
+            link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=05.04'.format(core.CONFIG['Server']['theme']))
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=05.03')
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=05.03'.format(core.CONFIG['Server']['theme']))
             script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=05.03')
@@ -40,16 +40,11 @@ class Status():
                             option('Status', value='status_sort')
                         i(cls='fa', id='sort_direction')
                 with div(id='key'):
-                    span(cls='waiting')
-                    span('Waiting')
-                    span(cls='wanted')
-                    span('Wanted')
-                    span(cls='found')
-                    span('Found')
-                    span(cls='snatched')
-                    span('Snatched')
-                    span(cls='finished')
-                    span('Finished')
+                    span('Waiting', cls='waiting')
+                    span('Wanted', cls='wanted')
+                    span('Found', cls='found')
+                    span('Snatched', cls='snatched')
+                    span('Finished', cls='finished')
                 self.movie_list()
 
             with div(id='manage'):
