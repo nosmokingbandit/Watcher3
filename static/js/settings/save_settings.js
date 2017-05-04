@@ -155,7 +155,7 @@ $(document).ready(function () {
     function search(){
         var data = {};
         var search = {};
-        var watchlists = {};
+        var watchlists = {'Traktlists': {}};
         var blanks = false;
 
         $("ul#search i.checkbox").each(function(){
@@ -189,7 +189,11 @@ $(document).ready(function () {
 
         $("ul#watchlists i.checkbox").each(function(){
             $this = $(this);
-            watchlists[$this.attr("id")] = is_checked($this);
+            if($this.attr("sub") == "traktlist"){
+                watchlists['Traktlists'][$this.attr('id')] = is_checked($this);
+            } else{
+                watchlists[$this.attr("id")] = is_checked($this);
+            }
         })
         $("ul#watchlists :input").each(function(){
             $this = $(this);

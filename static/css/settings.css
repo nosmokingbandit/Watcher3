@@ -111,6 +111,15 @@ input#retention{
     width: 4em;
 }
 
+ul#trakt_lists li{
+    display: inline-block;
+    width: 40%;
+}
+
+ul#trakt_lists i.fa-external-link-square{
+    font-size: 0.9em;
+}
+
 /* Quality */
 div.quality div.quality_profile{
     margin-bottom: 2em;

@@ -8,6 +8,7 @@ from core.notification import Notification
 from core import searcher, version
 from core.rss import imdb, popularmovies
 from core.cp_plugins import taskscheduler
+from core import trakt
 
 logging = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class AutoSearch(object):
 
         now = datetime.datetime.today()
         hr = now.hour
-        min = now.minute + 5
+        min = now.minute + 10
 
         task_search = taskscheduler.ScheduledTask(hr, min, interval,
                                                   search.auto_search_and_grab,
@@ -49,7 +50,7 @@ class AutoUpdateCheck(object):
 
         now = datetime.datetime.today()
         hr = now.hour
-        min = now.minute + 1
+        min = now.minute + 15
         if now.second > 30:
             min += 1
 
@@ -97,7 +98,7 @@ class AutoUpdateCheck(object):
             notif = {'type': 'update',
                      'title': title,
                      'body': 'Click <a href="update_now"><u>here</u></a> to update now.'
-                             '<br/> Click <a href="'+compare+'"><u>here</u></a> to view changes.',
+                             '<br/> Click <a href="' + compare + '"><u>here</u></a> to view changes.',
                      'params': {'timeOut': 0,
                                 'extendedTimeOut': 0,
                                 'tapToDismiss': 0}
@@ -160,7 +161,7 @@ class ImdbRssSync(object):
         now = datetime.datetime.now()
 
         hr = now.hour
-        min = now.minute + 3
+        min = now.minute + 20
 
         if core.CONFIG['Search']['Watchlists']['imdbsync']:
             auto_start = True
@@ -204,4 +205,27 @@ class PopularMoviesSync(object):
         popular_feed = popularmovies.PopularMoviesFeed()
 
         popular_feed.get_feed()
+        return
+
+
+class TraktSync(object):
+
+    trakt = trakt.Trakt()
+
+    @staticmethod
+    def create():
+        interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
+
+        now = datetime.datetime.now()
+
+        hr = now.hour
+        min = now.minute + 25
+
+        if core.CONFIG['Search']['Watchlists']['traktsync']:
+            auto_start = True
+        else:
+            auto_start = False
+
+        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.sync_lists,
+                                    auto_start=auto_start)
         return

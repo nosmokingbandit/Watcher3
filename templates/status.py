@@ -20,7 +20,7 @@ class Status():
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}status.css?v=05.04'.format(core.CONFIG['Server']['theme']))
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/movie_status_popup.css?v=05.03')
             link(rel='stylesheet', href=core.URL_BASE + '/static/css/{}movie_status_popup.css?v=05.03'.format(core.CONFIG['Server']['theme']))
-            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=05.03')
+            script(type='text/javascript', src=core.URL_BASE + '/static/js/status/main.js?v=05.04')
 
         with doc:
             Header.insert_header(current="status")

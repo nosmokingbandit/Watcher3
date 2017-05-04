@@ -228,15 +228,15 @@ class Settings():
 
             with li():
                 i(id='imdbsync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['imdbsync']))
-                span('Sync imdb watchlists ')
+                span('Sync imdb lists ')
                 input(type='text', id='imdbrss', value=','.join(c[c_s]['Watchlists']['imdbrss']), placeholder="http://rss.imdb.com/user/...", style="width:22em;")
-                span('Separate multiple lists with commas.', cls='tip')
+                span('Separate lists with commas.', cls='tip')
             with li(cls='indent bbord'):
                 span('Sync every ')
                 input(type='number', min='15', id='imdbfrequency', value=c[c_s]['Watchlists']['imdbfrequency'], style='width: 3.0em')
                 span(' minutes.')
                 span('*Requires restart.', cls='tip')
-            with li():
+            with li(cls='bbord'):
                 i(id='popularmoviessync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['popularmoviessync']))
                 span('Sync Popular Movies list at ')
                 input(type='number', min='0', max='23', id='popularmovieshour', value=c[c_s]['Watchlists']['popularmovieshour'], style='width: 3.0em')
@@ -246,6 +246,25 @@ class Settings():
                     with a(href='https://github.com/sjlu/popular-movies', target='_blank'):
                         i(cls='fa fa-question-circle')
                     span('Updates every 24hr. *Requires restart.')
+            with li():
+                i(id='traktsync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['traktsync']))
+                span('Sync Trakt lists every ')
+                input(type='number', min='0', max='23', id='traktfrequency', value=c[c_s]['Watchlists']['traktfrequency'], style='width: 3.0em')
+                span(' minutes.')
+                span('*Requires restart.', cls='tip')
+                with ul(id='trakt_lists'):
+                    for k, v in c[c_s]['Watchlists']['Traktlists'].items():
+                        with li(cls='indent'):
+                            i(id=k, cls='fa fa-square-o checkbox', value=str(v), sub='traktlist')
+                            span(k.capitalize())
+                            with a(href='https://trakt.tv/movies/{}/'.format(k), target='_blank'):
+                                i(cls='fa fa-external-link-square')
+                with li('Limit to ', cls='indent'):
+                    input(type='number', min='0', max='10', id='traktlength', value=c[c_s]['Watchlists']['traktlength'], style='width: 3.0em')
+                    span(' movies per list.')
+                with li('Add movies only if score is above ', cls='indent'):
+                    input(type='number', min='0', max='10', id='traktscore', value=c[c_s]['Watchlists']['traktscore'], style='width: 3.0em')
+
         with div(id='save', cat='search'):
             i(cls='fa fa-save')
             span('Save Settings')

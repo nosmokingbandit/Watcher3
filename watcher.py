@@ -160,6 +160,7 @@ if __name__ == '__main__':
     scheduler.AutoUpdateInstall.create()
     scheduler.ImdbRssSync.create()
     scheduler.PopularMoviesSync.create()
+    scheduler.TraktSync.create()
     scheduler_plugin.plugin.subscribe()
 
     # If windows os and daemon selected, start systray
