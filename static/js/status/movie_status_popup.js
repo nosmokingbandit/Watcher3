@@ -228,10 +228,15 @@ $(document).ready(function() {
             $parent.append(html);
             $(list).addClass(classes);
             if(list == '#movie_list'){
-                order = $("select#list_sort").find("option:selected").val();
-                $parent = $(list);
-                children = 'li';
-                sortOrder(order, $parent, children);
+                if($("i#sort_direction").hasClass('fa-sort-amount-asc')){
+                    var direction = "asc";
+                } else {
+                    var direction = "desc";
+                }
+                var order = $("select#list_sort").find("option:selected").val();
+
+                var $parent = $(list);
+                sortOrder(order, direction, $parent, "li");
             }
         });
     }

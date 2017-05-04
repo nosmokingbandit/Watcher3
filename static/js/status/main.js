@@ -20,6 +20,7 @@ function read_cookie(){
    }
    return cookie_obj
 }
+
 function sortOrder(order, direction, $parent, children) {
 	/*
 	order : class with which to sort by
@@ -143,9 +144,8 @@ $(document).ready(function() {
     });
 
     /* applies add movie overlay */
-    $("ul#movie_list").on("click", "li", function(){
+    $("div#content").on("click", "ul#movie_list li", function(){
         $("div#overlay").fadeIn();
-
         imdbid = $(this).attr("imdbid");
 
         $.post(url_base + "/ajax/movie_status_popup", {"imdbid": imdbid})
