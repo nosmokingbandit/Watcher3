@@ -243,7 +243,7 @@ class Ajax(object):
             self.config.write_dict(save_data)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             logging.error('Writing config.', exc_info=True)
             return json.dumps({'response': False, 'error': 'Unable to write to config file.'})
 
@@ -851,7 +851,7 @@ class Ajax(object):
         if os.path.isfile(target_poster):
             try:
                 os.remove(target_poster)
-            except Exception as e: #noqa
+            except Exception as e:  # noqa
                 logging.warning('Unable to remove existing poster.', exc_info=True)
                 return json.dumps({'response': False, 'error': 'Unable to remove existing poster.'})
 
@@ -1006,7 +1006,7 @@ class Ajax(object):
         try:
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             print(e)
             return
 
@@ -1215,9 +1215,9 @@ class Ajax(object):
                         'finished_file': None
                         }
             if not self.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
-                    response['response'] = False
-                    response['errors'].append({imdbid: 'Unable to update Database'})
-                    continue
+                response['response'] = False
+                response['errors'].append({imdbid: 'Unable to update Database'})
+                continue
             response['response'] = False
             response['errors'].append({'imdbid': imdbid, 'error': 'THIS IS A TEST'})
 
