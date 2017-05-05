@@ -24,6 +24,10 @@ div#sort_order{
     margin: 0.5em 0 0.5em 1em;
 }
 
+i#sort_direction{
+    margin: 0 0.5em;
+}
+
 div#view_config select{
     margin: 0 0.5em 0 1em;
     height:2em;
@@ -178,6 +182,7 @@ ul#movie_list.list li span.movie_info span.rated{
 /* Compact layout */
 ul#movie_list.compact{
     display: block;
+    text-align: left;
 }
 
 ul#movie_list.compact li{
@@ -215,7 +220,6 @@ ul#movie_list.compact li span.movie_info{
     white-space: nowrap;;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-left: 2.0em;
 }
 
 ul#movie_list.compact li span.movie_info span.title,
@@ -300,6 +304,15 @@ ul#movie_list li div span.finished{
 
     ul#movie_list.posters li div img{
         height: 198px;
+    }
+
+    ul.compact span.title{
+        width: 80%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    ul.compact span.score{
+        display: none;
     }
 
 }
