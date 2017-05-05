@@ -205,4 +205,24 @@ div.sweet-alert button{
         width: 100%;
         min-width: 0px;
     }
+
+    div#toast-container{
+        width: 100%;
+                padding: 0.5em 0;
+    }
+
+    div#toast-container > div {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    div.toast-bottom-right{
+        right: 0;
+        bottom: 0;
+    }
+
+
+    #toast-container > div{
+        width: 100%;
+    }
 }
