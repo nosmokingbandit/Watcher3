@@ -8,13 +8,16 @@ if sys.version_info < MIN_PYTHON:
     print('Python {} or newer required.'.format(MIN_PYTHON))
     sys.exit(1)
 
+import core
+core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
+os.chdir(core.PROG_PATH)
+
 import argparse
 import locale
 import logging
 import webbrowser
 
 import cherrypy
-import core
 from cherrypy.process.plugins import Daemonizer, PIDFile
 from core import api, config, postprocessing, scheduler, sqldb
 from core.app import App
@@ -23,8 +26,6 @@ from core.log import log
 if os.name == 'nt':
     from core.cp_plugins import systray
 
-core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
-os.chdir(core.PROG_PATH)
 
 if __name__ == '__main__':
 
