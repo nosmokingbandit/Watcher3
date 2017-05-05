@@ -77,7 +77,6 @@ class AutoUpdateCheck(object):
 
         data = ver.manager.update_check()
         # if data['status'] == 'current', nothing to do.
-
         if data['status'] == 'error':
             notif = {'type': 'warning',
                      'closeButton': 'true',
@@ -100,6 +99,7 @@ class AutoUpdateCheck(object):
                      'body': 'Click <a href="update_now"><u>here</u></a> to update now.'
                              '<br/> Click <a href="' + compare + '"><u>here</u></a> to view changes.',
                      'params': {'timeOut': 0,
+                                'closeButton': 'true',
                                 'extendedTimeOut': 0,
                                 'tapToDismiss': 0}
                      }
