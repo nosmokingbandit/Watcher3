@@ -112,6 +112,12 @@
     }
 
     #header span#logo{
+        background: url('/static/images/logo_small.png') no-repeat 0 0;
+    }
+}
+
+@media only screen and (max-width: 500px){
+    #header span#logo{
         background: none;
     }
 
