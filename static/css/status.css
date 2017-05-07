@@ -311,7 +311,8 @@ ul#movie_list li div span.finished{
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    ul.compact span.score{
+    ul.compact span.score,
+    ul.compact span.rated{
         display: none;
     }
 
