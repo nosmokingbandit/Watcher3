@@ -83,6 +83,8 @@ class Trakt(object):
             if r.status_code != 200:
                 return []
             m = json.loads(r.text)[:length]
+            if list_name == 'popular':
+                return [i for i in m if i['rating'] >= min_score]
             return [i['movie'] for i in m if i['movie']['rating'] >= min_score]
 
         except Exception as e:
