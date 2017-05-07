@@ -710,6 +710,7 @@ class ThePirateBay(object):
                 result['guid'] = result['torrentfile'].split('&')[0].split(':')[-1]
                 result['type'] = 'magnet'
                 result['downloadid'] = None
+                result['download_client'] = None
                 result['seeders'] = int(i[5].text)
                 result['freeleech'] = 0
 
