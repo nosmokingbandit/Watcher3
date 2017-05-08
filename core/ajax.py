@@ -6,7 +6,7 @@ import threading
 import cherrypy
 from base64 import b16encode
 import core
-from core import config, library, plugins, poster, searchresults, searcher, snatcher, sqldb, version
+from core import config, library, plugins, searchresults, searcher, snatcher, sqldb, version
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
 from core.movieinfo import TMDB
@@ -35,7 +35,7 @@ class Ajax(object):
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
         self.sql = sqldb.SQL()
-        self.poster = poster.Poster()
+        self.poster = library.Poster()
         self.snatcher = snatcher.Snatcher()
         self.manage = library.Manage()
 
@@ -181,8 +181,6 @@ class Ajax(object):
         Returns json.dumps(dict)
         '''
 
-        # orig_config = dict(core.CONFIG)
-
         logging.info('Saving settings.')
         data = json.loads(data)
 
@@ -218,10 +216,15 @@ class Ajax(object):
         t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
         t.start()
 
-        if self.sql.remove_movie(imdbid):
-            response = {'response': True}
-        else:
-            response = {'response': False}
+        removed = self.sql.remove_movie(imdbid)
+
+        if removed is True:
+            response = {'response': True, 'removed': imdbid}
+        elif removed is False:
+            response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
+        elif removed is None:
+            response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
+
         return json.dumps(response)
 
     @cherrypy.expose

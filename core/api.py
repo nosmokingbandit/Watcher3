@@ -1,9 +1,8 @@
 import json
 import logging
-import threading
 
 import core
-from core import ajax, sqldb, poster
+from core import ajax, sqldb
 
 logging = logging.getLogger(__name__)
 
@@ -75,13 +74,15 @@ class API(object):
     def __init__(self):
         self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
-        self.poster = poster.Poster()
         return
 
     def GET(self, **params):
-        ''' GET request handler to post-processing.
-        Don't use this. It only exists for testing purposes. Sending a GET
-            is much easier than POST when testing changes.
+        ''' Get handler for API calls
+
+        params: kwargs must inlcude {'apikey': $, 'mode': $}
+
+        Checks api key matches and other required keys are present based on
+            mode. Then dispatches to correct method to handle request.
         '''
 
         serverkey = core.CONFIG['Server']['apikey']
@@ -195,19 +196,7 @@ class API(object):
 
         logging.info('API request remove movie {}'.format(imdbid))
 
-        t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
-        t.start()
-
-        removed = self.sql.remove_movie(imdbid)
-
-        if removed is True:
-            response = {'response': True, 'removed': imdbid}
-        elif removed is False:
-            response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
-        elif removed is None:
-            response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
-
-        return json.dumps(response, indent=1)
+        return self.ajax.remove_movie(imdbid)
 
     def version(self):
         ''' Simple endpoint to return commit hash
