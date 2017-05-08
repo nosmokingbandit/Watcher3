@@ -35,10 +35,9 @@ class Ajax(object):
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
         self.sql = sqldb.SQL()
-        self.library = library
         self.poster = poster.Poster()
         self.snatcher = snatcher.Snatcher()
-        self.update = library.Status()
+        self.manage = library.Manage()
 
     @cherrypy.expose
     def search_tmdb(self, search_term):
@@ -79,21 +78,14 @@ class Ajax(object):
 
     @cherrypy.expose
     def add_wanted_movie(self, data, full_metadata=False):
-        ''' Adds movie to Wanted list.
-        :param data: str json.dumps(dict) of info to add to database.
-        full_metadata: bool if data is complete and ready for write
+        ''' Adds movie to library
+        data: dict of known movie data
+        full_metadata: bool if data is complete for database
 
-        data MUST inlcude tmdb id as data['id']
+        Calls library.Manage.add_movie to add to library.
+        If add is successful, movie is not an import, and has a year, starts
+            search/grab method in separate thread
 
-        Writes data to MOVIES table.
-
-        If full_metadata is False, searches tmdb for data['id'] and updates data
-
-        If Search on Add enabled,
-            searches for movie immediately in separate thread.
-            If Auto Grab enabled, will snatch movie if found.
-
-        Returns str json.dumps(dict) of status and message
         '''
 
         def thread_search_grab(data):
@@ -101,57 +93,20 @@ class Ajax(object):
             title = data['title']
             year = data['year']
             quality = data['quality']
-            self.predb.check_one(data)
-            if core.CONFIG['Search']['searchafteradd']:
+            if self.predb.check_one(data) and core.CONFIG['Search']['searchafteradd']:
                 if self.searcher.search(imdbid, title, year, quality):
                     if core.CONFIG['Search']['autograb']:
                         self.snatcher.auto_grab(data)
 
-        response = {}
-        data = json.loads(data)
-        tmdbid = data['id']
+        r = self.manage.add_movie(data, full_metadata=full_metadata)
 
-        if not full_metadata:
-            movie = self.tmdb._search_tmdbid(tmdbid)[0]
-            movie.update(data)
-        else:
-            movie = data
+        if r['response'] is True and r['movie']['status'] != 'Disabled' and r['movie']['year'] != 'N/A':  # disable immediately grabbing new release for imports
+            t = threading.Thread(target=thread_search_grab, args=(r['movie'],))
+            t.start()
 
-        movie['quality'] = data.get('quality', 'Default')
-        movie['status'] = data.get('status', 'Waiting')
+        r.pop('movie', None)
 
-        if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
-            logging.info('{} already exists in library.'.format(movie['title']))
-
-            response['response'] = False
-
-            response['error'] = '{} already exists in library.'.format(movie['title'])
-            return json.dumps(response)
-
-        if movie.get('poster_path'):
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
-        else:
-            poster_url = 'static/images/missing_poster.jpg'
-
-        movie = self.metadata.convert_to_db(movie)
-
-        if self.sql.write('MOVIES', movie):
-            t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
-            t2.start()
-
-            if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
-                t = threading.Thread(target=thread_search_grab, args=(movie,))
-                t.start()
-
-            response['response'] = True
-            response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
-            self.plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
-
-            return json.dumps(response)
-        else:
-            response['response'] = False
-            response['error'] = 'Could not write to database. Check logs for more information.'
-            return json.dumps(response)
+        return json.dumps(r)
 
     @cherrypy.expose
     def add_wanted_imdbid(self, imdbid, quality='Default'):
@@ -240,7 +195,7 @@ class Ajax(object):
             return json.dumps({'response': True})
 
         try:
-            self.config.write_dict(save_data)
+            self.config.write(save_data)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:  # noqa
@@ -318,7 +273,7 @@ class Ajax(object):
         Returns str json.dumps(dict)
         '''
 
-        if self.update.mark_bad(guid, imdbid=imdbid):
+        if self.manage.mark_bad(guid, imdbid=imdbid):
             response = {'response': True, 'message': 'Marked as Bad.'}
         else:
             response = {'response': False, 'error': 'Could not mark release as bad.'}
@@ -597,7 +552,7 @@ class Ajax(object):
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
-            if not self.update.movie_status(imdbid):
+            if not self.manage.movie_status(imdbid):
                 return json.dumps({'response': False})
         elif status == 'Finished':
             if not self.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
@@ -681,7 +636,7 @@ class Ajax(object):
 
         recursive = json.loads(recursive)
         minsize = int(minsize)
-        files = self.library.ImportDirectory.scan_dir(directory, minsize, recursive)
+        files = core.library.ImportDirectory.scan_dir(directory, minsize, recursive)
         if files.get('error'):
             yield json.dumps({'error': files['error']})
             raise StopIteration()
@@ -1225,4 +1180,4 @@ class Ajax(object):
 
     @cherrypy.expose
     def generate_stats(self):
-        return json.dumps(self.update.get_stats())
+        return json.dumps(self.manage.get_stats())

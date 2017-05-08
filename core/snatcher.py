@@ -20,7 +20,7 @@ class Snatcher():
     def __init__(self):
         self.plugins = plugins.Plugins()
         self.sql = sqldb.SQL()
-        self.update = library.Status()
+        self.manage = library.Manage()
         return
 
     def auto_grab(self, movie, minscore=0):
@@ -319,15 +319,15 @@ class Snatcher():
         Returns Bool on success/fail
         '''
 
-        if not self.update.searchresults(guid, 'Snatched'):
+        if not self.manage.searchresults(guid, 'Snatched'):
             logging.error('Unable to update search result status to Snatched.')
             return False
 
-        if not self.update.markedresults(guid, 'Snatched', imdbid=imdbid):
+        if not self.manage.markedresults(guid, 'Snatched', imdbid=imdbid):
             logging.error('Unable to store marked search result as Snatched.')
             return False
 
-        if not self.update.movie_status(imdbid):
+        if not self.manage.movie_status(imdbid):
             logging.error('Unable to update movie status to Snatched.')
             return False
 

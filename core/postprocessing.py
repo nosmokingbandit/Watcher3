@@ -21,7 +21,7 @@ class Postprocessing(object):
         self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
         self.snatcher = snatcher.Snatcher()
-        self.update = library.Status()
+        self.manage = library.Manage()
         self.metadata = library.Metadata()
 
     def null(*args, **kwargs): return
@@ -247,12 +247,12 @@ class Postprocessing(object):
         guid_result = {'url': data['guid']}
 
         if data['guid']:  # guid can be empty string
-            if self.update.searchresults(data['guid'], 'Bad'):
+            if self.manage.searchresults(data['guid'], 'Bad'):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.update.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
+            if self.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -264,12 +264,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys():
             logging.info('Marking guid2 as Bad.')
             guid2_result = {'url': data['guid2']}
-            if self.update.searchresults(data['guid2'], 'Bad'):
+            if self.manage.searchresults(data['guid2'], 'Bad'):
                 guid2_result['update SEARCHRESULTS'] = True
             else:
                 guid2_result['update SEARCHRESULTS'] = False
 
-            if self.update.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
+            if self.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
                 guid2_result['update_MARKEDRESULTS'] = False
@@ -279,7 +279,7 @@ class Postprocessing(object):
         # set movie status
         if data['imdbid']:
             logging.info('Setting MOVIE status.')
-            r = self.update.movie_status(data['imdbid'])
+            r = self.manage.movie_status(data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
             r = False
@@ -352,12 +352,12 @@ class Postprocessing(object):
         logging.info('Marking guid as Finished.')
         guid_result = {}
         if data['guid'] and data.get('imdbid'):
-            if self.update.searchresults(data['guid'], 'Finished', movie_info=data):
+            if self.manage.searchresults(data['guid'], 'Finished', movie_info=data):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.update.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+            if self.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -369,12 +369,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys() and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
-            if self.update.searchresults(data['guid2'], 'Finished', movie_info=data):
+            if self.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
                 guid2_result['update_SEARCHRESULTS'] = True
             else:
                 guid2_result['update_SEARCHRESULTS'] = False
 
-            if self.update.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
+            if self.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
                                          ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
@@ -391,7 +391,7 @@ class Postprocessing(object):
                 self.ajax.add_wanted_movie(json.dumps(data))
 
             logging.info('Setting MOVIE status.')
-            r = self.update.movie_status(data['imdbid'])
+            r = self.manage.movie_status(data['imdbid'])
             self.sql.update('MOVIES', 'finished_date', result['data']['finished_date'], 'imdbid', data['imdbid'])
             self.sql.update('MOVIES', 'finished_score', result['data'].get('finished_score'), 'imdbid', data['imdbid'])
         else:

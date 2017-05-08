@@ -13,6 +13,68 @@ from core import trakt
 logging = logging.getLogger(__name__)
 
 
+def restart_scheduler(diff):
+    ''' Restarts and scheduled tasks in diff
+    diff: dict modified keys in config file
+
+    Reads diff and determines which tasks need to be restart_scheduler
+
+    Does not return
+    '''
+
+    now = datetime.datetime.now()
+    if 'Server' in diff:
+        d = diff['Server'].keys()
+
+        if any(i in d for i in ('checkupdates', 'checkupdatefrequency')):
+            hr = now.hour + core.CONFIG['Server']['checkupdatefrequency']
+            min = now.minute
+            interval = core.CONFIG['Server']['checkupdatefrequency'] * 3600
+            auto_start = core.CONFIG['Server']['checkupdates']
+            taskscheduler.SchedulerPlugin.task_list['update_check'].reload(hr, min, interval, auto_start=auto_start)
+
+        if any(i in d for i in ('installupdates', 'installupdatehr', 'installupdatemin')):
+            hr = core.CONFIG['Server']['installupdatehr']
+            min = core.CONFIG['Server']['installupdatemin']
+            interval = 24 * 3600
+            auto_start = core.CONFIG['Server']['installupdates']
+            taskscheduler.SchedulerPlugin.task_list['update_install'].reload(hr, min, interval, auto_start=auto_start)
+
+    if 'Search' in diff:
+        d = diff['Search'].keys()
+        if 'rsssyncfrequency' in d:
+            hr = now.hour
+            min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
+            interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
+            auto_start = True
+            taskscheduler.SchedulerPlugin.task_list['search_and_snatch'].reload(hr, min, interval, auto_start=auto_start)
+
+        if 'Watchlists' in diff['Search']:
+            d = diff['Search']['Watchlists'].keys()
+            if any(i in d for i in ('imdbfrequency', 'imdsync')):
+                hr = now.hour
+                min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
+                interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
+                auto_start = core.CONFIG['Search']['Watchlists']['checkupdates']
+                taskscheduler.SchedulerPlugin.task_list['imdb_sync'].reload(hr, min, interval, auto_start=auto_start)
+
+            if any(i in d for i in ('popularmoviessync', 'popularmovieshour', 'popularmoviesmin')):
+                hr = core.CONFIG['Search']['Watchlists']['popularmovieshour']
+                min = core.CONFIG['Search']['Watchlists']['popularmoviesmin']
+                interval = 24 * 3600
+                auto_start = core.CONFIG['Search']['Watchlists']['popularmoviessync']
+                taskscheduler.SchedulerPlugin.task_list['popularmovies_sync'].reload(hr, min, interval, auto_start=auto_start)
+
+            if any(i in d for i in ('traktsync', 'traktfrequency')):
+                hr = now.hour
+                min = now.minute + core.CONFIG['Search']['Watchlists']['traktfrequency']
+                interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
+                auto_start = core.CONFIG['Search']['Watchlists']['traktsync']
+                taskscheduler.SchedulerPlugin.task_list['trakt_sync'].reload(hr, min, interval, auto_start=auto_start)
+        else:
+            return
+
+
 class Scheduler(object):
 
     def __init__(self):
@@ -29,10 +91,10 @@ class AutoSearch(object):
 
         now = datetime.datetime.today()
         hr = now.hour
-        min = now.minute + 10
+        min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
 
         task_search = taskscheduler.ScheduledTask(hr, min, interval,
-                                                  search.auto_search_and_grab,
+                                                  search.search_and_snatch,
                                                   auto_start=True)
 
         # update core.NEXT_SEARCH
@@ -50,7 +112,7 @@ class AutoUpdateCheck(object):
 
         now = datetime.datetime.today()
         hr = now.hour
-        min = now.minute + 15
+        min = now.minute + (core.CONFIG['Server']['checkupdatefrequency'] * 60)
         if now.second > 30:
             min += 1
 
@@ -161,19 +223,19 @@ class ImdbRssSync(object):
         now = datetime.datetime.now()
 
         hr = now.hour
-        min = now.minute + 20
+        min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
 
         if core.CONFIG['Search']['Watchlists']['imdbsync']:
             auto_start = True
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, ImdbRssSync.sync_rss,
+        taskscheduler.ScheduledTask(hr, min, interval, ImdbRssSync.imdb_sync,
                                     auto_start=auto_start)
         return
 
     @staticmethod
-    def sync_rss():
+    def imdb_sync():
         logging.info('Running automatic IMDB rss sync.')
         imdb_rss = imdb.ImdbRss()
         imdb_rss.get_rss()
@@ -194,12 +256,12 @@ class PopularMoviesSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, PopularMoviesSync.sync_feed,
+        taskscheduler.ScheduledTask(hr, min, interval, PopularMoviesSync.popularmovies_sync,
                                     auto_start=auto_start)
         return
 
     @staticmethod
-    def sync_feed():
+    def popularmovies_sync():
         logging.info('Running automatic popular movies sync.')
 
         popular_feed = popularmovies.PopularMoviesFeed()
@@ -219,13 +281,17 @@ class TraktSync(object):
         now = datetime.datetime.now()
 
         hr = now.hour
-        min = now.minute + 25
+        min = now.minute + core.CONFIG['Search']['Watchlists']['traktfrequency']
 
         if core.CONFIG['Search']['Watchlists']['traktsync']:
-            auto_start = True
+            if any(core.CONFIG['Search']['Watchlists']['Traktlists'].keys()):
+                auto_start = True
+            else:
+                logging.warning('Trakt sync enabled but no lists are enabled.')
+                auto_start = False
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.sync_lists,
+        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.trakt_sync,
                                     auto_start=auto_start)
         return

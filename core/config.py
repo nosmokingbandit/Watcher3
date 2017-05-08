@@ -2,6 +2,8 @@ import json
 import random
 import core
 import collections
+from core.helpers import Comparisons
+from core import scheduler
 
 
 class Config():
@@ -55,7 +57,7 @@ class Config():
             json.dump(config, f, indent=4, sort_keys=True)
         return 'Config created at {}'.format(self.file)
 
-    def write_dict(self, data):
+    def write(self, data):
         ''' Writes a dict to the config file.
         :param data: dict of Section with nested dict of keys and values:
 
@@ -72,13 +74,19 @@ class Config():
 
         conf = core.CONFIG
 
+        diff = Comparisons.compare_dict(data, conf)
+
         for k, v in data.items():
             conf[k] = v
 
         with open(self.file, 'w') as f:
             json.dump(conf, f, indent=4, sort_keys=True)
-        # After writing, copy it back to core.CONFIG
+
         self.stash(config=conf)
+
+        if diff:
+            scheduler.restart_scheduler(diff)
+
         return
 
     def merge_new_options(self):
@@ -126,7 +134,7 @@ class Config():
         try:
             with open(self.file, 'w') as f:
                 json.dump(config, f, indent=4, sort_keys=True)
-        except Exception as e: #noqa
+        except Exception as e:  # noqa
             return False
 
         return True

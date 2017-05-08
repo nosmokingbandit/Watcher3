@@ -19,13 +19,13 @@ class Searcher():
         self.predb = predb.PreDB()
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
-        self.update = library.Status()
+        self.manage = library.Manage()
 
-    def auto_search_and_grab(self):
+    def search_and_snatch(self):
         ''' Scheduled searcher and grabber.
 
         Runs search when scheduled. ONLY runs when scheduled.
-        Runs in its own thread.
+        Should always run in its own thread.
 
         First checks for all movies on predb.
 
@@ -190,7 +190,7 @@ class Searcher():
             logging.error('Unable to store search results for {}'.format(imdbid))
             return False
 
-        if not self.update.movie_status(imdbid):
+        if not self.manage.movie_status(imdbid):
             logging.error('Unable to update movie status for {}'.format(imdbid))
             return False
 
@@ -269,7 +269,7 @@ class Searcher():
             if not self.store_results(scored_results, imdbid):
                 return False
 
-            if not self.update.movie_status(imdbid):
+            if not self.manage.movie_status(imdbid):
                 logging.info('No acceptable results found for {}'.format(imdbid))
                 return False
 

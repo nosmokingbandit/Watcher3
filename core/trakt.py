@@ -2,7 +2,7 @@ from core.helpers import Url
 from core.helpers import Comparisons
 import json
 import core
-from core import sqldb, ajax
+from core import library, sqldb
 
 import logging
 logging = logging.getLogger(__name__)
@@ -12,10 +12,10 @@ class Trakt(object):
 
     def __init__(self):
         self.sql = sqldb.SQL()
-        self.ajax = ajax.Ajax()
+        self.manage = library.Manage()
         return
 
-    def sync_lists(self):
+    def trakt_sync(self):
         ''' Syncs all enabled Trakt lists
 
         Gets list of movies from each enabled Trakt lists
@@ -45,7 +45,7 @@ class Trakt(object):
                 logging.info('{} already in library'.format(i['title']))
                 continue
             else:
-                if self.ajax.add_wanted_movie(json.dumps({'id': i['ids']['tmdb']})):
+                if self.manage.add_movie(json.dumps({'id': i['ids']['tmdb']}))['response'] is True:
                     logging.info('{} added to library'.format(i['title']))
                 else:
                     success = False

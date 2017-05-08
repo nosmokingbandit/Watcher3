@@ -112,14 +112,13 @@ class Settings():
                 span('Check for updates every ')
                 input(type='number', min='8', id='checkupdatefrequency', value=c[c_s]['checkupdatefrequency'], style='width: 2.25em')
                 span(' hours.')
-                span('Checks at startup and every X hours afterward. *Requires restart.', cls='tip')
             with li(cls='bbord'):
                 i(id='installupdates', cls='fa fa-square-o checkbox', value=str(c[c_s]['installupdates']))
                 span('Automatically install updates at ')
                 input(type='number', min='0', max='23', id='installupdatehr', value=c[c_s]['installupdatehr'], style='width: 2.25em')
                 span(':')
                 input(type='number', min='0', max='59', id='installupdatemin', value=c[c_s]['installupdatemin'], style='width: 2.25em')
-                span('24hr time. *Requires restart.', cls='tip')
+                span('24hr time.', cls='tip')
             with li(cls='hidden'):
                 input(type='text', id='gitbranch', value=c[c_s]['gitbranch'])
             with li():
@@ -180,21 +179,18 @@ class Settings():
             with li(cls='bbord'):
                 i(id='searchafteradd', cls='fa fa-square-o checkbox', value=str(c[c_s]['searchafteradd']))
                 span('Perform backlog search immediately after adding movie.')
-                span('Skips wait until next scheduled search.', cls='tip')
             with li(cls='bbord'):
                 i(id='autograb', cls='fa fa-square-o checkbox', value=str(c[c_s]['autograb']))
                 span('Automatically grab best result.')
-                span('Will still wait X days if set.', cls='tip')
             with li(cls='bbord'):
                 span('RSS sync interval: ')
                 input(type='number', min='10', id='rsssyncfrequency', style='width: 2.5em', value=c[c_s]['rsssyncfrequency'])
                 span('minutes.')
-                span('Min 10 minutes. Requires Restart.', cls='tip')
+                span('Minimum 10 minutes.', cls='tip')
             with li():
                 span('Wait ')
                 input(type='number', min='0', max='14', id='waitdays', style='width: 2.0em', value=c[c_s]['waitdays'])
-                span(' days for best release.')
-                span('After movie is found, wait to snatch in case better match is found.', cls='tip')
+                span(' days before snatching best release.')
             with li(cls='bbord indent'):
                 i(id='skipwait', cls='fa fa-square-o checkbox', value=str(c[c_s]['skipwait']))
                 span('Skip wait if release date is more than ')
@@ -235,7 +231,6 @@ class Settings():
                 span('Sync every ')
                 input(type='number', min='15', id='imdbfrequency', value=c[c_s]['Watchlists']['imdbfrequency'], style='width: 3.0em')
                 span(' minutes.')
-                span('*Requires restart.', cls='tip')
             with li(cls='bbord'):
                 i(id='popularmoviessync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['popularmoviessync']))
                 span('Sync Popular Movies list at ')
@@ -245,13 +240,12 @@ class Settings():
                 with span(cls='tip'):
                     with a(href='https://github.com/sjlu/popular-movies', target='_blank'):
                         i(cls='fa fa-question-circle')
-                    span('Updates every 24hr. *Requires restart.')
+                    span('Updates every 24 hours.')
             with li():
                 i(id='traktsync', cls='fa fa-square-o checkbox', value=str(c[c_s]['Watchlists']['traktsync']))
                 span('Sync Trakt lists every ')
                 input(type='number', min='0', max='23', id='traktfrequency', value=c[c_s]['Watchlists']['traktfrequency'], style='width: 3.0em')
                 span(' minutes.')
-                span('*Requires restart.', cls='tip')
                 with ul(id='trakt_lists'):
                     for k, v in c[c_s]['Watchlists']['Traktlists'].items():
                         with li(cls='indent'):

@@ -2,9 +2,9 @@ import os
 import json
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
+from core import sqldb, searchresults, searcher, snatcher, poster, plugins
 import core
 from core.movieinfo import TMDB
-from core import sqldb, searchresults
 from core.helpers import Url, Conversions
 import PTN
 import datetime
@@ -12,6 +12,7 @@ import logging
 import uuid
 import xml.etree.cElementTree as ET
 import csv
+import threading
 
 logging = logging.getLogger(__name__)
 
@@ -388,6 +389,8 @@ class ImportCPLibrary(object):
 
 
 class Metadata(object):
+    ''' Methods for gathering/preparing metadata for movies
+    '''
 
     def __init__(self):
         self.tmdb = TMDB()
@@ -588,11 +591,78 @@ class Metadata(object):
         return movie
 
 
-class Status(object):
+class Manage(object):
+    ''' Methods to manipulate status of movies or search results
+    '''
 
     def __init__(self):
         self.sql = sqldb.SQL()
         self.score = searchresults.Score()
+        self.tmdb = TMDB()
+        self.metadata = Metadata()
+        self.poster = poster.Poster()
+        self.plugins = plugins.Plugins()
+
+    def add_movie(self, data, full_metadata=False):
+        ''' Adds movie to Wanted list.
+        :param data: str json.dumps(dict) of info to add to database.
+        full_metadata: bool if data is complete and ready for write
+
+        data MUST inlcude tmdb id as data['id']
+
+        Writes data to MOVIES table.
+
+        If full_metadata is False, searches tmdb for data['id'] and updates data
+
+        If Search on Add enabled,
+            searches for movie immediately in separate thread.
+            If Auto Grab enabled, will snatch movie if found.
+
+        Returns dict of status and message ie {'response': False, 'error': 'Something broke'}
+        '''
+
+        response = {}
+        data = json.loads(data)
+        tmdbid = data['id']
+
+        if not full_metadata:
+            movie = self.tmdb._search_tmdbid(tmdbid)[0]
+            movie.update(data)
+        else:
+            movie = data
+
+        movie['quality'] = data.get('quality', 'Default')
+        movie['status'] = data.get('status', 'Waiting')
+
+        if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
+            logging.info('{} already exists in library.'.format(movie['title']))
+
+            response['response'] = False
+
+            response['error'] = '{} already exists in library.'.format(movie['title'])
+            return response
+
+        if movie.get('poster_path'):
+            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
+        else:
+            poster_url = 'static/images/missing_poster.jpg'
+
+        movie = self.metadata.convert_to_db(movie)
+
+        if not self.sql.write('MOVIES', movie):
+            response['response'] = False
+            response['error'] = 'Could not write to database.'
+            return response
+        else:
+            t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
+            t2.start()
+
+            response['response'] = True
+            response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
+            response['movie'] = movie
+            self.plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
+
+            return response
 
     def searchresults(self, guid, status, movie_info=None):
         ''' Marks searchresults status

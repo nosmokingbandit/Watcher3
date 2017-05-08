@@ -11,7 +11,7 @@ import json
 class Manage(object):
 
     def __init__(self):
-        self.library = library.Status()
+        self.library = library.Manage()
         self.sql = sqldb.SQL()
 
     @expose
