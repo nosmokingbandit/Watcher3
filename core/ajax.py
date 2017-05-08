@@ -375,74 +375,27 @@ class Ajax(object):
 
         if mode == 'sabnzbd':
             test = sabnzbd.Sabnzbd.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-        if mode == 'nzbget':
+        elif mode == 'nzbget':
             test = nzbget.Nzbget.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'transmission':
+        elif mode == 'transmission':
             test = transmission.Transmission.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'delugerpc':
+        elif mode == 'delugerpc':
             test = deluge.DelugeRPC.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'delugeweb':
+        elif mode == 'delugeweb':
             test = deluge.DelugeWeb.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'qbittorrent':
+        elif mode == 'qbittorrent':
             test = qbittorrent.QBittorrent.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'rtorrentscgi':
+        elif mode == 'rtorrentscgi':
             test = rtorrent.rTorrentSCGI.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
-
-        if mode == 'rtorrenthttp':
+        elif mode == 'rtorrenthttp':
             test = rtorrent.rTorrentHTTP.test_connection(data)
-            if test is True:
-                response['status'] = True
-                response['message'] = 'Connection successful.'
-            else:
-                response['status'] = False
-                response['error'] = test
+
+        if test is True:
+            response['status'] = True
+            response['message'] = 'Connection successful.'
+        else:
+            response['status'] = False
+            response['error'] = test
 
         return json.dumps(response)
 
