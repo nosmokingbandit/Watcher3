@@ -21,7 +21,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
     '''
 
-    task_list = []
+    task_list = {}
 
     def __init__(self, bus):
         plugins.SimplePlugin.__init__(self, bus)
@@ -30,8 +30,8 @@ class SchedulerPlugin(plugins.SimplePlugin):
         return
 
     def stop(self):
-        for i in self.task_list:
-            i.stop()
+        for name, task in self.task_list.items():
+            task.stop()
 
 
 class ScheduledTask(object):
@@ -39,7 +39,7 @@ class ScheduledTask(object):
     __init__
     :param hr: int hour to first execute function (24hr time)
     :param min: int minute to first execute function
-    :param interval: int how many seconds to wait between executions
+    :param interval: int how many *seconds* to wait between executions
     :param task: function reference to function to execute
     :param auto_start: bool If timer should start on creation <default True>
 
@@ -52,20 +52,21 @@ class ScheduledTask(object):
     Class Methods:
         start()     Starts countdown to initial execution
         stop()      Stops countdown. Waits for any in-process tasks to finish
-        reload()    Calls stop(), __init__(), then start()
+        reload()    Calls stop(), __init__(), then start(), takes same args as create()
 
     Does not return
     '''
 
     def __init__(self, hr, min, interval, task, auto_start=True):
         self.name = task.__name__
+        self.task_fn = task
 
         self.task = Task(hr, min, interval, task)
 
         if auto_start is True:
             self.start()
 
-        SchedulerPlugin.task_list.append(self)
+        SchedulerPlugin.task_list[self.name] = self
 
     def start(self):
         self.task.timer.start()
