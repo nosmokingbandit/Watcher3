@@ -75,13 +75,18 @@ class ScheduledTask(object):
         print('Stopping scheduled task: {}'.format(self.name))
         self.task.timer.cancel()
 
-    def reload(self):
+    def reload(self, hr, min, interval, auto_start=True):
+        ''' Reloads scheduled task to change time or interval
+        See self.__init__ for param descriptions
+        '''
+
+        logging.info('Reloading scheduler for {}'.format(self.name))
         try:
             self.task.timer.cancel()
-            self.__init__()
-            self.task.timer.start()
+            self.__init__(hr, min, interval, self.task_fn, auto_start=auto_start)
             return True
         except Exception as e:
+            logging.error('Unable to start task', exc_info=True)
             return e
 
 
