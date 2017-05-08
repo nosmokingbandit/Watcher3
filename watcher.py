@@ -26,7 +26,6 @@ from core.log import log
 if os.name == 'nt':
     from core.cp_plugins import systray
 
-
 if __name__ == '__main__':
 
     # have to set locale for date parsing
@@ -149,6 +148,8 @@ if __name__ == '__main__':
     if passed_args.daemon and os.name == 'posix':
         Daemonizer(cherrypy.engine).subscribe()
 
+    os.chdir(core.PROG_PATH)  # have to do this for the daemon
+
     # start engine
     cherrypy.config.update('core/conf_global.ini')
     cherrypy.engine.signals.subscribe()
@@ -170,7 +171,6 @@ if __name__ == '__main__':
         systrayplugin.subscribe()
         systrayplugin.start()
 
-    os.chdir(core.PROG_PATH)  # have to do this for the daemon
     # finish by blocking
     cherrypy.engine.block()
 
