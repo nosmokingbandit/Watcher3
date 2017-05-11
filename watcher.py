@@ -69,8 +69,6 @@ if __name__ == '__main__':
     # Set up conf file
     if passed_args.conf:
         core.CONF_FILE = passed_args.conf
-    if passed_args.log:
-        core.LOG_DIR = passed_args.log
 
     # set up config file on first launch
     conf = config.Config()
