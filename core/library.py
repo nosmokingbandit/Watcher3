@@ -137,8 +137,9 @@ class ImportKodiLibrary(object):
 
         today = str(datetime.date.today())
         for i in json.loads(response.text)['result']['movies']:
+
             if i['imdbnumber'] in library:
-                logging.info('{} in library, skipping.'.format(i['imdbidnumber']))
+                logging.info('{} in library, skipping.'.format(i['imdbnumber']))
                 continue
 
             movie = {}
@@ -147,19 +148,22 @@ class ImportKodiLibrary(object):
             movie['imdbid'] = i['imdbnumber']
             movie['file'] = i['file']
             movie['added_date'] = movie['finished_date'] = today
-            movie['audiocodec'] = i['streamdetails']['audio'][0].get('codec')
+            movie['audiocodec'] = i['streamdetails']['audio'][0].get('codec') if i['streamdetails']['audio'] else ''
             if movie['audiocodec'] == 'dca' or movie['audiocodec'].startswith('dts'):
                 movie['audiocodec'] = 'DTS'
-            movie['videocodec'] = i['streamdetails']['video'][0].get('codec')
-            width = i['streamdetails']['video'][0]['width']
-            if width > 1920:
-                movie['resolution'] = 'BluRay-4K'
-            elif 1920 >= width > 1440:
-                movie['resolution'] = 'BluRay-1080P'
-            elif 1440 >= width > 720:
-                movie['resolution'] = 'BluRay-720P'
+            if i['streamdetails']['video']:
+                movie['videocodec'] = i['streamdetails']['video'][0].get('codec')
+                width = i['streamdetails']['video'][0]['width']
+                if width > 1920:
+                    movie['resolution'] = 'BluRay-4K'
+                elif 1920 >= width > 1440:
+                    movie['resolution'] = 'BluRay-1080P'
+                elif 1440 >= width > 720:
+                    movie['resolution'] = 'BluRay-720P'
+                else:
+                    movie['resolution'] = 'DVD-SD'
             else:
-                movie['resolution'] = 'DVD-SD'
+                movie['videocodec'] = movie['resolution'] = ''
 
             movies.append(movie)
 
