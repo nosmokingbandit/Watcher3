@@ -627,7 +627,6 @@ class Manage(object):
         '''
 
         response = {}
-        data = json.loads(data)
         tmdbid = data['id']
 
         if not full_metadata:

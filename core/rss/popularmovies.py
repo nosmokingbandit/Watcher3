@@ -1,9 +1,9 @@
-from core import ajax, sqldb
+import core
+from core import library, searcher, sqldb
 from core.movieinfo import TMDB
 from core.helpers import Url
 import json
 import logging
-import time
 
 logging = logging.getLogger(__name__)
 
@@ -12,7 +12,8 @@ class PopularMoviesFeed(object):
     def __init__(self):
         self.tmdb = TMDB()
         self.sql = sqldb.SQL()
-        self.ajax = ajax.Ajax()
+        self.library = library.Manage()
+        self.searcher = searcher.Searcher()
         return
 
     def get_feed(self):
@@ -56,28 +57,19 @@ class PopularMoviesFeed(object):
         Does not return
         '''
 
-        new_sync_movies = []
-        for i in movies:
-
-            title = i['title']
-            imdbid = i['imdb_id']
-
-            logging.info('Found new watchlist movie: {} {}'.format(title, imdbid))
-
-            new_sync_movies.append(imdbid)
-
-        # check if movies already exists
-
         existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
 
-        movies_to_add = [i for i in new_sync_movies if i not in existing_movies]
+        movies_to_add = [i for i in movies if i['imdbid'] not in existing_movies]
 
         # do quick-add procedure
-        for imdbid in movies_to_add:
+        for movie in movies_to_add:
+            imdbid = movie['imdbid']
             movie_info = self.tmdb._search_imdbid(imdbid)[0]
             if not movie_info:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
+            logging.info('Adding movie {} {} from PopularMovies list.'.format(movie['title'], movie['imdbid']))
             movie_info['quality'] = 'Default'
-            self.ajax.add_wanted_movie(json.dumps(movie_info))
-            time.sleep(1)
+            added = self.library.add_movie(movie_info)
+            if added['response'] and core.CONFIG['Search']['searchafteradd']:
+                self.searcher.search(imdbid, movie_info['title'], movie_info['year'], movie_info['quality'])

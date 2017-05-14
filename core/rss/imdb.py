@@ -1,5 +1,5 @@
 import core
-from core import ajax, sqldb
+from core import library, searcher, sqldb
 from core.movieinfo import TMDB
 from core.helpers import Url
 from datetime import datetime
@@ -15,9 +15,10 @@ class ImdbRss(object):
     def __init__(self):
         self.tmdb = TMDB()
         self.sql = sqldb.SQL()
-        self.ajax = ajax.Ajax()
         self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
         self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
+        self.library = library.Manage()
+        self.searcher = searcher.Searcher()
         return
 
     def get_rss(self):
@@ -119,7 +120,7 @@ class ImdbRss(object):
 
     def sync_new_movies(self, new_movies, list_id, lastbuilddate):
         ''' Adds new movies from rss feed
-        :params movies: list of dicts of movies
+        new_movies: list of dicts of movies
         list_id: str id # of watch list
 
         Checks last sync time and pulls new imdbids from feed.
@@ -131,11 +132,9 @@ class ImdbRss(object):
         Does not return
         '''
 
-        # check if movies already exists
-
         existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
 
-        movies_to_add = [i for i in new_movies if i not in existing_movies]
+        movies_to_add = [i for i in new_movies if i['imdbid'] not in existing_movies]
 
         # do quick-add procedure
         for movie in movies_to_add:
@@ -145,5 +144,8 @@ class ImdbRss(object):
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
             logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
-            movie_info['quality'] = 'Default'
-            self.ajax.add_wanted_movie(json.dumps(movie_info))
+            movie_info['year'] = movie_info['release_date'][:4]
+
+            added = self.library.add_movie(movie_info)
+            if added['response'] and core.CONFIG['Search']['searchafteradd']:
+                self.searcher.search(imdbid, movie_info['title'], movie_info['year'], 'Default')

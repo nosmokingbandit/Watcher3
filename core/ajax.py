@@ -96,7 +96,9 @@ class Ajax(object):
             if self.predb.check_one(data) and core.CONFIG['Search']['searchafteradd']:
                 if self.searcher.search(imdbid, title, year, quality):
                     if core.CONFIG['Search']['autograb']:
-                        self.snatcher.auto_grab(data)
+                        best_release = self.snatcher.best_release(data)
+                        if best_release:
+                            self.snatcher.download(best_release)
 
         r = self.manage.add_movie(data, full_metadata=full_metadata)
 
@@ -262,7 +264,7 @@ class Ajax(object):
         data = dict(self.sql.get_single_search_result('guid', guid))
         if data:
             data['year'] = year
-            return json.dumps(self.snatcher.snatch(data))
+            return json.dumps(self.snatcher.download(data))
         else:
             return json.dumps({'response': False, 'error': 'Unable to get download information from the database. Check logs for more information.'})
 
@@ -918,7 +920,7 @@ class Ajax(object):
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
         except Exception as e:  # noqa
-            print(e)
+            logging.error('Unable to prase Plex CSV', exc_info=True)
             return
 
         if csv_text:

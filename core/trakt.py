@@ -2,7 +2,7 @@ from core.helpers import Url
 from core.helpers import Comparisons
 import json
 import core
-from core import library, sqldb
+from core import library, searcher, sqldb
 
 import logging
 logging = logging.getLogger(__name__)
@@ -12,7 +12,8 @@ class Trakt(object):
 
     def __init__(self):
         self.sql = sqldb.SQL()
-        self.manage = library.Manage()
+        self.library = library.Manage()
+        self.searcher = searcher.Searcher()
         return
 
     def trakt_sync(self):
@@ -40,16 +41,14 @@ class Trakt(object):
 
         library = [i['imdbid'] for i in self.sql.get_user_movies()]
 
+        movies = [i for i in movies if i['ids']['imdb'] not in library]
+
         for i in movies:
-            if i['ids']['imdb'] in library:
-                logging.info('{} already in library'.format(i['title']))
-                continue
-            else:
-                if self.manage.add_movie(json.dumps({'id': i['ids']['tmdb']}))['response'] is True:
-                    logging.info('{} added to library'.format(i['title']))
-                else:
-                    success = False
-                    logging.error('Unable to add Trakt movie {}'.format(i['title']))
+            imdbid = i['ids']['imdb']
+            logging.info('Adding movie {} {} from Trakt'.format(i['title'], imdbid))
+            added = self.library.add_movie({'id': i['ids']['tmdb']})
+            if added['response'] and core.CONFIG['Search']['searchafteradd']:
+                self.searcher.search(imdbid, i['title'], i['year'], 'Default')
 
         return success
 
@@ -88,5 +87,5 @@ class Trakt(object):
             return [i['movie'] for i in m if i['movie']['rating'] >= min_score]
 
         except Exception as e:
-            logging.error('Unable to get Trakt list', exc_info=True)
+            logging.error('Unable to get Trakt list.', exc_info=True)
             return []

@@ -47,7 +47,7 @@ def restart_scheduler(diff):
             min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
             interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
             auto_start = True
-            taskscheduler.SchedulerPlugin.task_list['search_and_snatch'].reload(hr, min, interval, auto_start=auto_start)
+            taskscheduler.SchedulerPlugin.task_list['search_all'].reload(hr, min, interval, auto_start=auto_start)
 
         if 'Watchlists' in diff['Search']:
             d = diff['Search']['Watchlists'].keys()
@@ -55,7 +55,7 @@ def restart_scheduler(diff):
                 hr = now.hour
                 min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
                 interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
-                auto_start = core.CONFIG['Search']['Watchlists']['checkupdates']
+                auto_start = core.CONFIG['Search']['Watchlists']['imdbsync']
                 taskscheduler.SchedulerPlugin.task_list['imdb_sync'].reload(hr, min, interval, auto_start=auto_start)
 
             if any(i in d for i in ('popularmoviessync', 'popularmovieshour', 'popularmoviesmin')):
@@ -94,7 +94,7 @@ class AutoSearch(object):
         min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
 
         task_search = taskscheduler.ScheduledTask(hr, min, interval,
-                                                  search.search_and_snatch,
+                                                  search.search_all,
                                                   auto_start=True)
 
         # update core.NEXT_SEARCH

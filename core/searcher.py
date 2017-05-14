@@ -21,26 +21,27 @@ class Searcher():
         self.torrent = torrent.Torrent()
         self.manage = library.Manage()
 
-    def search_and_snatch(self):
-        ''' Scheduled searcher and grabber.
+    def search_all(self):
+        ''' Searches for all movies
+        Should never run in the main thread.
+        Automatically runs as scheduled task.
 
-        Runs search when scheduled. ONLY runs when scheduled.
-        Should always run in its own thread.
+        Updates core.NEXT_SEARCH time.
 
-        First checks for all movies on predb.
+        Checks for all movies on predb.
 
         Searches only for movies where predb == 'found'.
 
         Searches only for movies that are Wanted, Found,
             or Finished -- if inside user-set date range.
 
-        Checks each movie's backlog status. Runs a backlog search if neccesary, else Looks
-            in RSS feeds for any matches.
+        For each movie:
+            If backlog status is 0:
+                Executes self.search()
+            Else:
+                Parses rss feeds for matches
 
-        Will grab movie if autograb is 'true' and
-            movie is 'Found' or 'Finished'.
-
-        Updates core.NEXT_SEARCH time
+        If autograb is enabled calls snatcher.grab_all()
 
         Does not return
         '''
@@ -49,34 +50,25 @@ class Searcher():
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        today = datetime.date.today()
-        keepsearching = core.CONFIG['Search']['keepsearching']
-        keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
-        keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
-        auto_grab = core.CONFIG['Search']['autograb']
-
         self.predb.check_all()
+
         logging.info('############# Running automatic search #############')
-        if keepsearching is True:
-            logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(keepsearchingdays))
+        if core.CONFIG['Search']['keepsearching']:
+            logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = self.sql.get_user_movies()
         if not movies:
             return False
 
-        # Get movies that require backlog search and execute it
         backlog_movies = self._get_backlog_movies(movies)
-
         if backlog_movies:
-            logging.info('Performing backlog search for {} movies.'.format(len(backlog_movies)))
             logging.debug('Backlog movies: {}'.format(backlog_movies))
             for movie in backlog_movies:
                 imdbid = movie['imdbid']
                 title = movie['title']
                 year = movie['year']
                 quality = movie['quality']
-                status = movie['status']
 
-                logging.info('Executing backlog search for {} {}.'.format(title, year))
+                logging.info('Performing backlog search for {} {}.'.format(title, year))
                 self.search(imdbid, title, year, quality)
                 continue
 
@@ -89,40 +81,8 @@ class Searcher():
         '''
         If autograb is enabled, loops through movies and grabs any appropriate releases.
         '''
-        if auto_grab is True:
-            logging.info('############ Running automatic snatcher ############')
-            keepsearchingscore = core.CONFIG['Search']['keepsearchingscore']
-            # In case we found something we'll check this again.
-            movies = self.sql.get_user_movies()
-            if not movies:
-                return False
-            for movie in movies:
-                status = movie['status']
-                if status == 'Disabled':
-                    continue
-                imdbid = movie['imdbid']
-                title = movie['title']
-                year = movie['year']
-                quality = movie['quality']
-
-                if status == 'Found':
-                    logging.info('{} status is Found. Running automatic snatcher.'.format(title))
-                    self.snatcher.auto_grab(movie)
-                    continue
-
-                if status == 'Finished' and keepsearching is True:
-                    finished_date = movie['finished_date']
-                    finished_date_obj = datetime.datetime.strptime(finished_date, '%Y-%m-%d').date()
-                    if finished_date_obj + keepsearchingdelta >= today:
-                        minscore = movie['finished_score'] + keepsearchingscore
-                        logging.info('{} {} was marked Finished on {}. Checking for a better release (min score {}).'.format(title, year, finished_date, minscore))
-                        self.snatcher.auto_grab(movie, minscore=minscore)
-                        continue
-                    else:
-                        continue
-                else:
-                    continue
-        logging.info('######### Automatic search/snatch complete #########')
+        if core.CONFIG['Search']['autograb']:
+            self.snatcher.grab_all()
         return
 
     def search(self, imdbid, title, year, quality):
@@ -386,7 +346,7 @@ class Searcher():
         backlog_movies = []
 
         for i in movies:
-            if i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
+            if i['predb'] == 'found' and i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
                 logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
                 backlog_movies.append(i)
 

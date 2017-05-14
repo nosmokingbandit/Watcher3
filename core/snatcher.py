@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+import datetime
 import urllib.parse
 import core
 from core import library, plugins, sqldb
@@ -9,11 +9,15 @@ logging = logging.getLogger(__name__)
 
 
 class Snatcher():
-    ''' Clarification notes:
+    '''
+    Handles snatching search results. This includes choosing the best result,
+        retreiving the link, and sending it to the download client.
 
-    When snatching a torrent, the downloadid should *always* be the torrent hash.
+    Clarification notes:
+
+    When snatching a torrent, the download id should *always* be the torrent hash.
     When snatching NZBs use the client-supplied download id if possible. If the client
-        does not return a download-id, use None.
+        does not return a download id use None.
 
     '''
 
@@ -23,17 +27,61 @@ class Snatcher():
         self.manage = library.Manage()
         return
 
-    def auto_grab(self, movie, minscore=0):
+    def grab_all(self):
+        ''' Grabs best result for all movies in library
+
+        Automatically determines which movies can be grabbed or re-grabbed and
+            executes self.best_release() to find best result then sends release
+            dict to self.download()
+
+        Does not return
+        '''
+
+        today = datetime.datetime.today()
+        keepsearching = core.CONFIG['Search']['keepsearching']
+        keepsearchingscore = core.CONFIG['Search']['keepsearchingscore']
+        keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
+        keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
+
+        logging.info('############ Running automatic snatcher for all movies ############')
+        movies = self.sql.get_user_movies()
+        if not movies:
+            return False
+        for movie in movies:
+            status = movie['status']
+            if status == 'Disabled':
+                continue
+            title = movie['title']
+            year = movie['year']
+
+            if status == 'Found':
+                logging.info('{} status is Found. Running automatic snatcher.'.format(title))
+                best_release = self.best_release(movie)
+                if best_release:
+                    self.download(best_release)
+                continue
+
+            if status == 'Finished' and keepsearching is True:
+                finished_date = movie['finished_date']
+                finished_date_obj = datetime.datetime.strptime(finished_date, '%Y-%m-%d').date()
+                if finished_date_obj + keepsearchingdelta >= today:
+                    minscore = movie['finished_score'] + keepsearchingscore
+                    logging.info('{} {} was marked Finished on {}. Checking for a better release (min score {}).'.format(title, year, finished_date, minscore))
+                    self.best_release(movie, minscore=minscore)
+                    continue
+                else:
+                    continue
+            else:
+                continue
+        logging.info('######### Automatic search/snatch complete #########')
+
+    def best_release(self, movie, minscore=0):
         ''' Grabs the best scoring result that isn't 'Bad'
-        title: str title of movie
-        year: str year of movie release
-        imdbid: str imdb id #
-        quality: str name of quality profile, used to determine sort order
+        movie: dict of movie info from local db
 
-        This simply picks the best release, actual snatching is
-            handled by self.snatch()
+        Picks the best release and calls self.download() with release dict
 
-        Returns True or False if movie is snatched
+        Returns dict of search result or None
         '''
 
         try:
@@ -44,11 +92,12 @@ class Snatcher():
             release_date = movie['release_date']
         except Exception as e: #noqa
             logging.error('Invalid movie data.', exc_info=True)
+            return None
 
         search_results = self.sql.get_search_results(imdbid, quality)
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results.'.format(imdbid))
-            return False
+            return None
 
         # Filter out any results we don't want to grab
         search_results = [i for i in search_results if i['type'] != 'import']
@@ -59,46 +108,46 @@ class Snatcher():
 
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results for enabled downloader.'.format(imdbid))
-            return False
+            return None
 
         # Check if we are past the 'waitdays'
-        today = datetime.today()
-        release_weeks_old = (today - datetime.strptime(release_date, '%Y-%m-%d')).days / 7
+        today = datetime.datetime.today()
+        release_weeks_old = (today - datetime.datetime.strptime(release_date, '%Y-%m-%d')).days / 7
 
-        if core.CONFIG['Search']['skipwait'] and release_weeks_old < core.CONFIG['Search']['skipwaitweeks']:
-            logging.info('{} released {} weeks ago, checking age of search results.'.format(title, release_weeks_old))
-            wait_days = core.CONFIG['Search']['waitdays']
+        if core.CONFIG['Search']['skipwait']:
+            if release_weeks_old < core.CONFIG['Search']['skipwaitweeks']:
+                logging.info('{} released only {} weeks ago, checking age of search results.'.format(title, release_weeks_old))
 
-            earliest_found = min([x['date_found'] for x in search_results])
-            date_found = datetime.strptime(earliest_found, '%Y-%m-%d')
+                wait_days = core.CONFIG['Search']['waitdays']
+                earliest_found = min([x['date_found'] for x in search_results])
+                date_found = datetime.datetime.strptime(earliest_found, '%Y-%m-%d')
+                if (today - date_found).days < wait_days:
+                    logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
+                    return None
+            else:
+                logging.info('{} released {} weeks ago, skipping wait and grabbing immediately.'.format(title, release_weeks_old))
 
-            if (today - date_found).days < wait_days:
-                logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
-                return False
-        else:
-            logging.info('{} released {} weeks ago, grabbing immediately.'.format(title, release_weeks_old))
-
-        # Since seach_results comes back in order of score we can go
-        # through in order until we find the first Available result
-        # and grab it.
+        # Since seach_results comes back in order of score we can go through in
+        # order until we find the first Available result and grab it.
         logging.info('Selecting best result for {}'.format(imdbid))
         for result in search_results:
-            result = dict(result)
+            result = dict(result)  # TODO why?
             status = result['status']
             result['year'] = year
 
-            if result['status'] == 'Available' and result['score'] > minscore:
-                self.snatch(result)
-                return True
+            if status == 'Available' and result['score'] > minscore:
+                return result  # self.download(result)
             # if doing a re-search, if top ranked result is Snatched we have nothing to do.
-            if status in ('Snatched', 'Finished'):
+            elif status in ('Snatched', 'Finished'):
                 logging.info('Top-scoring release for {} has already been snatched.'.format(imdbid))
-                return False
+                return None
+            else:
+                continue
 
-        logging.warning('Unable to automatically grab {}, no Available results.'.format(imdbid))
-        return False
+        logging.warning('No Available results for {}.'.format(imdbid))
+        return None
 
-    def snatch(self, data):
+    def download(self, data):
         '''
         Takes single result dict and sends it to the active downloader.
         Returns response from download.
