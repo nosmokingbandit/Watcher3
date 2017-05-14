@@ -88,7 +88,7 @@ class QBittorrent(object):
             return response['save_path']
         except Exception as e:
             logging.error('QBittorrent unable to get download dir.', exc_info=True)
-            return {'response': False, 'error': str(e)}
+            return None
 
     @staticmethod
     def get_torrents(base_url):

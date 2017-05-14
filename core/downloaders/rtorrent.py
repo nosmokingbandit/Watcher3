@@ -103,8 +103,7 @@ class rTorrentSCGI(object):
             mc.d.custom5.set(downloadid, '1')
             mc.d.delete_tied(downloadid)
             mc.d.erase(downloadid)
-            for i in mc():
-                print(i)
+            mc()
             return True
         except Exception as e:
             logging.error('Unable to cancel download.', exc_info=True)

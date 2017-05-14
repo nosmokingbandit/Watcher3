@@ -72,7 +72,6 @@ class Url(object):
 
         if post_data:
             kwargs['data'] = post_data
-            print(kwargs)
             r = requests.post(url, **kwargs)
         else:
             r = requests.get(url, **kwargs)
