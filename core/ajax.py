@@ -87,6 +87,7 @@ class Ajax(object):
             search/grab method in separate thread
 
         '''
+        data = json.loads(data)
 
         def thread_search_grab(data):
             imdbid = data['imdbid']
