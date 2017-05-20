@@ -124,8 +124,7 @@ class NewzNabProvider(object):
 
     def _make_item_dict(self, item):
         ''' Converts parsed xml into dict.
-        :param item: string of xml nzb information
-        kind: str 'nzb' or 'torrent' depending on type of feed
+        item: obj elementtree parse object of xml information
 
         Helper function for parse_newznab_xml().
 
@@ -139,7 +138,7 @@ class NewzNabProvider(object):
         Returns dict.
         '''
 
-        item_keep = ('title', 'link', 'guid', 'size', 'pubDate', 'comments')
+        item_keep = ('title', 'link', 'guid', 'size', 'pubDate', 'comments', 'description')
         d = {}
         permalink = True
         for ic in item:
@@ -158,6 +157,9 @@ class NewzNabProvider(object):
                 continue
             if 'newznab' in ic.tag and ic.attrib['name'] == 'imdb':
                 d['imdbid'] = 'tt{}'.format(ic.attrib['value'])
+
+        if not d.get('title'):
+            d['title'] = d.get('description', "")
 
         d['size'] = int(d['size'])
         if not d.get('imdbid'):
