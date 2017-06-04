@@ -421,9 +421,9 @@ class Ajax(object):
         '''
 
         def server_restart():
-            cwd = os.getcwd()
-            cherrypy.engine.restart()
-            os.chdir(cwd)  # again, for the daemon
+            cherrypy.engine.stop()
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
             return
 
         def server_shutdown():
