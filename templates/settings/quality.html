@@ -12,11 +12,8 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
         </div>
         %else:
 
-
             <div class="col-md-6 input-group">
-                <span class="input-group-item">
-                    <input type="text" id="name" class="form-control" value="${name}">
-                </span>
+                <input type="text" id="name" class="form-control" value="${name}">
                 <span class="input-group-btn">
                     <a class="btn btn-danger pull-right" onclick="delete_profile(event, this)">
                         <i class="mdi mdi-delete delete_profile"></i>

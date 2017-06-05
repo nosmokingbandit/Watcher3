@@ -18,3 +18,7 @@ div.panel i{
 div.panel ul li{
     margin: 0.25em 0;
 }
+
+form#profiles .panel input{
+    margin: 0 0 1em 0;
+}
