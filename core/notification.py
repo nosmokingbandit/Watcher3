@@ -29,6 +29,7 @@ class Notification(object):
                    }
 
         settings = {'type': type_,
+                    'delay': 0
                     }
 
         options.update(data)
@@ -42,18 +43,20 @@ class Notification(object):
 
         # if this is an update notif, remove other update notifs first
         if options['type'] == 'update':
-            settings['delay'] = 0
             for i, v in enumerate(core.NOTIFICATIONS):
                 if v[0]['type'] == 'update':
                     core.NOTIFICATIONS[i] = None
 
-        new_notif = (options, settings)
+        new_notif = [options, settings]
 
         # if there is a None in the list, overwrite it. If not, just append
         for i, v in enumerate(core.NOTIFICATIONS):
             if v is None:
+                new_notif[1]['index'] = i
                 core.NOTIFICATIONS[i] = new_notif
                 return
+
+        new_notif[1]['index'] = len(core.NOTIFICATIONS)
         core.NOTIFICATIONS.append(new_notif)
 
         return
@@ -76,7 +79,10 @@ class Notification(object):
         '''
 
         logging.debug('Remove notification #{}.'.format(index))
-        core.NOTIFICATIONS[int(index)] = None
+        try:
+            core.NOTIFICATIONS[int(index)] = None
+        except Exception as e:
+            pass
 
         logging.debug('Cleaning notification queue.')
         while len(core.NOTIFICATIONS) > 0 and core.NOTIFICATIONS[-1] is None:

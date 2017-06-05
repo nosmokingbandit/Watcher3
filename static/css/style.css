@@ -18,6 +18,7 @@ i.mdi{
     vertical-align: middle;
     user-select: none;
     cursor: pointer;
+    transition: none;
 }
 
 i.mdi.animated{
@@ -68,6 +69,11 @@ ul.nav > li > a{
     padding: 0 1em;
     line-height: 3em;
 }
+
+.navbar div.navbar-right > a.btn{
+    font-size: 1.25em;
+}
+
 
 /* Notification Animations */
 .animated{

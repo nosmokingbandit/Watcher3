@@ -59,7 +59,7 @@ class PopularMoviesFeed(object):
 
         existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
 
-        movies_to_add = [i for i in movies if i['imdbid'] not in existing_movies]
+        movies_to_add = [i for i in movies if i['imdb_id'] not in existing_movies]
 
         # do quick-add procedure
         for movie in movies_to_add:

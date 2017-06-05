@@ -22,13 +22,13 @@
                 <div class="col-md-12">
                     <label>Log Files</label>
                     <div class="input-group">
-                        <select id="log_file" class="input-group-item form-control">
+                        <select id="log_file" class="form-control">
                             %for log in logfiles:
                             <option value="${log}">${log}</option>
                             %endfor
                         </select>
                         <span class="input-group-btn">
-                            <a class="btn btn-info" onclick="view_log()">
+                            <a id="view" class="btn btn-info" onclick="view_log()">
                                 <i class="mdi mdi-clipboard-text"></i>
                                 View
                             </a>

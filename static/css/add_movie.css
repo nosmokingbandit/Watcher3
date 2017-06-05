@@ -25,6 +25,7 @@ li.movie img{
     width: 100%;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
     cursor: pointer;
+    margin-bottom: -0.25em;
 }
 
 li.movie div.movie_actions{

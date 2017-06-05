@@ -137,14 +137,12 @@ class App(object):
 
         page = path[0]
 
-        server_address = '{}:{}/{}'.format(core.CONFIG['Server']['serverhost'], core.CONFIG['Server']['serverport'], core.CONFIG['Server']['customwebrootpath'])
-
         if page == 'shutdown':
-            return App.shutdown_template.render(url_base=core.URL_BASE, head=self.head(), server_address=server_address)
+            return App.shutdown_template.render(url_base=core.URL_BASE, head=self.head())
         if page == 'restart':
-            return App.restart_template.render(url_base=core.URL_BASE, head=self.head(), server_address=server_address)
+            return App.restart_template.render(url_base=core.URL_BASE, head=self.head())
         if page == 'update':
-            return App.update_template.render(url_base=core.URL_BASE, head=self.head(), updating=core.UPDATING, server_address=server_address)
+            return App.update_template.render(url_base=core.URL_BASE, head=self.head(), updating=core.UPDATING)
 
     @cherrypy.expose
     def error_page_404(self, *args, **kwargs):

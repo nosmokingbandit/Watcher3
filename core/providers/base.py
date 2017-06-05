@@ -211,8 +211,6 @@ class NewzNabProvider(object):
 
         url = '{}/api?apikey={}&t=search&id=tt0063350'.format(indexer, apikey)
 
-        print(url)
-
         try:
             r = Url.open(url)
             if r.status_code != 200:

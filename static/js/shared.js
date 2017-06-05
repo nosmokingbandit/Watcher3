@@ -6,7 +6,9 @@ $(document).ready(function() {
         notifs = JSON.parse($("textarea#notifications_json").text());
 
         $.each(notifs, function(i, notif){
-            $.notify(notif[0], notif[1]);
+            notif[1]["onClose"] = remove_notif;
+            var n = $.notify(notif[0], notif[1]);
+            n["$ele"].attr("data-index", notif[1]["index"]);
         });
     }
 });
@@ -19,6 +21,17 @@ $.notifyDefaults({type: "success",
                             exit: 'animated fadeOutDown'
                             }
                     });
+
+function remove_notif(){
+    var index = $(this).data("index");
+    if(index === undefined){
+        return false;
+    }
+    $.post(window.url_base + "/ajax/notification_remove", {
+        "index": index
+    })
+}
+
 
 function format_template(t, d){
     for(var p in d){

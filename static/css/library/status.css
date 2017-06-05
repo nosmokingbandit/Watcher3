@@ -149,6 +149,14 @@ div.modal-body div.stats > span > b{
     white-space: nowrap;
 }
 
+div.modal-body div#movie_actions a{
+    white-space: normal;
+}
+
+div.modal-body div#movie_actions i{
+    font-size: 1.5em;
+}
+
 div.modal-body div#movie_actions,
 div.modal-body div#movie_settings{
     margin: 0 0 1em 0;

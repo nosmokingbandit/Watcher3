@@ -18,7 +18,11 @@ form input[type="time"]{
 
 label{
     display: inline-block;
-    margin: 1.5em 0 0.5em 0;
+    margin: 0 0 0.5em 0;
+}
+
+form > div{
+    margin: 0 0 1em 0;
 }
 
 .list-group-item{

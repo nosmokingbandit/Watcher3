@@ -184,7 +184,7 @@ function _results_table(results){
                         </span>
                     </div>
                     <div class="result_info col-md-6 btn-group btn-group-justified">
-                        <span class="btn btn-sm status ${result["status"]}">${result["status"]}</span>
+                        <span class="btn btn-sm label status ${result["status"]}">${result["status"]}</span>
                         <span class="btn btn-sm">${result["type"]}</span>
                         <span class="btn btn-sm">${result["indexer"]}</span>
                         <span class="btn btn-sm">${result["size"]}</span>

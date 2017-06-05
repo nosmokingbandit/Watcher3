@@ -31,18 +31,14 @@
                         <span class="input-group-addon box_box">
                             <i id="customwebroot" class="mdi mdi-checkbox-blank-outline c_box" value="${config['customwebroot']}"></i>
                         </span>
-                        <div class="input-group-item">
-                            <input type="text" id="customwebrootpath" class="form-control" value="${config['customwebrootpath']}">
-                        </div>
+                        <input type="text" id="customwebrootpath" class="form-control" value="${config['customwebrootpath']}">
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <label>Api Key</label>
                     <div class="input-group">
-                        <span class="input-group-item">
-                            <input type="text" id="apikey" class="form-control" value="${config['apikey']}">
-                        </span>
+                        <input type="text" id="apikey" class="form-control" value="${config['apikey']}">
                         <span class="input-group-btn">
                             <a class="btn btn-primary" onclick="new_key(event)">
                                 <i class="mdi mdi-key-variant"></i>
@@ -135,9 +131,7 @@
                 <div class="col-md-6">
                     <label>Update Check Frequency</label>
                     <div class="input-group">
-                        <span class="input-group-item">
-                            <input type="number" id="checkupdatefrequency" class="form-control" min="4" placeholder="24 "value="${config['checkupdatefrequency']}">
-                        </span>
+                        <input type="number" id="checkupdatefrequency" class="form-control" min="4" placeholder="24 "value="${config['checkupdatefrequency']}">
                         <span class="input-group-addon">
                             Hours
                         </span>

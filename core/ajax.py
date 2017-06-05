@@ -719,7 +719,6 @@ class Ajax(object):
                     progress += 1
 
         for movie in movie_data:
-            print(movie)
             if movie['imdbid']:
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'

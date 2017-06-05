@@ -24,7 +24,7 @@ function update_check(event, elem){
         response = JSON.parse(r);
 
         if(response["status"] == "current"){
-            $.notify({message: 'No Updates Available.'})
+            $.notify({message: 'No Updates Available.'}, {type: 'primary'})
         } else if(response["status"] == "error"){
             $.notify({message: response["error"]}, {type: "danger"});
         } else if(response["status"] == "behind"){

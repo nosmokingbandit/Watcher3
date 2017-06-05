@@ -1,3 +1,5 @@
+// out: false
+
 @-webkit-keyframes "progress-bar-stripes" {
 	from {
 		background-position: 2.5em 0;
@@ -216,7 +218,7 @@ pre {
 	word-wrap: break-word;
 	color: @font-color-main;
 	background-color: @bg-color-accent;
-	border: 1px solid @border-color-main-dark;
+	border: 1px solid @border-color-input;
 	border-radius: 0;
 	code {
 		padding: 0;
@@ -2064,14 +2066,14 @@ caption {
 	}
 }
 .striped >*:nth-of-type(odd) {
-	background-color: @bg-color-accent;
+	background-color: @bg-color-stripe;
 }
 
 .table-striped {
 	>tbody {
 		>tr {
 			&:nth-of-type(odd) {
-				background-color: @bg-color-accent;
+				background-color: @bg-color-stripe;
 			}
 		}
 	}
@@ -2241,12 +2243,11 @@ output {
 	min-height: 3em;
 	padding: 0.75em 1em;
 	font-size: 1em;
-
+	border-radius: @radius-button;
 	color: @font-color-main;
-	background-color: @bg-color-main;
+	background-color: @bg-color-input;
 	background-image: none;
-	border: 1px solid @border-color-main-dark;
-	border-radius: 0;
+	border: 1px solid @border-color-input;
 	&:focus {
 		border-color: @border-color-input-active;
 		outline: none;
@@ -2557,7 +2558,6 @@ input[type="checkbox"].disabled {
 	height: 2em;
 	padding: 0.25em 0.75em;
 	font-size: 0.75em;
-	border-radius: 0;
 	&+.form-control-feedback {
 		width: 2em;
 		height: 2em;
@@ -2965,6 +2965,7 @@ select[multiple].input-lg {
 	}
 }
 .btn {
+	border-radius: @radius-button;
 	display: inline-block;
 	margin-bottom: 0;
 	font-weight: normal;
@@ -2979,7 +2980,6 @@ select[multiple].input-lg {
 	padding: 0.75em;
 	font-size: 1em;
 	height: 3em;
-	border-radius: 0;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -3000,6 +3000,7 @@ select[multiple].input-lg {
 	}
 	&:hover {
 		text-decoration: none;
+		z-index: 1;
 	}
 	.caret {
 		margin-left: 0;
@@ -3923,7 +3924,7 @@ tbody.collapse.in {
 	font-size: 1em;
 	text-align: left;
 	background-color: @bg-color-main;
-	border: 1px solid @border-color-main-dark;
+	border: 1px solid @border-color-dropdown;
 	border-radius: 0;
 	-webkit-background-clip: padding-box;
 	background-clip: padding-box;
@@ -3942,13 +3943,13 @@ tbody.collapse.in {
 			&:hover {
 				text-decoration: none;
 				color: @font-color-dropdown-hover;
-				background-color: @bg-color-dropdown;
+				background-color: @bg-color-dropdown-hover;
 				background-image: none;
 			}
 			&:focus {
 				text-decoration: none;
 				color: @font-color-dropdown-hover;
-				background-color: @bg-color-dropdown;
+				background-color: @bg-color-dropdown-hover;
 				background-image: none;
 			}
 		}
@@ -4509,8 +4510,8 @@ select[multiple].input-group-sm {
 	color: @font-color-main;
 	text-align: center;
 	background-color: @bg-color-dark;
-	border: 1px solid @border-color-main-dark;
-	border-radius: 0;
+	border: 1px solid @border-color-input;
+	border-radius: @radius-button;
 	&:not(:first-child) {
 		&:not(:last-child) {
 			border-radius: 0;
@@ -4929,7 +4930,7 @@ select[multiple].input-group-sm {
 	}
 }
 .navbar-toggle {
-	color: @font-color-button;
+	color: @font-color-navbar;
 	position: relative;
 	float: right;
 	margin-right: 1em;
@@ -7230,15 +7231,15 @@ button.close {
 	bottom: 0;
 	left: 0;
 	z-index: 1040;
-	background-color: @bg-color-default-hover;
+	background-color: #000000;
 }
 .modal-backdrop.fade {
 	opacity: 0;
 	filter: alpha(opacity=0);
 }
 .modal-backdrop.in {
-	opacity: 0.5;
-	filter: alpha(opacity=50);
+	opacity: 0.75;
+	filter: alpha(opacity=75);
 }
 .modal-header {
 	padding: 1em;
@@ -7453,7 +7454,7 @@ button.close {
 	background-color: @bg-color-main;
 	-webkit-background-clip: padding-box;
 	background-clip: padding-box;
-	border: 1px solid @border-color-main-dark;
+	border: 1px solid @border-color-input;
 	border-radius: 0;
 	color: @font-color-main;
 	>.arrow {

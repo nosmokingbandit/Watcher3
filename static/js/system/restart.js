@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    var address = $("meta[name='server_address']").attr("content");
     $thinker = $("div#thinker");
     $thinker.show();
 
@@ -20,7 +19,7 @@ $(document).ready(function () {
             })
             .done(function(r){
                 if(r != "states.STOPPING"){
-                    window.location = address;
+                    window.location = url_base+"/library/status/";
                 }
             });
         } else {

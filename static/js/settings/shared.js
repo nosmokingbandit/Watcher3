@@ -37,7 +37,7 @@ $(document).ready(function(){
     });
 
     // Clear empty highlight on input
-    $("body").on("click", "input", function(){
+    $("body").on("focus", "input", function(){
         $(this).removeClass("empty");
     })
 
