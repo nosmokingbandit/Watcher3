@@ -1,0 +1,14 @@
+table > tbody > tr{
+    text-align: center;
+    transition: none;
+}
+
+table > tbody > tr > td:first-child,
+table > tbody > tr > td:last-child{
+    width: 1%;
+}
+
+
+form[data-category="torrent"] div.input-group{
+    margin-top: 1em;
+}

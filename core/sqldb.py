@@ -253,6 +253,7 @@ class SQL(object):
 
     def get_movie_details(self, idcol, idval):
         ''' Returns dict of single movie details from MOVIES.
+
         :param idcol: str identifying column
         :param idval: str identifying value
 

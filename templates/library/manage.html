@@ -1,0 +1,259 @@
+<%
+    applied_profiles = {i['quality'] for i in movies}
+%>
+
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/library/manage.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/lib/echo.min.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/manage.js?v=06.02" type="text/javascript"></script>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <div class="well clearfix">
+                <div class="col-md-6">
+                    <div class="btn-group">
+                        <a class="btn btn-default" onclick="select_all()" title="Select All">
+                            <i class="mdi mdi-checkbox-multiple-marked"></i>
+                        </a>
+                        <a class="btn btn-default" onclick="select_none()" title="De-Select All">
+                            <i class="mdi mdi-checkbox-multiple-blank-outline"></i>
+                        </a>
+                        <a class="btn btn-default" onclick="select_inverse()" title="Invert Selection">
+                            <i class="mdi mdi-minus-box"></i>
+                        </a>
+                        <div class="btn-group">
+                            <a class="dropdown-toggle form-control btn btn-default" data-toggle="dropdown" aria-expanded="false">
+                                Attribute
+                            <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-cat">Status</li>
+                                <li>
+                                    <a data-key="status" data-value="Waiting" onclick="select_attrib(event, this)">Waiting</a>
+                                </li>
+                                <li>
+                                    <a data-key="status" data-value="Wanted" onclick="select_attrib(event, this)">Wanted</a>
+                                </li>
+                                <li>
+                                    <a data-key="status" data-value="Found" onclick="select_attrib(event, this)">Found</a>
+                                </li>
+                                <li>
+                                    <a data-key="status" data-value="Snatched" onclick="select_attrib(event, this)">Snatched</a>
+                                </li>
+                                <li>
+                                    <a data-key="status" data-value="Finished" onclick="select_attrib(event, this)">Finished</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li class="dropdown-cat">Quality Profile</li>
+                                %for i in applied_profiles:
+                                <li>
+                                    <a data-key="quality" data-value="${i}" onclick="select_attrib(event, this)">${i}</a>
+                                </li>
+                                %endfor
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="btn-group">
+                        <a class="btn btn-primary" data-toggle="modal" data-target="#modal_metadata">
+                            <i class="mdi mdi-tag-text-outline" data-toggle="tooltip" title="Update Metadata"></i>
+                        </a>
+                        <a class="btn btn-info" data-toggle="modal" data-target="#modal_quality">
+                            <i class="mdi mdi-video" data-toggle="tooltip" title="Change Quality&nbsp;Profile"></i>
+                        </a>
+                        <a class="btn btn-warning" data-toggle="modal" data-target="#modal_reset">
+                            <i class="mdi mdi-backup-restore" data-toggle="tooltip" title="Reset"></i>
+                        </a>
+                        <a class="btn btn-danger" data-toggle="modal" data-target="#modal_remove">
+                            <i class="mdi mdi-delete" data-toggle="tooltip" title="Remove"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <ul id="movie_list" class="striped">
+                %for movie in movies:
+                <li class="movie" imdbid="${movie['imdbid']}">
+                    <img data-echo="${url_base}/static/images/posters/${movie['imdbid']}.jpg" src="${url_base}/static/images/missing_poster.jpg">
+                    <i class="mdi mdi-checkbox-blank-outline c_box" data-imdbid="${movie['imdbid']}" data-tmdbid="${movie['tmdbid']}" value="False"></i>
+                    <span class="label status ${movie['status']}">${movie['status']}</span>
+                    <span class="label label-info quality">${movie['quality']}</span>
+                    <br/>
+                    <span class="title">${movie['title']}</span>
+                    <span class="year">${movie['year']}</span>
+                </li>
+
+                %endfor
+            </ul>
+
+
+        </div>
+
+    <!-- Modals for Management Actions -->
+        <div class="modal fade" id="modal_metadata">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Refresh Metadata</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Metadata and posters will be re-downloaded for selected movies.
+                            <br/>
+                            This may take several minutes.
+                        </p>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <table class="table table-striped hidden">
+                            <thead>
+                                <tr>
+                                    <th>IMDB ID</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-primary" onclick="refresh_metadata(event, this)">Refresh Metadata</a>
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_quality">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Change Quality Profile</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Quality profiles will be changed for selected movies.
+                            <br/>
+                            <select class="form-control" id="quality" value="">
+                                <option value="" selected="selected" disabled>Choose a Quality Profile</option>
+                                %for i in profiles:
+                                <option value="${i}">${i}</option>
+                                %endfor
+                        </select>
+                        </p>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <table class="table table-striped hidden">
+                            <thead>
+                                <tr>
+                                    <th>IMDB ID</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-info" onclick="change_quality(event, this)">Change Quality Profile</a>
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_reset">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Reset Movies</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Selected movies will be reset.
+                            <br/></br/>
+                            Quality Profile will be set to Default.
+                            <br/>
+                            Status will be set to wanted.
+                            <br/>
+                            Search Results will be removed (including Imports).
+                            <br/></br/>
+                            This cannot be undone.
+                        </p>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <table class="table table-striped hidden">
+                            <thead>
+                                <tr>
+                                    <th>IMDB ID</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-warning" onclick="reset_movies(event, this)">Reset Movies</a>
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_remove">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Remove Movies</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Selected movies will be removed from the library.
+                            <br/></br/>
+                            This will not delete movie files.
+                            <br/></br/>
+                            This cannot be undone.
+                        </p>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <table class="table table-striped hidden">
+                            <thead>
+                                <tr>
+                                    <th>IMDB ID</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-danger" onclick="remove_movies(event, this)">Remove Movies</a>
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </body>
+</html>

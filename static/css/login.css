@@ -1,32 +1,41 @@
-body, html{
-    background-color: #080f18;
+body{
     width: 100%;
     height: 100%;
-    margin: 0;
+    margin-top: 0;
     padding: 0;
-
 }
 
 div#content{
-    margin: 0 auto 0 auto;
-    padding: 25% 0 0 0;
+    height: 100%;
+    background-image: url('../images/logo_big.png');
+    background-position: 50% 25%;
+    background-repeat: no-repeat;
+    transition: 2s;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}
+
+div#content > div{
+    margin: 0 auto;
+}
+
+div.input-group{
+    margin-top: 1em;
+}
+
+.message{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 70%;
     text-align: center;
 }
 
-img#logo{
-    margin: 0 auto 0 auto;
-}
-
-input[type="text"], input[type="password"]{
-    height: 1em;
-    width: 12em;
-    padding: 8px;
-    margin: 0.5em;
-    outline: none;
-    border-radius: 4px;
-}
-
-i{
-    margin-top: 0.5em;
-    font-size: 2.25em;
+.message > i{
+    font-size: 1.5em;
 }

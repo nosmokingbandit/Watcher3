@@ -1,0 +1,63 @@
+label{
+    display: inline-block;
+    margin: 1.5em 0 0.5em 0;
+}
+
+div#server_info,
+a#start_scan,
+a#import_library,
+div.progress,
+div#import_success,
+div#import_error{
+    transition: none;
+}
+
+table{
+    line-height: 2.25em;
+}
+
+select{
+    max-width: 10em;
+}
+
+table i.mdi{
+    line-height: 1.75em;
+}
+
+table > thead > tr > th.shrink{
+    width: 1%;
+
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+div#remote_actions{
+    margin-top: 1em;
+}
+
+ul#modal_file_list{
+    margin-top: 1em;
+    clear: both;
+}
+
+ul#modal_file_list > li{
+    cursor: pointer;
+}

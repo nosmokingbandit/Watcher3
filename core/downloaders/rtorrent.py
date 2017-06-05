@@ -146,7 +146,7 @@ class rTorrentHTTP(object):
             return True
         except Exception as e:
             logging.error('rTorrent connection test failed.', exc_info=True)
-            return str(e)
+            return str(e)[1:-1]
 
         return
 

@@ -10,6 +10,31 @@ import logging
 logging = logging.getLogger(__name__)
 
 
+def list_plugins():
+    ''' Finds all plugins in folder
+
+    Returns dict {'added': [('plugin.py', 'config.conf')], 'snatched': [('plugin.py', None)], 'finished': []}
+    '''
+
+    plugins = {'added': [], 'snatched': [], 'finished': []}
+
+    for folder in plugins.keys():
+        try:
+            p_dir = os.path.join(core.PLUGIN_DIR, folder)
+
+            a = [i for i in os.listdir(p_dir) if i.endswith('.py') and not i.startswith('.')]
+
+            for p in a:
+                c_file = '{}.conf'.format(p[:-3])
+                c = c_file if os.path.isfile(os.path.join(p_dir, c_file)) else None
+                plugins[folder].append((p, c))
+
+        except Exception as e:
+            logging.error('Unable to read {} plugins folder'.format(folder), exc_info=True)
+
+    return plugins
+
+
 class Plugins(object):
 
     def added(self, *args):

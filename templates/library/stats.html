@@ -1,0 +1,78 @@
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/library/stats.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/lib/morris.css?v=06.02" rel="stylesheet">
+        <script type="text/javascript" src="${url_base}/static/js/lib/raphael.min.js?v=06.02"></script>
+        <script type="text/javascript" src="${url_base}/static/js/lib/morris.min.js?v=06.02"></script>
+        <script type="text/javascript" src="${url_base}/static/js/library/stats.js?v=06.02"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <div id="chart_status" class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Status
+                    </div>
+                    <div class="chart">
+                    </div>
+                </div>
+            </div>
+            <div id="chart_profiles" class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Quality Profiles
+                    </div>
+                    <div class="chart">
+                    </div>
+                </div>
+            </div>
+            <div id="chart_years" class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Movies By Year
+                    </div>
+                    <div class="chart">
+                    </div>
+                </div>
+            </div>
+            <div id="chart_added" class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Library Growth
+                    </div>
+                    <div class="chart">
+                    </div>
+                </div>
+            </div>
+            <div id="chart_scores" class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Scores
+                    </div>
+                    <div class="chart">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status_colors" class="hidden">
+            <span class="waiting"></span>
+            <span class="wanted"></span>
+            <span class="found"></span>
+            <span class="snatched"></span>
+            <span class="finished"></span>
+        </div>
+
+        <div id="profile_colors" class="hidden">
+            <span class="bg-primary"></span>
+            <span class="bg-success"></span>
+            <span class="bg-info"></span>
+        </div>
+
+        </textarea>
+
+    </body>
+</html>

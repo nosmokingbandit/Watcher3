@@ -1,0 +1,95 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <i class="mdi mdi-menu"></i>
+            </button>
+            <img src="${url_base}/static/images/logo.png" alt="" class="navbar-brand">
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+            <ul class="nav navbar-nav">
+                <li class="dropdown ${'active' if current == 'status' else ''}">
+                    <a href="${url_base}/library/status" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        Library
+                        <i class="mdi mdi-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="${url_base}/library/status">
+                                <i class="mdi mdi-bookmark"></i> Status
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/library/manage">
+                                <i class="mdi mdi-briefcase"></i> Manage
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/library/import">
+                                <i class="mdi mdi-archive"></i> Import
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/library/stats">
+                                <i class="mdi mdi-chart-bar"></i> Stats
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="${'active' if current == 'add_movie' else ''}">
+                    <a href="${url_base}/add_movie">Add Movie</a>
+                </li>
+                <li class="dropdown ${'active' if current == 'settings' else ''}">
+                    <a href="${url_base}/settings/server" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        Settings
+                        <i class="mdi mdi-chevron-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="${url_base}/settings/server">
+                                <i class="mdi mdi-server"></i> Server
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/search">
+                                <i class="mdi mdi-magnify"></i> Search
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/quality">
+                                <i class="mdi mdi-video"></i> Quality
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/indexers">
+                                <i class="mdi mdi-sitemap"></i> Indexers
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/downloader">
+                                <i class="mdi mdi-download"></i> Downloader
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/postprocessing">
+                                <i class="mdi mdi-file-video"></i> Postprocessing
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/plugins">
+                                <i class="mdi mdi-puzzle"></i> Plugins
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/settings/logs">
+                                <i class="mdi mdi-clipboard-text"></i> Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

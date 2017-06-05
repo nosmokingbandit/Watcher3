@@ -272,49 +272,54 @@ class ImportPlexLibrary(object):
         parsed_movies = []
         incomplete = []
         today = str(datetime.date.today())
-        for movie in movies:
-            complete = True
-            parsed = {}
+        try:
+            for movie in movies:
+                complete = True
+                parsed = {}
 
-            db_id = movie['MetaDB Link'].split('/')[-1]
-            if db_id.startswith('tt'):
-                if db_id in library:
-                    continue
+                db_id = movie['MetaDB Link'].split('/')[-1]
+                if db_id.startswith('tt'):
+                    if db_id in library:
+                        continue
+                    else:
+                        parsed['imdbid'] = db_id
+                elif db_id.isdigit():
+                    parsed['tmdbid'] = db_id
                 else:
-                    parsed['imdbid'] = db_id
-            elif db_id.isdigit():
-                parsed['tmdbid'] = db_id
-            else:
-                complete = False
+                    parsed['imdbid'] = ''
+                    complete = False
 
-            parsed['title'] = movie['Title']
-            parsed['year'] = movie['Year']
+                parsed['title'] = movie['Title']
+                parsed['year'] = movie['Year']
 
-            parsed['added_date'] = parsed['finished_date'] = today
+                parsed['added_date'] = parsed['finished_date'] = today
 
-            parsed['audiocodec'] = movie['Audio Codec']
-            if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
-                parsed['audiocodec'] = 'DTS'
+                parsed['audiocodec'] = movie['Audio Codec']
+                if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
+                    parsed['audiocodec'] = 'DTS'
 
-            width = int(movie['Width'])
-            if width > 1920:
-                parsed['resolution'] = 'BluRay-4K'
-            elif 1920 >= width > 1440:
-                parsed['resolution'] = 'BluRay-1080P'
-            elif 1440 >= width > 720:
-                parsed['resolution'] = 'BluRay-720P'
-            else:
-                parsed['resolution'] = 'DVD-SD'
+                width = int(movie['Width'])
+                if width > 1920:
+                    parsed['resolution'] = 'BluRay-4K'
+                elif 1920 >= width > 1440:
+                    parsed['resolution'] = 'BluRay-1080P'
+                elif 1440 >= width > 720:
+                    parsed['resolution'] = 'BluRay-720P'
+                else:
+                    parsed['resolution'] = 'DVD-SD'
 
-            parsed['size'] = int(movie['Part Size as Bytes'])
-            parsed['file'] = movie['Part File']
+                parsed['size'] = int(movie['Part Size as Bytes'])
+                parsed['file'] = movie['Part File']
 
-            if complete:
-                parsed_movies.append(parsed)
-            else:
-                incomplete.append(parsed)
+                if complete:
+                    parsed_movies.append(parsed)
+                else:
+                    incomplete.append(parsed)
+        except Exception as e:
+            logging.error('Error parsing Plex CSV.', exc_info=True)
+            return {'response': False, 'error': 'Unable to parse CSV file.'}
 
-        return {'response': True, 'movies': parsed_movies, 'incomplete': incomplete}
+        return {'response': True, 'complete': parsed_movies, 'incomplete': incomplete}
 
 
 class ImportCPLibrary(object):
@@ -330,7 +335,7 @@ class ImportCPLibrary(object):
         try:
             r = Url.open(url)
         except Exception as e:
-            return {'response': False, 'error': e}
+            return {'response': False, 'error': str(e)}
         if r.status_code != 200:
             return {'response': False, 'error': 'Error {}'.format(r.status_code)}
         try:
@@ -382,6 +387,7 @@ class ImportCPLibrary(object):
             movie['vote_average'] = m['info']['rating']['imdb'][0]
             movie['imdbid'] = m['info']['imdb']
             movie['id'] = m['info']['tmdb_id']
+            movie['release_date'] = m['info']['released']
             movie['alternative_titles'] = {'titles': [{'iso_3166_1': 'US',
                                                        'title': ','.join(m['info']['titles'])
                                                        }]
@@ -439,7 +445,8 @@ class Metadata(object):
                 data['resolution'] = 'DVD-SD'
 
         if data.get('title') and not data.get('imdbid'):
-            tmdbdata = self.tmdb.search('{} {}'.format(data['title'], data.get('year', '')), single=True)
+            title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
+            tmdbdata = self.tmdb.search(title_date, single=True)
             if tmdbdata:
                 data['year'] = tmdbdata['release_date'][:4]
                 data.update(tmdbdata)
@@ -549,9 +556,9 @@ class Metadata(object):
         if not movie.get('imdbid'):
             movie['imdbid'] = 'N/A'
 
-        if movie.get('release_date'):
+        if not movie.get('year') and movie.get('release_date'):
             movie['year'] = movie['release_date'][:4]
-        else:
+        elif not movie.get('year'):
             movie['year'] = 'N/A'
 
         if movie.get('added_date') is None:
@@ -569,14 +576,14 @@ class Metadata(object):
         movie['tmdbid'] = movie['id']
 
         a_t = []
-        for i in movie['alternative_titles']['titles']:
+        for i in movie.get('alternative_titles', {}).get('titles', []):
             if i['iso_3166_1'] == 'US':
                 a_t.append(i['title'])
 
         movie['alternative_titles'] = ','.join(a_t)
 
         dates = []
-        for i in movie['release_dates']['results']:
+        for i in movie.get('release_dates', {}).get('results', []):
             for d in i['release_dates']:
                 if d['type'] == 4:
                     dates.append(d['release_date'])
@@ -590,6 +597,10 @@ class Metadata(object):
         movie['finished_file'] = movie.get('finished_file')
 
         required_keys = ('added_date', 'alternative_titles', 'digital_release_date', 'imdbid', 'tmdbid', 'title', 'year', 'poster', 'plot', 'url', 'score', 'release_date', 'rated', 'status', 'quality', 'addeddate', 'backlog', 'finished_file', 'finished_date')
+
+        for k, v in movie.items():
+            if isinstance(v, str):
+                movie[k] = v.strip()
 
         movie = {k: v for k, v in movie.items() if k in required_keys}
 
@@ -672,7 +683,7 @@ class Manage(object):
         ''' Marks searchresults status
         :param guid: str download link guid
         :param status: str status to set
-        movie_info: dict of movie metadata
+        movie_info: dict of movie metadata  <optional>
 
         If guid is in SEARCHRESULTS table, marks it as status.
 
@@ -720,11 +731,10 @@ class Manage(object):
 
     def markedresults(self, guid, status, imdbid=None):
         ''' Marks markedresults status
+
         :param guid: str download link guid
         :param status: str status to set
         :param imdbid: str imdb identification number   <optional>
-
-        imdbid can be None
 
         If guid is in MARKEDRESULTS table, marks it as status.
         If guid not in MARKEDRSULTS table, created entry. Requires imdbid.
@@ -760,37 +770,6 @@ class Manage(object):
                 logging.warning('Imdbid not supplied or found, unable to add entry to MARKEDRESULTS.')
                 return False
 
-    def mark_bad(self, guid, imdbid=None):
-        ''' Marks search result as Bad
-        :param guid: str download link for nzb/magnet/torrent file.
-        imdbid: str imdbid of movie
-
-        Calls searchresults method to update both db tables
-        Tries to find imdbid if not supplied.
-        If imdbid is available or found, executes self.movie_status()
-
-        Returns bool
-        '''
-
-        if not self.searchresults(guid, 'Bad'):
-            return 'Could not mark guid in SEARCHRESULTS. See logs for more information.'
-
-        # try to get imdbid
-        if imdbid is None:
-            result = self.sql.get_single_search_result('guid', guid)
-            if not result:
-                return False
-            else:
-                imdbid = result['imdbid']
-
-        if not self.movie_status(imdbid):
-            return False
-
-        if not self.markedresults(guid, 'Bad', imdbid=imdbid):
-            return False
-        else:
-            return True
-
     def movie_status(self, imdbid):
         ''' Updates Movie status.
         :param imdbid: str imdb identification number (tt123456)
@@ -798,17 +777,17 @@ class Manage(object):
         Updates Movie status based on search results.
         Always sets the status to the highest possible level.
 
-        Returns bool on success/failure.
+        Returns str new movie status or bool False on failure
         '''
 
         local_details = self.sql.get_movie_details('imdbid', imdbid)
         if local_details:
             current_status = local_details.get('status')
         else:
-            return True
+            return False
 
         if current_status == 'Disabled':
-            return True
+            return 'Disabled'
 
         result_status = self.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
         if result_status is False:
@@ -827,16 +806,18 @@ class Manage(object):
 
         logging.info('Setting MOVIES {} status to {}.'.format(imdbid, status))
         if self.sql.update('MOVIES', 'status', status, 'imdbid', imdbid):
-            return True
+            return status
         else:
             logging.error('Could not set {} to {}'.format(imdbid, status))
             return False
 
     def get_stats(self):
         ''' Gets stats from database for graphing
+        Formats data for use with Morris graphing library
 
-        Returns Dict
+        Returns dict
         '''
+
         stats = {}
 
         status = {'Waiting': 0,
@@ -854,6 +835,7 @@ class Manage(object):
 
         years = {}
         added_dates = {}
+        scores = {}
 
         movies = self.sql.get_user_movies()
 
@@ -884,10 +866,17 @@ class Manage(object):
             else:
                 added_dates[movie['added_date'][:-3]] += 1
 
+            score = round((float(movie['score']) * 2)) / 2
+            if score not in scores:
+                scores[score] = 1
+            else:
+                scores[score] += 1
+
         stats['status'] = [{'label': k, 'value': v} for k, v in status.items()]
         stats['qualities'] = [{'label': k, 'value': v} for k, v in qualities.items()]
         stats['years'] = sorted([{'year': k, 'value': v} for k, v in years.items()], key=lambda k: k['year'])
         stats['added_dates'] = sorted([{'added_date': k, 'value': v} for k, v in added_dates.items() if v is not None], key=lambda k: k['added_date'])
+        stats['scores'] = sorted([{'score': k, 'value': v} for k, v in scores.items()], key=lambda k: k['score'])
 
         return stats
 

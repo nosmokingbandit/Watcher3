@@ -1,0 +1,16 @@
+h1{
+    display: block;
+}
+
+h3{
+    margin-top: 0.75em;
+}
+
+ul.sortable li{
+    margin: 0.5em 0;
+    font-size: 1.25em;
+}
+
+i.edit_conf{
+    margin-left: 1em;
+}

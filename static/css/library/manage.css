@@ -1,0 +1,59 @@
+li.dropdown-cat{
+    text-align: center;
+    font-weight: bold;
+    margin: 0 0 0.5em 0;
+    cursor: default;
+}
+
+
+ul#movie_list{
+    margin: 1.5em 0;
+}
+
+ul#movie_list li{
+    width: 100%;
+    text-align: left;
+    overflow: auto;
+    height: 6em;
+    line-height: 1.75em;
+    position: relative;
+    margin: 0.5em 0;
+}
+
+ul#movie_list li img{
+    height: 6em;
+    box-shadow: none;
+    margin: 0 1em 0 0;
+    float: left;
+    opacity: 0;
+    transition: 1s;
+}
+
+ul#movie_list i{
+    font-size: 1.5em;
+    cursor: pointer;
+    width: 1.0em;
+    text-align: left;
+    user-select: none;
+    vertical-align: middle;
+}
+
+ul#movie_list li span.title{
+    font-size: 1.25em;
+}
+
+ul#movie_list li span.year{
+    margin: 0 0 0 1em;
+    opacity: 0.5;
+}
+
+ul#movie_list li span.label{
+    margin: 0;
+}
+
+
+div.modal > div.modal-dialog > div.modal-content > .modal-body > p,
+div.modal > div.modal-dialog > div.modal-content > .modal-body > div.progress,
+div.modal > div.modal-dialog > div.modal-content > .modal-footer{
+    transition: none;
+}

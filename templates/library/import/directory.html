@@ -1,0 +1,215 @@
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/library/import/directory.css?v=06.02" rel="stylesheet">
+        <script src="${url_base}/static/js/library/import/shared.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/import/directory.js?v=06.02" type="text/javascript"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <h1>Import Directory</h1>
+            <br/>
+            <span id="progress_text"></span>
+            <div class="progress hidden">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div id="select_directory" class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Select Directory</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <span class="input-group-item">
+                                <input type="text" id="directory_input" class="form-control">
+                            </span>
+                            <span class="input-group-btn">
+                                <a class="btn btn-default" data-toggle="modal" data-target="#modal_browser">
+                                    <i class="mdi mdi-folder-open"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Minimum File Size</label>
+                        <div class="input-group">
+                            <span class="input-group-item">
+                                <input type="number" id="min_file_size" class="form-control" min="0" value="500">
+                            </span>
+                            <span class="input-group-addon">
+                                MegaBytes
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Scan Recursively</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i id="scan_recursive" class="mdi mdi-checkbox-marked c_box" value="True"></i>
+                            </span>
+                            <span class="input-group-item form-control">
+                                Scan sub-folders as well.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a id="scan_dir" class="btn btn-primary" onclick="scan_library(event, this)">
+                <i class="mdi mdi-file-find"></i>
+                Scan Directory
+            </a>
+
+            <div id="no_new_movies" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h3 class="panel-title">No New Movies Found</h3>
+                </div>
+                <div class="panel-body">
+                    No new movies have been found.
+                </div>
+            </div>
+
+            <div id="complete_movies" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Found Movies</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th class="shrink">Import</th>
+                                <th>File</th>
+                                <th>Title</th>
+                                <th class="shrink">ID</th>
+                                <th class="shrink">Source</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="incomplete_movies" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Incomplete Movies</h3>
+                </div>
+                <div class="panel-body">
+                    <p>The following movies are missing key information. Review and correct as needed.</p>
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th class="shrink">Import</th>
+                                <th class="file_path">File</th>
+                                <th>Title</th>
+                                <th class="shrink">IMDB ID</th>
+                                <th class="shrink">Source</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
+                <i class="mdi mdi-archive"></i>
+                Import Library
+            </a>
+
+            <div id="import_success" class="panel panel-success hidden">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Imported Movies</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th class="shrink">IMDB ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="import_error" class="panel panel-danger hidden">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Import Errors</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
+                <i class="mdi mdi-undo-variant"></i>
+                Return
+            </a>
+
+
+        </div>
+        <textarea id="source_select" class="hidden">
+            <select class="source_select btn btn-sm btn-default">
+                %for source in sources:
+                <option value="${source}">${source}</option>
+                %endfor
+            </select>
+        </textarea>
+        <textarea id="quality_select" class="hidden">
+            <select class="quality_select btn btn-sm btn-default">
+                %for profile in profiles:
+                    %if profile == "Default":
+                    <option value="Default" selected="true">Default</option>
+                    %else:
+                    <option value="${profile}">${profile}</option>
+                    %endif
+                %endfor
+            </select>
+        </textarea>
+
+        <div id="modal_browser" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Select Library Directory</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="well col-md-12" id="modal_current_dir">
+                            ${current_dir}
+                        </div>
+
+                        <ul id="modal_file_list" class="list-group">
+                            %for i in file_list:
+                            <li class="col-md-6 list-group-item">
+                                <i class="mdi mdi-folder"></i>
+                                ${i}
+                            </li>
+                            %endfor
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <a type="button" class="btn btn-primary pull-right" onclick="file_browser_select(event, this)">Select</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

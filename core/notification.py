@@ -10,46 +10,51 @@ class Notification(object):
         return
 
     @staticmethod
-    def add(data):
+    def add(data, type_='success'):
         ''' Adds notification to core.NOTIFICATIONS
         :param data: dict of notification information
 
-        Merges supplied 'data' with 'base' dict to ensure no fields are missing
-        Appends 'base' to core.NOTIFICATIONS
+        Merges supplied 'data' with 'options' dict to ensure no fields are missing
+        Appends notif to core.NOTIFICATIONS
 
-        If data['param'] includes an on_click function, remember to add it to the
-            notifications javascript handler.
+        Notif structure is tuple of two dicts. [0] containing 'options' dict and [1] with 'settings' dict
+
 
         Does not return
         '''
 
-        base = {'type': 'success',
-                'title': '',
-                'body': '',
-                'params': None
-                }
+        options = {'title': '',
+                   'message': '',
+                   'type': None
+                   }
 
-        base.update(data)
+        settings = {'type': type_,
+                    }
+
+        options.update(data)
 
         logging.debug('Creating new notification:')
-        logging.debug(base)
+        logging.debug(options)
 
         # if it already exists, ignore it
-        if base in core.NOTIFICATIONS:
+        if options in core.NOTIFICATIONS:
             return
 
         # if this is an update notif, remove other update notifs first
-        if base['type'] == 'update':
+        if options['type'] == 'update':
+            settings['delay'] = 0
             for i, v in enumerate(core.NOTIFICATIONS):
-                if v['type'] == 'update':
+                if v[0]['type'] == 'update':
                     core.NOTIFICATIONS[i] = None
+
+        new_notif = (options, settings)
 
         # if there is a None in the list, overwrite it. If not, just append
         for i, v in enumerate(core.NOTIFICATIONS):
             if v is None:
-                core.NOTIFICATIONS[i] = base
+                core.NOTIFICATIONS[i] = new_notif
                 return
-        core.NOTIFICATIONS.append(base)
+        core.NOTIFICATIONS.append(new_notif)
 
         return
 
@@ -78,17 +83,3 @@ class Notification(object):
             core.NOTIFICATIONS.pop()
 
         return
-
-
-'''
-NOTIFICATION dict:
-
-'icon': None,       str font awesome icon 'fa-star'
-'title': None,      str large title text 'Something Happened!'
-'title_link': None, str url for title to link to.
-'text': None,       str main body text explaining title if necessary
-'button': None      tuple ('Name', '/url/link' , 'fa-refresh')
-
-All Ajax  requests should be specified in static/notifications/main.js
-
-'''

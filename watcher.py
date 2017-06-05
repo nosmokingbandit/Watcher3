@@ -16,6 +16,7 @@ import argparse
 import locale
 import logging
 import webbrowser
+import shutil
 
 import cherrypy
 from cherrypy.process.plugins import Daemonizer, PIDFile
@@ -114,6 +115,14 @@ if __name__ == '__main__':
         sql.update_tables()
     del sql
 
+    # clean mako cache
+    try:
+        print("Clearing Mako cache.")
+        shutil.rmtree(core.MAKO_CACHE)
+    except Exception as e:
+        print("Unable to clear Mako cache.")
+        print(e)
+
     # mount and configure applications
     if core.CONFIG['Server']['customwebroot']:
         core.URL_BASE = core.CONFIG['Server']['customwebrootpath']
@@ -157,7 +166,6 @@ if __name__ == '__main__':
     scheduler_plugin = scheduler.Scheduler()
     scheduler.AutoSearch.create()
     scheduler.AutoUpdateCheck.create()
-    scheduler.AutoUpdateInstall.create()
     scheduler.ImdbRssSync.create()
     scheduler.PopularMoviesSync.create()
     scheduler.TraktSync.create()

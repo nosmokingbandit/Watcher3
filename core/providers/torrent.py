@@ -266,7 +266,7 @@ class Rarbg(object):
         parsed_results = []
 
         for result in results:
-            result['indexer'] = 'www.rarbg.to'
+            result['indexer'] = 'Rarbg'
             result['info_link'] = result['info_page']
             result['torrentfile'] = result['download']
             result['guid'] = result['download'].split('&')[0].split(':')[-1]
@@ -279,6 +279,7 @@ class Rarbg(object):
             result['score'] = 0
             result['downloadid'] = None
             result['freeleech'] = 0
+            result['download_client'] = None
             parsed_results.append(result)
         logging.info('Found {} results from Rarbg.'.format(len(parsed_results)))
         return parsed_results
@@ -352,13 +353,14 @@ class LimeTorrents(object):
                 result['pubdate'] = None
                 result['title'] = i.find('title').text
                 result['imdbid'] = imdbid
-                result['indexer'] = 'www.limetorrents.cc'
+                result['indexer'] = 'LimeTorrents'
                 result['info_link'] = i.find('comments').text
                 result['torrentfile'] = i.find('enclosure').attrib['url']
                 result['guid'] = result['torrentfile'].split('.')[1].split('/')[-1].lower()
                 result['type'] = 'torrent'
                 result['downloadid'] = None
                 result['freeleech'] = 0
+                result['download_client'] = None
 
                 s = i.find('description').text.split('Seeds: ')[1]
                 seed_str = ''
@@ -445,13 +447,14 @@ class ExtraTorrent(object):
                 result['pubdate'] = None
                 result['title'] = i.find('title').text
                 result['imdbid'] = imdbid
-                result['indexer'] = 'www.extratorrent.cc'
+                result['indexer'] = 'ExtraTorrent'
                 result['info_link'] = i.find('link').text
                 result['torrentfile'] = i.find('magnetURI').text
                 result['guid'] = result['torrentfile'].split('&')[0].split(':')[-1]
                 result['type'] = 'magnet'
                 result['downloadid'] = None
                 result['freeleech'] = 0
+                result['download_client'] = None
 
                 seeders = i.find('seeders').text
                 result['seeders'] = 0 if seeders == '---' else seeders
@@ -515,11 +518,12 @@ class SkyTorrents(object):
                 result['pubdate'] = None
                 result['title'] = i.find('title').text
                 result['imdbid'] = imdbid
-                result['indexer'] = 'www.skytorrents.in'
+                result['indexer'] = 'SkyTorrents'
                 result['info_link'] = i.find('guid').text
                 result['torrentfile'] = i.find('link').text
                 result['guid'] = result['torrentfile'].split('/')[4]
                 result['type'] = 'torrent'
+                result['download_client'] = None
                 result['downloadid'] = None
                 result['freeleech'] = 0
 
@@ -607,13 +611,14 @@ class Torrentz2(object):
                 result['pubdate'] = None
                 result['title'] = i.find('title').text
                 result['imdbid'] = imdbid
-                result['indexer'] = 'www.torrentz2.e'
+                result['indexer'] = 'Torrentz2'
                 result['info_link'] = i.find('link').text
                 result['torrentfile'] = 'magnet:?xt=urn:btih:{}&dn={}&tr={}'.format(hsh, result['title'], '&tr='.join(Torrent.trackers))
                 result['guid'] = hsh
                 result['type'] = 'magnet'
                 result['downloadid'] = None
                 result['seeders'] = int(desc[4])
+                result['download_client'] = None
                 result['freeleech'] = 0
 
                 results.append(result)
@@ -704,7 +709,7 @@ class ThePirateBay(object):
                 result['pubdate'] = None
                 result['title'] = i[1][0].text
                 result['imdbid'] = imdbid
-                result['indexer'] = 'www.thepiratebay.org'
+                result['indexer'] = 'ThePirateBay'
                 result['info_link'] = 'https://www.thepiratebay.org{}'.format(i[1][0].attrib['href'])
                 result['torrentfile'] = i[3][0][0].attrib['href'].replace('%26', '&')
                 result['guid'] = result['torrentfile'].split('&')[0].split(':')[-1]

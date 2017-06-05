@@ -1,0 +1,35 @@
+label{
+    display: inline-block;
+    margin: 1.5em 0 0.5em 0;
+}
+
+div#server_info,
+a#start_scan,
+a#import_library,
+div#remote_map,
+div.progress,
+div#import_success,
+div#import_error{
+    transition: none;
+}
+
+table{
+    line-height: 2.25em;
+}
+
+select{
+    max-width: 10em;
+}
+
+table i.mdi{
+    line-height: 1.75em;
+}
+
+table > thead > tr > th.shrink{
+    width: 1%;
+
+}
+
+div#remote_actions{
+    margin-top: 1em;
+}

@@ -1,228 +1,136 @@
-/*
-#151c25 Dark Blue BG
-#080f18 Darker Blue BG
-#cccccc Light Gray Text/Border
-*/
-
-@import url("header.css");
-
 body{
-    width: 100%;
-    min-height: 100%;
-    background-color: #080f18;
-    color: #ccc;
-    margin: 0;
-    padding: 64px 0 0 0;
-    overflow-y: scroll;
-    font-family: Raleway, sans-serif;
-    font-weight: 500;
-    font-size: 16px;
+    margin: 5em 0 2em 0;
 }
 
-button{
-    font-family: Raleway, sans-serif;
-    background-color: #ccc;
-    border-radius: 4px;
-    border: none;
-    padding: 0.5em;
-    margin: 0 1em 0 0;
-    outline: none;
-    cursor: pointer;
-}
-
-input, select{
-    color: #ccc;
-    outline: none;
-    border-radius: 4px;
-    border: none;
-    background-color: #151c25;
-    height: 1.5em;
-    font-size: .85em;
-    padding: 0.1em 0.5em;
-    font-family: monospace;
-    border: 1px solid #080f18;
-}
-
-p{
+input{
+    font-size: 1em;
     line-height: 1.5em;
 }
 
 a{
-    text-decoration: none;
-    color: #ccc;
+    cursor: pointer;
 }
 
-i{
-    cursor: pointer;
+i.mdi{
+    font-size: 1.2em;
+    width: 1.25em;
+    display: inline-block;
     vertical-align: middle;
+    user-select: none;
+    cursor: pointer;
+}
+
+i.mdi.animated{
+    animation: material-zoom 2s infinite;
+}
+
+@keyframes material-zoom {
+    0%{
+        transform: scale(0.0);
+        opacity: 0;
+    }
+    50%{
+        opacity: 1.0;
+    }
+    100%{
+        transform: scale(1.5);
+        opacity: 0;
+    }
 }
 
 ul{
     list-style: none;
-    clear: both;
     padding: 0;
-    margin: 0;
 }
 
-.hidden{
+textarea, input, button{ outline: none; }
+
+ul.sortable{
+    transition: none;
+}
+
+div.container-fluid{
+    max-width: 960px;
+}
+
+/* Nav Bar */
+.navbar{
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.25);
+}
+
+ul.nav > li > a{
+    height: 3em;
+    padding: 0 1em;
+    line-height: 3em;
+}
+
+/* Notification Animations */
+.animated{
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+
+@keyframes fadeInDown{
+    0%{
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+
+    100%{
+        transform: none;
+        opacity: 1;
+    }
+}
+
+.fadeInDown{
+  animation-name: fadeInDown;
+}
+
+@keyframes fadeOutDown{
+    0%{
+        opacity: 1;
+        transform: none;
+    }
+
+    100%{
+      opacity: 0;
+      transform: translate3d(100%, 0, 0);
+    }
+}
+
+.fadeOutDown{
+  animation-name: fadeOutDown;
+}
+
+
+/* Loading Animation */
+#thinker{
+    transition: none;
     display: none;
-}
-
-div#content{
-    margin: 0 auto;
-    width: 60%;
-    min-width: 650px;
+    width: 4em;
+    font-size: 4em;
+	position: absolute;
+    bottom: calc(50% - 2em);
+    right: calc(50% - 2em);
+	opacity: 1;
     text-align: center;
 }
 
-div#overlay {
-    display: none;
-    position: fixed;
-    top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 100%;
-    background-color: #04080c; /* 1/2 of 080f18 */
-    z-index:1001;
-    opacity: 0.95;
+#thinker i{
+    vertical-align: middle;
 }
 
-::selection {
-  background: #f4693b; /* WebKit/Blink Browsers */
-}
-::-moz-selection {
-  background: #f4693b; /* Gecko Browsers */
-}
+/* Always hide hacks at the bottom and hope nobody sees it */
 
-/* loading animation */
-#thinker {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto;
-    background-color: #ccc;
-    display: none;
-    position:absolute;
-    bottom: calc(50% - 20px);
-    right: calc(50% - 20px);
-    -webkit-animation: sk-scaleout 2.0s infinite ease-in-out;
-    animation: sk-scaleout 2.0s infinite ease-in-out;
-    border-radius: 50%;
-    opacity: 0.5;
-}
-
-@-webkit-keyframes sk-scaleout {
-    0% { -webkit-transform: scale(0) }
-    100% { -webkit-transform: scale(2.0);
-        opacity: 0;
-        }
-}
-
-@keyframes sk-scaleout {
-    0% { -webkit-transform: scale(0);
-        transform: scale(0);
-    }
-    100% { -webkit-transform: scale(2.0);
-            transform: scale(2.0);
-            opacity: 0;
-            }
-}
-
-::-webkit-input-placeholder {
-    font-style: italic;
-    opacity: 0.5;
-}
-::-moz-placeholder {
-    font-style: italic;
-    opacity: 0.5;
-}
-:-ms-input-placeholder {
-    font-style: italic;
-    opacity: 0.5;
-}
-:-moz-placeholder {
-    font-style: italic;
-    opacity: 0.5;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-button {
-  width: 0px;
-  height: 0px;
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border: none;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #ccc;
-}
-::-webkit-scrollbar-thumb:active {
-  background: #ccc;
-}
-::-webkit-scrollbar-track {
-  border-radius: 4px;
-  background: transparent;
-  border: none;
-}
-::-webkit-scrollbar-track:hover {
-  background: transparent;
-}
-::-webkit-scrollbar-track:active {
-  background: transparent;
-}
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-div.sweet-alert h2{
-    color: #080f18;
-}
-
-div.sweet-alert button{
-    padding: 0.5em;
-    border-radius: 4px;
-}
-
-/* Breakpoint 1 */
-@media only screen and (max-width: 918px) {
-    div#content{
-        margin: 0 auto;
-        max-width: 100%;
-        text-align: center;
-        min-width: 628px;
-    }
-}
-
-/* Breakpoint 2 */
-@media only screen and (max-width: 620px) {
-    div#content{
-        width: 100%;
-        min-width: 0px;
-    }
-
-    div#toast-container{
-        width: 100%;
-                padding: 0.5em 0;
-    }
-
-    div#toast-container > div {
-        width: 100%;
-        border-radius: 0;
-    }
-
-    div.toast-bottom-right{
-        right: 0;
-        bottom: 0;
-    }
-
-
-    #toast-container > div{
-        width: 100%;
-    }
+/* Bootstrap adds a padding-right of 17px when opening modals. I'm not sure why.
+    This prevents it from shifting content and showing modals off-center;
+*/
+.modal,
+.modal-open {
+    padding-right: 0px !important;
 }

@@ -1,10 +1,11 @@
 import cherrypy
 import core
-from templates import login
 import logging
+import json
+from mako.template import Template
 
 SESSION_KEY = '_cp_username'
-LOGIN_URL = '/auth/login/'
+LOGIN_URL = core.URL_BASE + '/auth/'
 
 logging = logging.getLogger(__name__)
 
@@ -58,50 +59,6 @@ def require(*conditions):
     return decorate
 
 
-# Conditions are callables that return True
-# if the user fulfills the conditions they define, False otherwise
-#
-# They can access the current username as cherrypy.request.login
-#
-# Define those at will however suits the application.
-
-def member_of(groupname):
-    def check():
-        # replace with actual check if <username> is in <groupname>
-        return cherrypy.request.login == 'joe' and groupname == 'admin'
-    return check
-
-
-def name_is(reqd_username):
-    return lambda: reqd_username == cherrypy.request.login
-
-# These might be handy
-
-
-def any_of(*conditions):
-    """Returns True if any of the conditions match"""
-    def check():
-        for c in conditions:
-            if c():
-                return True
-        return False
-    return check
-
-
-# By default all conditions are required, but this might still be
-# needed if you want to use it inside of an any_of(...) condition
-def all_of(*conditions):
-    """Returns True if all of the conditions match"""
-    def check():
-        for c in conditions:
-            if not c():
-                return False
-        return True
-    return check
-
-
-# Controller to provide login and logout actions
-
 class AuthController(object):
 
     _cp_config = {
@@ -109,23 +66,32 @@ class AuthController(object):
     }
 
     def __init__(self):
-        self.login_form = login.Login()
+        self.login_form = Template(filename='templates/login.html', module_directory=core.MAKO_CACHE)
 
-    def on_login(self, username, origin):
+    @cherrypy.expose
+    def default(self):
+        # VV TODO remove this line VV
+        self.login_form = Template(filename='templates/login.html', module_directory=core.MAKO_CACHE)
+        return self.login_form.render(url_base=core.URL_BASE)
+
+    def on_login(self, username, origin_ip):
         ''' Called on successful login
-        :param username: str user that logged in
-        :param origin: str ip address of user
+        username: str user that logged in
+        origin_ip: str ip address of user
 
-        origin uses headers['X-Forwarded-For'] or headers['Remote-Addr']
+        origin_ip uses headers['X-Forwarded-For'] or headers['Remote-Addr'] to get client IP
 
         Does not return
         '''
 
-        log_attempt = 'Successful login from {}'.format(origin)
-        logging.info(log_attempt)
+        logging.info('Successful login from {}'.format(origin_ip))
 
     def on_logout(self, username):
-        """Called on logout"""
+        ''' Called on logout
+        username: str user that logged in
+
+        Does not return
+        '''
 
     @cherrypy.expose
     def login(self, username=None, password=None):
@@ -133,51 +99,42 @@ class AuthController(object):
         :param username: str submitted username <optional>
         :param password: str submitted password <optional>
 
-        If either 'username' or 'password' is None, returns login form html
+        Checks creds against check_credentials()
+        Executes on_login() with username and origin_ip
 
-        If both are not None, fires check_credentials()
-
-        Since ajax will always submit a value (even if an empty string), strings are
-            returned to the browser to handle success/failure response.
-        Any request with None as a value will be internal and will render the
-            page in the browser.
-
-        Returns str 'true' or 'false'
+        Returns json.dumps() bool
         '''
+        if not username or not password:
+            return json.dumps(False)
 
-        if username is None or password is None:
-            return self.login_form.default(username=username)
-
-        # get origin ip
+        # get origin_ip ip
         if 'X-Forwarded-For' in cherrypy.request.headers:
-            origin = cherrypy.request.headers['X-Forwarded-For']
+            origin_ip = cherrypy.request.headers['X-Forwarded-For']
         else:
-            origin = cherrypy.request.headers['Remote-Addr']
+            origin_ip = cherrypy.request.headers['Remote-Addr']
 
         # on failed attempt
         if check_credentials(username, password) is False:
-            log_attempt = 'Failed login attempt {}:{} from {}'.format(username, password, origin)
+            logging.warning('Failed login attempt {}:{} from {}'.format(username, password, origin_ip))
 
-            logging.warning(log_attempt)
-
-            return 'false'
+            return json.dumps(False)
 
         # on successful login
         else:
-            try:
-                cherrypy.session.regenerate()
-            except Exception as e: # noqa
-                pass
             cherrypy.session[SESSION_KEY] = cherrypy.request.login = username
-            self.on_login(username, origin)
-            return 'true'
+            self.on_login(username, origin_ip)
+            return json.dumps(True)
 
     @cherrypy.expose
     def logout(self):
-        sess = cherrypy.session
-        username = sess.get(SESSION_KEY, None)
-        sess[SESSION_KEY] = None
+        ''' Logs out user
+        Clears session and redirects user to login page.
+
+        '''
+
+        username = cherrypy.session.get(SESSION_KEY, None)
+        cherrypy.session[SESSION_KEY] = None
         if username:
             cherrypy.request.login = None
             self.on_logout(username)
-        raise cherrypy.InternalRedirect(core.URL_BASE + '/')
+        raise cherrypy.InternalRedirect(LOGIN_URL)

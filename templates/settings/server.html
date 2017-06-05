@@ -1,0 +1,271 @@
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/server.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/settings/shared.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/server.js?v=06.02" type="text/javascript"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+
+            <h1>Server</h1>
+            <form class="form-horizontal well" data-category="server">
+
+                <div class="col-md-6">
+                    <label>Host</label>
+                    <input type="text" id="serverhost" class="form-control" placeholder="0.0.0.0" value="${config['serverhost']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Port</label>
+                    <input type="number" id="serverport" class="form-control" placeholder="9090" min="0" value="${config['serverport']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Custom Webroot</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="customwebroot" class="mdi mdi-checkbox-blank-outline c_box" value="${config['customwebroot']}"></i>
+                        </span>
+                        <div class="input-group-item">
+                            <input type="text" id="customwebrootpath" class="form-control" value="${config['customwebrootpath']}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Api Key</label>
+                    <div class="input-group">
+                        <span class="input-group-item">
+                            <input type="text" id="apikey" class="form-control" value="${config['apikey']}">
+                        </span>
+                        <span class="input-group-btn">
+                            <a class="btn btn-primary" onclick="new_key(event)">
+                                <i class="mdi mdi-key-variant"></i>
+                                New Key
+                            </a>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Keep [X] Days of Logs</label>
+                    <input type="number" id="keeplog" class="form-control" min="0" placeholder="3" value="${config['keeplog']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Verify SSL Certificates</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="verifyssl" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyssl']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Disable for non-functional SSL installs.
+                        </span>
+                    </div>
+                </div>
+            </form>
+
+            <h1>Interface</h1>
+            <form class="form-horizontal well" data-category="server">
+
+                <div class="col-md-6">
+                    <label>Theme</label>
+                    <select class="form-control select-sm" id="uitheme" value="${config['uitheme'] or 'Default'}">
+                        %for i in themes:
+                        <option value="${i}">${i}</option>
+                        %endfor
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Open Browser</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="launchbrowser" class="mdi mdi-checkbox-blank-outline c_box" value="${config['launchbrowser']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Open Browser when launching Watcher.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Password-protect Web-UI</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="authrequired" class="mdi mdi-checkbox-blank-outline c_box" value="${config['authrequired']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                                Require login to access Web-UI.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label>User</label>
+                    <input type="text" id="authuser" class="form-control" value="${config['authuser']}">
+                </div>
+                <div class="col-md-3">
+                    <label>Password</label>
+                    <input type="text" id="authpass" class="form-control" value="${config['authpass']}">
+                </div>
+
+            </form>
+
+            <h1>Updates</h1>
+            <form class="form-horizontal well" data-category="server">
+
+                <div class="col-md-6">
+                    <label>Check for Updates</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="checkupdates" class="mdi mdi-checkbox-blank-outline c_box" value="${config['checkupdates']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Automatically check for updates.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Update Check Frequency</label>
+                    <div class="input-group">
+                        <span class="input-group-item">
+                            <input type="number" id="checkupdatefrequency" class="form-control" min="4" placeholder="24 "value="${config['checkupdatefrequency']}">
+                        </span>
+                        <span class="input-group-addon">
+                            Hours
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Install Updates</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="installupdates" class="mdi mdi-checkbox-blank-outline c_box" value="${config['installupdates']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Automatically install updates.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Check for Updates</label>
+                    <a class="btn btn-primary btn-block" onclick="update_check(event, this)">
+                        <i class="mdi mdi-update"></i>
+                        Check for Updates Now
+                    </a>
+                </div>
+            </form>
+
+            <h1>Proxy</h1>
+            <form class="form-horizontal well" data-category="proxy">
+
+                <div class="col-md-6">
+                    <label>Enable Proxy</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="enabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Proxy']['enabled']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Use proxy when connecting to Indexers.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Proxy Protocol</label>
+                    <select class="form-control select-sm" id="type" value="${config['Proxy']['type']}">
+                        <option value="http(s)">HTTP(s)</option>
+                        <option value="socks4">SOCKS4</option>
+                        <option value="socks5">SOCKS5</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Address</label>
+                    <input type="text" id="host" class="form-control" placeholder="https://1.2.3.4" value="${config['Proxy']['host']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Port</label>
+                    <input type="number" id="port" class="form-control" min="0" placeholder="1234" value="${config['Proxy']['port']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>User Name</label>
+                    <input type="text" id="user" class="form-control" placeholder="Rick_Sanchez" value="${config['Proxy']['user']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Password</label>
+                    <input type="text" id="pass" class="form-control" placeholder="rickest_rick_c-137" value="${config['Proxy']['pass']}">
+                </div>
+
+                <div class="col-md-12">
+                    <label>Whitelist</label>
+                    <input type="text" id="whitelist" class="form-control" placeholder="http://localhost:5075, http://localhost:5060" value="${config['Proxy']['whitelist']}" data-toggle="tooltip"title="Separate URLs with commas.">
+                </div>
+
+            </form>
+
+            <div class="btn-group">
+                <a class="btn btn-warning" data-toggle="modal" data-target="#modal_restart">
+                    <i class="mdi mdi-restart"></i>
+                    Restart
+                </a>
+                <a class="btn btn-danger" data-toggle="modal" data-target="#modal_shutdown">
+                    <i class="mdi mdi-power"></i>
+                    Shut Down
+                </a>
+            </div>
+            <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
+                <i class="mdi mdi-content-save"></i>
+                Save Settings
+            </a>
+        </div>
+
+        <span id="git_url" class="hidden">https://github.com/nosmokingbandit/watcher3</span>
+
+    <!-- Modal for Restart and Shutdown -->
+        <div class="modal fade" id="modal_shutdown">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Shut Down Watcher?</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            <a href="${url_base}/system/shutdown" class="btn btn-danger">Shut Down</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_restart">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Restart Watcher?</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            <a href="${url_base}/system/restart" class="btn btn-warning">Restart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

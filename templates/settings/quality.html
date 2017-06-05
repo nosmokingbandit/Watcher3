@@ -1,0 +1,179 @@
+<%
+user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
+%>
+
+<%def name="generate_profile(name, profile)">
+    <div id="${name}" class="well quality_profile">
+
+        %if name == 'Default':
+        <div class="col-md-12">
+            <h2>Default</h2>
+            <input type="hidden" id="name" value="Default">
+        </div>
+        %else:
+
+
+            <div class="col-md-6 input-group">
+                <span class="input-group-item">
+                    <input type="text" id="name" class="form-control" value="${name}">
+                </span>
+                <span class="input-group-btn">
+                    <a class="btn btn-danger pull-right" onclick="delete_profile(event, this)">
+                        <i class="mdi mdi-delete delete_profile"></i>
+                    </a>
+                </span>
+            </div>
+        %endif
+
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Sources
+                </div>
+                <div class="panel-body">
+                    <ul class="sources sortable">
+                        %for src in sources:
+                        <li class="source" data-source="${src}" data-sort="${profile['Sources'][src][1]}">
+                            <i class="mdi mdi-drag-horizontal sortable_handle"></i>
+                            <i class="mdi mdi-checkbox-blank-outline c_box" value="${profile['Sources'][src][0]}"></i>
+                            ${src}
+                        </li>
+                        %endfor
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Filters
+                </div>
+                <div class="panel-body" data-sub-category="filters" data-toggle="tooltip" title="Group words with ampersands and split groups with commas.">
+                    <label>Required Words</label>
+                    <input type="text" id="requiredwords" class="form-control" value="${profile['requiredwords']}">
+
+                    <label>Preferred Words</label>
+                    <input type="text" id="preferredwords" class="form-control" placeholder='this&is&a&group, one, two, three' value="${profile['preferredwords']}">
+
+                    <label>Ignored Words</label>
+                    <input type="text" id="ignoredwords" class="form-control" value="${profile['ignoredwords']}">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Misc.
+                </div>
+                <div class="panel-body" data-sub-category="misc">
+                    <ul>
+                        <li>
+                            <i id="scoretitle" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['scoretitle']}"></i>
+                            Score and filter release titles
+                        </li>
+                        <li>
+                            <i id="prefersmaller" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['prefersmaller']}"></i>
+                            Prefer smaller file sizes
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</%def>
+
+
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/quality.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/settings/shared.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/quality.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/jquery.sortable.min.js?v=06.02" type="text/javascript"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <h1>Quality Profiles</h1>
+            <form id='profiles'>
+                ${generate_profile("Default", config['Profiles']['Default'])}
+
+                %for name, profile in user_profiles.items():
+                ${generate_profile(name, profile)}
+                %endfor
+            </form>
+
+            <div class='col-md-12' id="add_profile">
+                <a class="btn btn-primary" onclick="add_profile(event)">
+                    <i class="mdi mdi-plus"></i>
+                    Add Profile
+                </a>
+            </div>
+
+            <h1>Sources</h1>
+            <form class="form-horizontal well" data-category="sources">
+                <span><b>Specify acceptable size ranges (in MegaBytes) for source media.</b></span>
+                <table class="table table-hover">
+                   <thead>
+                       <tr>
+                           <th></th>
+                           <th>Min Size</th>
+                           <th>Max Size</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       %for src in sources:
+                       <%
+                           v = config['Sources'][src]
+                       %>
+                       <tr id="${src}">
+                           <td>${src}</td>
+                           <td>
+                               <input type="number" class="input-sm form-control" data-range="min" min="0" value=${v['min']}>
+                           </td>
+                           <td>
+                               <input type="number" class="input-sm form-control" data-range="max" min="0" value=${v['max']}>
+                           </td>
+                       </tr>
+                       %endfor
+                   </tbody>
+               </table>
+            </form>
+
+            <h2>Aliases</h2>
+            <form class="form-horizontal well" data-category="aliases">
+                <span><b>Keywords used to determine source media</b></span>
+                <br/>
+                <br/>
+                <table id="aliases" class="table table-hover" data-toggle="tooltip"title="Separate Keywords with commas.">
+                    <tbody>
+                        %for name, alias in config['Aliases'].items():
+                        <tr>
+                            <td>${name}</td>
+                            <td>
+                                <input type="text" id="${name}" class="input-sm form-control" value="${', '.join(alias)}">
+                            </td>
+                        </tr>
+                        %endfor
+                    </tbody>
+                </table>
+            </form>
+
+            <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
+                <i class="mdi mdi-content-save"></i>
+                Save Settings
+            </a>
+        </div>
+
+        <textarea id="profile_template" class="hidden">
+            ${generate_profile("", {'Sources': {'BluRay-1080P': [True, 1], 'BluRay-4K': [False, 0], 'BluRay-720P': [True, 2], 'CAM-SD': [False, 13], 'DVD-SD': [False, 9], 'Screener-1080P': [False, 10], 'Screener-720P': [False, 11], 'Telesync-SD': [False, 12], 'WebDL-1080P': [True, 4], 'WebDL-4K': [False, 3], 'WebDL-720P': [True, 5], 'WebRip-1080P': [True, 7], 'WebRip-4K': [False, 6], 'WebRip-720P': [True, 8]}, 'ignoredwords': 'subs,german,dutch,french,truefrench,danish,swedish,spanish,italian,korean,dubbed,swesub,korsub,dksubs,vain,HC,blurred', 'preferredwords': '', 'prefersmaller': False, 'requiredwords': '', 'scoretitle': True})}
+        </textarea>
+
+    </body>
+</html>

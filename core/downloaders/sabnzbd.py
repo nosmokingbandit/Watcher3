@@ -35,7 +35,7 @@ class Sabnzbd():
             raise
         except Exception as e:
             logging.error('Sabnzbd connection test failed.', exc_info=True)
-            return '{}.'.format(str(e))
+            return '{}.'.format(e)
 
     @staticmethod
     def add_nzb(data):

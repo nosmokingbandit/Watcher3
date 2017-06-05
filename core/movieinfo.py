@@ -195,12 +195,13 @@ class TMDB(object):
 
 
 class Trailer(object):
-    def get_trailer(self, title_date):
-        ''' Gets trailer embed url from Youtube.
+    @staticmethod
+    def get_trailer(title_date):
+        ''' Gets trailer embed ID from Youtube.
         :param title_date: str movie title and date ("Movie Title 2016")
 
         Attempts to connect 3 times in case Youtube is down or not responding
-        Can fail if no response is recieved.
+        Can fail if no response is received.
 
         Returns str or None
         '''

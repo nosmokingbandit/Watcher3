@@ -1,0 +1,167 @@
+<%
+    import json
+    status_key = {'Waiting': 0, 'Wanted': 1, 'Found': 2, 'Snatched': 3, 'Finished': 4, 'Disabled': 4}
+%>
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/library/status.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/lib/echo.min.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.02" type="text/javascript"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <div class="toolbar">
+                <div id="movie_layout" class="btn-group">
+                    <a class="btn btn-default" data-layout="posters">
+                        <i class="mdi mdi-view-grid"></i>
+                    </a>
+                    <a class="btn btn-default" data-layout="list striped">
+                        <i class="mdi mdi-view-list"></i>
+                    </a>
+                    <a class="btn btn-default" data-layout="compact striped">
+                        <i class="mdi mdi-view-headline"></i>
+                    </a>
+                </div>
+                <div id="sort_options" class="btn-group pull-right">
+                    <select id="movie_sort_key" class="btn btn-default">
+                        <option value="title">Title</option>
+                        <option value="year">Year</option>
+                        <option value="status_key">Status</option>
+                    </select>
+                    <a class="btn btn-default" id="sort_direction" onclick="sort_direction(event, this)">
+                        <i class="mdi"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <ul id="movie_list" class="hidden striped">
+                %for movie in movies:
+                <%
+                _status = 'Finished' if movie['status'] == 'Disabled' else movie['status']
+                score = 0 if not movie['score'].replace('.', '').isdigit() else round(int(movie['score'][0]))
+                %>
+                <li class="movie" data-imdbid="${movie['imdbid']}" onclick="open_info_modal(event, this)">
+                    <span class="hidden movie">${json.dumps(movie)}</span>
+                    <img data-echo="${url_base}/static/images/posters/${movie['imdbid']}.jpg" src="${url_base}/static/images/missing_poster.jpg">
+                    <span class="label status ${_status}">${_status}</span>
+                    <span class="hidden status_key">${status_key[_status]}</span>
+                    <span class="score">
+                        %for i in range(5):
+                            %if score > 1:
+                            <i class="mdi mdi-star"></i>
+                            %elif score == 1:
+                            <i class="mdi mdi-star-half"></i>
+                            %else:
+                            <i class="mdi mdi-star-outline"></i>
+                            %endif
+                        <%
+                        score -= 2
+                        %>
+                        %endfor
+                    </span>
+                    <span class="title">
+                        ${movie['title']}
+                    </span>
+                    <span class="year">
+                        ${movie['year']}
+                    </span>
+                </li>
+
+                %endfor
+            </ul>
+        </div>
+        <div id="overlay"></div>
+
+        <textarea id="template_movie_info" class="hidden">
+            <div class="modal fade" id="modal_details">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">
+                                <span class="title">{title}</span>
+                                <span class="year">{year}</span>
+                            </h3>
+
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="col-md-4">
+                                <img src="{poster}" class="img-responsive">
+                            </div>
+
+                            <div class="col-md-8">
+
+                                <div id="movie_actions" class="btn-group btn-group-justified">
+                                    <a class="btn btn-default" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
+                                        <i class="mdi mdi-magnify"></i>
+                                    </a>
+                                    <a class="btn btn-default" title="Update Metadata" onclick="update_metadata(event, this, '{imdbid}', '{tmdbid}')">
+                                        <i class="mdi mdi-tag-text-outline"></i>
+                                    </a>
+                                    <a class="btn btn-default" title="Remove from Library" onclick="remove_movie(event, this, '{imdbid}')">
+                                        <i class="mdi mdi-delete"></i>
+                                    </a>
+                                </div>
+                                <div class="well">
+                                    <span class="plot">{plot}</span>
+                                </div>
+                                <div class="well stats col-md-12">
+                                    <span>
+                                        Score:
+                                        <b>{score}</b>
+                                    </span>
+                                    <span>
+                                        Theatrical Release:&#8203;
+                                        <b>{release_date}</b>
+                                    </span>
+                                    <span>
+                                        <a href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank">
+                                            <i class="mdi mdi-help-circle-outline"></i>
+                                        </a>
+                                    </span>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label>Quality</label>
+                                        <select id="movie_quality" class="btn btn-default form-control" value="{quality}">
+                                            %for i in profiles:
+                                            <option value="${i}">${i}</option>
+                                            %endfor
+                                        </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label>Status</label>
+                                        <select id="movie_status" class="btn btn-default col-md-5" value="{quality}">
+                                            <option value="Automatic">Automatic</option>
+                                            <option value="Disabled">Finished</option>
+                                        </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <a id="update_movie_options" class="btn btn-success" onclick="update_movie_options(event, this, '{imdbid}')">
+                                        <i class="mdi mdi-content-save"></i>
+                                    </a>
+
+                                </div>
+                            </div>
+                            <div id="search_results_table" class="col-md-12 panel panel-default striped">
+                                {table}
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </textarea>
+
+    </body>
+</html>

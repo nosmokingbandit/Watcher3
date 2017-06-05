@@ -1,0 +1,49 @@
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/log.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/settings/shared.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/logs.js?v=06.02" type="text/javascript"></script>
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+            <h1>Logs</h1>
+
+            <div class="well">
+                <div class="col-md-12 ">
+                        <label>Log Directory</label>
+                        <span class="list-group-item">${logdir}</span>
+                </div>
+
+                <div class="col-md-12">
+                    <label>Log Files</label>
+                    <div class="input-group">
+                        <select id="log_file" class="input-group-item form-control">
+                            %for log in logfiles:
+                            <option value="${log}">${log}</option>
+                            %endfor
+                        </select>
+                        <span class="input-group-btn">
+                            <a class="btn btn-info" onclick="view_log()">
+                                <i class="mdi mdi-clipboard-text"></i>
+                                View
+                            </a>
+                        </span>
+                        <span class="input-group-btn">
+                            <a class="btn btn-primary" onclick="download_log()">
+                                <i class="mdi mdi-download"></i>
+                                Download
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <pre id="log_text" class="hidden"></pre>
+        </div>
+    </body>
+</html>

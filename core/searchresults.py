@@ -292,7 +292,7 @@ class Score():
         '''
 
         logging.info('Filtering resolution and size requirements.')
-        score_range = len(core.RESOLUTIONS) + 1
+        score_range = len(core.SOURCES) + 1
 
         sizes = core.CONFIG['Quality']['Sources']
 
@@ -396,10 +396,10 @@ def generate_simulacrum(movie):
 
     title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
                                        movie['year'],
-                                       movie.get('resolution', ''),
-                                       movie.get('audiocodec', ''),
-                                       movie.get('videocodec', ''),
-                                       movie.get('releasegroup', '')
+                                       movie.get('resolution', '.'),  # Kind of a hacky way to make sure it doesn't print None in the title
+                                       movie.get('audiocodec', '.'),
+                                       movie.get('videocodec', '.'),
+                                       movie.get('releasegroup', '.')
                                        )
 
     while len(title) > 0 and title[-1] == '.':

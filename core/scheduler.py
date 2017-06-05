@@ -12,6 +12,8 @@ from core import trakt
 
 logging = logging.getLogger(__name__)
 
+ver = version.Version()
+
 
 def restart_scheduler(diff):
     ''' Restarts and scheduled tasks in diff
@@ -129,6 +131,8 @@ class AutoUpdateCheck(object):
     def update_check():
         ''' Checks for any available updates
 
+        Creates notification if updates are available.
+
         Returns dict from core.version.Version.manager.update_check():
             {'status': 'error', 'error': <error> }
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
@@ -140,79 +144,41 @@ class AutoUpdateCheck(object):
         data = ver.manager.update_check()
         # if data['status'] == 'current', nothing to do.
         if data['status'] == 'error':
-            notif = {'type': 'warning',
-                     'closeButton': 'true',
-                     'title': 'Error Checking for Updates',
-                     'body': data['error'],
-                     'params': '{closeButton: true, timeOut: 0, extendedTimeOut: 0}'
+            notif = {'title': 'Error Checking for Updates <br/>',
+                     'message': data['error']
                      }
-            Notification.add(notif)
+            Notification.add(notif, type_='danger')
 
         elif data['status'] == 'behind':
             if data['behind_count'] == 1:
-                title = '1 Update Available'
+                title = '1 Update Available <br/>'
             else:
-                title = '{} Updates Available'.format(data['behind_count'])
+                title = '{} Updates Available <br/>'.format(data['behind_count'])
 
             compare = '{}/compare/{}...{}'.format(core.GIT_URL, data['local_hash'], data['new_hash'])
 
             notif = {'type': 'update',
                      'title': title,
-                     'body': 'Click <a href="update_now"><u>here</u></a> to update now.'
-                             '<br/> Click <a href="' + compare + '"><u>here</u></a> to view changes.',
-                     'params': {'timeOut': 0,
-                                'closeButton': 'true',
-                                'extendedTimeOut': 0,
-                                'tapToDismiss': 0}
+                     'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}" target="_blank"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
                      }
 
-            Notification.add(notif)
+            Notification.add(notif, type_='primary')
 
+            if core.CONFIG['Server']['installupdates']:
+                logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
+
+                core.UPDATING = True
+                update = ver.manager.execute_update()
+                core.UPDATING = False
+
+                if not update:
+                    logging.error('Update failed.')
+
+                logging.info('Update successful, restarting.')
+                cherrypy.engine.restart()
+            else:
+                logging.info('Currently {} commits behind. Automatic install disabled'.format(core.UPDATE_STATUS['behind_count']))
         return data
-
-
-class AutoUpdateInstall(object):
-
-    @staticmethod
-    def create():
-        interval = 24 * 3600
-
-        hr = core.CONFIG['Server']['installupdatehr']
-        min = core.CONFIG['Server']['installupdatemin']
-
-        if core.CONFIG['Server']['installupdates']:
-            auto_start = True
-        else:
-            auto_start = False
-
-        taskscheduler.ScheduledTask(hr, min, interval, AutoUpdateInstall.update_install,
-                                    auto_start=auto_start)
-        return
-
-    @staticmethod
-    def update_install():
-        ver = version.Version()
-
-        if not core.UPDATE_STATUS or core.UPDATE_STATUS['status'] != 'behind':
-            return
-
-        logging.info('Running automatic updater.')
-
-        logging.info('Currently {} commits behind. Updating to {}.'.format(
-                     core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
-
-        core.UPDATING = True
-
-        logging.info('Executing update.')
-        update = ver.manager.execute_update()
-        core.UPDATING = False
-
-        if not update:
-            logging.error('Update failed.')
-
-        logging.info('Update successful, restarting.')
-        cherrypy.engine.restart()
-        return
 
 
 class ImdbRssSync(object):

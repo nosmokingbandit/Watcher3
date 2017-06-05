@@ -211,13 +211,19 @@ class NewzNabProvider(object):
 
         url = '{}/api?apikey={}&t=search&id=tt0063350'.format(indexer, apikey)
 
+        print(url)
+
         try:
-            response = Url.open(url).text
+            r = Url.open(url)
+            if r.status_code != 200:
+                return {'response': False, 'error': 'Error Code {}'.format(r.status_code)}
+            else:
+                response = r.text
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa
             logging.error('Newz/TorzNab connection check.', exc_info=True)
-            return {'response': False, 'message': 'No connection could be made because the target machine actively refused it.'}
+            return {'response': False, 'error': 'No connection could be made because the target machine actively refused it.'}
 
         if '<error code="' in response:
             error = ET.fromstring(response)
@@ -226,10 +232,10 @@ class NewzNabProvider(object):
                 return {'response': True, 'message': 'Connection successful.'}
             else:
                 logging.error('Newz/TorzNab connection test failed. {}'.format(error.attrib['description']))
-                return {'response': False, 'message': error.attrib['description']}
+                return {'response': False, 'error': error.attrib['description']}
         elif 'unauthorized' in response.lower():
             logging.error('Newz/TorzNab connection failed - Incorrect API key.')
-            return {'response': False, 'message': 'Incorrect API key.'}
+            return {'response': False, 'error': 'Incorrect API key.'}
         else:
             logging.info('Newz/TorzNab connection test successful.')
             return {'response': True, 'message': 'Connection successful.'}

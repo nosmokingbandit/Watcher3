@@ -1,0 +1,7 @@
+h2{
+    margin-top: 0.75em;
+}
+
+div.panel-body > div{
+    transition: none;
+}

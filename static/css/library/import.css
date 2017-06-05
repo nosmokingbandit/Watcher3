@@ -1,0 +1,17 @@
+div.buttons{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+a.btn{
+    height: auto;
+    margin: 1em;
+}
+
+a.btn > img,
+a.btn > i{
+    height: 1em;
+    font-size: 6em;
+    margin: 0.25em;
+}

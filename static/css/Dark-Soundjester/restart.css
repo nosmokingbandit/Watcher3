@@ -1,9 +1,0 @@
-body, html{
-    background-color: #111111;
-    background: url('../images/logo_bg.png') no-repeat 50% 50% #111111;
-}
-
-/* loading animation */
-#thinker {
-    background-color: #fefefe;
-}

@@ -1,0 +1,20 @@
+div.quality_profile{
+    overflow: auto;
+    transition: none;
+}
+
+div.quality_profile h2{
+    margin-top: 0;
+}
+
+div.panel{
+    margin-top: 1em;
+}
+
+div.panel i{
+    font-size: 1.75em;
+}
+
+div.panel ul li{
+    margin: 0.25em 0;
+}

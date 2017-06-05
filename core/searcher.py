@@ -307,7 +307,7 @@ class Searcher():
         ''' Parses release resolution and source from title.
         :param result: dict of individual search result info
 
-        Returns str source based on core.RESOLUTIONS
+        Returns str source based on core.SOURCES
         '''
 
         title = result['title']

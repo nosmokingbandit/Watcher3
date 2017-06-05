@@ -1,0 +1,160 @@
+<%def name="render_indexer(indexer)">
+
+    <tr>
+        <td>
+            <div class="input-group">
+                <div class="btn-group">
+                    <span class="input-group-addon box_box">
+                        <i class="mdi mdi-checkbox-blank-outline c_box" value="${indexer[2]}"></i>
+                    </span>
+                    <span class="input-group-btn">
+                        <a class="btn btn-default" title="Test Indexer Connection" onclick="test_indexer(event, this)">
+                            <i class="mdi mdi-lan-pending"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </td>
+        <td>
+            <input type="text" data-id="url" class="form-control" placeholder="http://www.indexer.com/" value="${indexer[0]}">
+        </td>
+        <td>
+            <input type="text" data-id="api" class="form-control" placeholder="123456789abcdef" value="${indexer[1]}">
+        </td>
+        <td>
+            <a class="btn btn-danger" onclick="remove_indexer(event, this)">
+                <i class="mdi mdi-delete"></i>
+            </a>
+        </td>
+    </tr>
+</%def>
+
+
+<!DOCTYPE>
+<html>
+    <head>
+        ${head}
+
+        <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/indexers.css?v=06.02" rel="stylesheet">
+
+        <script src="${url_base}/static/js/settings/shared.js?v=06.02" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/indexers.js?v=06.02" type="text/javascript"></script>
+
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+
+            <h1>NewzNab Indexers</h1>
+            <form class="form-horizontal well" data-category="newznab">
+                <table class="table table-hover">
+                    <thead>
+                        <th></th>
+                        <th>URL</th>
+                        <th>API Key</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        %for indexer in config['NewzNab'].values():
+                        ${render_indexer(indexer)}
+                        %endfor
+                    </tbody>
+                </table>
+                <div class='col-md-12'>
+                    <button class="btn btn-primary" onclick="add_indexer(event, 'newznab')">
+                        <i class="mdi mdi-plus"></i>
+                       Add Indexer
+                    </button>
+                </div>
+            </form>
+
+            <h1>TorzNab Indexers</h1>
+            <form class="form-horizontal well" data-category="torznab">
+                <table class="table table-hover">
+                    <thead>
+                        <th></th>
+                        <th>URL</th>
+                        <th>API Key</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        %for indexer in config['TorzNab'].values():
+                        ${render_indexer(indexer)}
+                        %endfor
+                    </tbody>
+                </table>
+                <div class='col-md-12'>
+                    <button class="btn btn-primary" onclick="add_indexer(event, 'torznab')">
+                        <i class="mdi mdi-plus"></i>
+                       Add Indexer
+                    </button>
+                </div>
+            </form>
+
+
+            <h1>Torrent Indexers</h1>
+            <form class="form-horizontal well" data-category="torrent">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" id="limetorrents" value="${config['Torrent']['limetorrents']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            LimeTorrents
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" id="rarbg" value="${config['Torrent']['rarbg']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Rarbg
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" id="skytorrents" value="${config['Torrent']['skytorrents']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            SkyTorrents
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" id="thepiratebay" value="${config['Torrent']['thepiratebay']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            ThePirateBay
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" id="torrentz2" value="${config['Torrent']['torrentz2']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Torrentz2
+                        </span>
+                    </div>
+                </div>
+            </form>
+
+            <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
+                <i class="mdi mdi-content-save"></i>
+                Save Settings
+            </a>
+        </div>
+
+        <textarea class="hidden" id="new_indexer">
+            ${render_indexer(['', '', 'False'])}
+        </textarea>
+    </body>
+</html>

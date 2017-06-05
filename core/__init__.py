@@ -1,12 +1,13 @@
 import ssl
 
 # Paths to local things
-PROG_PATH = None
+PROG_PATH = None            # Absolute path to watcher.py
 CONF_FILE = 'config.cfg'
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
 DB_FILE = 'watcher.sqlite'
 THEME = 'Default'
+MAKO_CACHE = 'templates/cache'
 
 # Paths to internet things
 GIT_URL = 'https://github.com/nosmokingbandit/watcher3'
@@ -19,27 +20,27 @@ SERVER_PORT = None
 URL_BASE = ''
 
 # Update info
-UPDATE_STATUS = None
-UPDATE_LAST_CHECKED = None
-UPDATING = False
-CURRENT_HASH = None
+UPDATE_STATUS = None        # Dict of git update status ie {'status': 'current'}
+UPDATE_LAST_CHECKED = None  # Obj datetime.datetime.now() when last check executed
+UPDATING = False            # Bool if current running update process
+CURRENT_HASH = None         # Current commit hash of install
 
 # Dynamic info
-NEXT_SEARCH = None
-CONFIG = None
-NOTIFICATIONS = []
-NO_VERIFY = ssl.create_default_context()
+NEXT_SEARCH = None                          # Obj datetime.datetime.now() + searchfrequency
+CONFIG = None                               # Dict of config file
+NOTIFICATIONS = []                          # List of dicts of notifications and individual settings
+NO_VERIFY = ssl.create_default_context()    # Obj no verify context for requests
 NO_VERIFY.check_hostname = False
 NO_VERIFY.verify_mode = ssl.CERT_NONE
 
 # Rate limiting
-TMDB_TOKENS = 35
-TMDB_LAST_FILL = None
+TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting
+TMDB_LAST_FILL = None   # Obj datetime.datetime.now() of last time TMDB tokens have been filled
 
 # Global Media Constants
-RESOLUTIONS = ['BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
-               'WebDL-4K', 'WebDL-1080P', 'WebDL-720P',
-               'WebRip-4K', 'WebRip-1080P', 'WebRip-720P',
-               'DVD-SD',
-               'Screener-1080P', 'Screener-720P',
-               'Telesync-SD', 'CAM-SD']
+SOURCES = ['BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
+           'WebDL-4K', 'WebDL-1080P', 'WebDL-720P',
+           'WebRip-4K', 'WebRip-1080P', 'WebRip-720P',
+           'DVD-SD',
+           'Screener-1080P', 'Screener-720P',
+           'Telesync-SD', 'CAM-SD']

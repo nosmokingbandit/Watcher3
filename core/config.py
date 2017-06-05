@@ -106,6 +106,7 @@ class Config():
 
         new_config = self._merge(base_config, config)
 
+        # Convert imdb str to list
         if type(new_config['Search']['Watchlists']['imdbrss']) == str:
             new_config['Search']['Watchlists']['imdbrss'] = new_config['Search']['Watchlists']['imdbrss'].split(',')
 

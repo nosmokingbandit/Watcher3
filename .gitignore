@@ -12,11 +12,9 @@ db/*
 # Compiled #
 *.pyc
 __pycache__
+/templates/cache
 
 # System Files #
-.Spotlight-V100
-.Trashes
-.DS_Store
 desktop.ini
 Thumbs.db
 TODO
