@@ -59,18 +59,21 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="btn-group">
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-success" data-toggle="modal" data-target="#modal_backlog_search">
+                            <i class="mdi mdi-magnify" title="Force Backlog Search"></i>
+                        </a>
                         <a class="btn btn-primary" data-toggle="modal" data-target="#modal_metadata">
-                            <i class="mdi mdi-tag-text-outline" data-toggle="tooltip" title="Update Metadata"></i>
+                            <i class="mdi mdi-tag-text-outline" title="Update Metadata"></i>
                         </a>
                         <a class="btn btn-info" data-toggle="modal" data-target="#modal_quality">
-                            <i class="mdi mdi-video" data-toggle="tooltip" title="Change Quality&nbsp;Profile"></i>
+                            <i class="mdi mdi-video" title="Change Quality&nbsp;Profile"></i>
                         </a>
                         <a class="btn btn-warning" data-toggle="modal" data-target="#modal_reset">
-                            <i class="mdi mdi-backup-restore" data-toggle="tooltip" title="Reset"></i>
+                            <i class="mdi mdi-backup-restore" title="Reset"></i>
                         </a>
                         <a class="btn btn-danger" data-toggle="modal" data-target="#modal_remove">
-                            <i class="mdi mdi-delete" data-toggle="tooltip" title="Remove"></i>
+                            <i class="mdi mdi-delete" title="Remove"></i>
                         </a>
                     </div>
                 </div>
@@ -95,6 +98,42 @@
         </div>
 
     <!-- Modals for Management Actions -->
+        <div class="modal fade" id="modal_backlog_search">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Backlog Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            A full backlog search will be performed for selected movies.
+                            <br/>
+                            Be aware that this will consume one API hit per movie and may take several minutes to complete.
+                        </p>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <table class="table table-striped hidden">
+                            <thead>
+                                <tr>
+                                    <th>IMDB ID</th>
+                                    <th>Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                            <a class="btn btn-success" onclick="backlog_search(event, this)">Force Backlog Search</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="modal_metadata">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">

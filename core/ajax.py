@@ -1129,6 +1129,49 @@ class Ajax(object):
     import_cp_movies._cp_config = {'response.stream': True}
 
     @cherrypy.expose
+    def manager_backlog_search(self, movies):
+        '''
+        movies: list of dict of movies, must contain keys imdbid and tmdbid
+        '''
+
+        '''
+        if backlog_movies:
+            logging.debug('Backlog movies: {}'.format(backlog_movies))
+            for movie in backlog_movies:
+                imdbid = movie['imdbid']
+                title = movie['title']
+                year = movie['year']
+                quality = movie['quality']
+
+                logging.info('Performing backlog search for {} {}.'.format(title, year))
+                self.search(imdbid, title, year, quality)
+                continue
+        '''
+
+        movies = json.loads(movies)
+        ids = [i['imdbid'] for i in movies]
+
+        movies = [i for i in self.sql.get_user_movies() if i['imdbid'] in ids]
+
+        for i, movie in enumerate(movies):
+            title = movie['title']
+            year = movie['year']
+            imdbid = movie['imdbid']
+            year = movie['year']
+            quality = movie['quality']
+
+            logging.info("Performing backlog search for {} {}.".format(title, year))
+
+            if not self.searcher.search(imdbid, title, year, quality):
+                response = {'response': False, 'error': 'Unable to access database.', 'imdbid': imdbid, "index": i + 1}
+            else:
+                response = {'response': True, "index": i + 1}
+
+            yield json.dumps(response)
+
+    manager_backlog_search._cp_config = {'response.stream': True}
+
+    @cherrypy.expose
     def manager_update_metadata(self, movies):
         '''
         movies: list of dict of movies, must contain keys imdbid and tmdbid

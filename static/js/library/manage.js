@@ -7,11 +7,6 @@ $(document).ready(function(){
                }
     });
 
-    // Init tooltips
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-
     $checkboxes.click(function(){
         $this = $(this);
         // turn on
@@ -63,6 +58,18 @@ function select_attrib(event, elem){
             $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
         }
     })
+}
+
+function backlog_search(event, elem){
+    // Preps call to _manager_request
+    var movies = _selected_movies();
+
+    if(movies.length == 0){
+        $.notify({message: "No movies are selected."}, {type: "warning"})
+        return
+    }
+
+    _manager_request($("div#modal_backlog_search"), "manager_backlog_search", {"movies": movies});
 }
 
 function refresh_metadata(event, elem){
@@ -145,7 +152,7 @@ function _manager_request($modal, url, payload){
     $modal.find(".modal-body > div.progress").slideDown();
     var $modal_footer = $modal.find('.modal-footer');
     $modal_footer.slideUp(500, function(){
-        $modal_footer.find("a.btn")[0].remove();
+        $modal_footer.find("a.btn")[1].remove();
     });
 
     $error_table = $modal.find(".modal-body > table");
@@ -190,6 +197,10 @@ function _manager_request($modal, url, payload){
         $modal_footer.slideDown();
         $modal_p.html("Finished -- Refresh page to see changes.");
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger"});
+    });
 
 }
 
