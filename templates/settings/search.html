@@ -41,6 +41,18 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label>Predb Check</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="predbcheck" class="mdi mdi-checkbox-blank-outline c_box" value="${config['predbcheck']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Check Predb before searching.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <label>Sync RSS Every [X] Minutes</label>
                     <input type="number" id="rsssyncfrequency" class="form-control" min="15" placeholder="120" value="${config['rsssyncfrequency']}">
                 </div>
