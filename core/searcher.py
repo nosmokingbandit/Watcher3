@@ -351,7 +351,7 @@ class Searcher():
             if not checkpredb and ['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished'):
                 logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
                 backlog_movies.append(i)
-            elif checkpredb and i['predb'] == 'found' and ['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
+            elif checkpredb and i['predb'] == 'found' and i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
                 logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
                 backlog_movies.append(i)
             else:
