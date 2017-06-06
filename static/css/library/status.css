@@ -138,6 +138,10 @@ div.modal-body img{
     margin: 0 0 1em 0;
 }
 
+div.modal-body label{
+    margin-top: 0;
+}
+
 div.modal-body div.stats{
     text-align: center;
 }
