@@ -5,6 +5,10 @@ body{
     padding: 0;
 }
 
+i.mdi{
+    transition: none;
+}
+
 div#content{
     height: 100%;
     background-image: url('../images/logo_big.png');
