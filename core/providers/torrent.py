@@ -13,13 +13,32 @@ from core.providers.base import NewzNabProvider
 logging = logging.getLogger(__name__)
 
 
-class Torrent(NewzNabProvider):
+trackers = '&tr'.join(('udp://tracker.leechers-paradise.org:6969',
+                       'udp://zer0day.ch:1337',
+                       'udp://tracker.coppersurfer.tk:6969',
+                       'udp://public.popcorn-tracker.org:6969',
+                       'udp://open.demonii.com:1337/announce',
+                       'udp://tracker.openbittorrent.com:80',
+                       'udp://tracker.coppersurfer.tk:6969',
+                       'udp://glotorrents.pw:6969/announce',
+                       'udp://tracker.opentrackr.org:1337/announce',
+                       'udp://torrent.gresille.org:80/announce',
+                       'udp://p4p.arenabg.com:1337',
+                       'udp://tracker.leechers-paradise.org:6969')
+                       )
 
-    trackers = ['udp://tracker.leechers-paradise.org:6969',
-                'udp://zer0day.ch:1337',
-                'udp://tracker.coppersurfer.tk:6969',
-                'udp://public.popcorn-tracker.org:6969'
-                ]
+
+def magnet(hash_):
+    ''' Creates magnet link
+    hash_: str torrent hash
+
+    Returns str margnet uri
+    '''
+
+    return 'magnet:?xt=urn:btih:{}&tr={}'.format(hash_, trackers)
+
+
+class Torrent(NewzNabProvider):
 
     def __init__(self):
         self.feed_type = 'torrent'
@@ -82,11 +101,6 @@ class Torrent(NewzNabProvider):
             for i in lime_results:
                 if i not in results:
                     results.append(i)
-        if torrent_indexers['extratorrent']:
-            extra_results = ExtraTorrent.search(imdbid, term)
-            for i in extra_results:
-                if i not in results:
-                    results.append(i)
         if torrent_indexers['skytorrents']:
             sky_results = SkyTorrents.search(imdbid, term)
             for i in sky_results:
@@ -100,6 +114,11 @@ class Torrent(NewzNabProvider):
         if torrent_indexers['thepiratebay']:
             tpb_results = ThePirateBay.search(imdbid)
             for i in tpb_results:
+                if i not in results:
+                    results.append(i)
+        if torrent_indexers['yts']:
+            yts_results = YTS.search(imdbid, term)
+            for i in yts_results:
                 if i not in results:
                     results.append(i)
 
@@ -128,9 +147,9 @@ class Torrent(NewzNabProvider):
             for i in lime_results:
                 if i not in results:
                     results.append(i)
-        if torrent_indexers['extratorrent']:
-            extra_results = ExtraTorrent.get_rss()
-            for i in extra_results:
+        if torrent_indexers['torrentz2']:
+            torrentz_results = Torrentz2.get_rss()
+            for i in torrentz_results:
                 if i not in results:
                     results.append(i)
         if torrent_indexers['torrentz2']:
@@ -138,7 +157,11 @@ class Torrent(NewzNabProvider):
             for i in torrentz_results:
                 if i not in results:
                     results.append(i)
-
+        if torrent_indexers['yts']:
+            yts_results = YTS.get_rss()
+            for i in yts_results:
+                if i not in results:
+                    results.append(i)
         return results
 
     def _get_caps(self, url):
@@ -379,59 +402,101 @@ class LimeTorrents(object):
         return results
 
 
-class ExtraTorrent(object):
+class YTS(object):
 
     @staticmethod
     def search(imdbid, term):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching ExtraTorrent for {}.'.format(term))
+        logging.info('Searching YTS for {}.'.format(term))
 
-        url = 'https://www.extratorrent.cc/rss.xml?type=search&cid=4&search={}'.format(term)
+        url = 'https://yts.ag/api/v2/list_movies.json?limit=1&query_term={}'.format(imdbid)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
+            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
 
             if response:
-                return ExtraTorrent.parse(response, imdbid)
+                r = json.loads(response)
+                if r['data']['movie_count'] < 1:
+                    return []
+                else:
+                    return YTS.parse(r['data']['movies'][0], imdbid, term)
             else:
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa
-            logging.error('ExtraTorrent search failed.', exc_info=True)
+            logging.error('YTS search failed.', exc_info=True)
             return []
 
     @staticmethod
     def get_rss():
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Fetching latest RSS from ExtraTorrent.')
+        logging.info('Fetching latest RSS from YTS.')
 
-        url = 'https://www.extratorrent.cc/rss.xml?cid=4&type=today'
+        url = 'https://yts.ag/rss/0/all/all/0'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.extratorrent.cc') is True:
+            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
 
             if response:
-                return ExtraTorrent.parse(response, None)
+                return YTS.parse_rss(response)
             else:
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e: # noqa
-            logging.error('ExtraTorrent RSS fetch failed.', exc_info=True)
+            logging.error('YTS RSS fetch failed.', exc_info=True)
             return []
 
     @staticmethod
-    def parse(xml, imdbid):
-        logging.info('Parsing ExtraTorrent results.')
+    def parse(movie, imdbid, title):
+        logging.info('Parsing YTS results.')
+
+        results = []
+        for i in movie['torrents']:
+            result = {}
+            if i['quality'] == '3D':
+                i['quality'] = '1080P.3D'
+            try:
+                result['score'] = 0
+                result['size'] = i['size_bytes']
+                result['status'] = 'Available'
+                result['pubdate'] = i['date_uploaded']
+                result['title'] = '{}.Bluray.{}.YTS'.format(title, i['quality'])
+                result['imdbid'] = imdbid
+                result['indexer'] = 'YTS'
+                result['info_link'] = 'https://yts.ag/movie/{}'.format(title.replace(' ', '-'))
+                result['torrentfile'] = magnet(i['hash'])
+                result['guid'] = i['hash']
+                result['type'] = 'magnet'
+                result['downloadid'] = None
+                result['freeleech'] = 0
+                result['download_client'] = None
+                result['seeders'] = i['seeds']
+
+                results.append(result)
+            except Exception as e: #noqa
+                logging.error('Error parsing YTS JSON.', exc_info=True)
+                continue
+
+        logging.info('Found {} results from YTS.'.format(len(results)))
+        return results
+
+    @staticmethod
+    def parse_rss(xml):
+        '''
+        Since xml doesn't supply seeds I hard-coded in 5. Not ideal, but it is
+            probably safe to assume that new YTS releases will have 5 seeds.
+        '''
+        logging.info('Parsing YTS rss.')
 
         tree = ET.fromstring(xml)
 
@@ -441,30 +506,34 @@ class ExtraTorrent(object):
         for i in items:
             result = {}
             try:
+                human_size = i[1].text.split('Size: ')[1].split('<')[0]
+                m = (1024 ** 2) if human_size[2] == 'MB' else (1024 ** 3)
+
+                title = i[0].text.split(' [')[0]
+                quality = i[3].text.split('#')[-1]
+
                 result['score'] = 0
-                result['size'] = int(i.find('size').text)
+                result['size'] = int(float(human_size.split(' ')[0]) * m)
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i.find('title').text
-                result['imdbid'] = imdbid
-                result['indexer'] = 'ExtraTorrent'
+                result['title'] = '{}.Bluray.{}.YTS'.format(title, quality)
+                result['imdbid'] = None
+                result['indexer'] = 'YTS'
                 result['info_link'] = i.find('link').text
-                result['torrentfile'] = i.find('magnetURI').text
-                result['guid'] = result['torrentfile'].split('&')[0].split(':')[-1]
+                result['guid'] = i.find('enclosure').attrib['url'].split('/')[-1]
+                result['torrentfile'] = magnet(result['guid'])
                 result['type'] = 'magnet'
                 result['downloadid'] = None
-                result['freeleech'] = 0
+                result['seeders'] = 5
                 result['download_client'] = None
-
-                seeders = i.find('seeders').text
-                result['seeders'] = 0 if seeders == '---' else seeders
+                result['freeleech'] = 0
 
                 results.append(result)
             except Exception as e: #noqa
-                logging.error('Error parsing ExtraTorrent XML.', exc_info=True)
+                logging.error('Error parsing YTS XML.', exc_info=True)
                 continue
 
-        logging.info('Found {} results from ExtraTorrent.'.format(len(results)))
+        logging.info('Found {} results from YTS.'.format(len(results)))
         return results
 
 
@@ -601,7 +670,7 @@ class Torrentz2(object):
             result = {}
             try:
                 desc = i.find('description').text.split(' ')
-                hsh = desc[-1]
+                hash_ = desc[-1]
 
                 m = (1024 ** 2) if desc[2] == 'MB' else (1024 ** 3)
 
@@ -613,8 +682,8 @@ class Torrentz2(object):
                 result['imdbid'] = imdbid
                 result['indexer'] = 'Torrentz2'
                 result['info_link'] = i.find('link').text
-                result['torrentfile'] = 'magnet:?xt=urn:btih:{}&dn={}&tr={}'.format(hsh, result['title'], '&tr='.join(Torrent.trackers))
-                result['guid'] = hsh
+                result['torrentfile'] = magnet(hash_)
+                result['guid'] = hash_
                 result['type'] = 'magnet'
                 result['downloadid'] = None
                 result['seeders'] = int(desc[4])
