@@ -37,8 +37,8 @@ $(document).ready(function () {
                 })
                 .done(function(r){
                     if(r == "states.STARTED"){
-                        $.notify({message: "Update successful."}, {delay: 0})
-                        setTimeout(function() {window.location =  url_base + "/system/restart/";},3000);
+                        $.notify({message: "Update successful."}, {delay: 0});
+                        setTimeout(function() {window.location =  url_base + "/system/restart/";}, 2500);
                     }
                 })
                 .fail(function(r){
