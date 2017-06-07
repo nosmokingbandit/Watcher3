@@ -173,8 +173,7 @@ function scan_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
         $progress_text.empty();
         if(no_imports == false){
@@ -182,8 +181,7 @@ function scan_library(event, elem){
         }
 
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     });
@@ -288,15 +286,13 @@ function import_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
         $progress_bar.width("0%");
         $progress_text.empty();
         $('a#import_return').slideDown();
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     });

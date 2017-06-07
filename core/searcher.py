@@ -61,7 +61,7 @@ class Searcher():
 
         backlog_movies = self._get_backlog_movies(movies)
         if backlog_movies:
-            logging.debug('Backlog movies: {}'.format(backlog_movies))
+            logging.debug('Backlog movies: {}'.format(', '.join(i['title'] for i in backlog_movies)))
             for movie in backlog_movies:
                 imdbid = movie['imdbid']
                 title = movie['title']
@@ -194,8 +194,7 @@ class Searcher():
 
             nn_found = [i for i in newznab_results if i['imdbid'] == imdbid]
 
-            tor_found = [i for i in torrent_results if
-                         self._match_torrent_name(title, year, i['title'])]
+            tor_found = [i for i in torrent_results if self._match_torrent_name(title, year, i['title'])]
             for idx, result in enumerate(tor_found):
                 result['imdbid'] = imdbid
                 tor_found[idx] = result
