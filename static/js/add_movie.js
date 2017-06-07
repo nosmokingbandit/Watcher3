@@ -107,24 +107,20 @@ function show_details(event, elem){
 
     movie["trailer"] = "";
 
+    var modal = format_template(details_template, movie)
+    $modal = $(modal);
+    $modal.data("movie", movie);
+    $modal.modal("show");
+    $modal.on('hidden.bs.modal', function(){
+        $modal.remove();
+    });
+
     $.post(url_base + "/ajax/get_trailer", {"title": movie["title"],
                                             "year": movie["title"]
                                             })
     .done(function(r){
         if(r){
-            movie["trailer"] = `https://www.youtube.com/embed/${r}?&showinfo=0`;
+            $modal.find("iframe#trailer").attr("src", `https://www.youtube.com/embed/${r}?&showinfo=0`);
         }
-        var modal = format_template(details_template, movie)
-
-        $modal = $(modal);
-        $modal.data("movie", movie);
-        $modal.modal("show");
-        $modal.on('hidden.bs.modal', function(){
-            $modal.remove();
-        });
-    })
-    .fail(function(data){
-        var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger", delay: 0});
     });
 }
