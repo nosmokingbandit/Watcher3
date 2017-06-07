@@ -9,8 +9,8 @@ a.btn{
     margin: 1em;
 }
 
-a.btn > img,
-a.btn > i{
+div.buttons a.btn > img,
+div.buttons a.btn > i{
     height: 1em;
     font-size: 6em;
     margin: 0.25em;
