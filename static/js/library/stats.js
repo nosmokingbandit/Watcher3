@@ -2,7 +2,7 @@ $(document).ready(function() {
     var $body = $("body");
     label_color = $body.css("color");
     label_size = $body.css("font-size");
-    font_family = $body.css("font-family")
+    font_family = $body.css("font-family");
 
 
     status_colors = [];
@@ -56,7 +56,9 @@ function render_charts(stats){
         ykeys: ["value"],
         labels: ["Movies"],
         barColors: label_color,
-        xLabelAngle: 35
+        lineColors: label_color,
+        xLabelAngle: 35,
+        grid: true
     })
 
     Morris.Line({
@@ -86,5 +88,6 @@ function render_charts(stats){
 
 
     $("svg text").css("font-family", font_family)
-    $("svg > path").attr("stroke", "none");
+    $("#chart_status svg > path").attr("stroke", "none");
+    $("#chart_profiles svg > path").attr("stroke", "none");
 }
