@@ -147,9 +147,9 @@ class Torrent(NewzNabProvider):
             for i in lime_results:
                 if i not in results:
                     results.append(i)
-        if torrent_indexers['torrentz2']:
-            torrentz_results = Torrentz2.get_rss()
-            for i in torrentz_results:
+        if torrent_indexers['thepiratebay']:
+            thepiratebay_results = ThePirateBay.get_rss()
+            for i in thepiratebay_results:
                 if i not in results:
                     results.append(i)
         if torrent_indexers['torrentz2']:
