@@ -70,9 +70,7 @@ class AuthController(object):
 
     @cherrypy.expose
     def default(self):
-        # VV TODO remove this line VV
-        self.login_form = Template(filename='templates/login.html', module_directory=core.MAKO_CACHE)
-        return self.login_form.render(url_base=core.URL_BASE)
+        return self.login_form.render(url_base=core.URL_BASE, theme=core.CONFIG['Server']['uitheme'])
 
     def on_login(self, username, origin_ip):
         ''' Called on successful login
