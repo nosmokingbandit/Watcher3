@@ -4,10 +4,14 @@ $(document).ready(function () {
 
     $.post(url_base + "/ajax/server_status", {
         "mode": "shutdown"
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 
     /*
-    This repeats every 3 seconds to check. Eventually I"ll put a counter in that shows an error message if it takes too long to restart.
+    This repeats every 3 seconds to check if the server is still online.
     */
     var try_count = 0
     var check = setInterval(function(){

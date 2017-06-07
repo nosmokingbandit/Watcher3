@@ -33,6 +33,10 @@ $(document).ready(function(){
                 $modal_file_list.html(file_list);
             }
         });
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 
 });
@@ -179,11 +183,10 @@ function scan_library(event, elem){
         if(no_imports == false){
             $("a#import_library").slideDown();
         }
-
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger"});
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 };
 
@@ -295,6 +298,9 @@ function import_library(event, elem){
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
+    })
+    .always(function(){
+       $.notify({message: err}, {type: "danger"});
     });
 }
 

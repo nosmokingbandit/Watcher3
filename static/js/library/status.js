@@ -167,6 +167,10 @@ function open_info_modal(event, elem){
         }
 
         $movie_status.modal("show");
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 }
 
@@ -239,7 +243,12 @@ function manual_search(event, elem, imdbid){
         if(response["movie_status"]){
             update_movie_status(imdbid, response["movie_status"]);
         }
-
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-magnify");
     });
 }
@@ -261,10 +270,14 @@ function update_metadata(event, elem, imdbid, tmdbid){
         } else {
             $.notify({message: response["error"]}, {type: "danger"})
         }
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-tag-text-outline");
     });
-
-
 }
 
 function remove_movie(event, elem, imdbid){
@@ -290,6 +303,10 @@ function remove_movie(event, elem, imdbid){
                 var message = `${title} could not be removed. Check logs for more information.`;
                 $.notify({message: "Unable to read plugin config."}, {type: "danger"})
             }
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
         });
     }
 }
@@ -314,8 +331,11 @@ function update_movie_options(event, elem, imdbid){
         } else {
             $.notify({message: `Unable to update ${imdbid}.`}, {type: "danger"})
         }
-
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    });
 }
 
 function manual_download(event, elem, guid, kind, imdbid){
@@ -345,7 +365,12 @@ function manual_download(event, elem, guid, kind, imdbid){
         } else {
             $.notify({message: response["error"]}, {type: "danger"})
         }
-
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-download");
     });
 }
@@ -378,11 +403,15 @@ function mark_bad(event, elem, guid, imdbid){
             $.notify({message: `Marked release as Bad.`})
             var $label = $this.closest("div.search_result").find("span.status");
             $label.removeClass($label.text()).addClass("Bad").text("Bad");
-
         } else {
             $.notify({message: response["error"]}, {type: "danger"})
         };
-
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-cancel");
     });
 }

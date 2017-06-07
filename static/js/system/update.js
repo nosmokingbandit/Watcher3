@@ -51,5 +51,9 @@ $(document).ready(function () {
             $message.css("opacity", 0);
             $.notify({title: "<u>Update Failed</u><br/>", message: "Please check logs for more information."}, {type: "danger", delay: 0})
         }
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 });

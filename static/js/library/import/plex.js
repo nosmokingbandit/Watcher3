@@ -109,6 +109,10 @@ function read_csv(event, elem){
         $("div#remote_map").slideDown();
         $("a#import_library").slideDown();
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    });
 }
 
 function apply_remote(event){
@@ -243,12 +247,14 @@ function import_library(event, elem){
         $progress.slideUp();
         $progress_bar.width("0%");
         $progress_text.empty();
-        $('a#import_return').slideDown();
     })
     .fail(function(data)
     {
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
+    })
+    .always(function(){
+        $('a#import_return').slideDown();
     });
 }
 

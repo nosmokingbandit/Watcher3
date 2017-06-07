@@ -46,7 +46,10 @@ function login(event){
         } else {
             $input_password.val("");
         }
-
-    });
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
 
 }

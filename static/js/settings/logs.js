@@ -12,6 +12,10 @@ function view_log(){
     .done(function(r){
         $log_display.text(r);
         $log_display.show();
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 };
 

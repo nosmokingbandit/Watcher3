@@ -56,6 +56,12 @@ $(document).ready(function() {
             }
 
             $movie_list.css("display", "flex").hide().fadeIn();
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
+        })
+        .always(function(){
             $("#thinker").fadeOut();
         });
     });
@@ -79,14 +85,19 @@ function add_movie(event, elem, quality_profile, modal=false){
     .done(function(r){
         response = JSON.parse(r)
 
-        $add_button.html(original_contents);
-
         if(response["response"] == true){
             $.notify({message: `${title} added to library.`})
         } else {
             $.notify({message: `${response['error']}`}, {type: "warning"})
         }
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger"});
+    })
+    .always(function(){
+        $add_button.html(original_contents);
+    });
 }
 
 function show_details(event, elem){
@@ -112,5 +123,8 @@ function show_details(event, elem){
             $modal.remove();
         });
     })
-
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    });
 }

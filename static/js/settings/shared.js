@@ -72,7 +72,12 @@ function save_settings(event, elem){
         } else {
             $.notify({message: `${response['error']}`}, {type: "danger"})
         }
-
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-content-save");
     });
 }

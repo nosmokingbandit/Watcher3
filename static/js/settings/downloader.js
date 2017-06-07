@@ -76,7 +76,6 @@ function test_connection(event, elem, client){
     })
     .done(function(r){
         var response = JSON.parse(r);
-        $this.html(original_contents);
 
         if(response["response"] == true){
             $.notify({message: `${response["message"]}`});
@@ -84,6 +83,13 @@ function test_connection(event, elem, client){
             $.notify({message: `${response["error"]}`}, {type: "danger"})
         }
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
+        $this.html(original_contents);
+    });
 }
 
 

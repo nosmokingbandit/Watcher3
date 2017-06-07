@@ -30,7 +30,12 @@ function test_indexer(event, elem){
         } else {
             $.notify({message: `${response['error']}`}, {type: "danger"})
         }
-
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
         $this.removeClass("mdi-circle-outline animated").addClass("mdi-lan-pending");
     });
 }

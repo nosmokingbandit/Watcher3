@@ -41,16 +41,24 @@ function update_check(event, elem){
 
             $.notify({title: title, message: body}, {delay: 0})
         }
-
-        $this.html(original_content);
-
     })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
+        $this.html(original_content);
+    });
 }
 
 function update_now(){
     $.post(url_base + "/ajax/update_now", {"mode": "set_true"})
     .done(function(){
         window.location = url_base + "/update";
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 };
 

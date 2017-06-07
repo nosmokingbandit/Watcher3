@@ -4,6 +4,10 @@ $(document).ready(function () {
 
     $.post(url_base + "/ajax/server_status", {
         mode: 'restart'
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 
     /*
