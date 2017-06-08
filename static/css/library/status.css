@@ -64,7 +64,6 @@ ul#movie_list.list li{
     cursor: pointer;
     width: 100%;
     text-align: left;
-    overflow: auto;
     height: 6em;
     line-height: 1.75em;
     position: relative;
