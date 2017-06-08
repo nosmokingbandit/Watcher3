@@ -407,7 +407,7 @@ class Metadata(object):
         self.tmdb = TMDB()
         return
 
-    def get_metadata(self, filepath):
+    def from_file(self, filepath):
         ''' Gets video metadata using hachoir.parser
         filepath: str absolute path to movie file
 

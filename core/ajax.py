@@ -654,7 +654,7 @@ class Ajax(object):
             raise StopIteration()
 
         for index, path in enumerate(files):
-            metadata = self.metadata.get_metadata(path)
+            metadata = self.metadata.from_file(path)
             metadata['size'] = os.path.getsize(path)
             metadata['finished_file'] = path
             metadata['human_size'] = Conversions.human_file_size(metadata['size'])
