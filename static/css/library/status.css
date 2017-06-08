@@ -143,10 +143,6 @@ div.modal-body div.search_result{
     padding-bottom: 1em;
 }
 
-div.modal-body img{
-    margin: 0 0 1em 0;
-}
-
 div.modal-body label{
     margin-top: 0;
 }
@@ -173,6 +169,11 @@ div.modal-body a#update_movie_options{
     width: 100%;
     margin: 1.25em 0 0 0;
 }
+
+div.modal-body p.plot{
+    text-indent: 2em;
+}
+
     /* Search Results table */
 div.modal-body div#search_results_table{
     overflow-y: scroll;
@@ -191,4 +192,10 @@ div.modal-body div#search_results_table div.search_result span.title{
 
 div.modal-body div#search_results_table div.search_result i.mdi{
     font-size: 1.5em;
+}
+
+@media (min-width: 992px) {
+    div.modal-body p.plot{
+        min-height: 10.5em;
+    }
 }

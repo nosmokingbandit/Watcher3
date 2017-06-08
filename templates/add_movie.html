@@ -3,7 +3,7 @@
     <head>
         ${head}
         <script src="${url_base}/static/js/add_movie.js?v=06.06"  type="text/javascript"></script>
-        <link href="${url_base}/static/css/add_movie.css?v=06.02" rel="stylesheet">
+        <link href="${url_base}/static/css/add_movie.css?v=06.08" rel="stylesheet">
     </head>
     <body>
         ${navbar}
@@ -68,38 +68,30 @@
                                 {title}
                                 <span class="year">{year}</span>
                             </h3>
-
+                            <span class="label label-default">
+                                Theatrical Release: {release_date}
+                            </span>
+                            <span class="label label-default">
+                                Score: {vote_average}
+                            </span>
+                            <a class="label label-info" href="https://www.themoviedb.org/movie/{id}" target="_blank">
+                                TheMovieDB <i class="mdi mdi-earth"></i>
+                            </a>
                         </div>
 
                         <div class="modal-body">
 
-                                <div class="col-md-4">
-                                    <img src="{img_url}" class="img-responsive">
+                            <div class="col-md-5">
+                                <img src="{img_url}" class="img-responsive">
+                            </div>
+                            <div class="col-md-7">
+                                <div class="embed-responsive embed-responsive-16by9">
+                                    <iframe src="" id="trailer"></iframe>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="embed-responsive embed-responsive-16by9">
-                                        <iframe src="" id="trailer"></iframe>
-                                    </div>
-                                    <div class="well stats">
-                                        <span>
-                                            Score:
-                                            <b>{vote_average}</b>
-                                        </span>
-                                        <span>
-                                            Theatrical Release:
-                                            <b>{release_date}</b>
-                                        </span>
-                                        <span>
-                                            <a href="https://www.themoviedb.org/movie/{id}" target="_blank">
-                                                <i class="mdi mdi-help-circle-outline"></i>
-                                            </a>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            <div class="col-md-12">
+                            </div>
+                            <div class="col-md-7">
                                 <div class="well">
-                                    <span class="plot">{overview}</span>
+                                    <p class="plot">{overview}</p>
                                 </div>
                             </div>
                         </div>

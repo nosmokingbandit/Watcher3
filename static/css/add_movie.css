@@ -43,20 +43,19 @@ span.year{
 
 
 /* details modal */
-
-div.modal div.stats{
-    text-align: center;
+div.modal-header h3{
+    display: block;
 }
 
-div.modal div.modal-body img{
-    margin-bottom: 1em;
-}
-
-div.modal div.stats > span{
+div.modal-header .label{
+    margin-bottom: 0.5em;
     display: inline-block;
-    margin: 0.25em 1em;
 }
 
 iframe#trailer {
     background: url("../images/trailer_unavailable.png") no-repeat 50% 50%;
+}
+
+div.modal-body p.plot{
+    text-indent: 2em;
 }
