@@ -70,6 +70,6 @@ class PopularMoviesFeed(object):
                 continue
             logging.info('Adding movie {} {} from PopularMovies list.'.format(movie['title'], movie['imdbid']))
             movie_info['quality'] = 'Default'
-            added = self.library.add_movie(movie_info)
+            added = self.library.add_movie(movie_info, origin='PopularMovies')
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie_info['title'], movie_info['year'], movie_info['quality'])

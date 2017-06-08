@@ -8,8 +8,8 @@
         ${head}
         <link href="${url_base}/static/css/library/status.css?v=06.02" rel="stylesheet">
 
-        <script src="${url_base}/static/js/lib/echo.min.js?v=06.06"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.06"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/echo.min.js?v=06.07"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.07"  type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -87,6 +87,25 @@
                                 <span class="title">{title}</span>
                                 <span class="year">{year}</span>
                             </h3>
+                            <span class="label label-default">
+                                Source: {origin}
+                            </span>
+                            <span class="label label-default">
+                                Theatrical Release: {release_date}
+                            </span>
+                            <span class="label label-default">
+                                Score: {score}
+                            </span>
+                            <span class="label label-default">
+                                Date Added: {added_date}
+                            </span>
+                            <a class="label label-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank">
+                                TheMovieDB <i class="mdi mdi-earth"></i>
+                            </a>
+                            <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank">
+                                IMDB <i class="mdi mdi-earth"></i>
+                            </a>
+
 
                         </div>
 
@@ -110,21 +129,6 @@
                                 </div>
                                 <div class="well">
                                     <span class="plot">{plot}</span>
-                                </div>
-                                <div class="well stats col-md-12">
-                                    <span>
-                                        Score:
-                                        <b>{score}</b>
-                                    </span>
-                                    <span>
-                                        Theatrical Release:&#8203;
-                                        <b>{release_date}</b>
-                                    </span>
-                                    <span>
-                                        <a href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank">
-                                            <i class="mdi mdi-help-circle-outline"></i>
-                                        </a>
-                                    </span>
                                 </div>
 
                                 <div class="col-md-5">

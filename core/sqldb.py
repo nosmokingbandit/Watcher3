@@ -49,7 +49,8 @@ class SQL(object):
                             Column('backlog', SMALLINT),
                             Column('tmdbid', TEXT),
                             Column('alternative_titles', TEXT),
-                            Column('digital_release_date', TEXT)
+                            Column('digital_release_date', TEXT),
+                            Column('origin', TEXT)
                             )
         self.SEARCHRESULTS = Table('SEARCHRESULTS', self.metadata,
                                    Column('score', SMALLINT),

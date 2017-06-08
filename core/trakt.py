@@ -46,7 +46,7 @@ class Trakt(object):
         for i in movies:
             imdbid = i['ids']['imdb']
             logging.info('Adding movie {} {} from Trakt'.format(i['title'], imdbid))
-            added = self.library.add_movie({'id': i['ids']['tmdb']})
+            added = self.library.add_movie({'id': i['ids']['tmdb']}, origin='Trakt')
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, i['title'], i['year'], 'Default')
 

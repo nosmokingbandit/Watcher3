@@ -619,7 +619,7 @@ class Manage(object):
         self.poster = Poster()
         self.plugins = plugins.Plugins()
 
-    def add_movie(self, data, full_metadata=False):
+    def add_movie(self, data, origin='Search', full_metadata=False):
         ''' Adds movie to Wanted list.
         :param data: str json.dumps(dict) of info to add to database.
         full_metadata: bool if data is complete and ready for write
@@ -646,9 +646,6 @@ class Manage(object):
         else:
             movie = data
 
-        movie['quality'] = data.get('quality', 'Default')
-        movie['status'] = data.get('status', 'Waiting')
-
         if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
             logging.info('{} already exists in library.'.format(movie['title']))
 
@@ -656,6 +653,10 @@ class Manage(object):
 
             response['error'] = '{} already exists in library.'.format(movie['title'])
             return response
+
+        movie['quality'] = data.get('quality', 'Default')
+        movie['status'] = data.get('status', 'Waiting')
+        movie['origin'] = movie.get('origin', origin)
 
         if movie.get('poster_path'):
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])

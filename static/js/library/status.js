@@ -137,6 +137,9 @@ function open_info_modal(event, elem){
 
     var movie = JSON.parse($(elem).find("span.movie").text());
     movie["poster"] = url_base + "/static/images/posters/" + movie["imdbid"] + ".jpg"
+    if(movie["origin"] === null){
+        movie["origin"] = ''
+    }
 
     var search_results = {};
     var results_table = "";

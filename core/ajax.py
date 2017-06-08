@@ -93,7 +93,7 @@ class Ajax(object):
         return json.jumps(res)
 
     @cherrypy.expose
-    def add_wanted_movie(self, data, full_metadata=False):
+    def add_wanted_movie(self, data, origin='Search', full_metadata=False):
         ''' Adds movie to library
         data: dict of known movie data
         full_metadata: bool if data is complete for database
@@ -117,7 +117,7 @@ class Ajax(object):
                         if best_release:
                             self.snatcher.download(best_release)
 
-        r = self.manage.add_movie(data, full_metadata=full_metadata)
+        r = self.manage.add_movie(data, origin=origin, full_metadata=full_metadata)
 
         if r['response'] is True and r['movie']['status'] != 'Disabled' and r['movie']['year'] != 'N/A':  # disable immediately grabbing new release for imports
             t = threading.Thread(target=thread_search_grab, args=(r['movie'],))
@@ -126,66 +126,6 @@ class Ajax(object):
         r.pop('movie', None)
 
         return json.dumps(r)
-
-    @cherrypy.expose
-    def add_wanted_imdbid(self, imdbid, quality='Default'):
-        ''' Method to quckly add movie with just imdbid
-        :param imdbid: str imdb id #
-
-        Submits movie with base quality options
-
-        Generally just used for the api
-
-        Returns dict of success/fail with message.
-
-        Returns str json.dumps(dict)
-        '''
-
-        response = {}
-
-        movie = self.tmdb._search_imdbid(imdbid)
-
-        if not movie:
-            response['status'] = 'false'
-            response['message'] = '{} not found on TMDB.'.format(imdbid)
-            return response
-        else:
-            movie = movie[0]
-
-        movie['imdbid'] = imdbid
-        movie['quality'] = quality
-
-        return self.add_wanted_movie(json.dumps(movie))
-
-    @cherrypy.expose
-    def add_wanted_tmdbid(self, tmdbid, quality='Default'):
-        ''' Method to quckly add movie with just tmdbid
-        :param imdbid: str imdb id #
-
-        Submits movie with base quality options
-
-        Generally just used for the api
-
-        Returns dict of success/fail with message.
-
-        Returns str json.dumps(dict)
-        '''
-
-        response = {}
-
-        data = self.tmdb._search_tmdbid(tmdbid)
-
-        if not data:
-            response['status'] = 'false'
-            response['message'] = '{} not found on TMDB.'.format(tmdbid)
-            return response
-        else:
-            data = data[0]
-
-        data['quality'] = quality
-        data['status'] = 'Waiting'
-
-        return self.add_wanted_movie(json.dumps(data))
 
     @cherrypy.expose
     def save_settings(self, data):
@@ -723,6 +663,7 @@ class Ajax(object):
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
                 movie['finished_file'] = movie['path']
+                movie['origin'] = 'Directory Import'
                 response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))
@@ -929,6 +870,7 @@ class Ajax(object):
             movie['status'] = 'Disabled'
             movie['predb'] = 'found'
             movie['finished_file'] = movie.get('finished_file', '').strip()
+            movie['origin'] = 'Kodi Import'
 
             response = json.loads(self.add_wanted_movie(json.dumps(movie)))
             if response['response'] is True:
@@ -1028,6 +970,7 @@ class Ajax(object):
             if movie['imdbid']:
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
+                movie['origin'] = 'Plex Import'
 
                 tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
                 movie.update(tmdb_data)
@@ -1100,6 +1043,7 @@ class Ajax(object):
         for movie in finished:
             movie['predb'] = 'found'
             movie['status'] = 'Disabled'
+            movie['origin'] = 'CouchPotato Import'
 
             response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
             if response['response'] is True:

@@ -146,6 +146,6 @@ class ImdbRss(object):
             logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
             movie_info['year'] = movie_info['release_date'][:4]
 
-            added = self.library.add_movie(movie_info)
+            added = self.library.add_movie(movie_info, origin='IMDB')
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie_info['title'], movie_info['year'], 'Default')

@@ -10,6 +10,9 @@ input{
 a{
     cursor: pointer;
 }
+a:hover{
+    text-decoration: none;
+}
 
 i.mdi{
     font-size: 1.2em;

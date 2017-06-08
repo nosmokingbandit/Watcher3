@@ -3,17 +3,19 @@ import logging
 
 import core
 from core import ajax, sqldb
+from core.movieinfo import TMDB
+from core.library import Manage
 
 logging = logging.getLogger(__name__)
 
-api_version = 2.0
+api_version = 2.1
 
 ''' API
 
 All methods output a json object:
 {'response': true}
 
-A 'true' response indicates that the request was valid and returs useful data.
+A 'true' response indicates that the request was valid and returns useful data.
 A 'false' response indicates that the request was invalid. This will always include an
     'error' key that describes the reason for the failure.
 
@@ -61,6 +63,7 @@ Major version changes can be expected to break api interactions
 1.1     Consistency in responses
 
 2.0     Change to semantically correct json. Responses are now bools instead of str 'true'/'false'
+2.1     Adjust addmovie() to pass origin argument. Adjust addmovie() to search tmdb for itself rather than in core.ajax()
 
 '''
 
@@ -74,6 +77,8 @@ class API(object):
     def __init__(self):
         self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
+        self.tmdb = TMDB()
+        self.library = Manage()
         return
 
     def GET(self, **params):
@@ -182,10 +187,26 @@ class API(object):
 
         if imdbid:
             logging.info('API request add movie imdb {}'.format(imdbid))
-            return self.ajax.add_wanted_imdbid(imdbid, quality=quality)
-        else:
+            movie = self.tmdb._search_imdbid(imdbid)
+            if not movie:
+                return json.dumps({'response': False, 'error': 'Cannot find {} on TMDB'.format(imdbid)})
+            else:
+                movie = movie[0]
+                movie['imdbid'] = imdbid
+        elif tmdbid:
             logging.info('API request add movie tmdb {}'.format(tmdbid))
-            return self.ajax.add_wanted_tmdbid(tmdbid, quality=quality)
+            movie = self.tmdb._search_tmdbid(tmdbid)
+
+            if not movie:
+                return json.dumps({'response': False, 'error': 'Cannot find {} on TMDB'.format(tmdbid)})
+            else:
+                movie = movie[0]
+
+        movie['quality'] = quality
+        movie['status'] = 'Waiting'
+        movie['origin'] = 'API'
+
+        return json.dumps(self.library.add_movie(movie, full_metadata=True))
 
     def removemovie(self, imdbid):
         ''' Remove movie from wanted list

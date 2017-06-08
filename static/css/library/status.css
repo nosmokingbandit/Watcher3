@@ -128,6 +128,15 @@ ul#movie_list.compact li span.year{
 }
 
 /* Status Modal */
+div.modal-header h3{
+    display: block;
+}
+
+div.modal-header .label{
+    margin-bottom: 0.5em;
+    display: inline-block;
+}
+
 div.modal-body div.search_result{
     overflow: auto;
     line-height: 2em;
@@ -140,18 +149,6 @@ div.modal-body img{
 
 div.modal-body label{
     margin-top: 0;
-}
-
-div.modal-body div.stats{
-    text-align: center;
-}
-div.modal-body div.stats > span {
-    display: inline-block;
-    margin: 0.25em 1em;
-}
-
-div.modal-body div.stats > span > b{
-    white-space: nowrap;
 }
 
 div.modal-body div#movie_actions a{

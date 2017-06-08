@@ -120,11 +120,9 @@ a {
 	&:hover {
 		outline: none;
 		color: @font-color-primary-hover;
-		text-decoration: underline;
 	}
 	&:focus {
 		color: @font-color-primary-hover;
-		text-decoration: underline;
 		outline: none;
 	}
 }
@@ -415,7 +413,6 @@ table {
 	}
 	a {
 		&:not(.btn) {
-			text-decoration: underline;
 		}
 	}
 	.dropdown-menu {
@@ -1965,7 +1962,6 @@ caption {
 	}
 	a {
 		&:not(.btn) {
-			text-decoration: underline;
 		}
 	}
 	.dropdown-menu {
@@ -3754,13 +3750,11 @@ a.btn.disabled {
 	&:hover {
 		border-color: @border-color-link;
 		color: @font-color-primary-hover;
-		text-decoration: underline;
 		background-color: @bg-color-link;
 	}
 	&:focus {
 		border-color: @border-color-link;
 		color: @font-color-primary-hover;
-		text-decoration: underline;
 		background-color: @bg-color-link;
 	}
 }
@@ -5552,15 +5546,14 @@ select[multiple].input-group-sm {
 	text-align: center;
 	white-space: nowrap;
 	vertical-align: baseline;
-	border-radius: .25em;
-	border-radius: 0;
+	border-radius: @radius-button;
 	&:empty {
 		display: none;
 	}
 }
 a.label {
 	&:hover {
-		color: @font-color-main-inverse;
+		color: @font-color-main;
 		text-decoration: none;
 		cursor: pointer;
 	}
@@ -5751,7 +5744,6 @@ a.thumbnail.active {
 	}
 	.alert-link {
 		font-weight: bold;
-		text-decoration: underline;
 		color: @font-color-main-inverse;
 	}
 	>p {
