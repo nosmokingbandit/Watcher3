@@ -1,6 +1,6 @@
 import cherrypy
 import core
-from core import ajax, scheduler, plugins
+from core import scheduler, plugins
 from core.auth import AuthController
 import os
 import json
@@ -17,8 +17,6 @@ class App(object):
             self._cp_config = {
                 'auth.require': []
             }
-
-        self.ajax = ajax.Ajax()
 
         # point server toward custom 404
         cherrypy.config.update({
