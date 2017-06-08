@@ -19,6 +19,8 @@ logging = logging.getLogger(__name__)
 
 sql = sqldb.SQL()
 
+MOVIES_cols = [i.name for i in sql.MOVIES.c]
+
 
 class ImportDirectory(object):
 
@@ -596,13 +598,11 @@ class Metadata(object):
 
         movie['finished_file'] = movie.get('finished_file')
 
-        required_keys = ('added_date', 'alternative_titles', 'digital_release_date', 'imdbid', 'tmdbid', 'title', 'year', 'poster', 'plot', 'url', 'score', 'release_date', 'rated', 'status', 'quality', 'addeddate', 'backlog', 'finished_file', 'finished_date')
-
         for k, v in movie.items():
             if isinstance(v, str):
                 movie[k] = v.strip()
 
-        movie = {k: v for k, v in movie.items() if k in required_keys}
+        movie = {k: v for k, v in movie.items() if k in MOVIES_cols}
 
         return movie
 
