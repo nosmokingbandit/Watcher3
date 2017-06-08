@@ -71,7 +71,7 @@ class Ajax(object):
             results = [res for res in results if res.get('type') != 'torrent']
 
         if not results:
-            return json.dumps({'response': False, 'next': Conversions.human_datetime(core.NEXT_SEARCH)});
+            return json.dumps({'response': False, 'next': Conversions.human_datetime(core.NEXT_SEARCH)})
         else:
             for i in results:
                 i['size'] = Conversions.human_file_size(i['size'])
@@ -80,17 +80,6 @@ class Ajax(object):
     @cherrypy.expose
     def get_trailer(self, title, year):
         return Trailer.get_trailer('{} {}'.format(title, year))
-
-    @cherrypy.expose
-    def movie_status_popup(self, imdbid):
-        ''' Calls movie_status_popup to render html
-        :param imdbid: str imdb identification number (tt123456)
-
-        Returns str html content.
-        '''
-
-        res = self.sql.get_search_results(imdbid, quality=quality)
-        return json.jumps(res)
 
     @cherrypy.expose
     def add_wanted_movie(self, data, origin='Search', full_metadata=False):
@@ -320,23 +309,6 @@ class Ajax(object):
 
         response = version.Version().manager.update_check()
         return json.dumps(response)
-
-    @cherrypy.expose
-    def refresh_list(self, list, imdbid='', quality=''):
-        ''' Re-renders html for Movies/Results list
-        :param list: str the html list id to be re-rendered
-        :param imdbid: str imdb identification number (tt123456) <optional>
-
-        Calls template file to re-render a list when modified in the database.
-        #result_list requires imdbid.
-
-        Returns str html content.
-        '''
-
-        if list == '#movie_list':
-            return status.Status.movie_list()
-        if list == '#result_list':
-            return movie_status_popup.MovieStatusPopup().result_list(imdbid, quality)
 
     @cherrypy.expose
     def test_downloader_connection(self, mode, data):
