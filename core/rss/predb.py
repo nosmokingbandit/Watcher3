@@ -1,7 +1,7 @@
 import logging
 import xml.etree.cElementTree as ET
 
-from core import sqldb
+import core
 from core.helpers import Url
 from fuzzywuzzy import fuzz
 
@@ -9,9 +9,6 @@ logging = logging.getLogger(__name__)
 
 
 class PreDB(object):
-
-    def __init__(self):
-        self.sql = sqldb.SQL()
 
     def check_all(self):
         ''' Checks all movies for predb status
@@ -24,7 +21,7 @@ class PreDB(object):
 
         logging.info('Checking predb.me for new available releases.')
 
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
         if not movies:
             return False
 
@@ -68,7 +65,7 @@ class PreDB(object):
 
         if self._fuzzy_match(predb_titles, test):
             logging.info('{} {} found on predb.me.'.format(title, year))
-            if self.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
+            if core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
                 return True
             else:
                 return False
@@ -119,7 +116,7 @@ class PreDB(object):
                 test = '{}.{}'.format(title, year).replace(' ', '.')
                 if self._fuzzy_match(items, test):
                     logging.info('{} {} found on predb.me RSS.'.format(title, year))
-                    self.sql.update_multiple('MOVIES', db_update, imdbid=imdbid)
+                    core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid)
                     continue
         except Exception as e:
             logging.error('Unable to read predb rss.', exc_info=True)

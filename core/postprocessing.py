@@ -7,7 +7,7 @@ import shutil
 
 import cherrypy
 import core
-from core import plugins, movieinfo, snatcher, sqldb, library, ajax
+from core import plugins, movieinfo, snatcher, library, ajax
 
 logging = logging.getLogger(__name__)
 
@@ -18,13 +18,13 @@ class Postprocessing(object):
     def __init__(self):
         self.tmdb = movieinfo.TMDB()
         self.plugins = plugins.Plugins()
-        self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
         self.snatcher = snatcher.Snatcher()
         self.manage = library.Manage()
         self.metadata = library.Metadata()
 
-    def null(*args, **kwargs): return
+    def null(*args, **kwargs):
+        return
 
     @cherrypy.expose
     def POST(self, **data):
@@ -177,12 +177,12 @@ class Postprocessing(object):
 
         # try to get searchresult using guid first then downloadid
         logging.info('Searching local database for guid.')
-        result = self.sql.get_single_search_result('guid', data['guid'])
+        result = core.sql.get_single_search_result('guid', data['guid'])
         if not result:
             logging.info('Guid not found.')
             if 'downloadid' in data.keys():
                 logging.info('Searching local database for downloadid.')
-                result = self.sql.get_single_search_result('downloadid', str(data['downloadid']))
+                result = core.sql.get_single_search_result('downloadid', str(data['downloadid']))
                 if result:
                     logging.info('Searchresult found by downloadid.')
                     if result['guid'] != data['guid']:
@@ -197,7 +197,7 @@ class Postprocessing(object):
         # if we found it, get local movie info
         if result:
             logging.info('Searching local database by imdbid.')
-            data.update(self.sql.get_movie_details('imdbid', result['imdbid']))
+            data.update(core.sql.get_movie_details('imdbid', result['imdbid']))
             if data:
                 logging.info('Movie data found locally by imdbid.')
                 data['finished_score'] = result['score']
@@ -386,15 +386,16 @@ class Postprocessing(object):
 
         # set movie status and add finished date/score
         if data.get('imdbid'):
-            if not self.sql.row_exists('MOVIES', imdbid=data['imdbid']):
+            if not core.sql.row_exists('MOVIES', imdbid=data['imdbid']):
                 logging.info('{} not found in library, adding now.'.format(data.get('title')))
                 data['status'] = 'Disabled'
                 self.ajax.add_wanted_movie(json.dumps(data))
 
             logging.info('Setting MOVIE status.')
             r = self.manage.movie_status(data['imdbid'])
-            self.sql.update('MOVIES', 'finished_date', result['data']['finished_date'], 'imdbid', data['imdbid'])
-            self.sql.update('MOVIES', 'finished_score', result['data'].get('finished_score'), 'imdbid', data['imdbid'])
+            db_update = {'finished_date': result['data']['finished_date'], 'finished_score': result['data'].get('finished_score')}
+            core.sql.update_multiple('MOVIES', db_update, imdbid=data['imdbid'])
+
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
             r = False
@@ -429,7 +430,7 @@ class Postprocessing(object):
             result['tasks']['mover'] = {'enabled': False}
 
         if data.get('imdbid'):
-            self.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
+            core.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
 
         # Delete leftover dir. Skip if createhardlinks enabled or if mover disabled/failed
         if config['cleanupenabled']:

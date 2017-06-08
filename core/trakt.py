@@ -2,7 +2,7 @@ from core.helpers import Url
 from core.helpers import Comparisons
 import json
 import core
-from core import library, searcher, sqldb
+from core import library, searcher
 
 import logging
 logging = logging.getLogger(__name__)
@@ -11,7 +11,6 @@ logging = logging.getLogger(__name__)
 class Trakt(object):
 
     def __init__(self):
-        self.sql = sqldb.SQL()
         self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
@@ -39,7 +38,7 @@ class Trakt(object):
 
         logging.info('Found {} movies from Trakt lists.'.format(len(movies)))
 
-        library = [i['imdbid'] for i in self.sql.get_user_movies()]
+        library = [i['imdbid'] for i in core.sql.get_user_movies()]
 
         movies = [i for i in movies if i['ids']['imdb'] not in library]
 

@@ -4,7 +4,6 @@ import datetime
 import time
 import xml.etree.cElementTree as ET
 import core
-from core import sqldb
 from core.proxy import Proxy
 from core.helpers import Url
 from core.providers.base import NewzNabProvider
@@ -42,7 +41,6 @@ class Torrent(NewzNabProvider):
 
     def __init__(self):
         self.feed_type = 'torrent'
-        self.sql = sqldb.SQL()
         return
 
     def search_all(self, imdbid, title, year):
@@ -70,7 +68,7 @@ class Torrent(NewzNabProvider):
                 url_base = url_base + '/'
             apikey = indexer[1]
 
-            caps = self.sql.torznab_caps(url_base)
+            caps = core.sql.torznab_caps(url_base)
             if not caps:
                 caps = self._get_caps(url_base)
                 if caps is None:
@@ -178,7 +176,7 @@ class Torrent(NewzNabProvider):
         root = ET.fromstring(xml)
         caps = root[0].find('movie-search').attrib['supportedParams']
 
-        self.sql.write('CAPS', {'url': url, 'caps': caps})
+        core.sql.write('CAPS', {'url': url, 'caps': caps})
 
         return caps.split(',')
 

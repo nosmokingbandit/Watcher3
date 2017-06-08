@@ -4,7 +4,6 @@ import datetime
 from base64 import b16encode
 import json
 import core
-from core import sqldb
 from core.helpers import Url
 from fuzzywuzzy import fuzz
 
@@ -13,11 +12,6 @@ logging = logging.getLogger(__name__)
 
 class Score():
 
-    def __init__(self):
-        self.sql = sqldb.SQL()
-        return
-
-    # returns list of dictionary results after filtering and scoring
     def score(self, results, imdbid=None, imported=False):
         ''' Scores and filters search results.
         results: list of dicts of search results
@@ -49,7 +43,7 @@ class Score():
         self.results = results
 
         if imported is False:
-            movie_details = self.sql.get_movie_details('imdbid', imdbid)
+            movie_details = core.sql.get_movie_details('imdbid', imdbid)
             quality_profile = movie_details['quality']
 
             titles = (movie_details['alternative_titles'] or '').split(',') + [movie_details['title']]

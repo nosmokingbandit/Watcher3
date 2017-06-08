@@ -2,7 +2,7 @@ import os
 import json
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
-from core import sqldb, searchresults, plugins
+from core import searchresults, plugins
 import core
 from core.movieinfo import TMDB
 from core.helpers import Url, Conversions
@@ -17,9 +17,7 @@ import threading
 
 logging = logging.getLogger(__name__)
 
-sql = sqldb.SQL()
-
-MOVIES_cols = [i.name for i in sql.MOVIES.c]
+MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
 
 
 class ImportDirectory(object):
@@ -134,7 +132,7 @@ class ImportKodiLibrary(object):
             else:
                 return {'response': False, 'error': 'Error {}'.format(response.status_code)}
 
-        library = [i['imdbid'] for i in sql.get_user_movies()]
+        library = [i['imdbid'] for i in core.sql.get_user_movies()]
         movies = []
 
         today = str(datetime.date.today())
@@ -262,7 +260,7 @@ class ImportPlexLibrary(object):
 
     @staticmethod
     def read_csv(csv_text):
-        library = [i['imdbid'] for i in sql.get_user_movies()]
+        library = [i['imdbid'] for i in core.sql.get_user_movies()]
         try:
             movies = []
             reader = csv.DictReader(csv_text.splitlines())
@@ -348,7 +346,7 @@ class ImportCPLibrary(object):
         if cp['total'] == 0:
             return ['']
 
-        library = [i['imdbid'] for i in sql.get_user_movies()]
+        library = [i['imdbid'] for i in core.sql.get_user_movies()]
         movies = []
         for m in cp['movies']:
             if m['info']['imdb'] in library:
@@ -612,7 +610,6 @@ class Manage(object):
     '''
 
     def __init__(self):
-        self.sql = sqldb.SQL()
         self.score = searchresults.Score()
         self.tmdb = TMDB()
         self.metadata = Metadata()
@@ -646,7 +643,7 @@ class Manage(object):
         else:
             movie = data
 
-        if self.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
+        if core.sql.row_exists('MOVIES', imdbid=movie['imdbid']):
             logging.info('{} already exists in library.'.format(movie['title']))
 
             response['response'] = False
@@ -665,7 +662,7 @@ class Manage(object):
 
         movie = self.metadata.convert_to_db(movie)
 
-        if not self.sql.write('MOVIES', movie):
+        if not core.sql.write('MOVIES', movie):
             response['response'] = False
             response['error'] = 'Could not write to database.'
             return response
@@ -697,11 +694,11 @@ class Manage(object):
 
         logging.info('Marking guid {} as {}.'.format(guid.split('&')[0], status))
 
-        if self.sql.row_exists(TABLE, guid=guid):
+        if core.sql.row_exists(TABLE, guid=guid):
 
             # Mark bad in SEARCHRESULTS
             logging.info('Marking {} as {} in SEARCHRESULTS.'.format(guid.split('&')[0], status))
-            if not self.sql.update(TABLE, 'status', status, 'guid', guid):
+            if not core.sql.update(TABLE, 'status', status, 'guid', guid):
                 logging.error('Setting SEARCHRESULTS status of {} to {} failed.'.format(guid.split('&')[0], status))
                 return False
             else:
@@ -725,7 +722,7 @@ class Manage(object):
 
             search_result = {k: v for k, v in search_result.items() if k in required_keys}
 
-            if self.sql.write('SEARCHRESULTS', search_result):
+            if core.sql.write('SEARCHRESULTS', search_result):
                 return True
             else:
                 return False
@@ -745,10 +742,10 @@ class Manage(object):
 
         TABLE = 'MARKEDRESULTS'
 
-        if self.sql.row_exists(TABLE, guid=guid):
+        if core.sql.row_exists(TABLE, guid=guid):
             # Mark bad in MARKEDRESULTS
             logging.info('Marking {} as {} in MARKEDRESULTS.'.format(guid.split('&')[0], status))
-            if not self.sql.update(TABLE, 'status', status, 'guid', guid):
+            if not core.sql.update(TABLE, 'status', status, 'guid', guid):
                 logging.info('Setting MARKEDRESULTS status of {} to {} failed.'.format(guid.split('&')[0], status))
                 return False
             else:
@@ -761,7 +758,7 @@ class Manage(object):
                 DB_STRING['imdbid'] = imdbid
                 DB_STRING['guid'] = guid
                 DB_STRING['status'] = status
-                if self.sql.write(TABLE, DB_STRING):
+                if core.sql.write(TABLE, DB_STRING):
                     logging.info('Successfully created entry in MARKEDRESULTS for {}.'.format(guid.split('&')[0]))
                     return True
                 else:
@@ -781,7 +778,7 @@ class Manage(object):
         Returns str new movie status or bool False on failure
         '''
 
-        local_details = self.sql.get_movie_details('imdbid', imdbid)
+        local_details = core.sql.get_movie_details('imdbid', imdbid)
         if local_details:
             current_status = local_details.get('status')
         else:
@@ -790,7 +787,7 @@ class Manage(object):
         if current_status == 'Disabled':
             return 'Disabled'
 
-        result_status = self.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
+        result_status = core.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
         if result_status is False:
             logging.error('Could not get SEARCHRESULTS statuses for {}'.format(imdbid))
             return False
@@ -806,7 +803,7 @@ class Manage(object):
             status = 'Waiting'
 
         logging.info('Setting MOVIES {} status to {}.'.format(imdbid, status))
-        if self.sql.update('MOVIES', 'status', status, 'imdbid', imdbid):
+        if core.sql.update('MOVIES', 'status', status, 'imdbid', imdbid):
             return status
         else:
             logging.error('Could not set {} to {}'.format(imdbid, status))
@@ -838,7 +835,7 @@ class Manage(object):
         added_dates = {}
         scores = {}
 
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
 
         if not movies:
             return {'error', 'Unable to read database'}
@@ -882,7 +879,7 @@ class Manage(object):
         return stats
 
     def estimate_size(self, human=True):
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
         files = [i['finished_file'] for i in movies if i['finished_file'] is not None]
 
         size = 0

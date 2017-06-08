@@ -2,7 +2,7 @@ import json
 import logging
 
 import core
-from core import ajax, sqldb
+from core import ajax
 from core.movieinfo import TMDB
 from core.library import Manage
 
@@ -75,7 +75,6 @@ class API(object):
     exposed = True
 
     def __init__(self):
-        self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
         self.tmdb = TMDB()
         self.library = Manage()
@@ -157,7 +156,7 @@ class API(object):
         '''
 
         logging.info('API request movie list.')
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
         if not movies:
             return 'No movies found.'
 

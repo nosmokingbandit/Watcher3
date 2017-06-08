@@ -2,7 +2,7 @@ import logging
 import datetime
 import urllib.parse
 import core
-from core import library, plugins, sqldb
+from core import library, plugins
 from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent
 
 logging = logging.getLogger(__name__)
@@ -23,7 +23,6 @@ class Snatcher():
 
     def __init__(self):
         self.plugins = plugins.Plugins()
-        self.sql = sqldb.SQL()
         self.manage = library.Manage()
         return
 
@@ -44,7 +43,7 @@ class Snatcher():
         keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
 
         logging.info('############ Running automatic snatcher for all movies ############')
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
         if not movies:
             return False
         for movie in movies:
@@ -94,7 +93,7 @@ class Snatcher():
             logging.error('Invalid movie data.', exc_info=True)
             return None
 
-        search_results = self.sql.get_search_results(imdbid, quality)
+        search_results = core.sql.get_search_results(imdbid, quality)
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results.'.format(imdbid))
             return None
@@ -202,8 +201,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to Sabnzbd.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'sabnzbd', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'SABnzbd'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to SABnzbd.', 'downloader': 'SABnzb', 'downloadid': response['downloadid']}
@@ -222,8 +221,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to NZBGet.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'nzbget', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'NZBGet'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to NZBGet.', 'downloader': 'NZBGet', 'downloadid': response['downloadid']}
@@ -248,8 +247,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to NZBGet.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'transmission', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'Transmission'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Transmission.', 'downloader': 'Transmission', 'downloadid': response['downloadid']}
@@ -268,8 +267,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to QBittorrent.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'qbittorrent', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'QBittorrent'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to QBittorrent.', 'downloader': 'QBitorrent', 'downloadid': response['downloadid']}
@@ -288,8 +287,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to DelugeRPC.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'delugerpc', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'DelugeRPC'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'downloader': 'Deluge', 'downloadid': response['downloadid']}
@@ -308,8 +307,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to DelugeWeb.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'delugeweb', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'DelugeWeb'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'downloader': 'Deluge', 'downloadid': response['downloadid']}
@@ -328,8 +327,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to rTorrent.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'rtorrentscgi', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'rTorrentSCGI'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to rTorrent.', 'downloader': 'rTorrent', 'downloadid': response['downloadid']}
@@ -348,8 +347,8 @@ class Snatcher():
             if response['response'] is True:
                 logging.info('Successfully sent {} to rTorrent.'.format(title))
 
-                self.sql.update('SEARCHRESULTS', 'downloadid', response['downloadid'], 'guid', guid)
-                self.sql.update('SEARCHRESULTS', 'download_client', 'rtorrenthttp', 'guid', guid)
+                db_update = {'downloadid': response['downloadid'], 'downloader': 'rTorrentHTTP'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to rTorrent.', 'downloader': 'rTorrent', 'downloadid': response['downloadid']}

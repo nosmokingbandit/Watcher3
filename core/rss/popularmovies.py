@@ -1,5 +1,5 @@
 import core
-from core import library, searcher, sqldb
+from core import library, searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 import json
@@ -11,7 +11,6 @@ logging = logging.getLogger(__name__)
 class PopularMoviesFeed(object):
     def __init__(self):
         self.tmdb = TMDB()
-        self.sql = sqldb.SQL()
         self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
@@ -57,7 +56,7 @@ class PopularMoviesFeed(object):
         Does not return
         '''
 
-        existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
+        existing_movies = [i['imdbid'] for i in core.sql.get_user_movies()]
 
         movies_to_add = [i for i in movies if i['imdb_id'] not in existing_movies]
 

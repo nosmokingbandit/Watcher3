@@ -1,5 +1,5 @@
 import core
-from core import library, searcher, sqldb
+from core import library, searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 from datetime import datetime
@@ -14,7 +14,6 @@ logging = logging.getLogger(__name__)
 class ImdbRss(object):
     def __init__(self):
         self.tmdb = TMDB()
-        self.sql = sqldb.SQL()
         self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
         self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
         self.library = library.Manage()
@@ -132,7 +131,7 @@ class ImdbRss(object):
         Does not return
         '''
 
-        existing_movies = [i['imdbid'] for i in self.sql.get_user_movies()]
+        existing_movies = [i['imdbid'] for i in core.sql.get_user_movies()]
 
         movies_to_add = [i for i in new_movies if i['imdbid'] not in existing_movies]
 

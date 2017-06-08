@@ -20,7 +20,7 @@ import shutil
 
 import cherrypy
 from cherrypy.process.plugins import Daemonizer, PIDFile
-from core import api, config, postprocessing, scheduler, sqldb
+from core import api, config, postprocessing, scheduler
 from core.app import App
 from core.log import log
 
@@ -104,16 +104,13 @@ if __name__ == '__main__':
         core.DB_FILE = passed_args.db
     else:
         core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
-    sql = sqldb.SQL()
     if not os.path.isfile(core.DB_FILE):
         logging.info(u'SQL DB not found. Creating.')
-        sql = sqldb.SQL()
-        sql.create_database()
+        core.sql.create_database()
     else:
         logging.info(u'SQL DB found.')
         print('Database found.')
-        sql.update_tables()
-    del sql
+        core.sql.update_tables()
 
     # clean mako cache
     try:

@@ -1,4 +1,5 @@
 import ssl
+from core.sqldb import SQL
 
 # Paths to local things
 PROG_PATH = None            # Absolute path to watcher.py
@@ -44,3 +45,6 @@ SOURCES = ['BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
            'DVD-SD',
            'Screener-1080P', 'Screener-720P',
            'Telesync-SD', 'CAM-SD']
+
+# Module instances
+sql = SQL()

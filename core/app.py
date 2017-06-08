@@ -1,6 +1,6 @@
 import cherrypy
 import core
-from core import ajax, scheduler, sqldb, plugins
+from core import ajax, scheduler, plugins
 from core.auth import AuthController
 import os
 import json
@@ -18,7 +18,6 @@ class App(object):
                 'auth.require': []
             }
 
-        self.sql = sqldb.SQL()
         self.ajax = ajax.Ajax()
 
         # point server toward custom 404
@@ -68,10 +67,10 @@ class App(object):
         page = path[0] if len(path) > 0 else 'status'
 
         if page == 'status':
-            movies = self.sql.get_user_movies()
+            movies = core.sql.get_user_movies()
             return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
         elif page == 'manage':
-            movies = self.sql.get_user_movies()
+            movies = core.sql.get_user_movies()
             for i in movies:
                 if i['status'] == 'Disabled':
                     i['status'] = 'Finished'

@@ -6,7 +6,7 @@ import threading
 import cherrypy
 from base64 import b16encode
 import core
-from core import config, library, plugins, searchresults, searcher, snatcher, sqldb, version
+from core import config, library, plugins, searchresults, searcher, snatcher, version
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
 from core.movieinfo import TMDB, Trailer
@@ -33,7 +33,6 @@ class Ajax(object):
         self.plugins = plugins.Plugins()
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
-        self.sql = sqldb.SQL()
         self.poster = library.Poster()
         self.snatcher = snatcher.Snatcher()
         self.manage = library.Manage()
@@ -63,7 +62,7 @@ class Ajax(object):
         Returns str json-encoded list of dicts
         '''
 
-        results = self.sql.get_search_results(imdbid, quality=quality)
+        results = core.sql.get_search_results(imdbid, quality=quality)
 
         if not core.CONFIG['Downloader']['Sources']['usenetenabled']:
             results = [res for res in results if res.get('type') != 'nzb']
@@ -164,7 +163,7 @@ class Ajax(object):
         t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
         t.start()
 
-        removed = self.sql.remove_movie(imdbid)
+        removed = core.sql.remove_movie(imdbid)
 
         if removed is True:
             response = {'response': True, 'removed': imdbid}
@@ -185,16 +184,16 @@ class Ajax(object):
         Returns str json dict
         '''
 
-        movie = self.sql.get_movie_details("imdbid", imdbid)
+        movie = core.sql.get_movie_details("imdbid", imdbid)
 
         if not movie:
             return json.dumps({'response': False, 'error': 'Unable to get info for imdb {}'.format(imdbid)})
         else:
             success = self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])
-            movie = self.sql.get_movie_details("imdbid", imdbid)
+            movie = core.sql.get_movie_details("imdbid", imdbid)
 
             if success:
-                results = self.sql.get_search_results(imdbid, movie['quality'])
+                results = core.sql.get_search_results(imdbid, movie['quality'])
                 for i in results:
                     i['size'] = Conversions.human_file_size(i['size'])
                 return json.dumps({'response': True, 'results': results, 'movie_status': movie['status'], 'next': Conversions.human_datetime(core.NEXT_SEARCH)})
@@ -219,7 +218,7 @@ class Ajax(object):
         elif kind in ('torrent', 'magnet') and not torrent_enabled:
             return json.dumps({'response': False, 'error': 'Link is {} but no Torrent downloader is enabled.'.format(kind)})
 
-        data = dict(self.sql.get_single_search_result('guid', guid))
+        data = dict(core.sql.get_single_search_result('guid', guid))
         if data:
             data['year'] = year
             return json.dumps(self.snatcher.download(data))
@@ -250,7 +249,7 @@ class Ajax(object):
 
         if cancel_download:
             cancelled = False
-            r = self.sql.get_single_search_result('guid', guid)
+            r = core.sql.get_single_search_result('guid', guid)
 
             if r['status'] != 'Snatched':
                 return json.dumps(response)
@@ -452,13 +451,13 @@ class Ajax(object):
 
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
 
-        if not self.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
+        if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
             return json.dumps({'response': False})
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
-            if not self.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
+            if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
                 return json.dumps({'response': False})
             new_status = self.manage.movie_status(imdbid)
             if not new_status:
@@ -466,7 +465,7 @@ class Ajax(object):
             else:
                 return json.dumps({'response': True, 'status': new_status})
         elif status == 'Disabled':
-            if not self.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
+            if not core.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
                 return json.dumps({'response': False})
             else:
                 return json.dumps({'response': True, 'status': 'Disabled'})
@@ -557,7 +556,7 @@ class Ajax(object):
         if files.get('error'):
             yield json.dumps({'error': files['error']})
             raise StopIteration()
-        library = [i['imdbid'] for i in self.sql.get_user_movies()]
+        library = [i['imdbid'] for i in core.sql.get_user_movies()]
         files = files['files']
         length = len(files)
 
@@ -662,9 +661,9 @@ class Ajax(object):
                     break
 
             if score:
-                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
-        self.sql.write_search_results(fake_results)
+        core.sql.write_search_results(fake_results)
 
     import_dir._cp_config = {'response.stream': True}
 
@@ -711,7 +710,7 @@ class Ajax(object):
 
         '''
 
-        movie = self.sql.get_movie_details('imdbid', imdbid)
+        movie = core.sql.get_movie_details('imdbid', imdbid)
 
         if tmdbid is None:
             tmdbid = movie.get('tmdbid')
@@ -741,7 +740,7 @@ class Ajax(object):
         movie.update(new_data)
         movie = self.metadata.convert_to_db(movie)
 
-        self.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
+        core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
         self.poster.save_poster(imdbid, poster_url)
         return json.dumps({'response': True, 'message': 'Metadata updated.'})
@@ -772,7 +771,7 @@ class Ajax(object):
         if imdbid:
             q = list(profiles.values())[0]
 
-            if not self.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
+            if not core.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
                 return json.dumps({'response': False, 'error': 'Unable to update {} to quality {}'.format(imdbid, q)})
             else:
                 return json.dumps({'response': True, 'Message': '{} changed to {}'.format(imdbid, q)})
@@ -780,15 +779,15 @@ class Ajax(object):
             tmp_qualities = {}
             for k, v in profiles.items():
                 q = b16encode(v.encode('ascii')).decode('ascii')
-                if not self.sql.update('MOVIES', 'quality', q, 'quality', k):
+                if not core.sql.update('MOVIES', 'quality', q, 'quality', k):
                     return json.dumps({'response': False, 'error': 'Unable to change {} to temporary quality {}'.format(k, q)})
                 else:
                     tmp_qualities[q] = v
 
             for k, v in tmp_qualities.items():
-                if not self.sql.update('MOVIES', 'quality', v, 'quality', k):
+                if not core.sql.update('MOVIES', 'quality', v, 'quality', k):
                     return json.dumps({'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)})
-                if not self.sql.update('MOVIES', 'backlog', 0, 'quality', k):
+                if not core.sql.update('MOVIES', 'backlog', 0, 'quality', k):
                     return json.dumps({'response': False, 'error': 'Unable to set backlog flag. Manual backlog search required for affected titles.'})
 
             return json.dumps({'response': True, 'message': 'Quality profiles updated.'})
@@ -866,9 +865,9 @@ class Ajax(object):
                     break
 
             if score:
-                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
-        self.sql.write_search_results(fake_results)
+        core.sql.write_search_results(fake_results)
 
     import_kodi_movies._cp_config = {'response.stream': True}
 
@@ -973,9 +972,9 @@ class Ajax(object):
                     break
 
             if score:
-                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
-        self.sql.write_search_results(fake_results)
+        core.sql.write_search_results(fake_results)
 
     import_plex_csv._cp_config = {'response.stream': True}
 
@@ -1039,9 +1038,9 @@ class Ajax(object):
                     break
 
             if score:
-                self.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
+                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
-        self.sql.write_search_results(fake_results)
+        core.sql.write_search_results(fake_results)
     import_cp_movies._cp_config = {'response.stream': True}
 
     @cherrypy.expose
@@ -1067,7 +1066,7 @@ class Ajax(object):
         movies = json.loads(movies)
         ids = [i['imdbid'] for i in movies]
 
-        movies = [i for i in self.sql.get_user_movies() if i['imdbid'] in ids]
+        movies = [i for i in core.sql.get_user_movies() if i['imdbid'] in ids]
 
         for i, movie in enumerate(movies):
             title = movie['title']
@@ -1129,7 +1128,7 @@ class Ajax(object):
 
         for i, movie in enumerate(movies):
             imdbid = movie['imdbid']
-            if not self.sql.purge_search_results(imdbid):
+            if not core.sql.purge_search_results(imdbid):
                 yield json.dumps({'response': False, 'error': 'Unable to purge search results.', 'imdbid': imdbid, "index": i + 1})
                 continue
 
@@ -1141,7 +1140,7 @@ class Ajax(object):
                         'finished_file': None
                         }
 
-            if not self.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
+            if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
                 yield json.dumps({'response': False, 'error': 'Unable to update database.', 'imdbid': imdbid, "index": i + 1})
                 continue
 

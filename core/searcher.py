@@ -2,7 +2,7 @@ import datetime
 import logging
 
 import core
-from core import library, searchresults, snatcher, sqldb, proxy
+from core import library, searchresults, snatcher, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
 from fuzzywuzzy import fuzz
@@ -15,7 +15,6 @@ class Searcher():
     def __init__(self):
         self.nn = newznab.NewzNab()
         self.score = searchresults.Score()
-        self.sql = sqldb.SQL()
         self.predb = predb.PreDB()
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
@@ -55,7 +54,7 @@ class Searcher():
         logging.info('############# Running automatic search #############')
         if core.CONFIG['Search']['keepsearching']:
             logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
-        movies = self.sql.get_user_movies()
+        movies = core.sql.get_user_movies()
         if not movies:
             return False
 
@@ -119,7 +118,7 @@ class Searcher():
 
         proxy.Proxy.destroy()
 
-        old_results = [dict(r) for r in self.sql.get_search_results(imdbid, quality)]
+        old_results = [dict(r) for r in core.sql.get_search_results(imdbid, quality)]
 
         for old in old_results:
             if old['type'] == 'import':
@@ -140,7 +139,7 @@ class Searcher():
         scored_results = self.score.score(results, imdbid=imdbid)
 
         # sets result status based off marked results table
-        marked_results = self.sql.get_marked_results(imdbid)
+        marked_results = core.sql.get_marked_results(imdbid)
         if marked_results:
             for result in scored_results:
                 if result['guid'] in marked_results:
@@ -154,7 +153,7 @@ class Searcher():
             logging.error('Unable to update movie status for {}'.format(imdbid))
             return False
 
-        if not self.sql.update('MOVIES', 'backlog', '1', 'imdbid', imdbid):
+        if not core.sql.update('MOVIES', 'backlog', '1', 'imdbid', imdbid):
             logging.error('Unable to flag backlog search as complete for {}'.format(imdbid))
             return False
 
@@ -205,7 +204,7 @@ class Searcher():
                 continue
 
             # Ignore results we've already stored
-            old_results = [dict(r) for r in self.sql.get_search_results(imdbid)]
+            old_results = [dict(r) for r in core.sql.get_search_results(imdbid)]
             new_results = []
             for res in results:
                 guid = res['guid']
@@ -292,10 +291,10 @@ class Searcher():
             BATCH_DB_STRING.append(DB_STRING)
 
         if backlog:
-            self.sql.purge_search_results(imdbid=imdbid)
+            core.sql.purge_search_results(imdbid=imdbid)
 
         if BATCH_DB_STRING:
-            if self.sql.write_search_results(BATCH_DB_STRING):
+            if core.sql.write_search_results(BATCH_DB_STRING):
                 return True
             else:
                 return False
