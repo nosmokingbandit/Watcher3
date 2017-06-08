@@ -90,7 +90,7 @@ class SQL(object):
                                ]}
 
     def create_database(self):
-        logging.info('Creating tables.')
+        logging.debug('Creating tables.')
         self.metadata.create_all(self.engine)
         return
 
@@ -138,7 +138,7 @@ class SQL(object):
         Returns Bool on success.
         '''
 
-        logging.info('Writing data to {}.'.format(TABLE))
+        logging.debug('Writing data to {}.'.format(TABLE))
 
         cols = ', '.join(DB_STRING.keys())
         vals = list(DB_STRING.values())
@@ -163,7 +163,7 @@ class SQL(object):
         if not LIST:
             return True
 
-        logging.info('Writing batch into SEARCHRESULTS.')
+        logging.debug('Writing batch into SEARCHRESULTS.')
 
         INSERT = self.SEARCHRESULTS.insert()
 
@@ -183,7 +183,7 @@ class SQL(object):
         Returns Bool.
         '''
 
-        logging.info('Updating {} to {} for col {}:{} in {}.'.format(COLUMN, VALUE, idcol, idval.split('&')[0], TABLE))
+        logging.debug('Updating {} to {} for col {}:{} in {}.'.format(COLUMN, VALUE, idcol, idval.split('&')[0], TABLE))
 
         sql = 'UPDATE {} SET {}=? WHERE {}=?'.format(TABLE, COLUMN, idcol)
         vals = (VALUE, idval)
@@ -215,7 +215,7 @@ class SQL(object):
         else:
             return 'ID ERROR'
 
-        logging.info('Updating {} in {}.'.format(idval.split('&')[0], TABLE))
+        logging.debug('Updating {} to {} in {}.'.format(idval.split('&')[0], data, TABLE))
 
         columns = '{}=?'.format('=?,'.join(data.keys()))
 
@@ -237,7 +237,7 @@ class SQL(object):
         Returns list of dicts with all information in MOVIES
         '''
 
-        logging.info('Retrieving list of user\'s movies.')
+        logging.debug('Retrieving list of user\'s movies.')
         TABLE = 'MOVIES'
 
         command = 'SELECT * FROM {} ORDER BY title ASC'.format(TABLE)
@@ -264,7 +264,7 @@ class SQL(object):
         Returns dict of first match
         '''
 
-        logging.info('Retrieving details for {}.'.format(idval))
+        logging.debug('Retrieving details for {}.'.format(idval))
 
         command = 'SELECT * FROM MOVIES WHERE {}="{}"'.format(idcol, idval)
 
@@ -297,7 +297,7 @@ class SQL(object):
         else:
             sort = 'DESC'
 
-        logging.info('Retrieving Search Results for {}.'.format(imdbid))
+        logging.debug('Retrieving Search Results for {}.'.format(imdbid))
         TABLE = 'SEARCHRESULTS'
 
         command = 'SELECT * FROM {} WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(TABLE, imdbid, sort)
@@ -317,7 +317,7 @@ class SQL(object):
         Returns dict {guid:status, guid:status, etc}
         '''
 
-        logging.info('Retrieving Marked Results for {}.'.format(imdbid))
+        logging.debug('Retrieving Marked Results for {}.'.format(imdbid))
 
         TABLE = 'MARKEDRESULTS'
 
@@ -345,7 +345,7 @@ class SQL(object):
         Returns True/False on success/fail or None if movie doesn't exist in DB.
         '''
 
-        logging.info('Removing {} from {}.'.format(imdbid, 'MOVIES'))
+        logging.debug('Removing {} from {}.'.format(imdbid, 'MOVIES'))
 
         if not self.row_exists('MOVIES', imdbid=imdbid):
             return None
@@ -353,13 +353,13 @@ class SQL(object):
         if not self.delete('MOVIES', 'imdbid', imdbid):
             return False
 
-        logging.info('Removing any stored search results for {}.'.format(imdbid))
+        logging.debug('Removing any stored search results for {}.'.format(imdbid))
 
         if self.row_exists('SEARCHRESULTS', imdbid):
             if not self.purge_search_results(imdbid=imdbid):
                 return False
 
-        logging.info('{} removed.'.format(imdbid))
+        logging.debug('{} removed.'.format(imdbid))
         return True
 
     def delete(self, TABLE, idcol, idval):
@@ -370,7 +370,7 @@ class SQL(object):
         Returns Bool.
         '''
 
-        logging.info('Removing from {} where {} is {}.'.format(TABLE, idcol, idval.split('&')[0]))
+        logging.debug('Removing from {} where {} is {}.'.format(TABLE, idcol, idval.split('&')[0]))
 
         command = 'DELETE FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)
 
@@ -415,7 +415,7 @@ class SQL(object):
         Returns list ['val1', 'val2', 'val3'] (list can be empty)
         '''
 
-        logging.info('Getting distinct values for {} in {}'.format(idval.split('&')[0], TABLE))
+        logging.debug('Getting distinct values for {} in {}'.format(idval.split('&')[0], TABLE))
 
         command = 'SELECT DISTINCT {} FROM {} WHERE {}="{}"'.format(column, TABLE, idcol, idval)
 
@@ -479,7 +479,7 @@ class SQL(object):
         Returns dict
         '''
 
-        logging.info('Retrieving search result details for {}.'.format(idval.split('&')[0]))
+        logging.debug('Retrieving search result details for {}.'.format(idval.split('&')[0]))
 
         command = 'SELECT * FROM SEARCHRESULTS WHERE {}="{}"'.format(idcol, idval)
 
@@ -542,7 +542,7 @@ class SQL(object):
         print('Database update required. This may take some time.')
 
         backup_dir = os.path.join(core.PROG_PATH, 'db')
-        logging.info('Backing up database to {}.'.format(backup_dir))
+        logging.debug('Backing up database to {}.'.format(backup_dir))
         print('Backing up database to {}.'.format(backup_dir))
         try:
             if not os.path.isdir(backup_dir):
@@ -554,7 +554,7 @@ class SQL(object):
             logging.error('Copying SQL DB.', exc_info=True)
             raise
 
-        logging.info('Modifying database tables.')
+        logging.debug('Modifying database tables.')
         print('Modifying tables.')
 
         '''
@@ -564,11 +564,11 @@ class SQL(object):
         '''
         for table, schema in diff.items():
             if table not in existing:
-                logging.info('Creating table {}'.format(table))
+                logging.debug('Creating table {}'.format(table))
                 print('Creating table {}'.format(table))
                 getattr(self, table).create(self.engine)
                 continue
-            logging.info('Modifying table {}.'.format(table))
+            logging.debug('Modifying table {}.'.format(table))
             print('Modifying table {}'.format(table))
             for name, kind in schema.items():
                 command = 'ALTER TABLE {} ADD COLUMN {} {}'.format(table, name, kind)
@@ -583,33 +583,33 @@ class SQL(object):
 
             # move TABLE to TABLE_TMP
             table_tmp = '{}_TMP'.format(table)
-            logging.info('Renaming table to {}.'.format(table_tmp))
+            logging.debug('Renaming table to {}.'.format(table_tmp))
             print('Renaming table to {}'.format(table_tmp))
             command = 'ALTER TABLE {} RENAME TO {}'.format(table, table_tmp)
             self.execute(command)
 
             # create new table
-            logging.info('Creating new table {}.'.format(table))
+            logging.debug('Creating new table {}.'.format(table))
             print('Creating new table {}'.format(table))
             table_meta = getattr(self, table)
             table_meta.create(self.engine)
 
             # copy data over
-            logging.info('Merging data from {} to {}.'.format(table_tmp, table))
+            logging.debug('Merging data from {} to {}.'.format(table_tmp, table))
             print('Merging data from {} to {}'.format(table_tmp, table))
             names = ', '.join(intended[table].keys())
             command = 'INSERT INTO {} ({}) SELECT {} FROM {}'.format(table, names, names, table_tmp)
             self.execute(command)
 
-            logging.info('Dropping table {}.'.format(table_tmp))
+            logging.debug('Dropping table {}.'.format(table_tmp))
             print('Dropping table {}'.format(table_tmp))
             command = 'DROP TABLE {}'.format(table_tmp)
             self.execute(command)
 
-            logging.info('Finished updating table {}.'.format(table))
+            logging.debug('Finished updating table {}.'.format(table))
             print('Finished updating table {}'.format(table))
 
-        logging.info('Database updated')
+        logging.debug('Database updated')
         print('Database updated.')
 
     def torznab_caps(self, url):
@@ -619,7 +619,7 @@ class SQL(object):
         Returns list of caps ie ['q', 'imdbid'] or None if not found
         '''
 
-        logging.info('Retreiving caps for {}'.format(url))
+        logging.debug('Retreiving caps for {}'.format(url))
 
         command = 'SELECT "caps" FROM CAPS WHERE url="{}"'.format(url)
 
@@ -629,5 +629,3 @@ class SQL(object):
             return None
         else:
             return caps[0].split(',')
-
-# pylama:ignore=W0401
