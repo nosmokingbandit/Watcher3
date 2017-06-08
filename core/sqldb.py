@@ -41,6 +41,7 @@ class SQL(object):
                             Column('release_date', TEXT),
                             Column('rated', TEXT),
                             Column('status', TEXT),
+                            Column('predb_backlog', TEXT),
                             Column('predb', TEXT),
                             Column('quality', TEXT),
                             Column('finished_date', TEXT),

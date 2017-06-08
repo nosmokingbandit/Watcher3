@@ -110,7 +110,7 @@ class Ajax(object):
             title = data['title']
             year = data['year']
             quality = data['quality']
-            if self.predb.check_one(data) and core.CONFIG['Search']['searchafteradd']:
+            if self.predb.backlog_search(data) and core.CONFIG['Search']['searchafteradd']:
                 if self.searcher.search(imdbid, title, year, quality):
                     if core.CONFIG['Search']['autograb']:
                         best_release = self.snatcher.best_release(data)
