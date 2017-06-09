@@ -154,25 +154,10 @@ class Ajax(object):
         ''' Removes movie
         :param imdbid: str imdb identification number (tt123456)
 
-        Removes row from MOVIES, removes any entries in SEARCHRESULTS
-        In separate thread deletes poster image.
-
         Returns str json dict
         '''
 
-        t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
-        t.start()
-
-        removed = core.sql.remove_movie(imdbid)
-
-        if removed is True:
-            response = {'response': True, 'removed': imdbid}
-        elif removed is False:
-            response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
-        elif removed is None:
-            response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
-
-        return json.dumps(response)
+        return json.dumps(self.manage.remove_movie(imdbid))
 
     @cherrypy.expose
     def search(self, imdbid):

@@ -2,7 +2,6 @@ import json
 import logging
 
 import core
-from core import ajax
 from core.movieinfo import TMDB
 from core.library import Manage
 
@@ -51,7 +50,7 @@ mode=version
 
 
 # API Version
-Methods added to the api will increase the version by X.1
+Methods added to the api or minor adjustments to existing methods will increase the version by X.1
 Version 1.11 is greater than 1.9
 It is safe to assume that these version increases will not break any api interactions
 
@@ -75,7 +74,6 @@ class API(object):
     exposed = True
 
     def __init__(self):
-        self.ajax = ajax.Ajax()
         self.tmdb = TMDB()
         self.library = Manage()
         return
@@ -216,7 +214,7 @@ class API(object):
 
         logging.info('API request remove movie {}'.format(imdbid))
 
-        return self.ajax.remove_movie(imdbid)
+        return json.dumps(self.library.remove_movie(imdbid))
 
     def version(self):
         ''' Simple endpoint to return commit hash

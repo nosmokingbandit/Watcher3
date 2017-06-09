@@ -677,6 +677,26 @@ class Manage(object):
 
             return response
 
+    def remove_movie(self, imdbid):
+        '''
+        Removes row from MOVIES, removes any entries in SEARCHRESULTS
+        In separate thread deletes poster image.
+        '''
+
+        t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
+
+        removed = core.sql.remove_movie(imdbid)
+
+        if removed is True:
+            response = {'response': True, 'removed': imdbid}
+            t.start()
+        elif removed is False:
+            response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
+        elif removed is None:
+            response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
+
+        return response
+
     def searchresults(self, guid, status, movie_info=None):
         ''' Marks searchresults status
         :param guid: str download link guid
