@@ -199,9 +199,9 @@ class Ajax(object):
         usenet_enabled = core.CONFIG['Downloader']['Sources']['usenetenabled']
 
         if kind == 'nzb' and not usenet_enabled:
-            return json.dumps({'response': False, 'error': 'Link is NZB but no Usent downloader is enabled.'})
+            return json.dumps({'response': False, 'error': 'Link is NZB but no Usent client is enabled.'})
         elif kind in ('torrent', 'magnet') and not torrent_enabled:
-            return json.dumps({'response': False, 'error': 'Link is {} but no Torrent downloader is enabled.'.format(kind)})
+            return json.dumps({'response': False, 'error': 'Link is {} but no Torrent client is enabled.'.format(kind)})
 
         data = dict(core.sql.get_single_search_result('guid', guid))
         if data:
