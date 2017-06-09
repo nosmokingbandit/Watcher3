@@ -18,15 +18,8 @@ class SQL(object):
     '''
 
     def __init__(self):
+        self.metadata = MetaData()
         DB_NAME = 'sqlite:///{}'.format(core.DB_FILE)
-        try:
-            self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
-            self.metadata = MetaData()
-        except (SystemExit, KeyboardInterrupt):
-            raise
-        except Exception as e: # noqa
-            logging.error('Opening SQL DB.', exc_info=True)
-            raise
 
         # These definitions only exist to CREATE tables.
         self.MOVIES = Table('MOVIES', self.metadata,
@@ -80,6 +73,19 @@ class SQL(object):
                           Column('url', TEXT),
                           Column('caps', TEXT)
                           )
+        try:
+            self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+            if not os.path.isfile(core.DB_FILE):
+                print('Creating database file {}'.format(core.DB_FILE))
+                self.create_database(DB_NAME)
+            else:
+                print('Connected to database {}'.format(DB_NAME))
+                self.update_tables()
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e: # noqa
+            logging.error('Opening SQL DB.', exc_info=True)
+            raise
 
         # {TABLENAME: [(new_col, old_col), (new_col, old_col)]}
         self.convert_names = {'MOVIES':
@@ -89,9 +95,15 @@ class SQL(object):
                                ('finished_date', 'finisheddate')
                                ]}
 
-    def create_database(self):
-        logging.debug('Creating tables.')
+    def create_database(self, DB_NAME):
+        ''' Creates database and recreates self.engine
+        DB_NAME: str absolute file path to database
+
+        '''
+        print('Creating tables.')
         self.metadata.create_all(self.engine)
+        self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+        print('Connected to database {}'.format(DB_NAME))
         return
 
     def execute(self, command):
