@@ -81,7 +81,7 @@ class Ajax(object):
         return Trailer.get_trailer('{} {}'.format(title, year))
 
     @cherrypy.expose
-    def add_wanted_movie(self, data, origin='Search', full_metadata=False):
+    def add_wanted_movie(self, data, full_metadata=False):
         ''' Adds movie to library
         data: dict of known movie data
         full_metadata: bool if data is complete for database
@@ -91,7 +91,7 @@ class Ajax(object):
             search/grab method in separate thread
 
         '''
-        data = json.loads(data)
+        movie = json.loads(data)
 
         def thread_search_grab(data):
             imdbid = data['imdbid']
@@ -105,7 +105,7 @@ class Ajax(object):
                         if best_release:
                             self.snatcher.download(best_release)
 
-        r = self.manage.add_movie(data, origin=origin, full_metadata=full_metadata)
+        r = self.manage.add_movie(movie, full_metadata=full_metadata)
 
         if r['response'] is True and r['movie']['status'] != 'Disabled' and r['movie']['year'] != 'N/A':  # disable immediately grabbing new release for imports
             t = threading.Thread(target=thread_search_grab, args=(r['movie'],))

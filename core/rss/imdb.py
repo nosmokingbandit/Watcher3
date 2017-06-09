@@ -138,13 +138,14 @@ class ImdbRss(object):
         # do quick-add procedure
         for movie in movies_to_add:
             imdbid = movie['imdbid']
-            movie_info = self.tmdb._search_imdbid(imdbid)[0]
-            if not movie_info:
+            movie = self.tmdb._search_imdbid(imdbid)[0]
+            if not movie:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
             logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
-            movie_info['year'] = movie_info['release_date'][:4]
+            movie['year'] = movie['release_date'][:4]
+            movie['origin'] = 'IMDB'
 
-            added = self.library.add_movie(movie_info, origin='IMDB')
+            added = self.library.add_movie(movie)
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
-                self.searcher.search(imdbid, movie_info['title'], movie_info['year'], 'Default')
+                self.searcher.search(imdbid, movie['title'], movie['year'], 'Default')
