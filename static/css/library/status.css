@@ -114,8 +114,7 @@ ul#movie_list.compact li img{
 }
 
 ul#movie_list.compact li span.title{
-    font-size: 1.25em;
-    display: inline-block;
+    padding-left: 0.5em;
     width: calc(100% - 3em);
     vertical-align: top;
     overflow: hidden;
