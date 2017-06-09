@@ -765,6 +765,10 @@ class ThePirateBay(object):
             result = {}
             try:
 
+                result['title'] = i[1][0].text or i[1][0].attrib.get('title', None)
+                if not result['title']:
+                    continue
+
                 desc = i[4].text
                 m = (1024 ** 3) if desc.split(';')[-1] == 'GiB' else (1024 ** 2)
 
@@ -774,7 +778,6 @@ class ThePirateBay(object):
                 result['size'] = size
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i[1][0].text
                 result['imdbid'] = imdbid
                 result['indexer'] = 'ThePirateBay'
                 result['info_link'] = 'https://www.thepiratebay.org{}'.format(i[1][0].attrib['href'])
