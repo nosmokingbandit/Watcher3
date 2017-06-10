@@ -42,7 +42,11 @@ function login(event){
     })
     .done(function(r) {
         if(JSON.parse(r)){
-            location.reload()
+            if(window.location.href.split("/").pop() == "auth"){
+                window.location = url_base+"/library/status"
+            } else {
+                location.reload()
+            }
         } else {
             $input_password.val("");
         }
