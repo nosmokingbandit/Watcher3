@@ -71,9 +71,6 @@ class App(object):
             return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
         elif page == 'manage':
             movies = core.sql.get_user_movies()
-            for i in movies:
-                if i['status'] == 'Disabled':
-                    i['status'] = 'Finished'
             return App.manage_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
         elif page == 'import':
             subpage = path[1] if len(path) > 1 else None

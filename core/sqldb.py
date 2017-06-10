@@ -257,10 +257,7 @@ class SQL(object):
         result = self.execute(command)
 
         if result:
-            lst = []
-            for i in result:
-                lst.append(dict(i))
-            return lst
+            return [dict(i) for i in result]
         else:
             logging.error('Unable to get list of user\'s movies.')
             return False
