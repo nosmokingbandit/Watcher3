@@ -4,7 +4,8 @@ div.buttons{
     flex-wrap: wrap;
     justify-content: space-around;
 }
-a.btn{
+
+div.buttons a.btn{
     height: auto;
     margin: 1em;
 }
