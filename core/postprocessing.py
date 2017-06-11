@@ -7,7 +7,7 @@ import shutil
 
 import cherrypy
 import core
-from core import plugins, movieinfo, snatcher, library, ajax
+from core import plugins, snatcher, library
 
 logging = logging.getLogger(__name__)
 
@@ -18,9 +18,7 @@ class Postprocessing(object):
     def __init__(self):
         self.tmdb = movieinfo.TMDB()
         self.plugins = plugins.Plugins()
-        self.ajax = ajax.Ajax()
         self.snatcher = snatcher.Snatcher()
-        self.manage = library.Manage()
         self.metadata = library.Metadata()
 
     def null(*args, **kwargs):
@@ -247,12 +245,12 @@ class Postprocessing(object):
         guid_result = {'url': data['guid']}
 
         if data['guid']:  # guid can be empty string
-            if self.manage.searchresults(data['guid'], 'Bad'):
+            if core.manage.searchresults(data['guid'], 'Bad'):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
+            if core.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -264,12 +262,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys():
             logging.info('Marking guid2 as Bad.')
             guid2_result = {'url': data['guid2']}
-            if self.manage.searchresults(data['guid2'], 'Bad'):
+            if core.manage.searchresults(data['guid2'], 'Bad'):
                 guid2_result['update SEARCHRESULTS'] = True
             else:
                 guid2_result['update SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
+            if core.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
                 guid2_result['update_MARKEDRESULTS'] = False
@@ -279,7 +277,7 @@ class Postprocessing(object):
         # set movie status
         if data['imdbid']:
             logging.info('Setting MOVIE status.')
-            r = self.manage.movie_status(data['imdbid'])
+            r = core.manage.movie_status(data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
             r = False
@@ -353,12 +351,12 @@ class Postprocessing(object):
         logging.info('Marking guid as Finished.')
         guid_result = {}
         if data['guid'] and data.get('imdbid'):
-            if self.manage.searchresults(data['guid'], 'Finished', movie_info=data):
+            if core.manage.searchresults(data['guid'], 'Finished', movie_info=data):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+            if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -370,12 +368,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys() and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
-            if self.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
+            if core.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
                 guid2_result['update_SEARCHRESULTS'] = True
             else:
                 guid2_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
+            if core.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
                                          ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
@@ -389,10 +387,10 @@ class Postprocessing(object):
             if not core.sql.row_exists('MOVIES', imdbid=data['imdbid']):
                 logging.info('{} not found in library, adding now.'.format(data.get('title')))
                 data['status'] = 'Disabled'
-                self.ajax.add_wanted_movie(json.dumps(data))
+                core.manage.add_movie(json.dumps(data))
 
             logging.info('Setting MOVIE status.')
-            r = self.manage.movie_status(data['imdbid'])
+            r = core.manage.movie_status(data['imdbid'])
             db_update = {'finished_date': result['data']['finished_date'], 'finished_score': result['data'].get('finished_score')}
             core.sql.update_multiple('MOVIES', db_update, imdbid=data['imdbid'])
 

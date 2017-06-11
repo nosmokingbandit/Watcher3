@@ -1,5 +1,5 @@
 import core
-from core import library, searcher
+from core import searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 import json
@@ -11,7 +11,6 @@ logging = logging.getLogger(__name__)
 class PopularMoviesFeed(object):
     def __init__(self):
         self.tmdb = TMDB()
-        self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
 
@@ -70,6 +69,6 @@ class PopularMoviesFeed(object):
             logging.info('Adding movie {} {} from PopularMovies list.'.format(movie['title'], movie['imdbid']))
             movie['quality'] = 'Default'
             movie['origin'] = 'PopularMovies'
-            added = self.library.add_movie(movie)
+            added = core.manage.add_movie(movie)
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])

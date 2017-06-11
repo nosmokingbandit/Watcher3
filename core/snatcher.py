@@ -2,7 +2,7 @@ import logging
 import datetime
 import urllib.parse
 import core
-from core import library, plugins
+from core import plugins
 from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent
 
 logging = logging.getLogger(__name__)
@@ -23,7 +23,6 @@ class Snatcher():
 
     def __init__(self):
         self.plugins = plugins.Plugins()
-        self.manage = library.Manage()
         return
 
     def grab_all(self):
@@ -367,15 +366,15 @@ class Snatcher():
         Returns Bool on success/fail
         '''
 
-        if not self.manage.searchresults(guid, 'Snatched'):
+        if not core.manage.searchresults(guid, 'Snatched'):
             logging.error('Unable to update search result status to Snatched.')
             return False
 
-        if not self.manage.markedresults(guid, 'Snatched', imdbid=imdbid):
+        if not core.manage.markedresults(guid, 'Snatched', imdbid=imdbid):
             logging.error('Unable to store marked search result as Snatched.')
             return False
 
-        if not self.manage.movie_status(imdbid):
+        if not core.manage.movie_status(imdbid):
             logging.error('Unable to update movie status to Snatched.')
             return False
 

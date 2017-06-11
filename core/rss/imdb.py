@@ -1,5 +1,5 @@
 import core
-from core import library, searcher
+from core import searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 from datetime import datetime
@@ -16,7 +16,6 @@ class ImdbRss(object):
         self.tmdb = TMDB()
         self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
         self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
-        self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
 
@@ -146,6 +145,6 @@ class ImdbRss(object):
             movie['year'] = movie['release_date'][:4]
             movie['origin'] = 'IMDB'
 
-            added = self.library.add_movie(movie)
+            added = core.manage.add_movie(movie)
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie['title'], movie['year'], 'Default')

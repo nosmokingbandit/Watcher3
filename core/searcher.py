@@ -2,7 +2,7 @@ import datetime
 import logging
 
 import core
-from core import library, searchresults, snatcher, proxy
+from core import searchresults, snatcher, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
 from fuzzywuzzy import fuzz
@@ -18,7 +18,6 @@ class Searcher():
         self.predb = predb.PreDB()
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
-        self.manage = library.Manage()
 
     def search_all(self):
         ''' Searches for all movies
@@ -149,7 +148,7 @@ class Searcher():
             logging.error('Unable to store search results for {}'.format(imdbid))
             return False
 
-        if not self.manage.movie_status(imdbid):
+        if not core.manage.movie_status(imdbid):
             logging.error('Unable to update movie status for {}'.format(imdbid))
             return False
 
@@ -222,13 +221,13 @@ class Searcher():
             scored_results = self.score.score(new_results, imdbid=imdbid)
 
             if len(scored_results) == 0:
+                logging.info('No acceptable results found for {}'.format(imdbid))
                 continue
 
             if not self.store_results(scored_results, imdbid):
                 return False
 
-            if not self.manage.movie_status(imdbid):
-                logging.info('No acceptable results found for {}'.format(imdbid))
+            if not core.manage.movie_status(imdbid):
                 return False
 
         return True

@@ -57,12 +57,13 @@ if __name__ == '__main__':
     passed_args = parser.parse_args()
 
     # set up db connection
-    from core import sqldb
+    from core import sqldb, library
     if passed_args.db:
         core.DB_FILE = passed_args.db
     else:
         core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
     core.sql = sqldb.SQL()
+    core.manage = library.Manage()
 
     # set up config file on first launch
     if passed_args.conf:

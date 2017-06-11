@@ -3,7 +3,6 @@ import logging
 
 import core
 from core.movieinfo import TMDB
-from core.library import Manage
 
 logging = logging.getLogger(__name__)
 
@@ -75,7 +74,6 @@ class API(object):
 
     def __init__(self):
         self.tmdb = TMDB()
-        self.library = Manage()
         return
 
     def GET(self, **params):
@@ -203,7 +201,7 @@ class API(object):
         movie['status'] = 'Waiting'
         movie['origin'] = 'API'
 
-        return json.dumps(self.library.add_movie(movie, full_metadata=True))
+        return json.dumps(core.manage.add_movie(movie, full_metadata=True))
 
     def removemovie(self, imdbid):
         ''' Remove movie from wanted list
@@ -214,7 +212,7 @@ class API(object):
 
         logging.info('API request remove movie {}'.format(imdbid))
 
-        return json.dumps(self.library.remove_movie(imdbid))
+        return json.dumps(core.manage.remove_movie(imdbid))
 
     def version(self):
         ''' Simple endpoint to return commit hash

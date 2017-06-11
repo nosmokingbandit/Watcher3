@@ -35,7 +35,6 @@ class Ajax(object):
         self.score = searchresults.Score()
         self.poster = library.Poster()
         self.snatcher = snatcher.Snatcher()
-        self.manage = library.Manage()
 
     @cherrypy.expose
     def search_tmdb(self, search_term):
@@ -105,7 +104,7 @@ class Ajax(object):
                         if best_release:
                             self.snatcher.download(best_release)
 
-        r = self.manage.add_movie(movie, full_metadata=full_metadata)
+        r = core.manage.add_movie(movie, full_metadata=full_metadata)
 
         if r['response'] is True and r['movie']['status'] != 'Disabled' and r['movie']['year'] != 'N/A':  # disable immediately grabbing new release for imports
             t = threading.Thread(target=thread_search_grab, args=(r['movie'],))
@@ -157,7 +156,7 @@ class Ajax(object):
         Returns str json dict
         '''
 
-        return json.dumps(self.manage.remove_movie(imdbid))
+        return json.dumps(core.manage.remove_movie(imdbid))
 
     @cherrypy.expose
     def search(self, imdbid):
@@ -220,15 +219,15 @@ class Ajax(object):
         Returns str json.dumps(dict) with keys response, error (if response is False), movie_status
         '''
 
-        sr = self.manage.searchresults(guid, 'Bad')
-        self.manage.markedresults(guid, 'Bad', imdbid=imdbid)
+        sr = core.manage.searchresults(guid, 'Bad')
+        core.manage.markedresults(guid, 'Bad', imdbid=imdbid)
 
         if sr:
             response = {'response': True, 'message': 'Marked as Bad.'}
         else:
             response = {'response': False, 'error': 'Could not mark release as bad.'}
 
-        response['movie_status'] = self.manage.movie_status(imdbid)
+        response['movie_status'] = core.manage.movie_status(imdbid)
         if response['movie_status'] is False:
             response['error'] = response.get('error', '') + ' Could not set movie\'s status.'
 
@@ -444,7 +443,7 @@ class Ajax(object):
         if status == 'Automatic':
             if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
                 return json.dumps({'response': False})
-            new_status = self.manage.movie_status(imdbid)
+            new_status = core.manage.movie_status(imdbid)
             if not new_status:
                 return json.dumps({'response': False})
             else:
@@ -1151,4 +1150,4 @@ class Ajax(object):
 
     @cherrypy.expose
     def generate_stats(self):
-        return json.dumps(self.manage.get_stats())
+        return json.dumps(core.manage.get_stats())

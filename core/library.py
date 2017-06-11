@@ -17,7 +17,6 @@ import threading
 
 logging = logging.getLogger(__name__)
 
-MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
 
 
 class ImportDirectory(object):
@@ -405,6 +404,7 @@ class Metadata(object):
 
     def __init__(self):
         self.tmdb = TMDB()
+        self.MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
         return
 
     def from_file(self, filepath):
@@ -600,7 +600,7 @@ class Metadata(object):
             if isinstance(v, str):
                 movie[k] = v.strip()
 
-        movie = {k: v for k, v in movie.items() if k in MOVIES_cols}
+        movie = {k: v for k, v in movie.items() if k in self.MOVIES_cols}
 
         return movie
 
