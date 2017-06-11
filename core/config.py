@@ -135,7 +135,7 @@ class Config():
         try:
             with open(self.file, 'w') as f:
                 json.dump(config, f, indent=4, sort_keys=True)
-        except Exception as e:  # noqa
+        except Exception as e:
             return False
 
         return True

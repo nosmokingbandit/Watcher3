@@ -284,7 +284,7 @@ class ZipUpdater(object):
             return result['sha']
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Could not get newest hash from git.', exc_info=True)
             return None
 
@@ -327,7 +327,7 @@ class ZipUpdater(object):
             behind_count = result['behind_by']
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Could not get update information from git.', exc_info=True)
             result['status'] = 'error'
             result['error'] = 'Could not get update information from git.'
@@ -474,7 +474,7 @@ class ZipUpdater(object):
         try:
             shutil.rmtree(update_path)
             os.remove(update_zip)
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Could not delete temporary files.', exc_info=True)
             return False
 

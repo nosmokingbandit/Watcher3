@@ -120,7 +120,7 @@ class Ajax(object):
             self.config.write(save_data)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Writing config.', exc_info=True)
             return json.dumps({'response': False, 'error': 'Unable to write to config file.'})
 
@@ -695,7 +695,7 @@ class Ajax(object):
         if os.path.isfile(target_poster):
             try:
                 os.remove(target_poster)
-            except Exception as e:  # noqa
+            except Exception as e:
                 logging.warning('Unable to remove existing poster.', exc_info=True)
                 return json.dumps({'response': False, 'error': 'Unable to remove existing poster.'})
 
@@ -852,7 +852,7 @@ class Ajax(object):
         try:
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to prase Plex CSV', exc_info=True)
             return
 

@@ -87,7 +87,7 @@ class TMDB(object):
                 return results['results'][:6]
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Error searching for title on TMDB.', exc_info=True)
             return ['']
 
@@ -112,7 +112,7 @@ class TMDB(object):
                 return [response]
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Error searching for IMDBID on TMDB.', exc_info=True)
             return ['']
 
@@ -137,7 +137,7 @@ class TMDB(object):
                 return [results]
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Error searching for TMDBID on TMDB.', exc_info=True)
             return ['']
 
@@ -176,7 +176,7 @@ class TMDB(object):
                     return None
             except (SystemExit, KeyboardInterrupt):
                 raise
-            except Exception as e: # noqa
+            except Exception as e:
                 logging.error('Error attempting to get TMDBID from TMDB.', exc_info=True)
                 return None
 
@@ -189,7 +189,7 @@ class TMDB(object):
         try:
             results = json.loads(Url.open(url).text)
             return results.get('imdb_id')
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Error attempting to get IMDBID from TMDB.', exc_info=True)
             return None
 
@@ -215,7 +215,7 @@ def trailer(title_date):
             return results['items'][0]['id']['videoId']
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             if tries == 2:
                 logging.error('Unable to get trailer from Youtube.', exc_info=True)
             tries += 1

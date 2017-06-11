@@ -30,7 +30,7 @@ class PopularMoviesFeed(object):
             movies = json.loads(Url.open('https://s3.amazonaws.com/popular-movies/movies.json').text)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Popular feed request failed.', exc_info=True)
             return None
 

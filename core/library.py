@@ -1,12 +1,5 @@
 import os
 import json
-from hachoir.parser import createParser
-from hachoir.metadata import extractMetadata
-from core import searchresults, plugins
-import core
-from core.movieinfo import TMDB
-from core.helpers import Url, Conversions
-import PTN
 import datetime
 import logging
 import uuid
@@ -15,14 +8,19 @@ import csv
 import shutil
 import threading
 
+from core import searchresults, plugins, searcher
+import core
+from core.movieinfo import TMDB
+from core.helpers import Url, Conversions
+from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+import PTN
+
+
 logging = logging.getLogger(__name__)
 
 
-
 class ImportDirectory(object):
-
-    def __init__(self):
-        return
 
     @staticmethod
     def scan_dir(directory, minsize=500, recursive=True):
@@ -187,7 +185,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(url, headers=headers)
             xml = r.text
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
@@ -199,7 +197,7 @@ class ImportPlexLibrary(object):
                 lib = directory.attrib
                 lib['path'] = directory.find('Location').attrib['path']
                 libs.append(lib)
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to parse Plex xml.', exc_info=True)
             return {'response', False, 'error', 'Unable to parse Plex xml.'}
 
@@ -214,7 +212,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(url, headers=headers)
             xml = r.text
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
@@ -227,7 +225,7 @@ class ImportPlexLibrary(object):
 
                 movies.append(movie)
 
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to parse Plex xml.', exc_info=True)
             return {'response', False, 'error', 'Unable to parse Plex xml.'}
 
@@ -253,7 +251,7 @@ class ImportPlexLibrary(object):
         try:
             r = Url.open(plex_url, post_data=post_data, headers=headers)
             return json.loads(r.text)['user'].get('authentication_token')
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to get Plex token.', exc_info=True)
             return None
 
@@ -265,7 +263,7 @@ class ImportPlexLibrary(object):
             reader = csv.DictReader(csv_text.splitlines())
             for row in reader:
                 movies.append(dict(row))
-        except Exception as e:  # noqa
+        except Exception as e:
             return {'response': False, 'error': e}
 
         parsed_movies = []
@@ -473,7 +471,7 @@ class Metadata(object):
             filedata = extractor.exportDictionary(human=False)
             parser.stream._input.close()
 
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to parse metadata from file header.', exc_info=True)
             return metadata
 
@@ -618,10 +616,10 @@ class Manage(object):
 
     def add_movie(self, movie, full_metadata=False):
         ''' Adds movie to Wanted list.
-        :param data: str json.dumps(dict) of info to add to database.
+        :param movie: str json.dumps(dict) of info to add to database.
         full_metadata: bool if data is complete and ready for write
 
-        data MUST inlcude tmdb id as data['id']
+        movie MUST inlcude tmdb id as data['id']
 
         Writes data to MOVIES table.
 
@@ -666,8 +664,8 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
-            t2.start()
+            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
+
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
 
@@ -683,13 +681,11 @@ class Manage(object):
         In separate thread deletes poster image.
         '''
 
-        t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
-
         removed = core.sql.remove_movie(imdbid)
 
         if removed is True:
             response = {'response': True, 'removed': imdbid}
-            t.start()
+            threading.Thread(target=self.poster.remove_poster, args=(imdbid,)).start()
         elif removed is False:
             response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
         elif removed is None:
@@ -727,7 +723,7 @@ class Manage(object):
         else:
             logging.info('Guid {} not found in SEARCHRESULTS, attempting to create entry.'.format(guid.split('&')[0]))
             if movie_info is None:
-                logging.warning('Metadata not supplied, unable to create SEARCHRESULTS entry.')
+                logging.warning('Movie metadata not supplied, unable to create SEARCHRESULTS entry.')
                 return False
             search_result = searchresults.generate_simulacrum(movie_info)
             search_result['indexer'] = 'Post-Processing Import'
@@ -895,7 +891,6 @@ class Manage(object):
         stats['years'] = sorted([{'year': k, 'value': v} for k, v in years.items()], key=lambda k: k['year'])
         stats['added_dates'] = sorted([{'added_date': k, 'value': v} for k, v in added_dates.items() if v is not None], key=lambda k: k['added_date'])
         stats['scores'] = sorted([{'score': k, 'value': v} for k, v in scores.items()], key=lambda k: k['score'])
-
         return stats
 
     def estimate_size(self, human=True):
@@ -958,7 +953,7 @@ class Poster():
                     del poster_bytes
                 except (SystemExit, KeyboardInterrupt):
                     raise
-                except Exception as e: # noqa
+                except Exception as e:
                     logging.error('Unable to save poster to disk.', exc_info=True)
 
             logging.info('Poster saved to {}'.format(new_poster_path))

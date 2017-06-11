@@ -129,7 +129,7 @@ class Torrent(object):
                 metadata = bencodepy.decode(r)
                 hashcontents = bencodepy.encode(metadata[b'info'])
                 return hashlib.sha1(hashcontents).hexdigest().upper()
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Unable to get torrent hash', exc_info=True)
                 return None
 

@@ -83,7 +83,7 @@ class SQL(object):
                 self.update_tables()
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Opening SQL DB.', exc_info=True)
             raise
 
@@ -558,7 +558,7 @@ class SQL(object):
                 os.mkdir(backup_dir)
             backup = '{}.{}'.format(core.DB_FILE, datetime.date.today())
             shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup))
-        except Exception as e: # noqa
+        except Exception as e:
             print('Error backing up database.')
             logging.error('Copying SQL DB.', exc_info=True)
             raise

@@ -223,7 +223,7 @@ class Rarbg(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Rarbg search failed.', exc_info=True)
             return []
 
@@ -261,7 +261,7 @@ class Rarbg(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Rarbg RSS fetch failed.', exc_info=True)
             return []
 
@@ -275,7 +275,7 @@ class Rarbg(object):
             return token
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Failed to get Rarbg token.', exc_info=True)
             return None
 
@@ -328,7 +328,7 @@ class LimeTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('LimeTorrent search failed.', exc_info=True)
             return []
 
@@ -352,7 +352,7 @@ class LimeTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('LimeTorrent RSS fetch failed.', exc_info=True)
             return []
 
@@ -392,7 +392,7 @@ class LimeTorrents(object):
                 result['seeders'] = int(seed_str)
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing LimeTorrents XML.', exc_info=True)
                 continue
 
@@ -426,7 +426,7 @@ class YTS(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('YTS search failed.', exc_info=True)
             return []
 
@@ -450,7 +450,7 @@ class YTS(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('YTS RSS fetch failed.', exc_info=True)
             return []
 
@@ -481,7 +481,7 @@ class YTS(object):
                 result['seeders'] = i['seeds']
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing YTS JSON.', exc_info=True)
                 continue
 
@@ -527,7 +527,7 @@ class YTS(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing YTS XML.', exc_info=True)
                 continue
 
@@ -558,7 +558,7 @@ class SkyTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('SkyTorrents search failed.', exc_info=True)
             return []
 
@@ -597,7 +597,7 @@ class SkyTorrents(object):
                 result['seeders'] = desc[0]
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing SkyTorrents XML.', exc_info=True)
                 continue
 
@@ -627,7 +627,7 @@ class Torrentz2(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Torrentz2 search failed.', exc_info=True)
             return []
 
@@ -651,7 +651,7 @@ class Torrentz2(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Torrentz2 RSS fetch failed.', exc_info=True)
             return []
 
@@ -689,7 +689,7 @@ class Torrentz2(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing Torrentz2 XML.', exc_info=True)
                 continue
 
@@ -720,7 +720,7 @@ class ThePirateBay(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('ThePirateBay search failed.', exc_info=True)
             return []
 
@@ -744,7 +744,7 @@ class ThePirateBay(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('ThePirateBay RSS fetch failed.', exc_info=True)
             return []
 
@@ -790,7 +790,7 @@ class ThePirateBay(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing ThePirateBay XML.', exc_info=True)
                 continue
 

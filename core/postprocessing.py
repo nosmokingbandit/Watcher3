@@ -133,7 +133,7 @@ class Postprocessing(object):
             # Find the biggest file in the dir. Assume that this is the movie.
             try:
                 files = os.listdir(path)
-            except Exception as e:  # noqa
+            except Exception as e:
                 logging.error('Path not found in filesystem. Will be unable to move or rename.',
                               exc_info=True)
                 return ''
@@ -563,7 +563,7 @@ class Postprocessing(object):
             os.rename(abs_path_old, abs_path_new)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Renamer failed: Could not rename file.', exc_info=True)
             return None
 
@@ -586,7 +586,7 @@ class Postprocessing(object):
             shutil.copystat = self.null
             shutil.move(abs_filepath, recycle_bin)
             return True
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Recycling failed: Could not move file.', exc_info=True)
             return False
 
@@ -611,7 +611,7 @@ class Postprocessing(object):
                 logging.info('Removing additional file {}'.format(i))
                 try:
                     os.remove(os.path.join(path, i))
-                except Exception as e:  # noqa
+                except Exception as e:
                     logging.warning('Unable to remove {}'.format(i), exc_info=True)
         return
 
@@ -686,7 +686,7 @@ class Postprocessing(object):
         try:
             shutil.copystat = self.null
             shutil.move(current_file_path, target_folder)
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Mover failed: Could not move file.', exc_info=True)
             return False
 
@@ -722,7 +722,7 @@ class Postprocessing(object):
                     try:
                         logging.info('Moving {} to {}'.format(old_abs_path, target_file))
                         shutil.copyfile(old_abs_path, target_file)
-                    except Exception as e:  # noqa
+                    except Exception as e:
                         logging.error('Mover failed: Could not copy {}.'.format(old_abs_path), exc_info=True)
         return new_file_location
 
@@ -748,7 +748,7 @@ class Postprocessing(object):
             try:
                 os.remove(path)
                 return True
-            except Exception as e:  # noqa
+            except Exception as e:
                 logging.error('Could not delete path.', exc_info=True)
                 return False
         else:

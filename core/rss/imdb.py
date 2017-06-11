@@ -37,7 +37,7 @@ class ImdbRss(object):
             logging.info('Syncing rss IMDB watchlist {}'.format(url))
             try:
                 response = Url.open(url).text
-            except Exception as e: # noqa
+            except Exception as e:
                 logging.error('IMDB rss request.', exc_info=True)
                 continue
 

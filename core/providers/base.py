@@ -43,7 +43,7 @@ class NewzNabProvider(object):
             return self.parse_newznab_xml(response)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Newz/TorzNab backlog search.', exc_info=True)
             return []
 
@@ -85,7 +85,7 @@ class NewzNabProvider(object):
                 return self.parse_newznab_xml(response)
             except (SystemExit, KeyboardInterrupt):
                 raise
-            except Exception as e: # noqa
+            except Exception as e:
                 logging.error('Newz/TorzNab rss get xml.', exc_info=True)
 
         return results
@@ -213,7 +213,7 @@ class NewzNabProvider(object):
                 response = r.text
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Newz/TorzNab connection check.', exc_info=True)
             return {'response': False, 'error': 'No connection could be made because the target machine actively refused it.'}
 

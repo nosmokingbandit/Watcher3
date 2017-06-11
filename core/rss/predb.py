@@ -88,7 +88,7 @@ class PreDB(object):
             return items
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Predb.me search failed.', exc_info=True)
             return None
 
