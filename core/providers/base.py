@@ -4,7 +4,7 @@ import logging
 
 import core
 from core.helpers import Url
-from core.proxy import Proxy
+from core import proxy
 
 
 class NewzNabProvider(object):
@@ -14,12 +14,6 @@ class NewzNabProvider(object):
         search_newznab      searches indexer for imdbid
         parse_newznab_xml   parses newznab-formatted xml into dictionary
         test_connection     static_method to test connetion and apikey
-
-    Required imports:
-        import xml.etree.cElementTree as ET
-        from core.helpers import Url
-        from core.proxy import Proxy
-        from core.providers.base import NewzNabProvider
 
     '''
 
@@ -41,7 +35,7 @@ class NewzNabProvider(object):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         try:
-            if proxy_enabled and Proxy.whitelist(url) is True:
+            if proxy_enabled and proxy.whitelist(url) is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -83,7 +77,7 @@ class NewzNabProvider(object):
             logging.info('RSS_SYNC: {}api?t=movie&cat=2000&extended=1&offset=0&apikey=APIKEY'.format(url_base))
 
             try:
-                if proxy_enabled and Proxy.whitelist(url) is True:
+                if proxy_enabled and proxy.whitelist(url) is True:
                     response = Url.open(url, proxy_bypass=True).text
                 else:
                     response = Url.open(url).text

@@ -4,7 +4,7 @@ import datetime
 import time
 import xml.etree.cElementTree as ET
 import core
-from core.proxy import Proxy
+from core import proxy
 from core.helpers import Url
 from core.providers.base import NewzNabProvider
 
@@ -210,7 +210,7 @@ class Rarbg(object):
 
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -248,7 +248,7 @@ class Rarbg(object):
 
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -317,7 +317,7 @@ class LimeTorrents(object):
         url = 'https://www.limetorrents.cc/searchrss/{}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
+            if proxy_enabled and proxy.whitelist('https://www.limetorrents.cc') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -341,7 +341,7 @@ class LimeTorrents(object):
         url = 'https://www.limetorrents.cc/rss/16/'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
+            if proxy_enabled and proxy.whitelist('https://www.limetorrents.cc') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -411,7 +411,7 @@ class YTS(object):
         url = 'https://yts.ag/api/v2/list_movies.json?limit=1&query_term={}'.format(imdbid)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
+            if proxy_enabled and proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -439,7 +439,7 @@ class YTS(object):
         url = 'https://yts.ag/rss/0/all/all/0'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
+            if proxy_enabled and proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -547,7 +547,7 @@ class SkyTorrents(object):
         url = 'https://www.skytorrents.in/rss/all/ed/1/{}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.skytorrents.in') is True:
+            if proxy_enabled and proxy.whitelist('https://www.skytorrents.in') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -616,7 +616,7 @@ class Torrentz2(object):
         url = 'https://www.torrentz2.eu/feed?f={}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentz2.e') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -640,7 +640,7 @@ class Torrentz2(object):
         url = 'https://www.torrentz2.eu/feed?f=movies'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentz2.e') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -709,7 +709,7 @@ class ThePirateBay(object):
 
         headers = {'Cookie': 'lw=s'}
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.thepiratebay.org') is True:
                 response = Url.open(url, proxy_bypass=True, headers=headers).text
             else:
                 response = Url.open(url, headers=headers).text
@@ -733,7 +733,7 @@ class ThePirateBay(object):
         url = 'https://www.thepiratebay.org/browse/201/0/3/0'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.thepiratebay.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text

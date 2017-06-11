@@ -104,7 +104,7 @@ class Searcher():
 
         Returns Bool if movie is found.
         '''
-        proxy.Proxy.create()
+        proxy.create()
 
         results = []
 
@@ -115,7 +115,7 @@ class Searcher():
             for i in self.torrent.search_all(imdbid, title, year):
                 results.append(i)
 
-        proxy.Proxy.destroy()
+        proxy.destroy()
 
         old_results = [dict(r) for r in core.sql.get_search_results(imdbid, quality)]
 
@@ -176,14 +176,14 @@ class Searcher():
         newznab_results = []
         torrent_results = []
 
-        proxy.Proxy.create()
+        proxy.create()
 
         if core.CONFIG['Downloader']['Sources']['usenetenabled']:
             newznab_results = self.nn.get_rss()
         if core.CONFIG['Downloader']['Sources']['torrentenabled']:
             torrent_results = self.torrent.get_rss()
 
-        proxy.Proxy.destroy()
+        proxy.destroy()
 
         for movie in movies:
             imdbid = movie['imdbid']
