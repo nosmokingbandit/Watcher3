@@ -79,7 +79,7 @@ if __name__ == '__main__':
     conf.stash()
 
     # Set up logging
-    from core.log import log
+    from core import log
     if passed_args.log:
         core.LOG_DIR = passed_args.log
     log.start(core.LOG_DIR)
