@@ -16,8 +16,7 @@ logging = logging.getLogger(__name__)
 
 
 class Ajax(object):
-    ''' These are all the methods that handle
-        ajax post/get requests from the browser.
+    ''' These are all the methods that handle ajax post/get requests from the browser.
 
     Except in special circumstances, all should return a JSON string
         since that is the only datatype sent over http
@@ -29,7 +28,6 @@ class Ajax(object):
         self.config = config.Config()
         self.metadata = library.Metadata()
         self.predb = predb.PreDB()
-        self.plugins = plugins.Plugins()
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
         self.poster = library.Poster()

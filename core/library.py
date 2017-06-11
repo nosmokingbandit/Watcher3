@@ -614,7 +614,6 @@ class Manage(object):
         self.tmdb = TMDB()
         self.metadata = Metadata()
         self.poster = Poster()
-        self.plugins = plugins.Plugins()
 
     def add_movie(self, movie, full_metadata=False):
         ''' Adds movie to Wanted list.
@@ -672,7 +671,7 @@ class Manage(object):
             response['response'] = True
             response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
             response['movie'] = movie
-            self.plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
+            plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
 
             return response
 

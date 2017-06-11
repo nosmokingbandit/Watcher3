@@ -21,10 +21,6 @@ class Snatcher():
 
     '''
 
-    def __init__(self):
-        self.plugins = plugins.Plugins()
-        return
-
     def grab_all(self):
         ''' Grabs best result for all movies in library
 
@@ -88,7 +84,7 @@ class Snatcher():
             year = movie['year']
             title = movie['title']
             release_date = movie['release_date']
-        except Exception as e: #noqa
+        except Exception as e:
             logging.error('Invalid movie data.', exc_info=True)
             return None
 
@@ -181,7 +177,7 @@ class Snatcher():
             download_client = response['download_client']
             downloadid = response['downloadid']
 
-            self.plugins.snatched(title, year, imdbid, resolution, kind, download_client, downloadid, indexer, info_link)
+            plugins.snatched(title, year, imdbid, resolution, kind, download_client, downloadid, indexer, info_link)
             return response
         else:
             return response

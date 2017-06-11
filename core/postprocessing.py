@@ -17,7 +17,6 @@ class Postprocessing(object):
 
     def __init__(self):
         self.tmdb = movieinfo.TMDB()
-        self.plugins = plugins.Plugins()
         self.snatcher = snatcher.Snatcher()
         self.metadata = library.Metadata()
 
@@ -102,7 +101,7 @@ class Postprocessing(object):
             finished_date = response['data'].get('finished_date')
             quality = response['data'].get('quality')
 
-            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
+            plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
             logging.info(response)
         else:
