@@ -6,11 +6,10 @@ import threading
 import cherrypy
 from base64 import b16encode
 import core
-from core import config, library, plugins, searchresults, searcher, snatcher, version
+from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
 from core.movieinfo import TMDB, Trailer
-from core.notification import Notification
 from core.helpers import Conversions
 from core.rss import predb
 logging = logging.getLogger(__name__)
@@ -279,7 +278,7 @@ class Ajax(object):
         Does not return
         '''
 
-        Notification.remove(int(index))
+        notification.remove(int(index))
 
         return
 

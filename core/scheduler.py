@@ -3,9 +3,8 @@ import logging
 
 import cherrypy
 import core
-from core.notification import Notification
 
-from core import searcher, version
+from core import searcher, version, notification
 from core.rss import imdb, popularmovies
 from core.cp_plugins import taskscheduler
 from core import trakt
@@ -147,7 +146,7 @@ class AutoUpdateCheck(object):
             notif = {'title': 'Error Checking for Updates <br/>',
                      'message': data['error']
                      }
-            Notification.add(notif, type_='danger')
+            notification.add(notif, type_='danger')
 
         elif data['status'] == 'behind':
             if data['behind_count'] == 1:
@@ -162,7 +161,7 @@ class AutoUpdateCheck(object):
                      'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}" target="_blank"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
                      }
 
-            Notification.add(notif, type_='primary')
+            notification.add(notif, type_='primary')
 
             if core.CONFIG['Server']['installupdates']:
                 logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
