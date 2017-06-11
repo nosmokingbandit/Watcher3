@@ -614,6 +614,7 @@ class Manage(object):
         self.tmdb = TMDB()
         self.metadata = Metadata()
         self.poster = Poster()
+        self.searcher = searcher.Searcher()
 
     def add_movie(self, movie, full_metadata=False):
         ''' Adds movie to Wanted list.
@@ -667,10 +668,11 @@ class Manage(object):
         else:
             t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
             t2.start()
+            if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
+                threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
 
             response['response'] = True
             response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
-            response['movie'] = movie
             plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
 
             return response

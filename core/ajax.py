@@ -88,25 +88,7 @@ class Ajax(object):
         '''
         movie = json.loads(data)
 
-        def thread_search_grab(data):
-            imdbid = data['imdbid']
-            title = data['title']
-            year = data['year']
-            quality = data['quality']
-            if self.predb.backlog_search(data) and core.CONFIG['Search']['searchafteradd']:
-                if self.searcher.search(imdbid, title, year, quality):
-                    if core.CONFIG['Search']['autograb']:
-                        best_release = self.snatcher.best_release(data)
-                        if best_release:
-                            self.snatcher.download(best_release)
-
         r = core.manage.add_movie(movie, full_metadata=full_metadata)
-
-        if r['response'] is True and r['movie']['status'] != 'Disabled' and r['movie']['year'] != 'N/A':  # disable immediately grabbing new release for imports
-            t = threading.Thread(target=thread_search_grab, args=(r['movie'],))
-            t.start()
-
-        r.pop('movie', None)
 
         return json.dumps(r)
 

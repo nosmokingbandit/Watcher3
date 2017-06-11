@@ -19,6 +19,30 @@ class Searcher():
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
 
+    def _t_search_grab(self, movie):
+        ''' Run verify/search/snatch chain
+        movie: dict of movie to run search for
+
+        Do not run in main thread
+
+        Does not return
+        '''
+
+        imdbid = movie['imdbid']
+        title = movie['title']
+        year = movie['year']
+        quality = movie['quality']
+        predb_found = self.predb.backlog_search(movie)
+        if core.CONFIG['Search']['predbcheck']:
+            if not predb_found:
+                return
+            if core.CONFIG['Search']['searchafteradd']:
+                if self.search(imdbid, title, year, quality):
+                    if core.CONFIG['Search']['autograb']:
+                        best_release = self.snatcher.best_release(movie)
+                        if best_release:
+                            self.snatcher.download(best_release)
+
     def search_all(self):
         ''' Searches for all movies
         Should never run in the main thread.
