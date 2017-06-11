@@ -16,7 +16,6 @@ class Postprocessing(object):
     exposed = True
 
     def __init__(self):
-        self.tmdb = movieinfo.TMDB()
         self.snatcher = snatcher.Snatcher()
         self.metadata = library.Metadata()
 

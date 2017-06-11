@@ -9,7 +9,6 @@ import core
 from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
-from core.movieinfo import TMDB, Trailer
 from core.helpers import Conversions
 from core.rss import predb
 logging = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ class Ajax(object):
     '''
 
     def __init__(self):
-        self.tmdb = TMDB()
+        self.tmdb = movieinfo.TMDB()
         self.config = config.Config()
         self.metadata = library.Metadata()
         self.predb = predb.PreDB()
@@ -74,7 +73,7 @@ class Ajax(object):
 
     @cherrypy.expose
     def get_trailer(self, title, year):
-        return Trailer.get_trailer('{} {}'.format(title, year))
+        return movieinfo.trailer('{} {}'.format(title, year))
 
     @cherrypy.expose
     def add_wanted_movie(self, data, full_metadata=False):

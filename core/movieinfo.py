@@ -194,31 +194,29 @@ class TMDB(object):
             return None
 
 
-class Trailer(object):
-    @staticmethod
-    def get_trailer(title_date):
-        ''' Gets trailer embed ID from Youtube.
-        :param title_date: str movie title and date ("Movie Title 2016")
+def trailer(title_date):
+    ''' Gets trailer embed ID from Youtube.
+    :param title_date: str movie title and date ("Movie Title 2016")
 
-        Attempts to connect 3 times in case Youtube is down or not responding
-        Can fail if no response is received.
+    Attempts to connect 3 times in case Youtube is down or not responding
+    Can fail if no response is received.
 
-        Returns str or None
-        '''
+    Returns str or None
+    '''
 
-        search_term = Url.normalize((title_date + '+trailer'))
+    search_term = Url.normalize((title_date + '+trailer'))
 
-        url = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
+    url = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
 
-        tries = 0
-        while tries < 3:
-            try:
-                results = json.loads(Url.open(url).text)
-                return results['items'][0]['id']['videoId']
-            except (SystemExit, KeyboardInterrupt):
-                raise
-            except Exception as e: # noqa
-                if tries == 2:
-                    logging.error('Unable to get trailer from Youtube.', exc_info=True)
-                tries += 1
-        return None
+    tries = 0
+    while tries < 3:
+        try:
+            results = json.loads(Url.open(url).text)
+            return results['items'][0]['id']['videoId']
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e: # noqa
+            if tries == 2:
+                logging.error('Unable to get trailer from Youtube.', exc_info=True)
+            tries += 1
+    return None
