@@ -572,7 +572,7 @@ class Ajax(object):
                 logging.info('All data found for import {}'.format(metadata['title']))
                 yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
 
-    scan_library_directory._cp_config = {'response.stream': True}
+    scan_library_directory._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def import_dir(self, movies, corrected_movies):
@@ -650,7 +650,7 @@ class Ajax(object):
 
         core.sql.write_search_results(fake_results)
 
-    import_dir._cp_config = {'response.stream': True}
+    import_dir._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def list_files(self, current_dir, move_dir):
@@ -854,7 +854,7 @@ class Ajax(object):
 
         core.sql.write_search_results(fake_results)
 
-    import_kodi_movies._cp_config = {'response.stream': True}
+    import_kodi_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def get_plex_libraries(self, server, username, password):
@@ -961,7 +961,7 @@ class Ajax(object):
 
         core.sql.write_search_results(fake_results)
 
-    import_plex_csv._cp_config = {'response.stream': True}
+    import_plex_csv._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def get_cp_movies(self, url, apikey):
@@ -1026,7 +1026,7 @@ class Ajax(object):
                 core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
         core.sql.write_search_results(fake_results)
-    import_cp_movies._cp_config = {'response.stream': True}
+    import_cp_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def manager_backlog_search(self, movies):
@@ -1069,7 +1069,7 @@ class Ajax(object):
 
             yield json.dumps(response)
 
-    manager_backlog_search._cp_config = {'response.stream': True}
+    manager_backlog_search._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def manager_update_metadata(self, movies):
@@ -1087,7 +1087,7 @@ class Ajax(object):
 
             yield json.dumps(response)
 
-    manager_update_metadata._cp_config = {'response.stream': True}
+    manager_update_metadata._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def manager_change_quality(self, movies, quality):
@@ -1105,7 +1105,7 @@ class Ajax(object):
 
             yield json.dumps(response)
 
-    manager_change_quality._cp_config = {'response.stream': True}
+    manager_change_quality._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def manager_reset_movies(self, movies):
@@ -1131,7 +1131,7 @@ class Ajax(object):
 
             yield json.dumps({'response': True, "index": i + 1})
 
-    manager_reset_movies._cp_config = {'response.stream': True}
+    manager_reset_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def manager_remove_movies(self, movies):
@@ -1147,7 +1147,7 @@ class Ajax(object):
 
             yield(json.dumps(response))
 
-    manager_remove_movies._cp_config = {'response.stream': True}
+    manager_remove_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
     def generate_stats(self):
