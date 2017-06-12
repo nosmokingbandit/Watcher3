@@ -107,16 +107,23 @@ ul#movie_list.compact li span.label{
     display: inline-block;
     height: 2em;
     line-height: 2em;
+    width: 6em;
+    margin-right: 1em;
 }
 
 ul#movie_list.compact li img{
     display: none;
 }
 
+
+ul#movie_list.compact li span.score{
+    display: none;
+}
+
 ul#movie_list.compact li span.title{
     font-size: 1.25em;
     display: inline-block;
-    width: calc(100% - 3em);
+    width: calc(100% - 8em);
     vertical-align: top;
     overflow: hidden;
     white-space: nowrap;
@@ -125,6 +132,9 @@ ul#movie_list.compact li span.title{
 
 ul#movie_list.compact li span.year{
     display: inline-block;
+    width: 3em;
+    margin-right: 1em;
+    text-align: right;
 }
 
 /* Status Modal */
