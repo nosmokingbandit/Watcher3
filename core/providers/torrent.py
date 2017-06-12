@@ -731,12 +731,12 @@ class ThePirateBay(object):
         logging.info('Fetching latest RSS from ThePirateBay.')
 
         url = 'https://www.thepiratebay.org/browse/201/0/3/0'
-
+        headers = {'Cookie': 'lw=s'}
         try:
             if proxy_enabled and proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Url.open(url, proxy_bypass=True).text
+                response = Url.open(url, proxy_bypass=True, headers=headers).text
             else:
-                response = Url.open(url).text
+                response = Url.open(url, headers=headers).text
 
             if response:
                 return ThePirateBay.parse(response, None)
