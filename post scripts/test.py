@@ -7,7 +7,7 @@
 # ========================================== #
 
 watcherapi = ''
-watcheraddress = ''
+watcheraddress = 'http://localhost:9090'
 
 import json
 import sys
@@ -37,13 +37,17 @@ while download_dir[-1] in ('/', '\\'):
     download_dir = download_dir[:-1]
 
 guid = input('GUID: ')
-name = input('Name: ')
+name = input('Name (Folder name of download): ')
 
 data['downloadid'] = input('Downloadid (optional): ') or guid
 data['name'] = name
 data['path'] = u'{}/{}'.format(download_dir, name)
 data['guid'] = guid
-data['mode'] = 'complete'
+print('Mode:')
+print('  1 Complete (default)')
+print('  2 Failed')
+mode = input('  [1, 2]: ')
+data['mode'] = 'failed' if mode == '2' else 'complete'
 
 url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
@@ -53,13 +57,18 @@ print('URL:')
 print(url)
 print('========================')
 print('POST:')
-print(post_data)
+print(json.dumps(data, indent=2))
 print('========================')
+print('Send Request?')
+print('  Y Yes (default)')
+print('  N No')
+if input('  [Y, N]: ').lower() == 'n':
+	sys.exit(0)
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
 response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
 
-print(json.dumps(response, indent=4, sort_keys=True))
+print(json.dumps(response, indent=2, sort_keys=True))
 
 sys.exit(0)
 
