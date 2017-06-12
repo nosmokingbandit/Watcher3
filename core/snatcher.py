@@ -240,7 +240,7 @@ class Snatcher():
             response = transmission.Transmission.add_torrent(data)
 
             if response['response'] is True:
-                logging.info('Successfully sent {} to NZBGet.'.format(title))
+                logging.info('Successfully sent {} to Transmission.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'Transmission'}
                 core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
@@ -248,8 +248,7 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Transmission.', 'download_client': 'Transmission', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
@@ -268,8 +267,7 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to QBittorrent.', 'download_client': 'QBitorrent', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
@@ -288,8 +286,7 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'Deluge', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
@@ -308,8 +305,7 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'Deluge', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
@@ -348,8 +344,7 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to rTorrent.', 'download_client': 'rTorrent', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
