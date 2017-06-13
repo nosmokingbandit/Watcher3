@@ -1,30 +1,34 @@
 import logging
 import json
+import re
 
 from lib.deluge_client import DelugeRPCClient
 
 import core
 from core.helpers import Torrent, Url
 
+logging.getLogger('lib.deluge_client').setLevel(logging.CRITICAL)
 logging = logging.getLogger(__name__)
+
+label_fix = re.compile('[^a-z0-9_-]')
 
 
 class DelugeRPC(object):
 
     @staticmethod
-    def test_connection(data):
+    def test_connection(config):
         ''' Tests connectivity to deluge daemon rpc
-        data: dict of deluge server information
+        config: dict of deluge server information
 
-        Tests if we can open a socket to the rpc
+        Tests if we can open a socket to the rpc and creates DelugeRPC.client if successful
 
-        Return True on success or str error message on failure
+        Returns Bool True on success or str error message on failure
         '''
 
-        host = data['host']
-        port = data['port']
-        user = data['user']
-        password = data['pass']
+        host = config['host']
+        port = config['port']
+        user = config['user']
+        password = config['pass']
 
         client = DelugeRPCClient(host, port, user, password)
         try:
@@ -32,18 +36,21 @@ class DelugeRPC(object):
             if error:
                 return '{}.'.format(error)
         except Exception as e:
+            logging.error('Unable to connect to Deluge RPC.', exc_info=True)
             return str(e)
-        return True
+        else:
+            return True
 
     @staticmethod
-    def add_torrent(data):
+    def add_torrent(torrent):
         ''' Adds torrent or magnet to Deluge
-        data: dict of torrrent/magnet information
+        torrent: dict of torrrent/magnet information
 
         Returns dict {'response': True, 'download_id': 'id'}
                      {'response': False, 'error': 'exception'}
 
         '''
+
         conf = core.CONFIG['Downloader']['Torrent']['DelugeRPC']
 
         host = conf['host']
@@ -80,27 +87,29 @@ class DelugeRPC(object):
         options['download_location'] = download_path
         options['priority'] = priority_keys[conf['priority']]
 
-        if data['type'] == 'magnet':
+        if torrent['type'] == 'magnet':
             try:
-                download_id = client.call('core.add_torrent_magnet', data['torrentfile'], options).decode('utf-8')
-                return {'response': True, 'downloadid': download_id}
+                download_id = client.call('core.add_torrent_magnet', torrent['torrentfile'], options).decode('utf-8')
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
                 return {'response': False, 'error': str(e)}
-        elif data['type'] == 'torrent':
+        elif torrent['type'] == 'torrent':
             try:
-                download_id = client.call('core.add_torrent_url', data['torrentfile'], options).decode('utf-8')
-                return {'response': True, 'downloadid': download_id}
+                download_id = client.call('core.add_torrent_url', torrent['torrentfile'], options).decode('utf-8')
             except Exception as e:
                 logging.error('Unable to send magnet.', exc_info=True)
                 return {'response': False, 'error': str(e)}
-        return
+        else:
+            return {'response': False, 'error': 'Invalid torrent type {}'.format(torrent['type'])}
+
+        DelugeRPC._set_label(download_id, conf['category'])
+
+        return {'response': True, 'downloadid': download_id}
 
     @staticmethod
     def cancel_download(downloadid):
         ''' Cancels download in client
         downloadid: int download id
-
         Returns bool
         '''
         logging.info('Cancelling download # {}'.format(downloadid))
@@ -121,6 +130,47 @@ class DelugeRPC(object):
             logging.error('Unable to cancel download.', exc_info=True)
             return False
 
+    @staticmethod
+    def _set_label(torrent, label, client):
+        ''' Sets label for download
+        torrent: str hash of torrent to apply label
+        label: str name of label to apply
+        client: object DelugeRPCClient instance
+
+        Returns Bool
+        '''
+
+        label = label_fix.sub('', label.lower()).encode('utf-8')
+
+        logging.info('Applying label {} to torrent {}.'.format(label, torrent))
+
+        if b' ' in label:
+            logging.error('Deluge label cannot contain spaces.')
+            return False
+
+        try:
+            deluge_labels = client.call('label.get_labels')
+        except Exception as e:
+            logging.error('Unable to get labels from DelugeRPC.', exc_info=True)
+
+        if label not in deluge_labels:
+            logging.info('Adding label {} to Deluge'.format(label))
+            try:
+                client.call('label.add', label)
+            except Exception as e:
+                logging.error('Unable to add Deluge label.', exc_info=True)
+                return False
+
+        try:
+            l = client.call('label.set_torrent', torrent, label)
+            if l == b'Unknown Label':
+                logging.error('Unknown label {}'.format(label))
+                return False
+        except Exception as e:
+            logging.error('Unable to set Deluge label.', exc_info=True)
+            return False
+
+        return True
 
 class DelugeWeb(object):
 
