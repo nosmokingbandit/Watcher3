@@ -172,6 +172,7 @@ class DelugeRPC(object):
 
         return True
 
+
 class DelugeWeb(object):
 
     cookie = None
@@ -261,7 +262,6 @@ class DelugeWeb(object):
             response = json.loads(response.text)
             if response['result'] is True:
                 downloadid = Torrent.get_hash(data['torrentfile'])
-                return {'response': True, 'downloadid': downloadid}
             else:
                 return {'response': False, 'error': response['error']}
         except (SystemExit, KeyboardInterrupt):
@@ -269,6 +269,67 @@ class DelugeWeb(object):
         except Exception as e:
             logging.error('Delugeweb add_torrent', exc_info=True)
             return {'response': False, 'error': str(e)}
+
+        DelugeWeb._set_label(downloadid, conf['category'], url)
+
+        return {'response': True, 'downloadid': downloadid}
+
+    @staticmethod
+    def _set_label(torrent, label, url):
+        ''' Sets label for download
+        torrent: str hash of torrent to apply label
+        label: str name of label to apply
+        url: str url of deluge web interface
+
+        Returns bool
+        '''
+        label = label_fix.sub('', label.lower())
+
+        command = {'method': 'label.get_labels',
+                   'params': [],
+                   'id': DelugeWeb.command_id
+                   }
+        DelugeWeb.command_id += 1
+
+        try:
+            response = Url.open(url, post_data=json.dumps(command), headers=DelugeWeb.headers).text
+            deluge_labels = json.loads(response).get('result', [])
+        except Exception as e:
+            logging.error('Unable to get labels from Deluge Web UI.', exc_info=True)
+            return False
+
+        if label not in deluge_labels:
+            logging.info('Adding label {} to Deluge.'.format(label))
+            command = {'method': 'label.add',
+                       'params': [label],
+                       'id': DelugeWeb.command_id
+                       }
+            DelugeWeb.command_id += 1
+            try:
+                sc = Url.open(url, post_data=json.dumps(command), headers=DelugeWeb.headers).status_code
+                if sc != 200:
+                    logging.error('Deluge Web UI response {}.'.format(sc))
+                    return False
+            except Exception as e:
+                logging.error('Delugeweb get_labels.', exc_info=True)
+                return False
+        try:
+            print(torrent)
+            print(label)
+            command = {'method': 'label.set_torrent',
+                       'params': [torrent.lower(), label],
+                       'id': DelugeWeb.command_id
+                       }
+            DelugeWeb.command_id += 1
+            sc = Url.open(url, post_data=json.dumps(command), headers=DelugeWeb.headers).status_code
+            if sc != 200:
+                logging.error('Deluge Web UI response {}.'.format(sc))
+                return False
+        except Exception as e:
+            logging.error('Delugeweb set_torrent.', exc_info=True)
+            return False
+
+        return True
 
     @staticmethod
     def _get_torrent_file(torrent_url, deluge_url):
