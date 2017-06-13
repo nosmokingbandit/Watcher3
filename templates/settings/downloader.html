@@ -3,7 +3,7 @@
     <head>
         ${head}
         <script src="${url_base}/static/js/settings/shared.js?v=06.06"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/downloader.js?v=06.06"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/downloader.js?v=06.12"  type="text/javascript"></script>
 
         <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
         <link href="${url_base}/static/css/settings/downloader.css?v=06.02" rel="stylesheet">
@@ -147,7 +147,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}">
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
                         </div>
                         <div class="col-md-6">
                             <label>Priority</label>
@@ -196,7 +196,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}">
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
                         </div>
                         <div class="col-md-6">
                             <label>Priority</label>

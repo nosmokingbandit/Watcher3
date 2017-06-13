@@ -161,6 +161,10 @@ function _get_settings(){
         });
     });
 
+    settings['Torrent']['DelugeWeb']['category'] = settings['Torrent']['DelugeWeb']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
+    settings['Torrent']['DelugeRPC']['category'] = settings['Torrent']['DelugeRPC']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
+
+
 // DOWNLOADER['SOURCES']
 
     if($("select#usenet_client").val()){
