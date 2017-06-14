@@ -116,6 +116,11 @@ function change_quality(event, elem){
 
     var quality = $("div#modal_quality select#quality").val();
 
+    if(!quality){
+        $.notify({message: "Select a new Quality Profile."}, {type: "warning"})
+        return
+    }
+
     _manager_request($("div#modal_quality"), "manager_change_quality", {"movies": movies, "quality": quality});
 }
 
