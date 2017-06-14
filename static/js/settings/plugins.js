@@ -8,13 +8,11 @@ function edit_plugin_conf(event, elem, folder, filename){
     var config_file;
 
     $.post(url_base + "/ajax/get_plugin_conf", {"folder": folder, "conf": filename})
-    .done(function(response){
-        if(!response){
+    .done(function(config_file){
+        if(!config_file){
             $.notify({message: "Unable to read plugin config."}, {type: "danger"})
             return false
         }
-
-        config_file = JSON.parse(response)
 
         var conf_table = "";
 
@@ -64,9 +62,7 @@ function save_plugin_conf(event, elem){
                                                  "filename": filename,
                                                  "config": config
                                                  })
-    .done(function(r){
-        response = JSON.parse(r)
-
+    .done(function(response){
         if(response['response'] == true){
             $.notify({message: response["message"]})
         } else {

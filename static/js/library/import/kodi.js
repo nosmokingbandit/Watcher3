@@ -43,8 +43,7 @@ function scan_library(event, elem){
     $.post(url_base+"/ajax/get_kodi_movies", {
         "url": url
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
         $progress_bar.width("100%");
         $progress.slideUp();
 

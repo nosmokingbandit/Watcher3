@@ -23,8 +23,7 @@ function test_indexer(event, elem){
     $.post(url_base + "/ajax/indexer_test", {"indexer": url,
                                              "apikey": api,
                                              "mode": mode})
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `Connection Successful.`})
         } else {

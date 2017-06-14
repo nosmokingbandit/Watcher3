@@ -29,8 +29,7 @@ function read_csv(event, elem){
         processData: false,
         contentType: false
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
         $progress_bar.width("100%");
         $progress.slideUp();
 

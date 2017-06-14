@@ -31,9 +31,8 @@ $(document).ready(function() {
         $.post(url_base + "/ajax/search_tmdb", {
             "search_term": search_term
         })
-        .done(function(r) {
-            if (r){
-                var results = JSON.parse(r);
+        .done(function(results) {
+            if (results){
                 $.each(results, function(ind, movie){
                     if(movie["poster_path"] != null){
                         movie["img_url"] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
@@ -82,9 +81,7 @@ function add_movie(event, elem, quality_profile, modal=false){
     var title = data['title']
 
     $.post(url_base + "/ajax/add_wanted_movie", {"data":JSON.stringify(data)})
-    .done(function(r){
-        response = JSON.parse(r)
-
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `${title} added to library.`})
         } else {

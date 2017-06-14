@@ -74,9 +74,7 @@ function test_connection(event, elem, client){
         "mode": client,
         "data": settings
     })
-    .done(function(r){
-        var response = JSON.parse(r);
-
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `${response["message"]}`});
         } else {

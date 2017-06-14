@@ -11,9 +11,7 @@ $(document).ready(function(){
             "current_dir": $modal_current_dir.text(),
             "move_dir": path
         })
-        .done(function(r){
-            response = JSON.parse(r);
-
+        .done(function(response){
             if(response['error']){
                 $.notify({message: response['error']}, {type: "danger"})
             } else {

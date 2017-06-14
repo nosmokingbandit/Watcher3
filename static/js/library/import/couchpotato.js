@@ -28,8 +28,7 @@ function scan_library(event, elem){
         "url": url,
         "apikey": apikey
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
         $progress_bar.width("100%");
         $progress.slideUp();
 

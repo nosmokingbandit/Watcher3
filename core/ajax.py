@@ -33,6 +33,7 @@ class Ajax(object):
         self.snatcher = snatcher.Snatcher()
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def search_tmdb(self, search_term):
         ''' Search tmdb for movies
         :param search_term: str title and year of movie (Movie Title 2016)
@@ -45,9 +46,10 @@ class Ajax(object):
             logging.info('No Results found for {}'.format(search_term))
             return None
         else:
-            return json.dumps(results)
+            return results
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_search_results(self, imdbid, quality=None):
         ''' Gets search results for movie
         imdbid: str imdb identification number (tt123456)
@@ -65,18 +67,19 @@ class Ajax(object):
             results = [res for res in results if res.get('type') != 'torrent']
 
         if not results:
-            return json.dumps({'response': False, 'next': Conversions.human_datetime(core.NEXT_SEARCH)})
+            return {'response': False, 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
         else:
             for i in results:
                 i['size'] = Conversions.human_file_size(i['size'])
-            return json.dumps({'response': True, 'results': results})
+            return {'response': True, 'results': results}
 
     @cherrypy.expose
     def get_trailer(self, title, year):
         return movieinfo.trailer('{} {}'.format(title, year))
 
     @cherrypy.expose
-    def add_wanted_movie(self, data, full_metadata=False):
+    @cherrypy.tools.json_out()
+    def add_wanted_movie(self, data):
         ''' Adds movie to library
         data: dict of known movie data
         full_metadata: bool if data is complete for database
@@ -88,11 +91,10 @@ class Ajax(object):
         '''
         movie = json.loads(data)
 
-        r = core.manage.add_movie(movie, full_metadata=full_metadata)
-
-        return json.dumps(r)
+        return core.manage.add_movie(movie, full_metadata=False)
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def save_settings(self, data):
         ''' Saves settings to config file
         :param data: dict of Section with nested dict of keys and values:
@@ -114,7 +116,7 @@ class Ajax(object):
                 save_data[key] = data[key]
 
         if not save_data:
-            return json.dumps({'response': True})
+            return {'response': True}
 
         try:
             self.config.write(save_data)
@@ -122,11 +124,12 @@ class Ajax(object):
             raise
         except Exception as e:
             logging.error('Writing config.', exc_info=True)
-            return json.dumps({'response': False, 'error': 'Unable to write to config file.'})
+            return {'response': False, 'error': 'Unable to write to config file.'}
 
-        return json.dumps({'response': True})
+        return {'response': True}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def remove_movie(self, imdbid):
         ''' Removes movie
         :param imdbid: str imdb identification number (tt123456)
@@ -134,9 +137,10 @@ class Ajax(object):
         Returns str json dict
         '''
 
-        return json.dumps(core.manage.remove_movie(imdbid))
+        return core.manage.remove_movie(imdbid)
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def search(self, imdbid):
         ''' Search indexers for specific movie.
         :param imdbid: str imdb identification number (tt123456)
@@ -149,7 +153,7 @@ class Ajax(object):
         movie = core.sql.get_movie_details("imdbid", imdbid)
 
         if not movie:
-            return json.dumps({'response': False, 'error': 'Unable to get info for imdb {}'.format(imdbid)})
+            return {'response': False, 'error': 'Unable to get info for imdb {}'.format(imdbid)}
         else:
             success = self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])
             movie = core.sql.get_movie_details("imdbid", imdbid)
@@ -158,11 +162,12 @@ class Ajax(object):
                 results = core.sql.get_search_results(imdbid, movie['quality'])
                 for i in results:
                     i['size'] = Conversions.human_file_size(i['size'])
-                return json.dumps({'response': True, 'results': results, 'movie_status': movie['status'], 'next': Conversions.human_datetime(core.NEXT_SEARCH)})
+                return {'response': True, 'results': results, 'movie_status': movie['status'], 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
             else:
-                return json.dumps({'response': False, 'error': 'Unable to complete search for imdb {}'.format(imdbid), 'movie_status': movie['status']})
+                return {'response': False, 'error': 'Unable to complete search for imdb {}'.format(imdbid), 'movie_status': movie['status']}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def manual_download(self, year, guid, kind):
         ''' Sends search result to downloader manually
         :param guid: str download link for nzb/magnet/torrent file.
@@ -176,18 +181,19 @@ class Ajax(object):
         usenet_enabled = core.CONFIG['Downloader']['Sources']['usenetenabled']
 
         if kind == 'nzb' and not usenet_enabled:
-            return json.dumps({'response': False, 'error': 'Link is NZB but no Usent client is enabled.'})
+            return {'response': False, 'error': 'Link is NZB but no Usent client is enabled.'}
         elif kind in ('torrent', 'magnet') and not torrent_enabled:
-            return json.dumps({'response': False, 'error': 'Link is {} but no Torrent client is enabled.'.format(kind)})
+            return {'response': False, 'error': 'Link is {} but no Torrent client is enabled.'.format(kind)}
 
         data = dict(core.sql.get_single_search_result('guid', guid))
         if data:
             data['year'] = year
-            return json.dumps(self.snatcher.download(data))
+            return self.snatcher.download(data)
         else:
-            return json.dumps({'response': False, 'error': 'Unable to get download information from the database. Check logs for more information.'})
+            return {'response': False, 'error': 'Unable to get download information from the database. Check logs for more information.'}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def mark_bad(self, guid, imdbid, cancel_download=False):
         ''' Marks guid as bad in SEARCHRESULTS and MARKEDRESULTS
         :param guid: str guid to mark
@@ -214,7 +220,7 @@ class Ajax(object):
             r = core.sql.get_single_search_result('guid', guid)
 
             if r['status'] != 'Snatched':
-                return json.dumps(response)
+                return response
 
             client = r['download_client'] if r else None
             downloadid = r['downloadid'] if r else None
@@ -242,7 +248,7 @@ class Ajax(object):
                 response['response'] = False
                 response['error'] = response.get('error', '') + ' Could not remove download from client.'
 
-        return json.dumps(response)
+        return response
 
     @cherrypy.expose
     def notification_remove(self, index):
@@ -262,6 +268,7 @@ class Ajax(object):
         return
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def update_check(self):
         ''' Manually check for updates
 
@@ -269,9 +276,10 @@ class Ajax(object):
         '''
 
         response = version.Version().manager.update_check()
-        return json.dumps(response)
+        return response
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def test_downloader_connection(self, mode, data):
         ''' Test connection to downloader.
         :param mode: str which downloader to test.
@@ -311,7 +319,7 @@ class Ajax(object):
             response['response'] = False
             response['error'] = test
 
-        return json.dumps(response)
+        return response
 
     @cherrypy.expose
     def server_status(self, mode):
@@ -353,6 +361,7 @@ class Ajax(object):
             return str(cherrypy.engine.state)
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def update_now(self, mode):
         ''' Starts and executes update process.
         :param mode: str 'set_true' or 'update_now'
@@ -386,15 +395,15 @@ class Ajax(object):
 
         if mode == 'set_true':
             core.UPDATING = True
-            yield json.dumps({'response': True})
+            yield {'response': True}
         if mode == 'update_now':
             update_status = version.Version().manager.execute_update()
             core.UPDATING = False
             if update_status is False:
                 logging.error('Update Failed.')
-                yield json.dumps({'response': False})
+                yield {'response': False}
             elif update_status is True:
-                yield json.dumps({'response': True})
+                yield {'response': True}
                 logging.info('Respawning process...')
                 cherrypy.engine.stop()
                 python = sys.executable
@@ -403,6 +412,7 @@ class Ajax(object):
             return
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def update_movie_options(self, quality, status, imdbid):
         ''' Updates quality settings for individual title
         :param quality: str name of new quality
@@ -414,23 +424,23 @@ class Ajax(object):
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
 
         if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
-            return json.dumps({'response': False})
+            return {'response': False}
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
             if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
-                return json.dumps({'response': False})
+                return {'response': False}
             new_status = core.manage.movie_status(imdbid)
             if not new_status:
-                return json.dumps({'response': False})
+                return {'response': False}
             else:
-                return json.dumps({'response': True, 'status': new_status})
+                return {'response': True, 'status': new_status}
         elif status == 'Disabled':
             if not core.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
-                return json.dumps({'response': False})
+                return {'response': False}
             else:
-                return json.dumps({'response': True, 'status': 'Disabled'})
+                return {'response': True, 'status': 'Disabled'}
 
     @cherrypy.expose
     def get_log_text(self, logfile):
@@ -441,15 +451,17 @@ class Ajax(object):
         return log_text
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def indexer_test(self, indexer, apikey, mode):
         if mode == 'newznab':
-            return json.dumps(newznab.NewzNab.test_connection(indexer, apikey))
+            return newznab.NewzNab.test_connection(indexer, apikey)
         elif mode == 'torznab':
-            return json.dumps(torrent.Torrent.test_connection(indexer, apikey))
+            return torrent.Torrent.test_connection(indexer, apikey)
         else:
-            return json.dumps({'response': 'false', 'error': 'Invalid test mode.'})
+            return {'response': 'false', 'error': 'Invalid test mode.'}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_plugin_conf(self, folder, conf):
         ''' Calls plugin_conf_popup to render html
         folder: str folder to read config file from
@@ -461,12 +473,13 @@ class Ajax(object):
         try:
             with open(os.path.join(core.PLUGIN_DIR, folder, conf)) as f:
                 config = json.load(f)
-            return json.dumps(config)
+            return config
         except Exception as e:
             logging.error("Unable to read config file.", exc_info=True)
             return None
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def save_plugin_conf(self, folder, filename, config):
         ''' Calls plugin_conf_popup to render html
         folder: str folder to store config file
@@ -488,7 +501,7 @@ class Ajax(object):
         except Exception as e:
             response = {'response': False, 'error': str(e)}
 
-        return json.dumps(response)
+        return response
 
     @cherrypy.expose
     def scan_library_directory(self, directory, minsize, recursive):
@@ -597,7 +610,7 @@ class Ajax(object):
                 movie['predb'] = 'found'
                 movie['finished_file'] = movie['path']
                 movie['origin'] = 'Directory Import'
-                response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
+                response = core.manage.add_movie(movie, full_metadata=True)
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))
                     yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
@@ -630,6 +643,7 @@ class Ajax(object):
     import_dir._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def list_files(self, current_dir, move_dir):
         ''' Lists files in directory
         current_dir: str base path
@@ -658,9 +672,10 @@ class Ajax(object):
             response = {'error': str(e)}
             logging.error('Error listing directory.', exc_info=True)
 
-        return json.dumps(response)
+        return response
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def update_metadata(self, imdbid, tmdbid=None):
         ''' Re-downloads metadata for each imdbid
         imdbid: str imdbid of movie
@@ -680,7 +695,7 @@ class Ajax(object):
             if not tmdbid:
                 tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
             if not tmdbid:
-                return json.dumps({'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)})
+                return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
 
         new_data = self.tmdb._search_tmdbid(tmdbid)[0]
         new_data.pop('status')
@@ -697,7 +712,7 @@ class Ajax(object):
                 os.remove(target_poster)
             except Exception as e:
                 logging.warning('Unable to remove existing poster.', exc_info=True)
-                return json.dumps({'response': False, 'error': 'Unable to remove existing poster.'})
+                return {'response': False, 'error': 'Unable to remove existing poster.'}
 
         movie.update(new_data)
         movie = self.metadata.convert_to_db(movie)
@@ -705,7 +720,7 @@ class Ajax(object):
         core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
         self.poster.save_poster(imdbid, poster_url)
-        return json.dumps({'response': True, 'message': 'Metadata updated.'})
+        return {'response': True, 'message': 'Metadata updated.'}
 
     @cherrypy.expose
     def change_quality_profile(self, profiles, imdbid=None):
@@ -755,6 +770,7 @@ class Ajax(object):
             return json.dumps({'response': True, 'message': 'Quality profiles updated.'})
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_kodi_movies(self, url):
         ''' Gets list of movies from kodi server
         url: str url of kodi server
@@ -764,7 +780,7 @@ class Ajax(object):
         Returns list of dicts of movies
         '''
 
-        return json.dumps(library.ImportKodiLibrary.get_movies(url))
+        return library.ImportKodiLibrary.get_movies(url)
 
     @cherrypy.expose
     def import_kodi_movies(self, movies):
@@ -805,7 +821,7 @@ class Ajax(object):
             movie['finished_file'] = movie.get('finished_file', '').strip()
             movie['origin'] = 'Kodi Import'
 
-            response = json.loads(self.add_wanted_movie(json.dumps(movie)))
+            response = core.manage.add_movie(movie)
             if response['response'] is True:
                 fake_results.append(searchresults.generate_simulacrum(movie))
                 yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
@@ -848,6 +864,7 @@ class Ajax(object):
         return json.dumps(library.ImportPlexLibrary.get_libraries(server, token))
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def upload_plex_csv(self, file_input):
         try:
             csv_text = file_input.file.read().decode('utf-8')
@@ -857,9 +874,9 @@ class Ajax(object):
             return
 
         if csv_text:
-            return json.dumps(library.ImportPlexLibrary.read_csv(csv_text))
+            return library.ImportPlexLibrary.read_csv(csv_text)
         else:
-            return json.dumps()
+            return None
 
     @cherrypy.expose
     def import_plex_csv(self, movies, corrected_movies):
@@ -908,7 +925,7 @@ class Ajax(object):
                 tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
                 movie.update(tmdb_data)
 
-                response = json.loads(self.add_wanted_movie(json.dumps(movie)))
+                response = core.manage.add_movie(movie)
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))
                     yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
@@ -941,6 +958,7 @@ class Ajax(object):
     import_plex_csv._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_cp_movies(self, url, apikey):
 
         url = '{}/api/{}/movie.list/'.format(url, apikey)
@@ -948,7 +966,7 @@ class Ajax(object):
         if not url.startswith('http'):
             url = 'http://{}'.format(url)
 
-        return json.dumps(library.ImportCPLibrary.get_movies(url))
+        return library.ImportCPLibrary.get_movies(url)
 
     @cherrypy.expose
     def import_cp_movies(self, wanted, finished):
@@ -963,7 +981,7 @@ class Ajax(object):
         progress = 1
 
         for movie in wanted:
-            response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
+            response = core.manage.add_movie(movie, full_metadata=True)
             if response['response'] is True:
                 yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
                 progress += 1
@@ -978,7 +996,7 @@ class Ajax(object):
             movie['status'] = 'Disabled'
             movie['origin'] = 'CouchPotato Import'
 
-            response = json.loads(self.add_wanted_movie(json.dumps(movie), full_metadata=True))
+            response = core.manage.add_movie(movie, full_metadata=True)
             if response['response'] is True:
                 fake_results.append(searchresults.generate_simulacrum(movie))
                 yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
@@ -1127,5 +1145,6 @@ class Ajax(object):
     manager_remove_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def generate_stats(self):
-        return json.dumps(core.manage.get_stats())
+        return core.manage.get_stats()

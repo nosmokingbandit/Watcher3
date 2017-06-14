@@ -147,8 +147,7 @@ function open_info_modal(event, elem){
         "imdbid": movie["imdbid"],
         "quality": movie["quality"]
     })
-    .done(function(r) {
-        var response = JSON.parse(r);
+    .done(function(response) {
         if(response["response"] == true){
             movie["table"] = _results_table(response["results"]);
         } else {
@@ -225,8 +224,7 @@ function manual_search(event, elem, imdbid){
 
 
     $.post(url_base + "/ajax/search", {"imdbid":imdbid})
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == true && response["results"].length > 0){
             $search_results_table.html(_results_table(response["results"]));
             $search_results_table.slideDown();
@@ -266,8 +264,7 @@ function update_metadata(event, elem, imdbid, tmdbid){
         "imdbid": imdbid,
         "tmdbid": tmdbid
     })
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: response["message"]})
         } else {
@@ -296,8 +293,7 @@ function remove_movie(event, elem, imdbid){
         $this.removeClass("btn-default").addClass("btn-danger").data("confirm", true).text("Confirm Delete?");
     } else if($this.data("confirm") === true){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
-        .done(function(r){
-            response = JSON.parse(r)
+        .done(function(response){
             if(response["response"] == true){
                 $.notify({message: `${title} removed from library.`})
                 $movie_list.find(`li[data-imdbid="${imdbid}"]`).remove();
@@ -326,8 +322,7 @@ function update_movie_options(event, elem, imdbid){
         "status": status,
         "imdbid": imdbid
     })
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"]){
             $.notify({message: `${imdbid} updated.`})
             update_movie_status(imdbid, response["status"]);
@@ -355,9 +350,7 @@ function manual_download(event, elem, guid, kind, imdbid){
         "guid": guid,
         "kind": kind
     })
-    .done(function(r){
-        response = JSON.parse(r);
-
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: response["message"]})
 
@@ -395,8 +388,7 @@ function mark_bad(event, elem, guid, imdbid){
         "imdbid": imdbid,
         "cancel_download": true
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
 
         if(response["movie_status"]){
             update_movie_status(imdbid, response["movie_status"]);

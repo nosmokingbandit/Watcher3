@@ -40,8 +40,8 @@ function login(event){
         "username": user,
         "password": password
     })
-    .done(function(r) {
-        if(JSON.parse(r)){
+    .done(function(response) {
+        if(response){
             if(window.location.href.split("/").pop() == "auth"){
                 window.location = url_base+"/library/status"
             } else {

@@ -21,8 +21,7 @@ $(document).ready(function () {
     $.post(url_base + "/ajax/update_now", {
         "mode": "update_now"
     })
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == false){
             $thinker.css("opacity", 0);
             $message.css("opacity", 0);

@@ -19,10 +19,7 @@ function update_check(event, elem){
 
 
     $.post(url_base + "/ajax/update_check", {})
-    .done(function(r){
-
-        response = JSON.parse(r);
-
+    .done(function(response){
         if(response["status"] == "current"){
             $.notify({message: 'No Updates Available.'}, {type: 'primary'})
         } else if(response["status"] == "error"){

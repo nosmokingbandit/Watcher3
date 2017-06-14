@@ -92,6 +92,7 @@ class AuthController(object):
         '''
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def login(self, username=None, password=None):
         ''' Tests user data against check_credentials
         :param username: str submitted username <optional>
@@ -103,7 +104,7 @@ class AuthController(object):
         Returns json.dumps() bool
         '''
         if not username or not password:
-            return json.dumps(False)
+            return False
 
         # get origin_ip ip
         if 'X-Forwarded-For' in cherrypy.request.headers:
@@ -115,13 +116,13 @@ class AuthController(object):
         if check_credentials(username, password) is False:
             logging.warning('Failed login attempt {}:{} from {}'.format(username, password, origin_ip))
 
-            return json.dumps(False)
+            return False
 
         # on successful login
         else:
             cherrypy.session[SESSION_KEY] = cherrypy.request.login = username
             self.on_login(username, origin_ip)
-            return json.dumps(True)
+            return True
 
     @cherrypy.expose
     def logout(self):
