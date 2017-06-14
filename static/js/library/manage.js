@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    $checkboxes = $("ul#movie_list > li > .c_box")
+    $checkboxes = $("ul#movie_list > li > .c_box");
+    $movie_lis = $("ul#movie_list > li");
 
     echo.init({offsetVertical: 100,
                callback: function(element, op){
@@ -8,16 +9,7 @@ $(document).ready(function(){
     });
 
     $checkboxes.click(function(){
-        $this = $(this);
-        // turn on
-        if( $this.attr("value") == "False" ){
-            $this.attr("value", "True");
-            $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
-        // turn off
-        } else if ($this.attr("value") == "True" ){
-            $this.attr("value", "False");
-            $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
-        }
+        checkbox_switch(this)
     });
 
     // Reset modal inner html after close
@@ -32,19 +24,45 @@ $(document).ready(function(){
 
 });
 
+function checkbox_switch(elem){
+    $this = $(elem);
+    console.log($this.attr('value'))
+    // turn on
+    if( $this.attr("value") == "False" ){
+        $this.attr("value", "True");
+        $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+    // turn off
+    } else if ($this.attr("value") == "True" ){
+        $this.attr("value", "False");
+        $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
+    }
+};
+
 function select_all(){
-    $checkboxes.attr("value", "False").click();
+    var $checboxes_off = $checkboxes.attr("value", "False")
+    var i = $checboxes_off.length;
+    while (--i >= 0){
+        checkbox_switch($checboxes_off[i])
+    }
 }
 
 function select_none(){
-    $checkboxes.attr("value", "True").click();
+    var $checboxes_on = $checkboxes.attr("value", "True")
+    var i = $checboxes_on.length;
+    while (--i >= 0){
+        checkbox_switch($checboxes_on[i])
+    }
 }
 
 function select_inverse(){
-    $checkboxes.click();
+    console.log('hello')
+    var i = $checkboxes.length;
+    while (--i >= 0){
+        checkbox_switch($checkboxes[i])
+    }
 }
 
-function select_attrib(event, elem){
+function select_attrib(event, elem, key, value){
     event.preventDefault();
     var $this = $(elem);
     var key = $this.data("key");
@@ -52,12 +70,15 @@ function select_attrib(event, elem){
 
     select_none();
 
-    $("ul#movie_list > li").each(function(){
-        var $this = $(this);
+    var i = $movie_lis.length;
+    while (--i >= 0){
+        var $this = $($movie_lis[i]);
         if($this.find("span."+key).text() == value){
-            $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+            $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked").attr("value", "True");
         }
-    })
+    }
+
+
 }
 
 function backlog_search(event, elem){
