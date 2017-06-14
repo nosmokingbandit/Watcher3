@@ -26,7 +26,6 @@ $(document).ready(function(){
 
 function checkbox_switch(elem){
     $this = $(elem);
-    console.log($this.attr('value'))
     // turn on
     if( $this.attr("value") == "False" ){
         $this.attr("value", "True");
@@ -55,7 +54,6 @@ function select_none(){
 }
 
 function select_inverse(){
-    console.log('hello')
     var i = $checkboxes.length;
     while (--i >= 0){
         checkbox_switch($checkboxes[i])
@@ -77,8 +75,6 @@ function select_attrib(event, elem, key, value){
             $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked").attr("value", "True");
         }
     }
-
-
 }
 
 function backlog_search(event, elem){
