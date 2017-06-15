@@ -4,6 +4,7 @@ from core import ajax, scheduler, plugins
 from core.auth import AuthController
 import os
 import json
+import math
 from mako.template import Template
 
 
@@ -67,8 +68,8 @@ class App(object):
         page = path[0] if len(path) > 0 else 'status'
 
         if page == 'status':
-            movies = core.sql.get_user_movies()
-            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
+            page_count = math.ceil(core.sql.get_library_count() / 50)
+            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), profiles=core.CONFIG['Quality']['Profiles'].keys(), pages=page_count)
         elif page == 'manage':
             movies = core.sql.get_user_movies()
             return App.manage_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())

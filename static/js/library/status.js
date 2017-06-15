@@ -1,7 +1,14 @@
 $(document).ready(function() {
+    page_count = parseInt($("meta[name='page_count']").attr("content"));
+    movie_template = $("textarea#template_movie")[0].innerText
     modal_template = $("textarea#template_movie_info")[0].innerText;
-    $sort_direction_i = $("a#sort_direction > i");
+    $sort_direction_button = $("a#sort_direction > i");
+    $sort_key_select = $("select#movie_sort_key");
     $movie_list = $("ul#movie_list");
+    $page_buttons = $("div#pages a");
+    current_page = 1;
+    cached_pages = Array(page_count);
+    loading_library = false; // Indicates that a library ajax request is being executed
 
     var cookie = read_cookie();
     echo.init({offsetVertical: 100,
@@ -14,20 +21,43 @@ $(document).ready(function() {
     movie_layout = cookie["movie_layout"] || "posters";
     movie_sort_direction = cookie["movie_sort_direction"] || "desc";
     movie_sort_key = cookie["movie_sort_key"] || "title";
-
-/* Movie sort direction */
-    if (movie_sort_direction == "asc") {
-        $sort_direction_i.addClass("mdi-sort-ascending");
-    } else {
-        $sort_direction_i.addClass("mdi-sort-descending");
+    if(movie_sort_key == 'status_key'){
+        movie_sort_key = 'status'
     }
-	sortOrder(movie_sort_key, movie_sort_direction, $("ul#movie_list"), "li")
-
-/* Movie layout style */
+/* Set sort ui elements off cookie */
     $movie_list.removeClass().addClass(movie_layout);
     $(`div#movie_layout > a[data-layout="${movie_layout}"]`).addClass("active");
     echo.render();
 
+    if (movie_sort_direction == "asc") {
+        $sort_direction_button.addClass("mdi-sort-ascending");
+    } else {
+        $sort_direction_button.addClass("mdi-sort-descending");
+    }
+
+    $sort_key_select.find(`option[value=${movie_sort_key}]`).attr("selected", "true")
+
+/* Finish by loading page 1 */
+    load_library(movie_sort_key, movie_sort_direction, 1)
+
+/* Toolbar action bindings
+    /* Movie sort key */
+	$("select#movie_sort_key").change(function(event){
+        if(loading_library){
+            event.preventDefault();
+            return false
+        }
+		movie_sort_key = $(this).find("option:selected").val()
+
+		document.cookie = "movie_sort_key=" + movie_sort_key + ";path=/";
+        cached_pages = {};
+        load_library(movie_sort_key, movie_sort_direction, current_page);
+	});
+
+    /* Movie sort direction */
+    // See fn switch_sort_direction()
+
+    /* Movie layout style */
     $("div#movie_layout > a").click(function() {
         var $this = $(this);
         if ($this.hasClass("active")) {
@@ -41,15 +71,6 @@ $(document).ready(function() {
             echo.render();
         }
     });
-
-/* Movie sort key */
-	$("select#movie_sort_key").change(function(){
-		movie_sort_key = $(this).find("option:selected").val()
-
-		document.cookie = "movie_sort_key=" + movie_sort_key + ";path=/";
-
-		sortOrder(movie_sort_key, movie_sort_direction, $("ul#movie_list"), "li")
-	});
 
 });
 
@@ -81,53 +102,132 @@ function read_cookie() {
     return cookie_obj
 }
 
-function sortOrder(order, direction, $parent, children) {
-    /* Change order by which to sort movie list
-    order: str class of element with which to sort by
-    direction: str up or down for asc / desc
-    $parent: jquery object in which to find children to sort
-    children: str type of children element to sort (li, span, etc)
-    each child must have a span with class "order". text is taken from span to sort by.
-    */
+function load_library(sort_key, sort_direction, page){
+    loading_library = true;
 
-    if (direction == "desc") {
-        var forward = 1;
-        var backward = -1;
+    $movie_list.empty();
+
+    var offset = (page - 1) * 50;
+    if(cached_pages[page]){
+        _render_library(cached_pages[page]);
+        loading_library = false;
     } else {
-        var forward = -1;
-        var backward = 1;
+        $.post(url_base+"/ajax/library", {
+            sort_key: sort_key,
+            sort_direction: sort_direction,
+            offset: offset
+        })
+        .done(function(movies){
+            cached_pages[page] = movies;
+            _render_library(movies);
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
+        })
+        .always(function(){
+            loading_library = false;
+        });
     }
-
-    var $element = $parent.children(children);
-
-    $element.sort(function(a, b) {
-        var an = $(a).find("span." + order).justtext(),
-            bn = $(b).find("span." + order).justtext();
-
-        if (an > bn)
-            return forward;
-        if (an < bn)
-            return backward;
-
-        return 0;
-    });
-
-    $element.detach().appendTo($parent);
 }
 
-function sort_direction(event, elem){
-    // Change sort direction of movie list
+function _render_library(movies){
+    // Renders movies list items after loading page
+    $.each(movies, function(i, movie){
+        var template = movie_template;
+        movie['url_base'] = url_base;
 
-    if ($sort_direction_i.hasClass("mdi-sort-ascending")){
-        $sort_direction_i.removeClass("mdi-sort-ascending").addClass("mdi-sort-descending");
+        $item = $(format_template(template, movie));
+
+        var score = Math.round(movie['score']) / 2;
+        if(score % 1 == 0.5){
+            var i_half_star = Math.floor(score);
+        }
+        $item.find("span.score > i.mdi").each(function(i, elem){
+            if(i+1 <= score){
+                $(elem).removeClass("mdi-star-outline").addClass("mdi-star");
+            } else if(i == i_half_star){
+                $(elem).removeClass("mdi-star-outline").addClass("mdi-star-half");
+            }
+
+        });
+        $movie_list.append($item)
+    });
+
+    // TODO Can this be removed? Maybe try something like Layzr?
+    echo.init({offsetVertical: 100,
+        callback: function(element, op){
+            $(element).css("opacity", 1)
+        }
+    });
+}
+
+function change_page(event, elem, page){
+    // page: int page #
+    // Fails if loading_library is true
+    // Constructs then forwards request to load_library
+    event.preventDefault();
+
+    if(loading_library){
+        return false;
+    }
+
+    var $btn = $(elem);
+
+    $page_buttons.removeClass("active");
+    $btn.addClass("active");
+
+    load_library(movie_sort_key, movie_sort_direction, page)
+
+    current_page = page;
+}
+
+function change_page_sequential(event, direction){
+    // direction: int direction and count of pages to move [-1, 1]
+    event.preventDefault();
+    if(loading_library){
+        return false;
+    }
+
+    var page = current_page + direction;
+
+    if(page < 1 || page > page_count){
+        return false
+    }
+
+    $page_buttons.removeClass("active").filter(`[data-page=${page}]`).addClass("active");
+
+    load_library(movie_sort_key, movie_sort_direction, page)
+    current_page = page;
+}
+
+function switch_sort_direction(event, elem){
+    // Change sort direction of movie list
+    if(loading_library){
+        event.preventDefault();
+        return false
+    }
+
+    if ($sort_direction_button.hasClass("mdi-sort-ascending")){
+        $sort_direction_button.removeClass("mdi-sort-ascending").addClass("mdi-sort-descending");
         movie_sort_direction = "desc";
     } else {
-        $sort_direction_i.removeClass("mdi-sort-descending").addClass("mdi-sort-ascending");
+        $sort_direction_button.removeClass("mdi-sort-descending").addClass("mdi-sort-ascending");
         movie_sort_direction = "asc";
     }
     document.cookie = `movie_sort_direction=${movie_sort_direction};path=/`;
-    sortOrder(movie_sort_key, movie_sort_direction, $("ul#movie_list"), "li");
-    echo.render();
+
+    cached_pages.shift();
+    reversed_pages = [];
+    $.each(cached_pages, function(i, arr){
+        if(arr !== undefined){
+            cached_pages[i] = arr.reverse();
+        }
+    });
+    cached_pages.reverse()
+    cached_pages.unshift([])
+
+    load_library(movie_sort_key, movie_sort_direction, current_page);
 }
 
 function open_info_modal(event, elem){
@@ -135,7 +235,7 @@ function open_info_modal(event, elem){
 
     event.preventDefault();
 
-    var movie = JSON.parse($(elem).find("span.movie").text());
+    var movie = $(elem).data("movie");
     movie["poster"] = url_base + "/static/images/posters/" + movie["imdbid"] + ".jpg"
     if(movie["origin"] === null){
         movie["origin"] = ''

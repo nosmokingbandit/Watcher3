@@ -7,8 +7,30 @@
     line-height: 1em;
 }
 
-ul#movie_list{
+div#pages{
     margin-top: 1em;
+    text-align: center;
+}
+
+div#pages > a{
+    width: 3.5em;
+}
+
+div#pages > div.btn-group{
+    max-width: calc(100% - 6em);
+    white-space: nowrap;
+}
+
+div#pages > div.btn-group > a{
+    min-width: 3em;
+}
+
+div#pages a > i.mdi{
+    line-height: 1.75em;
+}
+
+ul#movie_list{
+    margin-top: 0.5em;
 }
 
 ul#movie_list img{
