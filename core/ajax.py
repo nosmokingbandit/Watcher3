@@ -232,7 +232,7 @@ class Ajax(object):
                 cancelled = nzbget.Nzbget.cancel_download(downloadid)
             elif client == 'SABnzbd':
                 cancelled = sabnzbd.Sabnzbd.cancel_download(downloadid)
-            elif client == 'QBitorrent':
+            elif client == 'QBittorrent':
                 cancelled = qbittorrent.QBittorrent.cancel_download(downloadid)
             elif client == 'DelugeRPC':
                 cancelled = deluge.DelugeRPC.cancel_download(downloadid)
