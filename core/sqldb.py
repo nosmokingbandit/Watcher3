@@ -497,7 +497,7 @@ class SQL(object):
         if result:
             return result.fetchone()
         else:
-            return False
+            return {}
 
     def _get_existing_schema(self):
         table_dict = {}

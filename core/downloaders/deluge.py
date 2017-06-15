@@ -314,8 +314,6 @@ class DelugeWeb(object):
                 logging.error('Delugeweb get_labels.', exc_info=True)
                 return False
         try:
-            print(torrent)
-            print(label)
             command = {'method': 'label.set_torrent',
                        'params': [torrent.lower(), label],
                        'id': DelugeWeb.command_id
@@ -406,5 +404,31 @@ class DelugeWeb(object):
 
     @staticmethod
     def cancel_download(downloadid):
-        ''' Just a placeholder '''
-        return None
+
+        conf = core.CONFIG['Downloader']['Torrent']['DelugeWeb']
+
+        host = conf['host']
+        port = conf['port']
+        url = '{}:{}/json'.format(host, port)
+
+        if DelugeWeb.cookie is None:
+            DelugeWeb._login(url, conf['pass'])
+
+        command = {'method': 'core.remove_torrent',
+                   'params': [downloadid.lower(), True],
+                   'id': DelugeWeb.command_id
+                   }
+        DelugeWeb.command_id += 1
+
+        post_data = json.dumps(command)
+
+        headers = DelugeWeb.headers
+        headers['cookie'] = DelugeWeb.cookie
+
+        try:
+            response = Url.open(url, post_data=post_data, headers=headers)
+            response = json.loads(response.text)
+            return response['result']
+        except Exception as e:
+            logging.error('delugeweb get_download_dir', exc_info=True)
+            return {'response': False, 'error': str(e)}

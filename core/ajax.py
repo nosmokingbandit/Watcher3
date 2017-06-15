@@ -203,6 +203,8 @@ class Ajax(object):
         Returns str json.dumps(dict) with keys response, error (if response is False), movie_status
         '''
 
+        sr_orig = core.sql.get_single_search_result('guid', guid)
+
         sr = core.manage.searchresults(guid, 'Bad')
         core.manage.markedresults(guid, 'Bad', imdbid=imdbid)
 
@@ -217,31 +219,30 @@ class Ajax(object):
 
         if cancel_download:
             cancelled = False
-            r = core.sql.get_single_search_result('guid', guid)
 
-            if r['status'] != 'Snatched':
+            if sr_orig['status'] != 'Snatched':
                 return response
 
-            client = r['download_client'] if r else None
-            downloadid = r['downloadid'] if r else None
+            client = sr_orig['download_client'] if sr_orig else None
+            downloadid = sr_orig['downloadid'] if sr_orig else None
             if not client:
                 logging.info('Download client not found, cannot cancel download.')
                 return json.dumps(response)
-            elif client == 'nzbget':
+            elif client == 'NZBGet':
                 cancelled = nzbget.Nzbget.cancel_download(downloadid)
-            elif client == 'sabnzbd':
+            elif client == 'SABnzbd':
                 cancelled = sabnzbd.Sabnzbd.cancel_download(downloadid)
-            elif client == 'qbittorrent':
+            elif client == 'QBitorrent':
                 cancelled = qbittorrent.QBittorrent.cancel_download(downloadid)
-            elif client == 'delugerpc':
+            elif client == 'DelugeRPC':
                 cancelled = deluge.DelugeRPC.cancel_download(downloadid)
-            elif client == 'delugeweb':
-                logging.warning('DelugeWeb API does not support torrent removal.')
-            elif client == 'transmission':
+            elif client == 'DelugeWeb':
+                cancelled = deluge.DelugeWeb.cancel_download(downloadid)
+            elif client == 'Transmission':
                 cancelled = transmission.Transmission.cancel_download(downloadid)
-            elif client == 'rtorrentscgi':
+            elif client == 'rTorrentSCGI':
                 cancelled = rtorrent.rTorrentSCGI.cancel_download(downloadid)
-            elif client == 'rtorrenthttp':
+            elif client == 'rTorrentHTTP':
                 cancelled = rtorrent.rTorrentHTTP.cancel_download(downloadid)
 
             if not cancelled:
