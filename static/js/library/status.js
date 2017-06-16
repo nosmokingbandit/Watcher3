@@ -473,6 +473,10 @@ function remove_movie(event, elem, imdbid){
                 var message = `${title} could not be removed. Check logs for more information.`;
                 $.notify({message: "Unable to read plugin config."}, {type: "danger"})
             }
+
+            var index = cached_movies.map(function(e) { return e.imdbid; }).indexOf(imdbid);
+            cached_movies.splice(index, 1);
+
         })
         .fail(function(data){
             var err = data.status + ' ' + data.statusText
