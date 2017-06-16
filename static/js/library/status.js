@@ -9,7 +9,6 @@ $(document).ready(function() {
     $page_select = $("select#page_number");
     $page_select.on("change", function(){
         current_page = parseInt(this.value);
-        console.log(current_page);
         load_library(movie_sort_key, movie_sort_direction, current_page);
     });
 
@@ -183,11 +182,9 @@ function load_library(sort_key, sort_direction, page){
     }
 
     if(use_cache) {
-        console.log("LOADING FROM CACHE")
         _render_library(cached_page);
         loading_library = false;
     } else {
-        console.log("LOADING FROM SERVER")
         $.post(url_base+"/ajax/library", {
             sort_key: sort_key,
             sort_direction: sort_direction,
