@@ -238,11 +238,12 @@ class DelugeWeb(object):
         if data['type'] == 'torrent':
             tmp_torrent_file = DelugeWeb._get_torrent_file(data['torrentfile'], url)
             if tmp_torrent_file['response'] is True:
-                data['torrentfile'] = tmp_torrent_file['torrentfile']
+                torrent = {'path': tmp_torrent_file['torrentfile'], 'options': {}}
             else:
                 return {'response': False, 'error': tmp_torrent_file['error']}
+        else:
+            torrent = {'path': data['torrentfile'], 'options': {}}
 
-        torrent = {'path': data['torrentfile'], 'options': {}}
         torrent['options']['add_paused'] = conf['addpaused']
         torrent['options']['download_location'] = download_dir
         torrent['options']['priority'] = priority_keys[conf['priority']]
