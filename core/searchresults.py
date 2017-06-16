@@ -390,10 +390,10 @@ def generate_simulacrum(movie):
 
     title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
                                        movie['year'],
-                                       movie.get('resolution', '.'),  # Kind of a hacky way to make sure it doesn't print None in the title
-                                       movie.get('audiocodec', '.'),
-                                       movie.get('videocodec', '.'),
-                                       movie.get('releasegroup', '.')
+                                       movie.get('resolution') or '.',  # Kind of a hacky way to make sure it doesn't print None in the title
+                                       movie.get('audiocodec') or '.',
+                                       movie.get('videocodec') or '.',
+                                       movie.get('releasegroup') or '.'
                                        )
 
     while len(title) > 0 and title[-1] == '.':
