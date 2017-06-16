@@ -69,7 +69,6 @@ class App(object):
 
         if page == 'status':
             movie_count = core.sql.get_library_count()
-            App.status_template = Template(filename='templates/library/status.html', module_directory=core.MAKO_CACHE)
             return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count)
         elif page == 'manage':
             movies = core.sql.get_user_movies()
