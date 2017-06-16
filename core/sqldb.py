@@ -297,7 +297,6 @@ class SQL(object):
 
         if result:
             x = result.fetchone()[0]
-            print(x)
             return x
         else:
             logging.error('Unable to get count of user\'s movies.')

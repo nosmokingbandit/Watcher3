@@ -1,36 +1,19 @@
-.toolbar{
-    margin: 0 1.5em;
+#toolbar > div{
+    margin-bottom: 1em;
+    text-align: center;
 }
 
-.toolbar i{
+#toolbar i{
     font-size: 1.5em;
     line-height: 1em;
 }
 
 div#pages{
-    margin-top: 1em;
     text-align: center;
 }
 
-div#pages > a{
-    width: 3.5em;
-}
-
-div#pages > div.btn-group{
-    max-width: calc(100% - 6em);
-    white-space: nowrap;
-}
-
-div#pages > div.btn-group > a{
-    min-width: 3em;
-}
-
-div#pages a > i.mdi{
-    line-height: 1.75em;
-}
-
-ul#movie_list{
-    margin-top: 0.5em;
+a#page_count{
+    min-width: 3.5em;
 }
 
 ul#movie_list img{
@@ -45,6 +28,10 @@ ul#movie_list li span.score{
 
 span.score > i{
     width: 0.75em;
+}
+
+ul#movie_list > li{
+    transition: none;
 }
 
 /* Poster style layout */
@@ -79,7 +66,7 @@ ul#movie_list.posters span.title{
 
 /* List style layout */
 ul#movie_list.list{
-    margin: 1.5em;
+    margin: 0 1.5em;
 }
 
 ul#movie_list.list li{
@@ -115,7 +102,7 @@ ul#movie_list.list li span.title{
 
 /* Compact style layout */
 ul#movie_list.compact{
-    margin: 1.5em;
+    margin: 0 1.5em;
 }
 
 ul#movie_list.compact li{

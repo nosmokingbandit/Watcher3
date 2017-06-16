@@ -2,19 +2,19 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/status.css?v=06.12" rel="stylesheet">
+        <link href="${url_base}/static/css/library/status.css?v=06.15" rel="stylesheet">
 
         <script src="${url_base}/static/js/lib/echo.min.js?v=06.07"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.07"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.15"  type="text/javascript"></script>
 
-        <meta name="page_count" content="${pages}"/>
+        <meta name="movie_count" content="${movie_count}"/>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
-            <div class="toolbar">
-                <div class="col-md-12">
-                    <div id="movie_layout" class="btn-group">
+        <div class="container-fluid clearfix">
+            <div id="toolbar" class="col-md-12">
+                <div id="movie_layout" class="col-md-4 col-sm-6">
+                    <div class="btn-group pull-left">
                         <a class="btn btn-default" data-layout="posters">
                             <i class="mdi mdi-view-grid"></i>
                         </a>
@@ -25,7 +25,10 @@
                             <i class="mdi mdi-view-headline"></i>
                         </a>
                     </div>
-                    <div id="sort_options" class="btn-group pull-right">
+                </div>
+
+                <div class="col-md-4 col-md-push-4 col-sm-6">
+                    <div class="btn-group pull-right">
                         <select id="movie_sort_key" class="btn btn-default">
                             <option value="title">Title</option>
                             <option value="year">Year</option>
@@ -36,24 +39,21 @@
                         </a>
                     </div>
                 </div>
-                <div id="pages" class="col-md-12">
-                    <a id="page_left" class="btn btn-sm btn-default" onclick="change_page_sequential(event, -1)">
+
+                <div class="col-md-4 col-md-pull-4 col-sm-12">
+                    <span id="page_left" onclick="change_page_sequential(event, -1)">
                         <i class="mdi mdi-chevron-double-left"></i>
-                    </a>
+                    </span>
                     <div class="btn-group">
-                        <a class="btn btn-sm btn-default active" data-page="1" onclick="change_page(event, this, 1)">
-                            1
-                        </a>
-                        %for page in range(pages-1):
-                        <a class="btn btn-sm btn-default" data-page="${page+2}" onclick="change_page(event, this, ${page+2})">
-                            ${page+2}
-                        </a>
-                        %endfor
+                        <select id="page_number" class="btn btn-default">
+                        </select>
+                        <a id="page_count" class="btn btn-default active"></a>
                     </div>
-                    <a id="page_right" class="btn btn-sm btn-default" onclick="change_page_sequential(event, 1)">
+                    <span id="page_right" onclick="change_page_sequential(event, 1)">
                         <i class="mdi mdi-chevron-double-right"></i>
-                    </a>
+                    </span>
                 </div>
+
             </div>
         </div>
 

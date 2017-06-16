@@ -68,8 +68,9 @@ class App(object):
         page = path[0] if len(path) > 0 else 'status'
 
         if page == 'status':
-            page_count = math.ceil(core.sql.get_library_count() / 50)
-            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), profiles=core.CONFIG['Quality']['Profiles'].keys(), pages=page_count)
+            movie_count = core.sql.get_library_count()
+            App.status_template = Template(filename='templates/library/status.html', module_directory=core.MAKO_CACHE)
+            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count)
         elif page == 'manage':
             movies = core.sql.get_user_movies()
             return App.manage_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
