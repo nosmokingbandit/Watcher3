@@ -243,16 +243,39 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def get_user_movies(self):
-        ''' Gets all info in MOVIES
+    def get_user_movies(self, sort_key='title', sort_direction='ASC', limit=-1, offset=None):
+        ''' Gets user's movie from database
+        sort_key: str key to sort by
+        sort_direction: order to sort results [ASC, DESC]
+        limit: int how many results to return
+        offset: int list index to start returning results
+
+        If limit is -1 all results are returned (still honors offset)
 
         Returns list of dicts with all information in MOVIES
         '''
+        sort_reverse = {'ASC': 'DESC', 'DESC': 'ASC'}
 
         logging.debug('Retrieving list of user\'s movies.')
-        TABLE = 'MOVIES'
 
-        command = 'SELECT * FROM {} ORDER BY title ASC'.format(TABLE)
+        sort_direction = sort_reverse[sort_direction]
+
+        if sort_key == 'status':
+            sort_key = '''CASE WHEN status = "Waiting" THEN 1
+                               WHEN status = "Wanted" THEN 2
+                               WHEN status = "Found" THEN 3
+                               WHEN status = "Snatched" THEN 4
+                               WHEN status = "Finished" THEN 5
+                          END
+                       '''
+
+        command = 'SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)
+
+        if sort_key != 'title':
+            command += ', title ASC'
+
+        if offset:
+            command += ' LIMIT {} OFFSET {}'.format(limit, offset)
 
         result = self.execute(command)
 
@@ -260,6 +283,23 @@ class SQL(object):
             return [dict(i) for i in result]
         else:
             logging.error('Unable to get list of user\'s movies.')
+            return False
+
+    def get_library_count(self):
+        ''' Gets count of rows in MOVIES
+        Returns int
+        '''
+        logging.debug('Getting count of library.')
+
+        command = 'SELECT COUNT(1) FROM MOVIES'
+
+        result = self.execute(command)
+
+        if result:
+            x = result.fetchone()[0]
+            return x
+        else:
+            logging.error('Unable to get count of user\'s movies.')
             return False
 
     def get_movie_details(self, idcol, idval):

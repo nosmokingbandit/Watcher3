@@ -34,6 +34,23 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
+    def library(self, sort_key, sort_direction, limit=50, offset=None):
+        ''' Get 25 movies from library
+        sort_key: column name to sort by
+        sort_direction: direction to sort [ASC, DESC]
+
+        limit: int number of movies to get
+        offset: int list index postition to start slice
+
+        Gets a 25-movie slice from library sorted by sort key
+
+        Returns str json-encoded list of dicts
+        '''
+
+        return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
     def search_tmdb(self, search_term):
         ''' Search tmdb for movies
         :param search_term: str title and year of movie (Movie Title 2016)

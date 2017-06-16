@@ -38,26 +38,15 @@ function checkbox_switch(elem){
 };
 
 function select_all(){
-    var $checkboxes_off = $checkboxes.attr("value", "False")
-    var i = $checkboxes_off.length;
-    while (--i >= 0){
-        checkbox_switch($checkboxes_off[i])
-    }
+    each($checkboxes.attr("value", "False"), checkbox_switch);
 }
 
 function select_none(){
-    var $checkboxes_on = $checkboxes.attr("value", "True")
-    var i = $checkboxes_on.length;
-    while (--i >= 0){
-        checkbox_switch($checkboxes_on[i])
-    }
+each($checkboxes.attr("value", "True"), checkbox_switch);
 }
 
 function select_inverse(){
-    var i = $checkboxes.length;
-    while (--i >= 0){
-        checkbox_switch($checkboxes[i])
-    }
+    each($checkboxes, checkbox_switch);
 }
 
 function select_attrib(event, elem, key, value){

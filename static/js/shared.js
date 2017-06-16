@@ -40,6 +40,13 @@ function format_template(t, d){
     return t;
 }
 
+function each(arr, fn){
+    // Executes fn(array_item, array_index) for each item in arr
+    var i = arr.length;
+    while (--i >= 0){
+        fn(arr[i], i)
+    }
+}
 
 function _start_update(event){
     // Method called to start update from notification.
