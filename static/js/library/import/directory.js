@@ -43,7 +43,7 @@ function file_browser_select(event, elem){
     event.preventDefault();
     var $modal = $(elem).closest("div#modal_browser");
 
-    var dir = $modal.find("div#modal_current_dir").text().replace(/ /g,'');;
+    var dir = $modal.find("div#modal_current_dir").text().trim();
 
     $dir_input.val(dir);
 
