@@ -476,30 +476,32 @@ class Metadata(object):
             return metadata
 
         if filedata:
-            if filedata.get('Metadata'):
-                width = filedata['Metadata'].get('width')
-            elif metadata.get('video[1]'):
-                width = filedata['video[1]'].get('width')
-            else:
-                width = None
+            # For mp4, mvk, avi in order
+            video = filedata.get('Metadata') or \
+                filedata.get('video[1]') or \
+                filedata.get('video') or \
+                {}
 
-            if width:
-                width = int(width)
+            # mp4 doesn't have audio data so this is just for mkv and avi
+            audio = filedata.get('audio[1]') or {}
+
+            if video.get('width'):
+                width = int(video.get('width'))
                 if width > 1920:
-                    filedata['resolution'] = '4K'
+                    metadata['resolution'] = '4K'
                 elif 1920 >= width > 1440:
-                    filedata['resolution'] = '1080P'
+                    metadata['resolution'] = '1080P'
                 elif 1440 >= width > 720:
-                    filedata['resolution'] = '720P'
+                    metadata['resolution'] = '720P'
                 else:
-                    filedata['resolution'] = 'SD'
+                    metadata['resolution'] = 'SD'
             else:
-                filedata['resolution'] = 'SD'
+                metadata['resolution'] = 'SD'
 
-            if filedata.get('audio[1]'):
-                metadata['audiocodec'] = filedata['audio[1]'].get('compression').replace('A_', '')
-            if filedata.get('video[1]'):
-                metadata['videocodec'] = filedata['video[1]'].get('compression').split('/')[0].replace('V_', '')
+            if audio.get('compression'):
+                metadata['audiocodec'] = audio['compression'].replace('A_', '')
+            if video.get('compression'):
+                metadata['videocodec'] = video['compression'].split('/')[0].split('(')[0].replace('V_', '')
 
         return metadata
 
