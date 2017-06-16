@@ -230,6 +230,7 @@ function _render_library(movies){
             }
 
         });
+        $item.data("movie", movie);
         $movie_list.append($item)
     });
 
@@ -303,7 +304,6 @@ function switch_sort_direction(event, elem){
 
 function open_info_modal(event, elem){
     // Generate and show movie info modal
-
     event.preventDefault();
 
     var movie = $(elem).data("movie");
