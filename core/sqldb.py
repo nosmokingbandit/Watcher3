@@ -243,7 +243,7 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def get_user_movies(self, sort_key='title', sort_direction='ASC', limit=-1, offset=None):
+    def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=None):
         ''' Gets user's movie from database
         sort_key: str key to sort by
         sort_direction: order to sort results [ASC, DESC]
