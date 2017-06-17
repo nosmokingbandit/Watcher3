@@ -295,15 +295,19 @@ class ImportPlexLibrary(object):
                 if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
                     parsed['audiocodec'] = 'DTS'
 
-                width = int(movie['Width'])
-                if width > 1920:
-                    parsed['resolution'] = 'BluRay-4K'
-                elif 1920 >= width > 1440:
-                    parsed['resolution'] = 'BluRay-1080P'
-                elif 1440 >= width > 720:
-                    parsed['resolution'] = 'BluRay-720P'
-                else:
-                    parsed['resolution'] = 'DVD-SD'
+                try:
+                    width = int(movie['Width'])
+                    if width > 1920:
+                        parsed['resolution'] = 'BluRay-4K'
+                    elif 1920 >= width > 1440:
+                        parsed['resolution'] = 'BluRay-1080P'
+                    elif 1440 >= width > 720:
+                        parsed['resolution'] = 'BluRay-720P'
+                    else:
+                        parsed['resolution'] = 'DVD-SD'
+                except Exception as e:
+                    logging.debug('{} width expressed as {}, unable to parse resolution.'.format(movie['Title'], movie['Width']))
+                    complete = False
 
                 parsed['size'] = int(movie['Part Size as Bytes'])
                 parsed['file'] = movie['Part File']
