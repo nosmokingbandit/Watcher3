@@ -53,7 +53,7 @@ class PreDB(object):
         title_year = '{} {}'.format(title, year)
         imdbid = data['imdbid']
 
-        logging.info('Checking predb.me for new available releases for {}.'.format(title))
+        logging.info('Checking predb.me for verified releases for {}.'.format(title))
 
         predb_titles = self._search_db(title_year)
 
@@ -61,10 +61,10 @@ class PreDB(object):
             return False
 
         test = title_year.replace(' ', '.').lower()
-        db_update = {'predb': 'found', 'status': 'Wanted', 'predb_backlog': 1}
 
         if self._fuzzy_match(predb_titles, test):
             logging.info('{} {} found on predb.me.'.format(title, year))
+            db_update = {'predb': 'found', 'status': 'Wanted', 'predb_backlog': 1}
             if core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
                 return True
             else:

@@ -26,9 +26,9 @@
         <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
         <link href="${url_base}/static/css/settings/plugins.css?v=06.02" rel="stylesheet">
 
-        <script src="${url_base}/static/js/settings/shared.js?v=06.15"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/plugins.js?v=06.14"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/lib/jquery.sortable.min.js?v=06.14"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=06.15" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/plugins.js?v=06.14" type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/jquery.sortable.min.js?v=06.14" type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -57,7 +57,11 @@
             </form>
 
             <div class="col-md-12 well">
-                See the <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Plugins", target="_blank">Wiki</a> for plugin instructions.
+                See the for plugin instruction.
+                <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Plugins", target="_blank">
+                    <i class="mdi mdi-help-circle-outline"></i>
+                </a>
+
             </div>
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">

@@ -23,7 +23,8 @@ class Searcher():
         ''' Run verify/search/snatch chain
         movie: dict of movie to run search for
 
-        Do not run in main thread
+        Meant to be executed *IN ITS OWN THREAD* after adding a movie from user-input (ie api, search)
+            so the main thread is not tied up.
 
         Does not return
         '''
