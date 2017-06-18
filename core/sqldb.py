@@ -15,7 +15,20 @@ class SQL(object):
     '''
     All methods will return False on failure.
     On success they will return the expected data or True.
+
+    SQL.convert_names is used to convert column names in a table.
+        This should be formatted as {TABLE: [(new_column, old_column)],
+                                     TABLE2: [(new_column, old_column), (new_column_2, old_column_2)]
+                                     }
+
     '''
+
+    convert_names = {"MOVIES":
+                     [("url", "tomatourl"),
+                      ("score", "tomatorating"),
+                      ("release_date", "released"),
+                      ("finished_date", "finisheddate")]
+                     }
 
     def __init__(self):
         self.metadata = MetaData()
@@ -86,14 +99,6 @@ class SQL(object):
         except Exception as e:
             logging.error('Opening SQL DB.', exc_info=True)
             raise
-
-        # {TABLENAME: [(new_col, old_col), (new_col, old_col)]}
-        self.convert_names = {'MOVIES':
-                              [('url', 'tomatourl'),
-                               ('score', 'tomatorating'),
-                               ('release_date', 'released'),
-                               ('finished_date', 'finisheddate')
-                               ]}
 
     def create_database(self, DB_NAME):
         ''' Creates database and recreates self.engine
@@ -596,8 +601,9 @@ class SQL(object):
         try:
             if not os.path.isdir(backup_dir):
                 os.mkdir(backup_dir)
-            backup = '{}.{}'.format(core.DB_FILE, datetime.date.today())
-            shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup))
+            backup_name = 'watcher.sqlite.{}'.format(datetime.date.today())
+
+            shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup_name))
         except Exception as e:
             print('Error backing up database.')
             logging.error('Copying SQL DB.', exc_info=True)
@@ -608,7 +614,7 @@ class SQL(object):
 
         '''
         For each item in diff, create new column.
-        Then, if the new columns name is in self.convert_names, copy data from old column
+        Then, if the new columns name is in SQL.convert_names, copy data from old column
         Create the new table, then copy data from TMP table
         '''
         for table, schema in diff.items():
@@ -624,8 +630,8 @@ class SQL(object):
 
                 self.execute(command)
 
-                if table in self.convert_names.keys():
-                    for pair in self.convert_names[table]:
+                if table in SQL.convert_names.keys():
+                    for pair in SQL.convert_names[table]:
                         if pair[0] == name:
                             command = 'UPDATE {} SET {} = {}'.format(table, pair[0], pair[1])
                             self.execute(command)
