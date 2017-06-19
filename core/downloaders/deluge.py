@@ -102,7 +102,7 @@ class DelugeRPC(object):
         else:
             return {'response': False, 'error': 'Invalid torrent type {}'.format(torrent['type'])}
 
-        DelugeRPC._set_label(download_id, conf['category'])
+        DelugeRPC._set_label(download_id, conf['category'], client)
 
         return {'response': True, 'downloadid': download_id}
 
