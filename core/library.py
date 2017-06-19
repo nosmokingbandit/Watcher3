@@ -658,11 +658,6 @@ class Manage(object):
         movie['status'] = movie.get('status', 'Waiting')
         movie['origin'] = movie.get('origin', 'Search')
 
-        if movie.get('poster_path'):
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
-        else:
-            poster_url = 'static/images/missing_poster.jpg'
-
         movie = self.metadata.convert_to_db(movie)
 
         if not core.sql.write('MOVIES', movie):
@@ -670,7 +665,7 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
+            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], movie.get('poster_path'))).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
@@ -917,7 +912,7 @@ class Manage(object):
             return Conversions.human_file_size(size)
 
 
-class Poster():
+class Poster(object):
 
     def __init__(self):
         self.poster_folder = 'static/images/posters/'
@@ -925,29 +920,33 @@ class Poster():
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)
 
-    def save_poster(self, imdbid, poster_url):
+    def save_poster(self, imdbid, poster_path):
         ''' Saves poster locally
-        :param imdbid: str imdb identification number (tt123456)
-        :param poster_url: str url of poster image
+        imdbid: str imdb identification number (tt123456)
+        poster_path: str url of poster image or None if unavailable
 
         Saves poster as watcher/static/images/posters/[imdbid].jpg
 
         Does not return.
         '''
 
+        print(poster_path)
+
         logging.info('Grabbing poster for {}.'.format(imdbid))
 
         new_poster_path = '{}{}.jpg'.format(self.poster_folder, imdbid)
 
-        if os.path.exists(new_poster_path) is False:
+        if os.path.exists(new_poster_path):
+            logging.warning('{} already exists.'.format(new_poster_path))
+        else:
             logging.info('Saving poster to {}'.format(new_poster_path))
 
-            if poster_url == 'static/images/missing_poster.jpg':
-                shutil.copy2(poster_url, new_poster_path)
+            if poster_path is None:
+                shutil.copy2('/static/images/missing_poster.jpg', new_poster_path)
 
             else:
                 try:
-                    poster_bytes = Url.open(poster_url, stream=True).content
+                    poster_bytes = Url.open(poster_path, stream=True).content
                 except (SystemExit, KeyboardInterrupt):
                     raise
                 except Exception as e:
@@ -963,8 +962,6 @@ class Poster():
                     logging.error('Unable to save poster to disk.', exc_info=True)
 
             logging.info('Poster saved to {}'.format(new_poster_path))
-        else:
-            logging.warning('{} already exists.'.format(new_poster_path))
 
     def remove_poster(self, imdbid):
         ''' Deletes poster from disk.
