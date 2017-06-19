@@ -2,8 +2,8 @@
 <html>
     <head>
         ${head}
-        <script src="${url_base}/static/js/add_movie.js?v=06.14" type="text/javascript"></script>
         <link href="${url_base}/static/css/add_movie.css?v=06.08" rel="stylesheet">
+        <script src="${url_base}/static/js/add_movie.js?v=06.18" type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -12,7 +12,7 @@
             <div class="input-group" id="search_bar">
                 <input type="text" id="apikey" class="form-control">
                 <span class="input-group-btn">
-                    <a id="search_button" class="btn btn-default">
+                    <a id="search_button" class="btn btn-default" onclick="search_tmdb(event, this)">
                         <i class="mdi mdi-magnify"></i>
                     </a>
                 </span>
