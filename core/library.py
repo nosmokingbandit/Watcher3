@@ -942,7 +942,7 @@ class Poster(object):
             logging.info('Saving poster to {}'.format(new_poster_path))
 
             if poster_path is None:
-                shutil.copy2('/static/images/missing_poster.jpg', new_poster_path)
+                shutil.copy2('static/images/missing_poster.jpg', new_poster_path)
 
             else:
                 try:
