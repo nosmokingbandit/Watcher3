@@ -33,9 +33,9 @@ class Searcher():
         title = movie['title']
         year = movie['year']
         quality = movie['quality']
-        predb_found = self.predb.backlog_search(movie)
-        if core.CONFIG['Search']['predbcheck'] and not predb_found:
-            return
+        if core.CONFIG['Search']['predbcheck']:
+            if not self.predb.backlog_search(movie):
+                return
         if core.CONFIG['Search']['searchafteradd'] and self.search(imdbid, title, year, quality) and core.CONFIG['Search']['autograb']:
             best_release = self.snatcher.best_release(movie)
             if best_release:
@@ -70,7 +70,8 @@ class Searcher():
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        self.predb.check_all()
+        if core.CONFIG['Search']['predbcheck']:
+            self.predb.check_all()
 
         logging.info('############# Running automatic search #############')
         if core.CONFIG['Search']['keepsearching']:
