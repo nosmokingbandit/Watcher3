@@ -5,7 +5,7 @@
         <link href="${url_base}/static/css/library/status.css?v=06.19" rel="stylesheet">
 
         <script src="${url_base}/static/js/lib/echo.min.js?v=06.07"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.19"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.19b"  type="text/javascript"></script>
 
         <meta name="movie_count" content="${movie_count}"/>
     </head>
@@ -138,7 +138,7 @@
 
                                 <div class="col-md-5">
                                     <label>Quality</label>
-                                        <select id="movie_quality" class="btn btn-default form-control" value="{quality}">
+                                        <select id="movie_quality" class="btn btn-default form-control">
                                             %for i in profiles:
                                             <option value="${i}">${i}</option>
                                             %endfor
@@ -146,7 +146,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     <label>Status</label>
-                                        <select id="movie_status" class="btn btn-default col-md-5" value="{quality}">
+                                        <select id="movie_status" class="btn btn-default col-md-5">
                                             <option value="Automatic">Automatic</option>
                                             <option value="Disabled">Finished</option>
                                         </select>

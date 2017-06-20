@@ -212,6 +212,8 @@ function _render_library(movies){
         var template = movie_template;
         movie['url_base'] = url_base;
 
+        movie["status_select"] = movie["status"]; // Keep 'Disabled' for dropdown
+
         if(movie['status'] == 'Disabled'){
             movie['status'] = 'Finished';
         }
@@ -333,7 +335,8 @@ function open_info_modal(event, elem){
         $movie_status.data("title", movie["title"]);
         $movie_status.find("select#movie_quality > option[value='"+movie["quality"]+"']").attr("selected", true)
         $status_select = $movie_status.find("select#movie_status");
-        if(movie["status"] == "Disabled"){
+
+        if(movie["status_select"] == "Disabled"){
              $status_select.find("option[value='Disabled']").attr("selected", true)
         } else {
             $status_select.find("option[value='Automatic']").attr("selected", true)
