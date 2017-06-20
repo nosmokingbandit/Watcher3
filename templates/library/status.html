@@ -2,10 +2,10 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/status.css?v=06.19" rel="stylesheet">
+        <link href="${url_base}/static/css/library/status.css?v=06.20" rel="stylesheet">
 
-        <script src="${url_base}/static/js/lib/echo.min.js?v=06.07"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.19b"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.20" type="text/javascript"></script>
 
         <meta name="movie_count" content="${movie_count}"/>
     </head>
@@ -99,6 +99,9 @@
                                 Theatrical Release: {release_date}
                             </span>
                             <span class="label label-default">
+                                Home Release: {media_release_date}
+                            </span>
+                            <span class="label label-default">
                                 Score: {score}
                             </span>
                             <span class="label label-default">
@@ -110,8 +113,6 @@
                             <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank">
                                 IMDB <i class="mdi mdi-earth"></i>
                             </a>
-
-
                         </div>
 
                         <div class="modal-body">

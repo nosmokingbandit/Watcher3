@@ -151,8 +151,8 @@ div.modal-header h3{
     display: block;
 }
 
-div.modal-header .label{
-    margin-bottom: 0.5em;
+div.modal-header > *:not(h3){
+    margin-top: 0.5em;
     display: inline-block;
 }
 
@@ -203,6 +203,10 @@ div.modal-body div#search_results_table{
 
 div.modal-body div#search_results_table div.result_actions{
     text-align: right;
+}
+
+div.modal-body div#search_results_table div.result_info{
+    margin-bottom: 0.25em;
 }
 
 div.modal-body div#search_results_table div.search_result span.title{
