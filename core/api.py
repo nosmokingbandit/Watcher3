@@ -6,7 +6,7 @@ from core.movieinfo import TMDB
 
 logging = logging.getLogger(__name__)
 
-api_version = 2.1
+api_version = 2.2
 
 ''' API
 
@@ -14,38 +14,78 @@ All methods output a json object:
 {'response': true}
 
 A 'true' response indicates that the request was valid and returns useful data.
-A 'false' response indicates that the request was invalid. This will always include an
-    'error' key that describes the reason for the failure.
+A 'false' response indicates that the request was invalid or failed. This will
+    always include an 'error' key that describes the reason for the failure.
 
-All successul method calls then append addition key:value pairs to the output json.
+All successul method calls then append additional key:value pairs to the output json.
 
 
 # METHODS
 
 mode=liststatus:
-    input: imdbid=tt1234567     <optional>
-    if imdbid supplied:
-        output: {'movie': {'key': 'value', 'key2', 'value2'} }
-    if no imdbid supplied:
-        output: {'movies': [{'key': 'value', 'key2', 'value2'}, {'key': 'value', 'key2', 'value2'}] }
+    Description:
+        Effectively a database dump of the MOVIES table
+        Will return one value if imdbid is passed, else returns all movies
+
+    Example:
+        Request:
+            ?apikey=123456789&mode=liststaus&imdbid=tt1234567
+        Response:
+            {'movie': {'key': 'value', 'key2', 'value2'}}
+
+        Request:
+            ?apikey=123456789&mode=liststaus
+        Response:
+            {'movies': [{'key': 'value', 'key2', 'value2'}, {'key': 'value', 'key2', 'value2'}]}
 
 mode=addmovie
-    input: imdbid=tt1234567     Either this or tmdbid required
-    input: tmdbid=123456        Either this or imdbid required
-    input: quality=Default      <optional>
-    output: {'message': 'MOVIE TITLE YEAR added to wanted list.'}
+    Description:
+        Adds a movie to the user's library
+        Accepts imdb and tmdb id #s
+        Imdb id must include 'tt'
+        Will add using 'Default' quality profile unless specified otherwise
 
-    If quality is not supplied, uses 'Default' profile.
+    Example:
+        Request:
+            ?apikey=123456789&mode=addmovie&imdbid=tt1234567
+        Response:
+            {'message': 'MOVIE TITLE YEAR added to wanted list.'}
+
+        Request:
+            ?apikey=123456789&mode=addmovie&tmdbid=1234567
+        Response:
+            {'message': 'MOVIE TITLE YEAR added to wanted list.'}
 
 mode=removemovie
-    input: imdbid=tt1234567
-    output: {'removed': 'tt1234567'}
+    Description:
+        Removes movie from user's library
+        Does not remove movie files, only removes entry from Watcher
 
-mode=get_config
-    output: JSON-formatted config. Basically just the config file.
+    Example:
+        Request:
+            ?apikey=123456789&mode=addmovie&imdbid=tt1234567
+        Response:
+            {'removed': 'tt1234567'}
+
+mode=getconfig
+    Description:
+        Returns a dump of the user's config
+
+    Example:
+        Request:
+            ?apikey=123456789&mode=getconfig
+        Response:
+            {'config': {'Search': {'etc': 'etc'}}}
 
 mode=version
-    output: {'version': '4fcdda1df1a4ff327c3219311578d703a288e598', 'api_version': 1.0}
+    Description:
+        Returns API version and current git hash of Watcher
+
+    Example:
+        Request:
+            ?apikey=123456789&mode=version
+        Response:
+            {'version': '4fcdda1df1a4ff327c3219311578d703a288e598', 'api_version': 1.0}
 
 
 # API Version
@@ -62,7 +102,7 @@ Major version changes can be expected to break api interactions
 
 2.0     Change to semantically correct json. Responses are now bools instead of str 'true'/'false'
 2.1     Adjust addmovie() to pass origin argument. Adjust addmovie() to search tmdb for itself rather than in core.ajax()
-
+2.1     Update documentation for all methods
 '''
 
 
@@ -134,9 +174,9 @@ class API(object):
         elif params['mode'] == 'version':
             return self.version()
 
-        elif params['mode'] == 'get_config':
-            return json.dumps(core.CONFIG, sort_keys=True, indent=4)
-
+        elif params['mode'] == 'getconfig':
+            return json.dumps({'response': True,
+                               'config': core.CONFIG})
         else:
             return json.dumps({'response': False,
                                'error': 'invalid mode'})
