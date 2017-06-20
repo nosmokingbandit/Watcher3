@@ -354,17 +354,27 @@ function _results_table(results){
 
     rows = "";
     $.each(results, function(i, result){
+        if(result["freeleech"] >= 1){
+            var fl = `<span class="label label-default" title="Freeleech: ${result["freeleech"]}"><i class="mdi mdi-heart"></i></span>`
+        } else if(result["freeleech"] > 0 && result["freeleech"] < 1 ){
+            var fl = `<span class="label label-default" title="Freeleech: ${result["freeleech"]}"><i class="mdi mdi-heart-half-full"></i></span>`
+        } else {
+            var fl = "";
+        }
+
         rows += `<div class="search_result">
                     <div class="col-md-12">
                         <span class="title" title="${result['title']}">
                             ${result["title"]}
                         </span>
                     </div>
-                    <div class="result_info col-md-6 btn-group btn-group-justified">
-                        <span class="btn btn-sm label status ${result["status"]}">${result["status"]}</span>
-                        <span class="btn btn-sm">${result["type"]}</span>
-                        <span class="btn btn-sm">${result["indexer"]}</span>
-                        <span class="btn btn-sm">${result["size"]}</span>
+                    <div class="result_info col-md-6">
+                        <span class="label status ${result["status"]}" title="Status">${result["status"]}</span>
+                        <span class="label label-default" title="Link Type">${result["type"]}</span>
+                        <span class="label label-default" title="Indexer">${result["indexer"]}</span>
+                        <span class="label label-default" title="Size">${result["size"]}</span>
+                        <span class="label label-default" title="Score">${result["score"]}</span>
+                        ${fl}
                     </div>
                     <div class="result_actions col-md-6 btn-group btn-group-justified">
                         <a class="btn btn-sm btn-default" href="${result['info_link']}" target="_blank" title="Visit Indexer">

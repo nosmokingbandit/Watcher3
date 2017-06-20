@@ -159,7 +159,7 @@ div.modal-header .label{
 div.modal-body div.search_result{
     overflow: auto;
     line-height: 2em;
-    padding-bottom: 1em;
+    padding-bottom: 0.5em;
 }
 
 div.modal-body label{
