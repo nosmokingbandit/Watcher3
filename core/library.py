@@ -930,8 +930,6 @@ class Poster(object):
         Does not return.
         '''
 
-        print(poster_path)
-
         logging.info('Grabbing poster for {}.'.format(imdbid))
 
         new_poster_path = '{}{}.jpg'.format(self.poster_folder, imdbid)
