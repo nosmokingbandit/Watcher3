@@ -27,7 +27,8 @@ class SQL(object):
                      [("url", "tomatourl"),
                       ("score", "tomatorating"),
                       ("release_date", "released"),
-                      ("finished_date", "finisheddate")]
+                      ("finished_date", "finisheddate"),
+                      ("media_release_date", "digital_release_date"),]
                      }
 
     def __init__(self):
@@ -56,7 +57,7 @@ class SQL(object):
                             Column('backlog', SMALLINT),
                             Column('tmdbid', TEXT),
                             Column('alternative_titles', TEXT),
-                            Column('digital_release_date', TEXT),
+                            Column('media_release_date', TEXT),
                             Column('origin', TEXT)
                             )
         self.SEARCHRESULTS = Table('SEARCHRESULTS', self.metadata,

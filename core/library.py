@@ -589,11 +589,11 @@ class Metadata(object):
         dates = []
         for i in movie.get('release_dates', {}).get('results', []):
             for d in i['release_dates']:
-                if d['type'] == 4:
+                if d['type'] > 4:
                     dates.append(d['release_date'])
 
         if dates:
-            movie['digital_release_date'] = max(dates)[:10]
+            movie['media_release_date'] = min(dates)[:10]
 
         if movie.get('quality') is None:
             movie['quality'] = 'Default'
