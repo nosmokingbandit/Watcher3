@@ -720,7 +720,7 @@ class Ajax(object):
 
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
 
-        if new_data['poster_path']:
+        if new_data.get('poster_path'):
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
         else:
             poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)

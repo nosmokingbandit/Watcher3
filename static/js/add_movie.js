@@ -40,14 +40,14 @@ function search_tmdb(event, elem){
         if (results){
             $.each(results, function(ind, movie){
                 if(movie["poster_path"] != null){
-                    var poster_path = movie["poster_path"] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
+                    var poster_url = movie["poster_url"] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
                 } else {
-                    var poster_path = url_base + "/static/images/missing_poster.jpg"
+                    var poster_url = url_base + "/static/images/missing_poster.jpg"
                 }
 
                 movie["year"] = (movie["release_date"] || "N/A").slice(0,4)
 
-                var template_dictionary = {"img_url": poster_path,
+                var template_dictionary = {"img_url": poster_url,
                                             "title": movie["title"],
                                             "year": movie["year"]
                                             }

@@ -383,7 +383,7 @@ class ImportCPLibrary(object):
             movie['title'] = m['info']['original_title']
             movie['year'] = m['info']['year']
             movie['overview'] = m['info']['plot']
-            movie['poster_path'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
+            movie['poster_url'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
             movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(m['info']['tmdb_id'])
             movie['vote_average'] = m['info']['rating']['imdb'][0]
             movie['imdbid'] = m['info']['imdb']
@@ -640,6 +640,7 @@ class Manage(object):
 
         response = {}
         tmdbid = movie['id']
+        poster_url = movie.get('poster_url')
 
         if not full_metadata:
             tmdb_data = self.tmdb._search_tmdbid(tmdbid)[0]
@@ -665,7 +666,7 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], movie.get('poster_path'))).start()
+            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
@@ -920,10 +921,10 @@ class Poster(object):
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)
 
-    def save_poster(self, imdbid, poster_path):
+    def save_poster(self, imdbid, poster):
         ''' Saves poster locally
         imdbid: str imdb identification number (tt123456)
-        poster_path: str url of poster image or None if unavailable
+        poster: str url of poster image or None if unavailable
 
         Saves poster as watcher/static/images/posters/[imdbid].jpg
 
@@ -939,12 +940,12 @@ class Poster(object):
         else:
             logging.info('Saving poster to {}'.format(new_poster_path))
 
-            if poster_path is None:
+            if poster is None:
                 shutil.copy2('static/images/missing_poster.jpg', new_poster_path)
 
             else:
                 try:
-                    poster_bytes = Url.open(poster_path, stream=True).content
+                    poster_bytes = Url.open(poster, stream=True).content
                 except (SystemExit, KeyboardInterrupt):
                     raise
                 except Exception as e:
