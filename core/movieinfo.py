@@ -130,7 +130,8 @@ class TMDB(object):
         try:
             results = json.loads(Url.open(url).text)
             if results.get('status_code'):
-                logging.warning(results.get('status_code'))
+                logging.warning()
+                logging.warning('Unable to reach TMDB, error {}'.format(results.get('status_code')))
                 return ['']
             else:
                 results['imdbid'] = results.pop('imdb_id')
