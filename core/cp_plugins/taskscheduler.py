@@ -36,13 +36,16 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
 class ScheduledTask(object):
     ''' Class that creates a new scheduled task.
-    __init__
-    :param hr: int hour to first execute function (24hr time)
-    :param min: int minute to first execute function
-    :param interval: int how many *seconds* to wait between executions
-    :param task: function reference to function to execute
-    :param auto_start: bool If timer should start on creation <default True>
+    Creates a controller for class 'Task' with methods to
+        start, stop, and reload
 
+
+    __init__:
+    hr: int hour to first execute function (24hr time)
+    min: int minute to first execute function
+    interval: int how many *seconds* to wait between executions
+    task: function reference to function to execute
+    auto_start: bool If timer should start on creation <default True>
 
     Executes a given 'task' function on a scheduled basis.
     First execution occurs at hr:min
@@ -53,6 +56,11 @@ class ScheduledTask(object):
         start()     Starts countdown to initial execution
         stop()      Stops countdown. Waits for any in-process tasks to finish
         reload()    Calls stop(), __init__(), then start(), takes same args as create()
+
+    Class Names:
+        name: str name of 'function'
+        task: class Instance of Task class
+        task.delay: int seconds to next execution
 
     Does not return
     '''
@@ -72,9 +80,10 @@ class ScheduledTask(object):
         self.task.timer.start()
 
     def stop(self):
-        logging.info('Stopping scheduled task {}.'.format(self.name))
-        print('Stopping scheduled task: {}'.format(self.name))
-        self.task.timer.cancel()
+        if self.task.timer.is_alive():
+            logging.info('Stopping scheduled task {}.'.format(self.name))
+            print('Stopping scheduled task: {}'.format(self.name))
+            self.task.timer.cancel()
 
     def reload(self, hr, min, interval, auto_start=True):
         ''' Reloads scheduled task to change time or interval
@@ -120,27 +129,3 @@ class Task(object):
         self.timer = Timer(self.interval, self.task)
         self.timer.start()
         self.func()
-
-
-''' Global commands.
-
-cherrypy.engine.scheduler.{taskname}.stop()
-                                    .restart()
-                                    .start()
-Restart entire engine:
-cherrypy.engine.graceful()
-
-
-To add new task:
-
-Create new class, inherit Manager
-In __init__
-    Gather time of day to start, interval, and function to fire.
-    Pass to scheduler like this:
-        self.named_task = Task(hr, min, interval, self.searcher.auto_search)
-
-In class ScheduledTasks, add to start, stop, and restart.
-I'll eventually make a list of tasks and have start/stop/resart iterate over.
-But that is a job for tomorrow.
-
-'''
