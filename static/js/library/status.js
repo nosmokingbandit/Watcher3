@@ -218,6 +218,8 @@ function _render_library(movies){
             movie['status'] = 'Finished';
         }
 
+        movie['media_release_date'] = (movie['media_release_date'] || 'Unannounced')
+
         $item = $(format_template(template, movie));
 
         var score = Math.round(movie['score']) / 2;
