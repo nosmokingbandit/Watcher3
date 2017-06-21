@@ -124,7 +124,7 @@ class Score():
 
     def keep_required(self, group_list):
         ''' Remove results without required groups of 'words'
-        :param word_goups: list of required groups of words
+        group_list: list of required groups of words
 
         Iterates through self.results and removes every entry that does not
             contain any group of 'words'
