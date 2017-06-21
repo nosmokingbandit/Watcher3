@@ -104,10 +104,12 @@
 
                 <div class="col-md-6">
                     <label>Usenet Server Retention</label>
-                    <input type="number" id="retention" class="form-control" min="0" placeholder="1500" value="${config['retention']}">
-                    <span class="input-group-addon">
-                        Days
-                    </span>
+                    <div class="input-group">
+                        <input type="number" id="retention" class="form-control" min="0" placeholder="1500" value="${config['retention']}">
+                        <span class="input-group-addon">
+                            Days
+                        </span>
+                    </div>
                 </div>
             </form>
 
