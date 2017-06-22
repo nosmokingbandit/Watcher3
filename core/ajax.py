@@ -29,7 +29,6 @@ class Ajax(object):
         self.predb = predb.PreDB()
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
-        self.poster = library.Poster()
         self.snatcher = snatcher.Snatcher()
 
     @cherrypy.expose
@@ -695,7 +694,7 @@ class Ajax(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def update_metadata(self, imdbid, tmdbid=None):
-        ''' Re-downloads metadata for each imdbid
+        ''' Re-downloads metadata for imdbid
         imdbid: str imdbid of movie
         tmdbid: str tmdbid of movie     <optional, default None>
 
@@ -705,40 +704,12 @@ class Ajax(object):
 
         '''
 
-        movie = core.sql.get_movie_details('imdbid', imdbid)
+        r = self.metadata.update(imdbid, tmdbid)
 
-        if tmdbid is None:
-            tmdbid = movie.get('tmdbid')
-
-            if not tmdbid:
-                tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
-            if not tmdbid:
-                return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
-
-        new_data = self.tmdb._search_tmdbid(tmdbid)[0]
-        new_data.pop('status')
-
-        target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
-
-        if new_data.get('poster_path'):
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
+        if r['response'] is True:
+            return {'response': True, 'message': 'Metadata updated.'}
         else:
-            poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
-
-        if os.path.isfile(target_poster):
-            try:
-                os.remove(target_poster)
-            except Exception as e:
-                logging.warning('Unable to remove existing poster.', exc_info=True)
-                return {'response': False, 'error': 'Unable to remove existing poster.'}
-
-        movie.update(new_data)
-        movie = self.metadata.convert_to_db(movie)
-
-        core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
-
-        self.poster.save_poster(imdbid, poster_url)
-        return {'response': True, 'message': 'Metadata updated.'}
+            return r
 
     @cherrypy.expose
     def change_quality_profile(self, profiles, imdbid=None):
@@ -1091,7 +1062,7 @@ class Ajax(object):
         '''
         movies = json.loads(movies)
         for i, movie in enumerate(movies):
-            r = json.loads(self.update_metadata(movie['imdbid'], tmdbid=movie['tmdbid']))
+            r = self.metadata.update(movie.get('imdbid'), movie.get('tmdbid'))
 
             if r['response'] is False:
                 response = {'response': False, 'error': r['error'], 'imdbid': movie['imdbid'], "index": i + 1}

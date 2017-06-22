@@ -406,6 +406,7 @@ class Metadata(object):
 
     def __init__(self):
         self.tmdb = TMDB()
+        self.poster = Poster()
         self.MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
         return
 
@@ -607,6 +608,56 @@ class Metadata(object):
         movie = {k: v for k, v in movie.items() if k in self.MOVIES_cols}
 
         return movie
+
+    def update(self, imdbid, tmdbid=None):
+        ''' Updates metadata from TMDB
+        imdbid: str imdb id #
+        tmdbid: str or int tmdb id #    <optional>
+
+        If tmdbid is None, looks in database for tmdbid using imdbid.
+        If that fails, looks on tmdb api for imdbid
+        If that fails returns error message
+
+        Returns dict of response and error code if applicable
+
+        '''
+
+        movie = core.sql.get_movie_details('imdbid', imdbid)
+
+        if tmdbid is None:
+            tmdbid = movie.get('tmdbid')
+
+            if not tmdbid:
+                tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
+            if not tmdbid:
+                return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
+
+        new_data = self.tmdb._search_tmdbid(tmdbid)[0]
+        new_data.pop('status')
+
+        target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
+
+        if new_data.get('poster_path'):
+            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
+        else:
+            poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
+
+        if os.path.isfile(target_poster):
+            try:
+                os.remove(target_poster)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                logging.warning('Unable to remove existing poster.', exc_info=True)
+                return {'response': False, 'error': 'Unable to remove existing poster.'}
+
+        movie.update(new_data)
+        movie = self.convert_to_db(movie)
+
+        core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
+
+        self.poster.save_poster(imdbid, poster_url)
+        return {'response': True, 'message': 'Metadata updated.'}
 
 
 class Manage(object):
