@@ -150,6 +150,7 @@ class PreDB(object):
 
         for item in items:
             match = fuzz.partial_ratio(item, test)
-            if match > 50:
+            if match > 60:
+                logging.debug('{} matches {} at {}%'.format(item, test, match))
                 return True
         return False
