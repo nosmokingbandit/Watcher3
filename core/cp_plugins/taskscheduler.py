@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from threading import Timer
+from threading import Timer, Lock
 import os
 import json
 from cherrypy.process import plugins
@@ -40,9 +40,6 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
 class ScheduledTask(object):
     ''' Class that creates a new scheduled task.
-    Creates a controller for class 'Task' with methods to
-        start, stop, and reload.
-
 
     __init__:
     hour: int hour to first execute function (24hr time)
@@ -55,18 +52,22 @@ class ScheduledTask(object):
         scheduled task. This file is updated immediately before executing
         'task' and records the current time.
 
+        If a task does not have a persistence record, adds one using current
+        time. This ensures that long-interval tasks are not perpetually
+        delayed if the server updates or restarts often.
 
-    Executes a given 'task' function on a scheduled basis.
+    Executes a given 'task' function on a scheduled basis
     First execution occurs at hr:min
     Subsequent executions occur at regularly afterwards, at
         intervals of 'interval' seconds
 
-    'task' will always run in a separate thread.
+    'task' will always run in a separate thread
 
     Class Methods:
         start()     Starts countdown to initial execution
         stop()      Stops countdown. Waits for any in-process tasks to finish
-        reload()    Calls stop(), __init__(), then start(), takes same args as create()
+        reload()    Cancels timer then calls __init__() and start(), takes same args as
+                        __init__ and just passes them along to __init__
 
     Class Vars: (there are more, but interact with them at your own risk)
         name: str name of 'function'
@@ -77,31 +78,33 @@ class ScheduledTask(object):
 
     persistence_file = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'tasks.json')
     persistence_record = None
-    f = None
+    lock = None
 
     def __init__(self, hour, minute, interval, task, auto_start=True):
         self.task = task
         self.task_name = task.__name__
         self.interval = interval
 
-        if not ScheduledTask.f:
-            ScheduledTask.f = open(self.persistence_file, 'w+')
+        if not ScheduledTask.lock:
+            ScheduledTask.lock = Lock()
 
-        if not ScheduledTask.persistence_record:
-            try:
-                self.f.seek(0)
-                ScheduledTask.persistence_record = json.load(self.f)
-            except Exception as e:
-                ScheduledTask.persistence_record = {}
-                self.f.seek(0)
-                json.dump({}, self.f)
-                self.f.flush()
-
+        if ScheduledTask.persistence_record is None:
+            with self.lock:
+                with open(self.persistence_file, 'a+') as f:
+                    try:
+                        f.seek(0)
+                        ScheduledTask.persistence_record = json.load(f)
+                    except Exception as e:
+                        ScheduledTask.persistence_record = {}
+                        f.seek(0)
+                        json.dump({}, f)
         record = ScheduledTask.persistence_record.get(self.task_name, {}).get('lastexecution', None)
 
         if record:
             next_exec = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
             hour, minute = next_exec.hour, next_exec.minute
+        else:
+            self.write_record()
 
         self.delay = self._calc_delay(hour, minute, interval)
 
@@ -152,14 +155,7 @@ class ScheduledTask(object):
     def _task(self):
         self.timer = Timer(self.interval, self._task)
         self.timer.start()
-        # Set record
-        self.f.seek(0)
-        p = json.load(self.f)
-        p[self.task_name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
-        self.f.seek(0)
-        json.dump(p, self.f)
-        self.f.flush()
-
+        self.write_record()
         self.task()
 
     def start(self):
@@ -178,9 +174,23 @@ class ScheduledTask(object):
 
         logging.info('Reloading scheduler for {}'.format(self.task_name))
         try:
-            self.timer.cancel()
+            if self.timer.is_alive():
+                self.timer.cancel()
             self.__init__(hr, min, interval, self.task, auto_start=auto_start)
             return True
         except Exception as e:
             logging.error('Unable to start task', exc_info=True)
             return e
+
+    def write_record(self):
+        ''' Writes last execution to persistence record
+        Does not return
+        '''
+
+        with self.lock:
+            with open(self.persistence_file, 'r+') as f:
+                p = json.load(f)
+                p[self.task_name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
+                f.seek(0)
+                json.dump(p, f)
+                f.seek(0)
