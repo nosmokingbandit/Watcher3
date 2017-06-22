@@ -110,7 +110,7 @@ class AutoSearch(object):
                                                   auto_start=True)
 
         # update core.NEXT_SEARCH
-        delay = task_search.task.delay
+        delay = task_search.delay
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, delay)
 
