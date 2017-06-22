@@ -57,18 +57,19 @@ class PreDB(object):
 
         predb_titles = self._search_db(title_year)
 
-        if not predb_titles:
+        db_update = {'predb_backlog': 1}
+
+        if predb_titles:
+            test = title_year.replace(' ', '.').lower()
+            if self._fuzzy_match(predb_titles, test):
+                logging.info('{} {} found on predb.me.'.format(title, year))
+                db_update['predb'] = 'found'
+                db_update['status'] = 'Wanted'
+
+        if core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
+            return True
+        else:
             return False
-
-        test = title_year.replace(' ', '.').lower()
-
-        if self._fuzzy_match(predb_titles, test):
-            logging.info('{} {} found on predb.me.'.format(title, year))
-            db_update = {'predb': 'found', 'status': 'Wanted', 'predb_backlog': 1}
-            if core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
-                return True
-            else:
-                return False
 
     def _search_db(self, title_year):
         ''' Helper for backlog_search
