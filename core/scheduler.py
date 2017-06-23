@@ -8,6 +8,7 @@ from core import searcher, version, notification
 from core.rss import imdb, popularmovies
 from core.cp_plugins import taskscheduler
 from core import trakt
+from core.library import Metadata
 
 logging = logging.getLogger(__name__)
 
@@ -113,6 +114,49 @@ class AutoSearch(object):
         delay = task_search.delay
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, delay)
+
+
+class MetadataUpdate(object):
+
+    md = Metadata()
+
+    @staticmethod
+    def create():
+        interval = 72 * 60 * 60  # 72 hours
+
+        now = datetime.datetime.now()
+
+        hr = now.hour
+        min = now.minute
+
+        taskscheduler.ScheduledTask(hr, min, interval, MetadataUpdate.metadata_update,
+                                    auto_start=True)
+        return
+
+    @staticmethod
+    def metadata_update():
+        ''' Updates metadata for library
+
+        If movie's theatrical release is more than a year ago it is ignored.
+
+        Checks movies with a missing 'media_release_date' field. By the time
+            this field is filled all other fields should be populated.
+
+        '''
+
+        logging.info('Running automatic metadata updater.')
+
+        movies = core.sql.get_user_movies()
+
+        cutoff = datetime.datetime.today() - datetime.timedelta(days=365)
+
+        for i in movies:
+            if datetime.datetime.strptime(i['release_date'], '%Y-%m-%d') < cutoff:
+                continue
+
+            if not i['media_release_date']:
+                MetadataUpdate.md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'))
+        return
 
 
 class AutoUpdateCheck(object):

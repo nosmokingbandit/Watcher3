@@ -128,12 +128,12 @@ class TMDB(object):
         self.use_token()
 
         try:
-            results = json.loads(Url.open(url).text)
-            if results.get('status_code'):
-                logging.warning()
-                logging.warning('Unable to reach TMDB, error {}'.format(results.get('status_code')))
+            response = Url.open(url)
+            if response.status_code != 200:
+                logging.warning('Unable to reach TMDB, error {}'.format(response.status_code))
                 return ['']
             else:
+                results = json.loads(response.text)
                 results['imdbid'] = results.pop('imdb_id')
                 return [results]
         except (SystemExit, KeyboardInterrupt):

@@ -622,25 +622,33 @@ class Metadata(object):
 
         '''
 
+        logging.info('Updating metadata for {}'.format(imdbid))
         movie = core.sql.get_movie_details('imdbid', imdbid)
 
         if tmdbid is None:
             tmdbid = movie.get('tmdbid')
 
             if not tmdbid:
+                logging.warning('TMDB id not found in local database, searching TMDB for {}'.format(imdbid))
                 tmdbid = self.tmdb._search_imdbid(imdbid)[0].get('id')
             if not tmdbid:
                 return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
 
         new_data = self.tmdb._search_tmdbid(tmdbid)[0]
+
+        if not new_data:
+            logging.warning('Empty response from TMDB.')
+            return
+
         new_data.pop('status')
 
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
 
         if new_data.get('poster_path'):
             poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
+            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
         else:
-            poster_url = '{}/static/images/missing_poster.jpg'.format(core.PROG_PATH)
+            poster_url = None
 
         if os.path.isfile(target_poster):
             try:
@@ -656,7 +664,9 @@ class Metadata(object):
 
         core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
-        self.poster.save_poster(imdbid, poster_url)
+        if poster_url:
+            self.poster.save_poster(imdbid, poster_url)
+
         return {'response': True, 'message': 'Metadata updated.'}
 
 
@@ -717,7 +727,8 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
+            if poster_url:
+                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()

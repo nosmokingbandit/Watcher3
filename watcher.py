@@ -158,6 +158,7 @@ if __name__ == '__main__':
     scheduler.AutoSearch.create()
     scheduler.AutoUpdateCheck.create()
     scheduler.ImdbRssSync.create()
+    scheduler.MetadataUpdate.create()
     scheduler.PopularMoviesSync.create()
     scheduler.TraktSync.create()
     scheduler_plugin.plugin.subscribe()
