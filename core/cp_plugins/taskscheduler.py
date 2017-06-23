@@ -193,5 +193,5 @@ class ScheduledTask(object):
                 p = json.load(f)
                 p[self.task_name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
                 f.seek(0)
-                json.dump(p, f)
+                json.dump(p, f, indent=4, sort_keys=True)
                 f.seek(0)
