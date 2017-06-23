@@ -5,7 +5,7 @@
         <link href="${url_base}/static/css/library/status.css?v=06.20" rel="stylesheet">
 
         <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.20" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=06.21" type="text/javascript"></script>
 
         <meta name="movie_count" content="${movie_count}"/>
     </head>
@@ -65,7 +65,7 @@
 
         <textarea id="template_movie" class="hidden">
             <li class="movie" data-imdbid="{imdbid}" onclick="open_info_modal(event, this)">
-                <img data-echo="{url_base}/static/images/posters/{imdbid}.jpg" src="{url_base}/static/images/missing_poster.jpg">
+                <img data-echo="{url_base}/static/{poster}" src="{url_base}/static/images/missing_poster.jpg">
                 <span class="label status {status}">{status}</span>
                 <span class="score">
                     <i class="mdi mdi-star-outline"></i>
@@ -117,7 +117,7 @@
 
                         <div class="modal-body">
                             <div class="col-md-4">
-                                <img src="{poster}" class="img-responsive">
+                                <img src="{url_base}/static/{poster}" class="img-responsive">
                             </div>
 
                             <div class="col-md-8">

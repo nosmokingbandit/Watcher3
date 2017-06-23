@@ -569,7 +569,10 @@ class Metadata(object):
         if movie.get('added_date') is None:
             movie['added_date'] = str(datetime.date.today())
 
-        movie['poster'] = 'images/poster/{}.jpg'.format(movie['imdbid'])
+        if movie.get('poster_path'):
+            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+        else:
+            movie['poster'] = None
         movie['plot'] = movie['overview']
         movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie['id'])
         movie['score'] = movie['vote_average']
@@ -999,28 +1002,27 @@ class Poster(object):
 
         if os.path.exists(new_poster_path):
             logging.warning('{} already exists.'.format(new_poster_path))
+            return
         else:
             logging.info('Saving poster to {}'.format(new_poster_path))
 
-            if poster is None:
-                shutil.copy2('static/images/missing_poster.jpg', new_poster_path)
+            try:
+                poster_bytes = Url.open(poster, stream=True).content
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception as e:
+                logging.error('Poster save_poster get', exc_info=True)
+                return
 
-            else:
-                try:
-                    poster_bytes = Url.open(poster, stream=True).content
-                except (SystemExit, KeyboardInterrupt):
-                    raise
-                except Exception as e:
-                    logging.error('Poster save_poster get', exc_info=True)
-
-                try:
-                    with open(new_poster_path, 'wb') as output:
-                        output.write(poster_bytes)
-                    del poster_bytes
-                except (SystemExit, KeyboardInterrupt):
-                    raise
-                except Exception as e:
-                    logging.error('Unable to save poster to disk.', exc_info=True)
+            try:
+                with open(new_poster_path, 'wb') as output:
+                    output.write(poster_bytes)
+                del poster_bytes
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception as e:
+                logging.error('Unable to save poster to disk.', exc_info=True)
+                return
 
             logging.info('Poster saved to {}'.format(new_poster_path))
 

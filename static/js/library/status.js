@@ -210,19 +210,23 @@ function _render_library(movies){
     // Renders movies list items after loading page
     $.each(movies, function(i, movie){
         var template = movie_template;
-        movie['url_base'] = url_base;
+        movie["url_base"] = url_base;
 
-        movie["status_select"] = movie["status"]; // Keep 'Disabled' for dropdown
+        movie["status_select"] = movie["status"]; // Keep "Disabled" for dropdown
 
-        if(movie['status'] == 'Disabled'){
-            movie['status'] = 'Finished';
+        if(movie["status"] == "Disabled"){
+            movie["status"] = "Finished";
         }
 
-        movie['media_release_date'] = (movie['media_release_date'] || 'Unannounced')
+        movie["media_release_date"] = (movie["media_release_date"] || "Unannounced")
+
+        movie["poster"] = (movie["poster"] || "images/missing_poster.jpg")
+
+        console.log(movie)
 
         $item = $(format_template(template, movie));
 
-        var score = Math.round(movie['score']) / 2;
+        var score = Math.round(movie["score"]) / 2;
         if(score % 1 == 0.5){
             var i_half_star = Math.floor(score);
         }
@@ -311,9 +315,8 @@ function open_info_modal(event, elem){
     event.preventDefault();
 
     var movie = $(elem).data("movie");
-    movie["poster"] = url_base + "/static/images/posters/" + movie["imdbid"] + ".jpg"
     if(movie["origin"] === null){
-        movie["origin"] = ''
+        movie["origin"] = ""
     }
 
     var search_results = {};
@@ -347,7 +350,7 @@ function open_info_modal(event, elem){
         $movie_status.modal("show");
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     });
 }
@@ -432,7 +435,7 @@ function manual_search(event, elem, imdbid){
         }
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
@@ -458,7 +461,7 @@ function update_metadata(event, elem, imdbid, tmdbid){
         }
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
@@ -494,7 +497,7 @@ function remove_movie(event, elem, imdbid){
 
         })
         .fail(function(data){
-            var err = data.status + ' ' + data.statusText
+            var err = data.status + " " + data.statusText
             $.notify({message: err}, {type: "danger", delay: 0});
         });
     }
@@ -521,7 +524,7 @@ function update_movie_options(event, elem, imdbid){
         }
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     });
 }
@@ -553,7 +556,7 @@ function manual_download(event, elem, guid, kind, imdbid){
         }
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
@@ -593,7 +596,7 @@ function mark_bad(event, elem, guid, imdbid){
         };
     })
     .fail(function(data){
-        var err = data.status + ' ' + data.statusText
+        var err = data.status + " " + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
