@@ -153,6 +153,7 @@ class ScheduledTask(object):
         return delay
 
     def _task(self):
+        logging.info('== Executing Scheduled Task: {} =='.format(self.task_name))
         self.timer = Timer(self.interval, self._task)
         self.timer.start()
         self.write_record()

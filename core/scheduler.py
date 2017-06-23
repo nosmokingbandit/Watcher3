@@ -144,8 +144,6 @@ class MetadataUpdate(object):
 
         '''
 
-        logging.info('Running automatic metadata updater.')
-
         movies = core.sql.get_user_movies()
 
         cutoff = datetime.datetime.today() - datetime.timedelta(days=365)
@@ -256,7 +254,6 @@ class ImdbRssSync(object):
 
     @staticmethod
     def imdb_sync():
-        logging.info('Running automatic IMDB rss sync.')
         imdb_rss = imdb.ImdbRss()
         imdb_rss.get_rss()
         return
@@ -282,8 +279,6 @@ class PopularMoviesSync(object):
 
     @staticmethod
     def popularmovies_sync():
-        logging.info('Running automatic popular movies sync.')
-
         popular_feed = popularmovies.PopularMoviesFeed()
 
         popular_feed.get_feed()
