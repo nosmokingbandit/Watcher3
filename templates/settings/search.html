@@ -41,14 +41,21 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Predb Check</label>
+                    <label>Verify Availability</label>
+                    <select id="verifyreleases" class="form-control select-sm" value="${config['verifyreleases']}">
+                        <option value="">Disabled</option>
+                        <option value="predb">PreDB</option>
+                        <option value="mediareleasedate">Home Media Release Date</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Skip verification if Movie is older than [X] weeks.</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
-                            <i id="predbcheck" class="mdi mdi-checkbox-blank-outline c_box" value="${config['predbcheck']}"></i>
+                            <i id="verifyreleasesskip" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyreleasesskip']}"></i>
                         </span>
-                        <span class="input-group-item form-control">
-                            Check Predb before searching.
-                        </span>
+                        <input type="number" id="verifyreleasesskipweeks" class="form-control" min="0" placeholder="26" value="${config['verifyreleasesskipweeks']}">
                     </div>
                 </div>
 

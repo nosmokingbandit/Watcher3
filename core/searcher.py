@@ -19,6 +19,61 @@ class Searcher():
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
 
+    def verify(self, movie):
+        ''' Checks for verfied releases based on config
+        movie: dict movie info
+
+        Checks (in order):
+            If verify releases is enabled
+            If movie has a theatrical release date
+            If theatrical release date is older than skip weeks per user config
+            If predb verification -- check predb
+            If home media release verification - check if release is in the past
+
+            If all enabled conditions fail, return False
+
+        Returns Bool
+        '''
+        now = datetime.datetime.today()
+
+        if core.CONFIG['Search']['verifyreleases'] == '':
+            verified = True
+        elif not movie.get('release_date'):
+            verified = False
+
+        elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < now:
+            verified = True
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'predb':
+            if movie.get('predb') == 'found':
+                verified = True
+            else:
+                verified = False
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'mediareleasedate':
+            if not movie.get('predb') and movie.get('predb_backlog'):
+                logging.debug('Resetting predb backlog status for unfound movie {} {}'.format(movie['title'], movie['year']))
+                core.sql.update('MOVIES', 'predb_backlog', None, 'imdbid', movie['imdbid'])
+            if not movie.get('media_release_date'):
+                verified = False
+            else:
+                media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
+                if media_release < now:
+                    verified = True
+                else:
+                    verified = False
+        else:
+            verified = False
+
+        if verified and movie['status'] == 'Waiting':
+            logging.info('Verification criteria met for {} {}, setting status to Wanted'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Wanted', 'imdbid', movie['imdbid'])
+        elif not verified and movie['status'] != 'Waiting':
+            logging.info('Verified criteria not met for {} {}, resetting setting status to Waiting'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', movie['imdbid'])
+
+        return verified
+
     def _t_search_grab(self, movie):
         ''' Run verify/search/snatch chain
         movie: dict of movie to run search for
@@ -33,9 +88,13 @@ class Searcher():
         title = movie['title']
         year = movie['year']
         quality = movie['quality']
-        if core.CONFIG['Search']['predbcheck']:
-            if not self.predb.backlog_search(movie):
-                return
+
+        if core.CONFIG['Search']['verifyreleases'] == 'predb':
+            self.predb.backlog_search(movie)
+
+        if not self.verify(movie):
+            return
+
         if core.CONFIG['Search']['searchafteradd'] and self.search(imdbid, title, year, quality) and core.CONFIG['Search']['autograb']:
             best_release = self.snatcher.best_release(movie)
             if best_release:
@@ -48,9 +107,8 @@ class Searcher():
 
         Updates core.NEXT_SEARCH time.
 
-        Checks for all movies on predb.
+        Gets all movies from database and
 
-        Searches only for movies where predb == 'found'.
 
         Searches only for movies that are Wanted, Found,
             or Finished -- if inside user-set date range.
@@ -70,17 +128,18 @@ class Searcher():
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        if core.CONFIG['Search']['predbcheck']:
-            self.predb.check_all()
-
         logging.info('############# Running automatic search #############')
         if core.CONFIG['Search']['keepsearching']:
             logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = core.sql.get_user_movies()
         if not movies:
             return False
+        else:
+            if core.CONFIG['Search']['verifyreleases'] == 'predb':
+                self.predb.check_all()
+            movies = [i for i in movies if self.verify(i)]
 
-        backlog_movies = self._get_backlog_movies(movies)
+        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished')]
         if backlog_movies:
             logging.debug('Backlog movies: {}'.format(', '.join(i['title'] for i in backlog_movies)))
             for movie in backlog_movies:
@@ -94,14 +153,10 @@ class Searcher():
                 continue
 
         rss_movies = self._get_rss_movies(movies)
-
         if rss_movies:
             logging.info('Checking RSS feeds for {} movies.'.format(len(rss_movies)))
             self.rss_sync(rss_movies)
 
-        '''
-        If autograb is enabled, loops through movies and grabs any appropriate releases.
-        '''
         if core.CONFIG['Search']['autograb']:
             self.snatcher.grab_all()
         return
@@ -352,32 +407,6 @@ class Searcher():
             if brk is True:
                 break
         return 'Unknown-{}'.format(resolution)
-
-    def _get_backlog_movies(self, movies):
-        ''' Gets list of movies that require backlog search
-        movies: list of dicts of movie rows in movies
-
-        Filters movies so it includes movies where backlog == 0 and
-            status is Wanted, Found, or Finished
-
-        Returns list of dicts of movies that require backlog search
-        '''
-
-        backlog_movies = []
-
-        checkpredb = core.CONFIG['Search']['predbcheck']
-
-        for i in movies:
-            if not checkpredb and ['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished'):
-                logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
-                backlog_movies.append(i)
-            elif checkpredb and i['predb'] == 'found' and i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
-                logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
-                backlog_movies.append(i)
-            else:
-                continue
-
-        return backlog_movies
 
     def _get_rss_movies(self, movies):
         ''' Gets list of movies that we'll look in the rss feed for
