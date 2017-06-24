@@ -85,11 +85,6 @@ class ImportKodiLibrary(object):
         krequest = {"jsonrpc": "2.0",
                     "method": "VideoLibrary.GetMovies",
                     "params": {
-                        "filter": {
-                            "field": "playcount",
-                            "operator": "is",
-                            "value": "0"
-                        },
                         "limits": {
                             "start": 0,
                             "end": 0
