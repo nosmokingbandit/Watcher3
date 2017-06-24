@@ -167,7 +167,7 @@ class MetadataUpdate(object):
                         h = hashlib.md5(data).hexdigest()
                         if h in ('f4e996b087b509f4507a05863f9e9970', '367c8a3a111a46efb608b481936197a7'):
                             imdbid = 'tt{}'.format(i.split('tt')[-1][:-4])
-                            core.SQL.update('MOVIES', 'poster', None, 'imdbid', imdbid)
+                            core.sql.update('MOVIES', 'poster', None, 'imdbid', imdbid)
                             os.remove(i)
                 except Exception as e:
                     continue
