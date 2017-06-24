@@ -110,6 +110,10 @@ class Config():
         if type(new_config['Search']['Watchlists']['imdbrss']) == str:
             new_config['Search']['Watchlists']['imdbrss'] = new_config['Search']['Watchlists']['imdbrss'].split(',')
 
+        if new_config['Search'].get('predbcheck') is True:
+            new_config['Search']['verifyreleases'] = 'predb'
+            del new_config['Search']['predbcheck']
+
         with open(self.file, 'w') as f:
             json.dump(new_config, f, indent=4, sort_keys=True)
 
