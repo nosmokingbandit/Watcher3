@@ -574,7 +574,7 @@ class Metadata(object):
         elif not movie.get('year'):
             movie['year'] = 'N/A'
 
-        movie['added_date'] = movie.get('added_date', str(datetime.date.today())
+        movie['added_date'] = movie.get('added_date', str(datetime.date.today()))
 
         if movie.get('poster_path'):
             movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
