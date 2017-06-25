@@ -193,9 +193,10 @@ class Postprocessing(object):
         # if we found it, get local movie info
         if result:
             logging.info('Searching local database by imdbid.')
-            data.update(core.sql.get_movie_details('imdbid', result['imdbid']))
-            if data:
+            local = core.sql.get_movie_details('imdbid', result['imdbid'])
+            if local:
                 logging.info('Movie data found locally by imdbid.')
+                data.update(local)
                 data['finished_score'] = result['score']
                 data['resolution'] = result['resolution']
                 data['downloadid'] = result['downloadid']
@@ -385,7 +386,7 @@ class Postprocessing(object):
             if not core.sql.row_exists('MOVIES', imdbid=data['imdbid']):
                 logging.info('{} not found in library, adding now.'.format(data.get('title')))
                 data['status'] = 'Disabled'
-                core.manage.add_movie(json.dumps(data))
+                core.manage.add_movie(data)
 
             logging.info('Setting MOVIE status.')
             r = core.manage.movie_status(data['imdbid'])
@@ -681,22 +682,25 @@ class Postprocessing(object):
                     return False
             if config['removeadditionalfiles']:
                 self.remove_additional_files(existing_movie_file)
-        # Now to actually move the new Movie
-        logging.info('Moving {} to {}'.format(current_file_path, target_folder))
-        try:
-            shutil.copystat = self.null
-            shutil.move(current_file_path, target_folder)
-        except Exception as e:
-            logging.error('Mover failed: Could not move file.', exc_info=True)
-            return False
 
+        # Finally we move the actual file. If creating hardlink there is no need to copy, so just make the link.
         new_file_location = os.path.join(target_folder, os.path.basename(data['movie_file']))
-
-        # Create hardlink
 
         if config['createhardlink']:
             logging.info('Creating hardlink from {} to {}.'.format(new_file_location, data['original_file']))
-            os.link(new_file_location, data['original_file'])
+            try:
+                os.link(data['original_file'], new_file_location)
+            except Exception as e:
+                logging.error('Mover failed: Unable to create hardlink.', exc_info=True)
+                return False
+        else:
+            logging.info('Moving {} to {}'.format(current_file_path, target_folder))
+            try:
+                shutil.copystat = self.null
+                shutil.move(current_file_path, target_folder)
+            except Exception as e:
+                logging.error('Mover failed: Could not move file.', exc_info=True)
+                return False
 
         logging.info('Copying and renaming any extra files.')
 
