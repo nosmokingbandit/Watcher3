@@ -53,7 +53,7 @@ class Git(object):
         for i in args.split(' '):
             command.append(i)
         try:
-            if os.name == 'nt':
+            if core.PLATFORM == 'windows':
                 p = subprocess.Popen(command,
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,

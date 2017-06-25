@@ -32,6 +32,7 @@ NOTIFICATIONS = []                          # List of dicts of notifications and
 NO_VERIFY = ssl.create_default_context()    # Obj no verify context for requests
 NO_VERIFY.check_hostname = False
 NO_VERIFY.verify_mode = ssl.CERT_NONE
+PLATFORM = None
 
 # Rate limiting
 TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting

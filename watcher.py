@@ -21,7 +21,10 @@ import cherrypy
 from cherrypy.process.plugins import Daemonizer, PIDFile
 
 if os.name == 'nt':
+    core.PLATFORM = 'windows'
     from core.cp_plugins import systray
+else:
+    core.PLATFORM = '*nix'
 
 if __name__ == '__main__':
 
@@ -144,7 +147,7 @@ if __name__ == '__main__':
         logging.info(u'Launching web browser.')
 
     # daemonize in *nix if desired
-    if passed_args.daemon and os.name == 'posix':
+    if passed_args.daemon and core.PLATFORM == '*nix':
         Daemonizer(cherrypy.engine).subscribe()
 
     # start engine
@@ -164,7 +167,7 @@ if __name__ == '__main__':
     scheduler_plugin.plugin.subscribe()
 
     # If windows os and daemon selected, start systray
-    if passed_args.daemon and os.name == 'nt':
+    if passed_args.daemon and core.PLATFORM == 'windows':
         systrayplugin = systray.SysTrayPlugin(cherrypy.engine)
         systrayplugin.subscribe()
         systrayplugin.start()

@@ -99,7 +99,7 @@ def execute(plugins, args):
             continue
 
         command = [sys.executable, plugin] + args
-        if os.name == 'nt':
+        if core.PLATFORM == 'windows':
             cmd = ['cmd', '/c']
             command = cmd + command
         command = [str(i) for i in command]
