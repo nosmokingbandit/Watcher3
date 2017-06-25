@@ -264,8 +264,9 @@ class ImportPlexLibrary(object):
         parsed_movies = []
         incomplete = []
         today = str(datetime.date.today())
-        try:
-            for movie in movies:
+
+        for movie in movies:
+            try:
                 complete = True
                 parsed = {}
 
@@ -290,30 +291,42 @@ class ImportPlexLibrary(object):
                 if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
                     parsed['audiocodec'] = 'DTS'
 
-                try:
-                    width = int(movie['Width'])
-                    if width > 1920:
-                        parsed['resolution'] = 'BluRay-4K'
-                    elif 1920 >= width > 1440:
-                        parsed['resolution'] = 'BluRay-1080P'
-                    elif 1440 >= width > 720:
-                        parsed['resolution'] = 'BluRay-720P'
-                    else:
-                        parsed['resolution'] = 'DVD-SD'
-                except Exception as e:
-                    logging.debug('{} width expressed as {}, unable to parse resolution.'.format(movie['Title'], movie['Width']))
-                    complete = False
+                w = movie['Width']
+                pw = ''
+                while len(w) > 0 and w[0].isdigit():
+                    pw += w[0]
+                    w = w[1:]
 
-                parsed['size'] = int(movie['Part Size as Bytes'])
+                if pw:
+                    width = int(pw)
+                else:
+                    width = 0
+                    complete = False
+                if width > 1920:
+                    parsed['resolution'] = 'BluRay-4K'
+                elif 1920 >= width > 1440:
+                    parsed['resolution'] = 'BluRay-1080P'
+                elif 1440 >= width > 720:
+                    parsed['resolution'] = 'BluRay-720P'
+                else:
+                    parsed['resolution'] = 'DVD-SD'
+
+                s = movie['Part Size as Bytes']
+                ps = ''
+                while len(s) > 0 and s[0].isdigit():
+                    ps += s[0]
+                    s = s[1:]
+
+                parsed['size'] = int(ps) if ps else 0
                 parsed['file'] = movie['Part File']
 
                 if complete:
                     parsed_movies.append(parsed)
                 else:
                     incomplete.append(parsed)
-        except Exception as e:
-            logging.error('Error parsing Plex CSV.', exc_info=True)
-            return {'response': False, 'error': 'Unable to parse CSV file.'}
+            except Exception as e:
+                logging.error('Error parsing Plex CSV.', exc_info=True)
+                incomplete.append(parsed)
 
         return {'response': True, 'complete': parsed_movies, 'incomplete': incomplete}
 
