@@ -633,7 +633,8 @@ class Postprocessing(object):
         '''
 
         config = core.CONFIG['Postprocessing']
-        recycle_bin = self.compile_path(config['recyclebindirectory'], data)
+        if config['recyclebinenabled']:
+            recycle_bin = self.compile_path(config['recyclebindirectory'], data)
         target_folder = os.path.normpath(self.compile_path(config['moverpath'], data))
         target_folder = os.path.join(target_folder, '')
 
@@ -683,11 +684,11 @@ class Postprocessing(object):
             if config['removeadditionalfiles']:
                 self.remove_additional_files(existing_movie_file)
 
-        # Finally we move the actual file. If creating hardlink there is no need to copy, so just make the link.
+        # Finally the actual move process
         new_file_location = os.path.join(target_folder, os.path.basename(data['movie_file']))
 
-        if config['createhardlink']:
-            logging.info('Creating hardlink from {} to {}.'.format(new_file_location, data['original_file']))
+        if config['movermethod'] == 'hardlink':
+            logging.info('Creating hardlink from {} to {}.'.format(data['original_file'], new_file_location))
             try:
                 os.link(data['original_file'], new_file_location)
             except Exception as e:
@@ -701,6 +702,16 @@ class Postprocessing(object):
             except Exception as e:
                 logging.error('Mover failed: Could not move file.', exc_info=True)
                 return False
+
+            if config['movermethod'] == 'symboliclink':
+                if core.PLATFORM == 'windows':
+                    logging.warning('Attempting to create symbolic link on Windows. This will fail without SeCreateSymbolicLinkPrivilege.')
+                logging.info('Creating symbolic link from {} to {}'.format(new_file_location, data['original_file']))
+                try:
+                    os.symlink(new_file_location, data['original_file'])
+                except Exception as e:
+                    logging.error('Mover failed: Unable to create symbolic link.', exc_info=True)
+                    return False
 
         logging.info('Copying and renaming any extra files.')
 

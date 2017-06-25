@@ -116,7 +116,7 @@ class App(object):
         elif page == 'downloader':
             return App.downloader_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Downloader'])
         elif page == 'postprocessing':
-            return App.postprocessing_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Postprocessing'])
+            return App.postprocessing_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Postprocessing'], os=core.PLATFORM)
         elif page == 'plugins':
             plugs = plugins.list_plugins()
             return App.plugins_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Plugins'], plugins=plugs)
