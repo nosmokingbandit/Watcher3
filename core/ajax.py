@@ -599,6 +599,8 @@ class Ajax(object):
         Yeilds generator object of json objects
         '''
 
+        today = str(datetime.date.today())
+
         movie_data = json.loads(movies)
         corrected_movies = json.loads(corrected_movies)
 
@@ -627,6 +629,7 @@ class Ajax(object):
                 movie['predb'] = 'found'
                 movie['finished_file'] = movie['path']
                 movie['origin'] = 'Directory Import'
+                movie['finished_date'] = today
                 response = core.manage.add_movie(movie, full_metadata=True)
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))

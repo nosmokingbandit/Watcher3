@@ -57,6 +57,8 @@ class Snatcher():
 
             if status == 'Finished' and keepsearching is True:
                 finished_date = movie['finished_date']
+                if not finished_date:
+                    continue
                 finished_date_obj = datetime.datetime.strptime(finished_date, '%Y-%m-%d')
                 if finished_date_obj + keepsearchingdelta >= today:
                     minscore = movie['finished_score'] + keepsearchingscore

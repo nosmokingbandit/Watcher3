@@ -574,8 +574,7 @@ class Metadata(object):
         elif not movie.get('year'):
             movie['year'] = 'N/A'
 
-        if movie.get('added_date') is None:
-            movie['added_date'] = str(datetime.date.today())
+        movie['added_date'] = movie.get('added_date', str(datetime.date.today())
 
         if movie.get('poster_path'):
             movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
@@ -587,7 +586,6 @@ class Metadata(object):
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
-        movie['added_date'] = str(datetime.date.today())
         movie['backlog'] = 0
         movie['tmdbid'] = movie['id']
 

@@ -418,7 +418,7 @@ class Searcher():
 
         Returns list of dicts of movies that require backlog search
         '''
-        today = datetime.date.today()
+        today = datetime.datetime.today()
         keepsearching = core.CONFIG['Search']['keepsearching']
         keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
         keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
@@ -437,6 +437,8 @@ class Searcher():
                 rss_movies.append(i)
                 logging.info('{} {} is {}. Will look for new releases in RSS feed.'.format(title, year, status))
             if status == 'Finished' and keepsearching is True:
+                if not i['finished_date']:
+                    continue
                 finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d').date()
                 if finished_date_obj + keepsearchingdelta >= today:
                     logging.info('{} {} was marked Finished on {}, will keep checking RSS feed for new releases.'.format(title, year, i['finished_date']))
