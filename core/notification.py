@@ -13,14 +13,13 @@ def add(data, type_='success'):
 
     Notif structure is tuple of two dicts. [0] containing 'options' dict and [1] with 'settings' dict
 
-
     Does not return
     '''
 
     options = {'title': '',
-                'message': '',
-                'type': None
-                }
+               'message': '',
+               'type': None
+               }
 
     settings = {'type': type_,
                 'delay': 0

@@ -174,8 +174,10 @@ class SQL(object):
             return False
 
     def write_search_results(self, LIST):
-        '''
-        Takes list of dicts to write into SEARCHRESULTS.
+        ''' Writes search results to table
+        LIST: list of dicts to write into SEARCHRESULTS
+
+        Returns bool
         '''
 
         if not LIST:
@@ -194,10 +196,15 @@ class SQL(object):
             return False
 
     def update(self, TABLE, COLUMN, VALUE, idcol, idval):
-        '''
-        Updates single value in existing table row.
-        Selects row to update from imdbid or guid.
-        Sets COLUMN to VALUE.
+        ''' Updates single value in existing table row.
+        TABLE: str name of database table to write to
+        COLUMN: str column to write into
+        VALUE: str value to write
+        idcol: str column to use to id row to write to
+        idval: str value to use to id row to write to
+
+        Writes VALUE into COLUMN where idcol == idval
+
         Returns Bool.
         '''
 
@@ -249,7 +256,7 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=None):
+    def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=0):
         ''' Gets user's movie from database
         sort_key: str key to sort by
         sort_direction: order to sort results [ASC, DESC]
@@ -280,7 +287,7 @@ class SQL(object):
         if sort_key != 'title':
             command += ', title ASC'
 
-        if offset:
+        if int(offset) > 0:
             command += ' LIMIT {} OFFSET {}'.format(limit, offset)
 
         result = self.execute(command)
@@ -293,8 +300,10 @@ class SQL(object):
 
     def get_library_count(self):
         ''' Gets count of rows in MOVIES
+
         Returns int
         '''
+
         logging.debug('Getting count of library.')
 
         command = 'SELECT COUNT(1) FROM MOVIES'
@@ -310,9 +319,8 @@ class SQL(object):
 
     def get_movie_details(self, idcol, idval):
         ''' Returns dict of single movie details from MOVIES.
-
-        :param idcol: str identifying column
-        :param idval: str identifying value
+        idcol: str identifying column
+        idval: str identifying value
 
         Looks through MOVIES for idcol:idval
 
@@ -336,7 +344,7 @@ class SQL(object):
 
     def get_search_results(self, imdbid, quality=None):
         ''' Gets all search results for a given movie
-        :param imdbid: str imdb id #
+        imdbid: str imdb id #
         quality: str name of quality profile. Used to sort order <optional>
 
         Gets all search results sorted by score, then size.
@@ -367,7 +375,7 @@ class SQL(object):
 
     def get_marked_results(self, imdbid):
         ''' Gets all entries in MARKEDRESULTS for given movie
-        :param imdbid: str imdb id #
+        imdbid: str imdb id #
 
         Returns dict {guid:status, guid:status, etc}
         '''
@@ -391,7 +399,7 @@ class SQL(object):
 
     def remove_movie(self, imdbid):
         ''' Removes movie and search results from DB
-        :param imdbid: str imdb id #
+        imdbid: str imdb id #
 
         Doesn't access sql directly, but instructs other methods to delete all information that matches imdbid.
 
@@ -419,10 +427,10 @@ class SQL(object):
 
     def delete(self, TABLE, idcol, idval):
         ''' Deletes row where idcol == idval
-        :param idcol: str identifying column
-        :param idval: str identifying value
+        idcol: str identifying column
+        idval: str identifying value
 
-        Returns Bool.
+        Returns Bool
         '''
 
         logging.debug('Removing from {} where {} is {}.'.format(TABLE, idcol, idval.split('&')[0]))
@@ -436,7 +444,7 @@ class SQL(object):
 
     def purge_search_results(self, imdbid=''):
         ''' Deletes all search results
-        :param imdbid: str imdb id # <optional>
+        imdbid: str imdb id # <optional>
 
         Be careful with this one. Supplying an imdbid deletes search results for that
             movie. If you do not supply an imdbid it purges FOR ALL MOVIES.
@@ -460,10 +468,10 @@ class SQL(object):
 
     def get_distinct(self, TABLE, column, idcol, idval):
         ''' Gets unique values in TABLE
-        :param TABLE: str table name
-        :param column: str column to return
-        :param idcol: str identifying column
-        :param idval: str identifying value
+        TABLE: str table name
+        column: str column to return
+        idcol: str identifying column
+        idval: str identifying value
 
         Gets values in TABLE:column where idcol == idval
 
@@ -489,10 +497,10 @@ class SQL(object):
 
     def row_exists(self, TABLE, imdbid='', guid='', downloadid=''):
         ''' Checks if row exists in table
-        :param TABLE: str name of sql table to look through
-        :param imdbid: str imdb identification number <optional>
-        :param guid: str download guid <optional>
-        :param downloadid: str downloader id <optional>
+        TABLE: str name of sql table to look through
+        imdbid: str imdb identification number <optional>
+        guid: str download guid <optional>
+        downloadid: str downloader id <optional>
 
         Checks TABLE for imdbid, guid, or downloadid.
         Exactly one optional variable must be supplied.
@@ -526,8 +534,8 @@ class SQL(object):
 
     def get_single_search_result(self, idcol, idval):
         ''' Gets single search result
-        :param idcol: str identifying column
-        :param idval: str identifying value
+        idcol: str identifying column
+        idval: str identifying value
 
         Finds in SEARCHRESULTS a row where idcol == idval
 
@@ -546,6 +554,12 @@ class SQL(object):
             return {}
 
     def _get_existing_schema(self):
+        ''' Gets existing database schema
+
+        Expresses database schema as {TABLENAME: {COLUMN_NAME: COLUMN_TYPE}}
+
+        Returns dict
+        '''
         table_dict = {}
 
         # get list of tables in db:
@@ -571,6 +585,13 @@ class SQL(object):
         return table_dict
 
     def _get_intended_schema(self):
+        ''' Gets indended database schema as described in self.__init__
+
+        Expresses database schema as {TABLENAME: {COLUMN_NAME: COLUMN_TYPE}}
+
+        Returns dict
+        '''
+
         d = {}
         for table in self.metadata.tables.keys():
             selftable = getattr(self, table)
@@ -581,6 +602,12 @@ class SQL(object):
         return d
 
     def update_tables(self):
+        ''' Updates database tables
+
+        Adds new rows to table based on diff between intended and existing schema
+
+        Returns Bool
+        '''
 
         for i in self.get_user_movies():
             p = i['poster']

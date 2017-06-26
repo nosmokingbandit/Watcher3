@@ -36,7 +36,11 @@ def list_plugins():
 
 
 def added(*args):
-    # title, year, imdbid, quality
+    ''' Executes added plugins
+    args: title, year, imdbid, quality
+
+    Does not return
+    '''
 
     plugin_dir = os.path.join(core.PROG_PATH, core.PLUGIN_DIR, 'added')
 
@@ -50,7 +54,11 @@ def added(*args):
 
 
 def snatched(*args):
-    # title, year, imdbid, resolution, kind, downloader, downloadid, indexer, info_link
+    ''' Executes snatched plugins
+    args: title, year, imdbid, resolution, kind, downloader, downloadid, indexer, info_link
+
+    Does not return
+    '''
 
     plugin_dir = os.path.join(core.PROG_PATH, core.PLUGIN_DIR, 'snatched')
 
@@ -64,7 +72,11 @@ def snatched(*args):
 
 
 def finished(*args):
-    # title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date
+    ''' Executes finished plugins
+    args: title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date
+
+    Does not return
+    '''
 
     plugin_dir = os.path.join(core.PROG_PATH, core.PLUGIN_DIR, 'finished')
 

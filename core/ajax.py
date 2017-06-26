@@ -5,6 +5,7 @@ import sys
 import threading
 import cherrypy
 from base64 import b16encode
+import datetime
 import core
 from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification
 from core.providers import torrent, newznab
@@ -17,7 +18,7 @@ logging = logging.getLogger(__name__)
 class Ajax(object):
     ''' These are all the methods that handle ajax post/get requests from the browser.
 
-    Except in special circumstances, all should return a JSON string
+    Except in special circumstances, all should return a JSON formatted string
         since that is the only datatype sent over http
 
     '''
@@ -30,11 +31,12 @@ class Ajax(object):
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
         self.snatcher = snatcher.Snatcher()
+        self.version = version.Version()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def library(self, sort_key, sort_direction, limit=50, offset=None):
-        ''' Get 25 movies from library
+    def library(self, sort_key, sort_direction, limit=50, offset=0):
+        ''' Get 50 movies from library
         sort_key: column name to sort by
         sort_direction: direction to sort [ASC, DESC]
 
@@ -98,12 +100,8 @@ class Ajax(object):
     def add_wanted_movie(self, data):
         ''' Adds movie to library
         data: dict of known movie data
-        full_metadata: bool if data is complete for database
 
         Calls library.Manage.add_movie to add to library.
-        If add is successful, movie is not an import, and has a year, starts
-            search/grab method in separate thread
-
         '''
         movie = json.loads(data)
 
@@ -272,7 +270,7 @@ class Ajax(object):
         ''' Removes notification from core.notification
         :param index: str or unicode index of notification to remove
 
-        'index' will be a type of string since it comes from ajax request.
+        'index' will be of type string since it comes from ajax request.
             Therefore we convert to int here before passing to Notification
 
         Simply calls Notification module.
@@ -288,11 +286,9 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def update_check(self):
         ''' Manually check for updates
-
-        Returns str json.dumps(dict) from Version manager update_check()
         '''
 
-        response = version.Version().manager.update_check()
+        response = self.version.manager.update_check()
         return response
 
     @cherrypy.expose

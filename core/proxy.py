@@ -14,6 +14,9 @@ on = False
 
 
 def create():
+    ''' Starts proxy connection
+    Sets global on to True
+    '''
     global on
     if core.CONFIG['Server']['Proxy']['enabled']:
         host = core.CONFIG['Server']['Proxy']['host']
@@ -72,6 +75,9 @@ def create():
 
 
 def destroy():
+    ''' Ends proxy connection
+    Sets global on to False
+    '''
     global on
     if on:
         Url.proxies = None
@@ -86,7 +92,6 @@ def whitelist(url):
     url: str url
 
     Returns True if url in whitelist
-
     '''
     whitelist = core.CONFIG['Server']['Proxy']['whitelist'].split(',')
 

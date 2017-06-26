@@ -186,10 +186,10 @@ function load_library(sort_key, sort_direction, page){
         loading_library = false;
     } else {
         $.post(url_base+"/ajax/library", {
-            sort_key: sort_key,
-            sort_direction: sort_direction,
-            limit: per_page,
-            offset: offset
+            "sort_key": sort_key,
+            "sort_direction": sort_direction,
+            "limit": per_page,
+            "offset": offset
         })
         .done(function(response){
             Array.prototype.splice.apply(cached_movies, [offset, response.length].concat(response))

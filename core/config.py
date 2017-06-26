@@ -126,6 +126,17 @@ class Config():
         return
 
     def _merge(self, d, u):
+        ''' Deep merge dictionaries
+        d: dict base dict to merge into
+        u: dict dict to update from
+
+        If any k:v pair in u is not in d, adds k:v pair.
+
+        Will not overwrite any values in d, nor will it remove
+            any k:v pairs in d.
+
+        Returns dict
+        '''
         for k, v in u.items():
             if isinstance(v, collections.Mapping):
                 r = self._merge(d.get(k, {}), v)

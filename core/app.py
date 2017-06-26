@@ -4,7 +4,6 @@ from core import ajax, scheduler, plugins
 from core.auth import AuthController
 import os
 import json
-import math
 from mako.template import Template
 
 

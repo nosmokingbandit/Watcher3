@@ -5,7 +5,6 @@ import logging
 import uuid
 import xml.etree.cElementTree as ET
 import csv
-import shutil
 import threading
 
 from core import searchresults, plugins, searcher
@@ -68,6 +67,9 @@ class ImportDirectory(object):
 
 
 class ImportKodiLibrary(object):
+    ''' Several of these methods are not currently used due to Plex's
+    api being less than ideal.
+    '''
 
     @staticmethod
     def get_movies(url):
@@ -173,85 +175,56 @@ class ImportPlexLibrary(object):
         Returns list of dicts
         '''
 
-        headers = {'X-Plex-Token': token}
+        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
 
         url = '{}/library/sections'.format(url)
 
         try:
-            r = Url.open(url, headers=headers)
-            xml = r.text
+            response = Url.open(url, headers=headers)
+            if response.status_code != 200:
+                return {'response', False, 'error', 'Unable to contact Plex server, error {}'.format(response.status_code)}
+            libraries = json.loads(response.text).get('MediaContainer', {}).get('Directory')
         except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
-        libs = []
-        try:
-            root = ET.fromstring(xml)
+        if not libraries:
+            return {'response', False, 'error', 'No libraries found on Plex server.'}
 
-            for directory in root.findall('Directory'):
-                lib = directory.attrib
-                lib['path'] = directory.find('Location').attrib['path']
-                libs.append(lib)
-        except Exception as e:
-            logging.error('Unable to parse Plex xml.', exc_info=True)
-            return {'response', False, 'error', 'Unable to parse Plex xml.'}
-
-        return {'response': True, 'libraries': libs}
+        return {'response': True, 'libraries': libraries}
 
     @staticmethod
-    def get_movies(server, libid, token):
+    def get_movies(url, token, library_key):
+        ''' Get movies from plex library
+        url: str url of server
+        token: str plex access token
+        library_key: int library id #
 
-        headers = {'X-Plex-Token': token}
-        url = '{}/library/sections/{}/all'.format(server, libid)
+        Returns dict for ajax response
+        '''
+
+        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
+
+        url = '{}/library/sections/{}/all?includeExtras=1'.format(server, library_key)
 
         try:
-            r = Url.open(url, headers=headers)
-            xml = r.text
+            response = Url.open(url, headers=headers)
+            if response.status_code != 200:
+                return {'response': False, 'error': 'Unable to contact Plex server, error {}'.format(response.status_code)}
+            movies = json.loads(response.text)
         except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
-            return {'response', False, 'error', 'Unable to contact Plex server.'}
-
-        movies = []
-        try:
-            root = ET.fromstring(xml)
-
-            for i in root:
-                movie = {}
-
-                movies.append(movie)
-
-        except Exception as e:
-            logging.error('Unable to parse Plex xml.', exc_info=True)
-            return {'response', False, 'error', 'Unable to parse Plex xml.'}
+            return {'response': False, 'error': 'Unable to contact Plex server.'}
 
         return {'response': True, 'movies': movies}
 
     @staticmethod
-    def get_token(username=None, password=None):
-        ''' Gets auth token for plex
-        username: str username of plex account
-        password: str password of plex account
-
-        Returns str token or None
-        '''
-
-        plex_url = 'https://plex.tv/users/sign_in.json'
-        post_data = {'user[login]': username,
-                     'user[password]': password
-                     }
-        headers = {'X-Plex-Client-Identifier': str(uuid.getnode()),
-                   'X-Plex-Product': 'Watcher',
-                   'X-Plex-Version': '1.0'}
-
-        try:
-            r = Url.open(plex_url, post_data=post_data, headers=headers)
-            return json.loads(r.text)['user'].get('authentication_token')
-        except Exception as e:
-            logging.error('Unable to get Plex token.', exc_info=True)
-            return None
-
-    @staticmethod
     def read_csv(csv_text):
+        ''' Parse plex csv
+        csv_text: str text from csv file
+
+        Returns list of dicts
+        '''
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
         try:
             movies = []
@@ -757,9 +730,12 @@ class Manage(object):
             return response
 
     def remove_movie(self, imdbid):
-        '''
-        Removes row from MOVIES, removes any entries in SEARCHRESULTS
-        In separate thread deletes poster image.
+        ''' Remove movie from library
+        imdbid: str imdb id #
+
+        Calls core.sql.remove_movie and removes poster (in separate thread)
+
+        Returns dict for ajax response
         '''
 
         removed = core.sql.remove_movie(imdbid)

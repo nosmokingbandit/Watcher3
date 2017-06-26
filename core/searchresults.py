@@ -207,6 +207,8 @@ class Score():
         logging.info('Keeping {} results.'.format(len(self.results)))
 
     def freeleech(self, points):
+        ''' Adds points to freeleech torrents
+        '''
         for res in self.results:
             if res['freeleech'] == 1:
                 res['score'] += points
@@ -330,6 +332,13 @@ class Score():
         logging.info('Keeping {} results.'.format(len(self.results)))
 
     def import_quality(self):
+        ''' Creates quality profile for imported results
+
+        Creates import profile that mimics Default profile, but it incapable
+            of removing search results.
+
+        Returns dict
+        '''
         profile = json.loads(json.dumps(core.CONFIG['Quality']['Profiles']['Default']))
 
         profile['ignoredwords'] = ''

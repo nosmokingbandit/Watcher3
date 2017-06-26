@@ -185,6 +185,11 @@ class Snatcher():
             return response
 
     def snatch_nzb(self, data):
+        ''' Sends nzb to download client
+        data: dict of search result data from SEARCHRESULTS table
+
+        Returns dict for ajax response
+        '''
         guid = data['guid']
         imdbid = data['imdbid']
         title = data['title']
@@ -230,6 +235,11 @@ class Snatcher():
                 return response
 
     def snatch_torrent(self, data):
+        ''' Sends torrent or magnet to download client
+        data: dict of search result data from SEARCHRESULTS table
+
+        Returns dict for ajax response
+        '''
         guid = data['guid']
         imdbid = data['imdbid']
         title = data['title']
@@ -354,8 +364,12 @@ class Snatcher():
             return {'response': False, 'error': 'No download client enabled.'}
 
     def update_status_snatched(self, guid, imdbid):
-        '''
+        ''' Mark search result status
+        guid: str guid for download link
+        imdbid: str imdb id #
+
         Updates MOVIES, SEARCHRESULTS, and MARKEDRESULTS to 'Snatched'
+
         Returns Bool on success/fail
         '''
 

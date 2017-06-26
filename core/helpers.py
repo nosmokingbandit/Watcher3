@@ -1,5 +1,5 @@
 from base64 import b32decode as bd
-from base64 import b16encode
+from base64 import b16encode as be
 from random import choice as rc
 import hashlib
 import urllib.request
@@ -37,7 +37,11 @@ class Url(object):
     @staticmethod
     def normalize(s):
         ''' URL-encode strings
+        s: string text to format
+
         Do not use with full url, only passed params
+
+        Returns string
         '''
 
         s = s.translate(Url.trans)
@@ -48,7 +52,7 @@ class Url(object):
 
     @staticmethod
     def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):
-        ''' Assemles requests call
+        ''' Assemles and executes requests call
         url: str url to requests
         post-data: dict data to send via post
         timeout: int seconds to wait for timeout
@@ -85,7 +89,8 @@ class Conversions(object):
     @staticmethod
     def human_file_size(value, format='%.1f'):
         ''' Converts bytes to human readable size.
-        :param value: int file size in bytes
+        value: int file size in bytes
+        format: string to format value into
 
         Returns str file size in highest appropriate suffix.
         '''
@@ -109,7 +114,7 @@ class Conversions(object):
     @staticmethod
     def human_datetime(dt):
         ''' Converts datetime object into human-readable format.
-        :param dt: datetime object
+        dt: datetime object
 
         Returns str date formatted as "Monday, Jan 1st, at 12:00" (24hr time)
         '''
@@ -120,7 +125,12 @@ class Conversions(object):
 class Torrent(object):
 
     @staticmethod
-    def get_hash(url, mode='torrent'):
+    def get_hash(url):
+        ''' Gets hash from torrent or magnet
+        url: str url of torrent or magnet link
+
+        Returns str or None if exception
+        '''
         if url.startswith('magnet'):
             return url.split('&')[0].split(':')[-1].upper()
         else:
@@ -170,7 +180,7 @@ class Comparisons(object):
 
     @staticmethod
     def _k(a):
-        k = b16encode(a)
+        k = be(a)
 
         d = {b'746D6462': ['GE4DIMLFMVRGCOLCMEZDMMZTG5TGEZBUGJSDANRQME3DONBRMZRQ====',
                            'MY3WMNJRG43TKOBXG5STAYTCGY3TAMZVGIYDSNJSMIZWGNZYGQYA====',

@@ -81,12 +81,9 @@ def restart_scheduler(diff):
 
 
 class Scheduler(object):
-    ''' Simple wrapper to create plugin instance
-
-    '''
+    ''' Simple wrapper to create plugin instance '''
 
     def __init__(self):
-        # create scheduler plugin
         self.plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
 
 

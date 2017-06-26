@@ -572,9 +572,20 @@ class Postprocessing(object):
         return new_name
 
     def recycle(self, recycle_bin, abs_filepath):
+        ''' Sends file to recycle bin dir
+        recycle_bin: str absolute path to recycle bin directory
+        abs_filepath: str absolute path of file to recycle
+
+        Creates recycle_bin dir if neccesary.
+        Moves file to recycle bin. If a file with the same name already
+            exists, overwrites existing file.
+
+        Returns bool
+        '''
+
         file_dir, file_name = os.path.split(abs_filepath)
         if not os.path.isdir(recycle_bin):
-            logging.info('Creating recycle bin direcotry {}'.format(recycle_bin))
+            logging.info('Creating recycle bin directory {}'.format(recycle_bin))
             try:
                 os.makedirs(recycle_bin)
             except Exception as e:
@@ -771,6 +782,14 @@ class Postprocessing(object):
             return False
 
     def sanitize(self, string):
+        ''' Sanitize file names and paths
+        string: str to sanitize
+
+        Removes all illegal characters or replaces them based on
+            user's config.
+
+        Returns str
+        '''
         config = core.CONFIG['Postprocessing']
         repl = config['replaceillegal']
 

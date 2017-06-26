@@ -17,6 +17,14 @@ class TMDB(object):
         return
 
     def get_tokens(self):
+        ''' Refills TMDB tokens if possible
+
+        If tokens are needed, checks if they've been refilled in the
+            last 10 seconds.
+
+        Returns int # of tmdb tokens available
+        '''
+
         if core.TMDB_TOKENS < self.cap:
             now = time()
             if (now - core.TMDB_LAST_FILL) > 10:
@@ -29,7 +37,7 @@ class TMDB(object):
 
     def search(self, search_term, single=False):
         ''' Search TMDB for all matches
-        :param search_term: str title of movie to search for.
+        search_term: str title of movie to search for.
         single: bool return only first result   <default False>
 
         Can accept imdbid, title, or title year.

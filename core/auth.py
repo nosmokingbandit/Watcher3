@@ -15,7 +15,6 @@ def check_credentials(username, password):
     :param username: str name to check against config
     :param password: str password to check against config
 
-
     Returns bool
     '''
 
@@ -101,7 +100,7 @@ class AuthController(object):
         Checks creds against check_credentials()
         Executes on_login() with username and origin_ip
 
-        Returns json.dumps() bool
+        Returns bool
         '''
         if not username or not password:
             return False
