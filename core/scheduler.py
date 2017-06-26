@@ -175,12 +175,22 @@ class MetadataUpdate(object):
             with open(clean_file, 'a+'):
                 pass
 
+        u = []
         for i in movies:
             if i['release_date'] and datetime.datetime.strptime(i['release_date'], '%Y-%m-%d') < cutoff:
                 continue
 
-            if not i['media_release_date']:
-                MetadataUpdate.md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'))
+            if not i['media_release_date'] and i['status'] not in ('Finished', 'Disabled'):
+                u.append(i)
+
+        if not u:
+            return
+
+        logging.info('Updating metadata for: {}.'.format(', '.join([i['title'] for i in u])))
+
+        for i in u:
+            MetadataUpdate.md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'), force_poster=False)
+
         return
 
 

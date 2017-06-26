@@ -618,14 +618,20 @@ class Metadata(object):
 
         return movie
 
-    def update(self, imdbid, tmdbid=None):
+    def update(self, imdbid, tmdbid=None, force_poster=True):
         ''' Updates metadata from TMDB
         imdbid: str imdb id #
         tmdbid: str or int tmdb id #    <optional>
+        force_poster: bool wether or not to always redownload poster <optional>
 
         If tmdbid is None, looks in database for tmdbid using imdbid.
         If that fails, looks on tmdb api for imdbid
         If that fails returns error message
+
+        If force_poster is True, the poster will be re-downloaded.
+        If force_poster is False, the poster will only be redownloaded if the local
+            database does not have a 'poster' filepath stored. In other words, this
+            will only grab missing posters.
 
         Returns dict of response and error code if applicable
 
@@ -633,6 +639,8 @@ class Metadata(object):
 
         logging.info('Updating metadata for {}'.format(imdbid))
         movie = core.sql.get_movie_details('imdbid', imdbid)
+
+        get_poster = True if force_poster or (not force_poster and not movie.get('poster')) else False
 
         if tmdbid is None:
             tmdbid = movie.get('tmdbid')
@@ -673,7 +681,7 @@ class Metadata(object):
 
         core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
-        if poster_url:
+        if poster_url and get_poster:
             self.poster.save_poster(imdbid, poster_url)
 
         return {'response': True, 'message': 'Metadata updated.'}
