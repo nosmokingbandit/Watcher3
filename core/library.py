@@ -613,7 +613,14 @@ class Metadata(object):
         logging.info('Updating metadata for {}'.format(imdbid))
         movie = core.sql.get_movie_details('imdbid', imdbid)
 
-        get_poster = True if force_poster or (not force_poster and not movie.get('poster')) else False
+        if force_poster:
+            get_poster = True
+        elif not force_poster and not movie.get('poster'):
+            get_poster = True
+        elif movie.get('poster') and not os.path.isfile(os.path.join(core.PROG_PATH, movie['poster'])):
+            get_poster = True
+        else:
+            get_poster = False
 
         if tmdbid is None:
             tmdbid = movie.get('tmdbid')
@@ -640,21 +647,21 @@ class Metadata(object):
         else:
             poster_url = None
 
-        if os.path.isfile(target_poster):
-            try:
-                os.remove(target_poster)
-            except FileNotFoundError:
-                pass
-            except Exception as e:
-                logging.warning('Unable to remove existing poster.', exc_info=True)
-                return {'response': False, 'error': 'Unable to remove existing poster.'}
-
         movie.update(new_data)
         movie = self.convert_to_db(movie)
 
         core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
         if poster_url and get_poster:
+            if os.path.isfile(target_poster):
+                try:
+                    os.remove(target_poster)
+                except FileNotFoundError:
+                    pass
+                except Exception as e:
+                    logging.warning('Unable to remove existing poster.', exc_info=True)
+                    return {'response': False, 'error': 'Unable to remove existing poster.'}
+
             self.poster.save_poster(imdbid, poster_url)
 
         return {'response': True, 'message': 'Metadata updated.'}
