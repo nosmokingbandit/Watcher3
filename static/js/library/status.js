@@ -222,8 +222,6 @@ function _render_library(movies){
 
         movie["poster"] = (movie["poster"] || "images/missing_poster.jpg")
 
-        console.log(movie)
-
         $item = $(format_template(template, movie));
 
         var score = Math.round(movie["score"]) / 2;
