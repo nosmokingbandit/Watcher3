@@ -28,7 +28,7 @@ class SQL(object):
                       ("score", "tomatorating"),
                       ("release_date", "released"),
                       ("finished_date", "finisheddate"),
-                      ("media_release_date", "digital_release_date"),]
+                      ("media_release_date", "digital_release_date")]
                      }
 
     def __init__(self):
