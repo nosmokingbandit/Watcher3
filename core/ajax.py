@@ -60,7 +60,8 @@ class Ajax(object):
         '''
 
         results = self.tmdb.search(search_term)
-        if not results:
+        print(results)
+        if not results or results == ['']:
             logging.info('No Results found for {}'.format(search_term))
             return None
         else:
