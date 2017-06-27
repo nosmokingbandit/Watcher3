@@ -110,18 +110,15 @@ class Snatcher():
         today = datetime.datetime.today()
         release_weeks_old = (today - datetime.datetime.strptime(release_date, '%Y-%m-%d')).days / 7
 
-        if core.CONFIG['Search']['skipwait']:
-            if release_weeks_old < core.CONFIG['Search']['skipwaitweeks']:
-                logging.info('{} released only {} weeks ago, checking age of search results.'.format(title, release_weeks_old))
-
-                wait_days = core.CONFIG['Search']['waitdays']
-                earliest_found = min([x['date_found'] for x in search_results])
-                date_found = datetime.datetime.strptime(earliest_found, '%Y-%m-%d')
-                if (today - date_found).days < wait_days:
-                    logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
-                    return None
+        wait_days = core.CONFIG['Search']['waitdays']
+        earliest_found = min([x['date_found'] for x in search_results])
+        date_found = datetime.datetime.strptime(earliest_found, '%Y-%m-%d')
+        if (today - date_found).days < wait_days:
+            logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
+            if core.CONFIG['Search']['skipwait'] and release_weeks_old > core.CONFIG['Search']['skipwaitweeks']:
+                    logging.info('{} released {} weeks ago, skipping wait and grabbing immediately.'.format(title, release_weeks_old))
             else:
-                logging.info('{} released {} weeks ago, skipping wait and grabbing immediately.'.format(title, release_weeks_old))
+                return None
 
         # Since seach_results comes back in order of score we can go through in
         # order until we find the first Available result and grab it.
