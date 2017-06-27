@@ -1,7 +1,8 @@
 import ssl
 
 # Paths to local things
-PROG_PATH = None            # Absolute path to watcher.py
+PROG_PATH = None            # Absolute path to watcher.py parent dir
+SCRIPT_PATH = None          # Absolute path to watcher.py file
 CONF_FILE = 'config.cfg'
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
