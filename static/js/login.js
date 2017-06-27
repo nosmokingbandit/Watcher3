@@ -12,7 +12,6 @@ $(document).ready(function(){
     });
 });
 
-
 function login(event){
     event.preventDefault();
 
@@ -42,7 +41,11 @@ function login(event){
     })
     .done(function(response) {
         if(response){
-            if(window.location.href.split("/").pop() == "auth"){
+            loc = window.location.href;
+            if(loc.endsWith('/')){
+                loc = loc.slice(0, -1);
+            }
+            if(loc.split("/").pop() == "auth"){
                 window.location = url_base+"/library/status"
             } else {
                 location.reload()
