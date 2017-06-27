@@ -595,7 +595,7 @@ class Metadata(object):
         ''' Updates metadata from TMDB
         imdbid: str imdb id #
         tmdbid: str or int tmdb id #    <optional>
-        force_poster: bool wether or not to always redownload poster <optional>
+        force_poster: bool whether or not to always redownload poster <optional>
 
         If tmdbid is None, looks in database for tmdbid using imdbid.
         If that fails, looks on tmdb api for imdbid
@@ -615,9 +615,9 @@ class Metadata(object):
 
         if force_poster:
             get_poster = True
-        elif not force_poster and not movie.get('poster'):
+        elif not movie.get('poster'):
             get_poster = True
-        elif movie.get('poster') and not os.path.isfile(os.path.join(core.PROG_PATH, movie['poster'])):
+        elif not os.path.isfile(os.path.join(core.PROG_PATH, movie['poster'])):
             get_poster = True
         else:
             get_poster = False
