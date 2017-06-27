@@ -60,7 +60,6 @@ class Ajax(object):
         '''
 
         results = self.tmdb.search(search_term)
-        print(results)
         if not results or results == ['']:
             logging.info('No Results found for {}'.format(search_term))
             return None
@@ -1016,20 +1015,6 @@ class Ajax(object):
     def manager_backlog_search(self, movies):
         '''
         movies: list of dict of movies, must contain keys imdbid and tmdbid
-        '''
-
-        '''
-        if backlog_movies:
-            logging.debug('Backlog movies: {}'.format(backlog_movies))
-            for movie in backlog_movies:
-                imdbid = movie['imdbid']
-                title = movie['title']
-                year = movie['year']
-                quality = movie['quality']
-
-                logging.info('Performing backlog search for {} {}.'.format(title, year))
-                self.search(imdbid, title, year, quality)
-                continue
         '''
 
         movies = json.loads(movies)
