@@ -431,13 +431,13 @@ class Metadata(object):
         if data.get('title') and not data.get('imdbid'):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
             tmdbdata = self.tmdb.search(title_date, single=True)
-            if tmdbdata:
+            if not tmdbdata or tmdbdata == ['']:
+                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
+                return data
+            else:
                 data['year'] = tmdbdata['release_date'][:4]
                 data.update(tmdbdata)
                 data['imdbid'] = self.tmdb.get_imdbid(data['id'])
-            else:
-                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
-                return data
 
         return data
 
