@@ -2,11 +2,9 @@ import os
 import json
 import datetime
 import logging
-import uuid
-import xml.etree.cElementTree as ET
 import csv
 import threading
-
+import mimetypes
 from core import searchresults, plugins, searcher
 import core
 from core.movieinfo import TMDB
@@ -28,6 +26,8 @@ class ImportDirectory(object):
         minsize: int minimum filesize in MB <default 500>
         recursive: bool scan recursively or just root directory <default True>
 
+        Checks mimetype for video type
+
         Returns list of files
         '''
 
@@ -42,9 +42,15 @@ class ImportDirectory(object):
         except Exception as e:
             return {'error': str(e)}
 
-        files = [i for i in files if os.path.getsize(i) >= (minsize * 1024**2)]
+        f = []
+        for i in files:
+            if not os.path.getsize(i) >= (minsize * 1024**2):
+                continue
+            mt = mimetypes.guess_type(i)[0]
+            if mt and mt.startswith('video'):
+                f.append(i)
 
-        return {'files': files}
+        return {'files': f}
 
     @staticmethod
     def _walk(directory):
