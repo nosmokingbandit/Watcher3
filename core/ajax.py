@@ -553,27 +553,33 @@ class Ajax(object):
             raise StopIteration()
 
         for index, path in enumerate(files):
-            metadata = self.metadata.from_file(path)
-            metadata['size'] = os.path.getsize(path)
-            metadata['finished_file'] = path
-            metadata['human_size'] = Conversions.human_file_size(metadata['size'])
+            metadata = {}
             progress = [index + 1, length]
-            if not metadata.get('imdbid'):
-                metadata['imdbid'] = ''
-                logging.info('IMDB unknown for import {}'.format(metadata['title']))
+            try:
+                metadata = self.metadata.from_file(path)
+                metadata['size'] = os.path.getsize(path)
+                metadata['finished_file'] = path
+                metadata['human_size'] = Conversions.human_file_size(metadata['size'])
+                if not metadata.get('imdbid'):
+                    metadata['imdbid'] = ''
+                    logging.info('IMDB unknown for import {}'.format(metadata['title']))
+                    yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
+                    continue
+                if metadata['imdbid'] in library:
+                    logging.info('Import {} already in library, ignoring.'.format(metadata['title']))
+                    yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
+                    continue
+                elif not metadata.get('resolution'):
+                    logging.info('Resolution/Source unknown for import {}'.format(metadata['title']))
+                    yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
+                    continue
+                else:
+                    logging.info('All data found for import {}'.format(metadata['title']))
+                    yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
+            except Exception as e:
+                logging.warning('Error gathering metadata.', exec_info=True)
                 yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                 continue
-            if metadata['imdbid'] in library:
-                logging.info('Import {} already in library, ignoring.'.format(metadata['title']))
-                yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
-                continue
-            elif not metadata.get('resolution'):
-                logging.info('Resolution/Source unknown for import {}'.format(metadata['title']))
-                yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
-                continue
-            else:
-                logging.info('All data found for import {}'.format(metadata['title']))
-                yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
 
     scan_library_directory._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
