@@ -1,11 +1,9 @@
 import cherrypy
 import core
 import logging
-import json
 from mako.template import Template
 
-SESSION_KEY = '_cp_username'
-LOGIN_URL = core.URL_BASE + '/auth/'
+LOGIN_URL = '/auth/'
 
 logging = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ def check_auth(*args, **kwargs):
 
     conditions = cherrypy.request.config.get('auth.require', None)
     if conditions is not None:
-        username = cherrypy.session.get(SESSION_KEY)
+        username = cherrypy.session.get(core.SESSION_KEY)
         if username:
             cherrypy.request.login = username
             for condition in conditions:
@@ -83,12 +81,13 @@ class AuthController(object):
 
         logging.info('Successful login from {}'.format(origin_ip))
 
-    def on_logout(self, username):
+    def on_logout(self, username, origin_ip):
         ''' Called on logout
         username: str user that logged in
 
         Does not return
         '''
+        logging.info('Logging out IP {}'.format(origin_ip))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -119,20 +118,28 @@ class AuthController(object):
 
         # on successful login
         else:
-            cherrypy.session[SESSION_KEY] = cherrypy.request.login = username
+            cherrypy.session[core.SESSION_KEY] = cherrypy.request.login = username
             self.on_login(username, origin_ip)
             return True
 
     @cherrypy.expose
     def logout(self):
         ''' Logs out user
-        Clears session and redirects user to login page.
+        Clears session
 
+        Internally redirects user to login page.
+
+        Returns str url path to login page
         '''
 
-        username = cherrypy.session.get(SESSION_KEY, None)
-        cherrypy.session[SESSION_KEY] = None
+        username = cherrypy.session.get(core.SESSION_KEY, None)
+        cherrypy.session[core.SESSION_KEY] = None
         if username:
             cherrypy.request.login = None
-            self.on_logout(username)
-        raise cherrypy.InternalRedirect(LOGIN_URL)
+            if 'X-Forwarded-For' in cherrypy.request.headers:
+                origin_ip = cherrypy.request.headers['X-Forwarded-For']
+            else:
+                origin_ip = cherrypy.request.headers['Remote-Addr']
+            self.on_logout(username, origin_ip)
+
+        return core.URL_BASE + LOGIN_URL

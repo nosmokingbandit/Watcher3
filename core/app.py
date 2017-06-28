@@ -148,4 +148,5 @@ class App(object):
         return App.head_template.render(url_base=core.URL_BASE, uitheme=core.CONFIG['Server']['uitheme'], notifications=json.dumps([i for i in core.NOTIFICATIONS if i is not None]))
 
     def nav_bar(self, current=None):
-        return App.navbar_template.render(url_base=core.URL_BASE, current=current)
+        show_logout = True if cherrypy.session.get(core.SESSION_KEY) else False
+        return App.navbar_template.render(url_base=core.URL_BASE, current=current, show_logout=show_logout)

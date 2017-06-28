@@ -13,6 +13,19 @@ $(document).ready(function() {
     }
 });
 
+function logout(event){
+    event.preventDefault();
+
+    $.post(url_base+"/auth/logout", {})
+    .done(function(r){
+        window.location = r;
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+}
+
 $.notifyDefaults({type: "success",
                     allow_dismiss: true,
                     delay: 3000,

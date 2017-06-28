@@ -87,6 +87,24 @@
                                 <i class="mdi mdi-clipboard-text"></i> Logs
                             </a>
                         </li>
+                        <li class="divider"></li>
+                        %if show_logout:
+                        <li data-toggle="modal" data-target="#modal_logout">
+                            <a>
+                                <i class="mdi mdi-logout"></i> Log Out
+                            </a>
+                        </li>
+                        %endif
+                        <li>
+                            <a data-toggle="modal" data-target="#modal_restart">
+                                <i class="mdi mdi-restart"></i> Restart
+                            </a>
+                        </li>
+                        <li>
+                            <a data-toggle="modal" data-target="#modal_shutdown">
+                                <i class="mdi mdi-power"></i> Shut Down
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -99,7 +117,56 @@
                     <i class="mdi mdi-github-circle"></i>
                 </a>
             </div>
-
         </div>
     </div>
 </nav>
+
+
+<!-- Modal for Log Out, Restart, and Shutdown -->
+<div class="modal fade" id="modal_logout">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Log Out?</h4>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group btn-group-justified">
+                    <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    <a class="btn btn-warning" onclick="logout(event)">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_shutdown">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Shut Down Watcher?</h4>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group btn-group-justified">
+                    <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    <a href="${url_base}/system/shutdown" class="btn btn-danger">Shut Down</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_restart">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Restart Watcher?</h4>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group btn-group-justified">
+                    <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    <a href="${url_base}/system/restart" class="btn btn-warning">Restart</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
