@@ -1,6 +1,7 @@
 #toolbar > div{
     margin-bottom: 1em;
     text-align: center;
+    padding: 0;
 }
 
 #toolbar i{
