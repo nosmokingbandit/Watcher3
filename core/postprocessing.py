@@ -429,20 +429,19 @@ class Postprocessing(object):
         if data.get('imdbid'):
             core.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
 
-        # Delete leftover dir. Skip if createhardlinks enabled or if mover disabled/failed
+        # Delete leftover dir. Skip if file links are enabled or if mover disabled/failed
         if config['cleanupenabled']:
             result['tasks']['cleanup'] = {'enabled': True}
 
-            if config['createhardlink']:
-                logging.info('Hardlink creation enabled. Skipping Cleanup.')
+            if config['movermethod'] in ('hardlink', 'symboliclink'):
+                logging.info('File linking enabled -- skipping Cleanup.')
                 result['tasks']['cleanup']['response'] = None
                 return result
 
             # fail if mover disabled or failed
-            if config['moverenabled'] is False or \
-                    result['tasks']['mover']['response'] is False:
-                logging.info('Mover either disabled or failed. Skipping Cleanup.')
-                result['tasks']['cleanup']['response'] = False
+            if config['moverenabled'] is False or result['tasks']['mover']['response'] is False:
+                logging.info('Mover either disabled or failed -- skipping Cleanup.')
+                result['tasks']['cleanup']['response'] = None
             else:
                 if self.cleanup(data['path']):
                     r = True
