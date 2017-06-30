@@ -30,12 +30,13 @@ $(document).ready(function(){
                               </li>`
                 $modal_file_list.html(file_list);
             }
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
         });
     })
-    .fail(function(data){
-        var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger", delay: 0});
-    });
+
 
 });
 
