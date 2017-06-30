@@ -383,7 +383,7 @@ function _results_table(results){
                         ${fl}
                     </div>
                     <div class="result_actions col-md-6 btn-group btn-group-justified">
-                        <a class="btn btn-sm btn-default" href="${result['info_link']}" target="_blank" title="Visit Indexer">
+                        <a class="btn btn-sm btn-default" href="${result['info_link']}" target="_blank" rel="noopener" title="Visit Indexer">
                             <i class="mdi mdi-information-outline"></i>
                         </a>
                         <a class="btn btn-sm btn-default" title="Download" onclick="manual_download(event, this, '${result["guid"]}', '${result["type"]}', '${result["imdbid"]}')">
