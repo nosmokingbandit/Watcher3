@@ -83,7 +83,7 @@ function scan_library(event, elem){
     $incomplete_div = $("div#incomplete_movies");
     $incomplete_table = $("div#incomplete_movies table > tbody");
 
-    var no_imports = false;
+    var no_imports = true;
 
     var last_response_len = false;
     $.ajax(url_base + '/ajax/scan_library_directory', {
@@ -102,13 +102,11 @@ function scan_library(event, elem){
                     last_response_len = response.length;
                 }
                 var response = JSON.parse(response_update);
-
                 if(response['response'] == null){
-                    $("div#no_new_movies").slideDown();
-                    $("a#import_return").slideDown();
-                    no_imports = true;
+                    return
 
                 } else if(response["response"] == "incomplete"){
+                    no_imports = false;
                     var movie = response["movie"];
                     var select = $(source_select);
                     select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
@@ -138,6 +136,7 @@ function scan_library(event, elem){
                     $incomplete_div.show();
 
                 } else if(response["response"] == "complete"){
+                    no_imports = false;
                     var movie = response["movie"];
                     var select = $(source_select);
                     select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
@@ -180,6 +179,9 @@ function scan_library(event, elem){
         $progress_text.empty();
         if(no_imports == false){
             $("a#import_library").slideDown();
+        } else {
+            $("div#no_new_movies").slideDown();
+            $("a#import_return").slideDown();
         }
     })
     .fail(function(data){
@@ -290,14 +292,13 @@ function import_library(event, elem){
         $progress.slideUp();
         $progress_bar.width("0%");
         $progress_text.empty();
-        $('a#import_return').slideDown();
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })
     .always(function(){
-       $.notify({message: err}, {type: "danger"});
+        $('a#import_return').slideDown();
     });
 }
 
