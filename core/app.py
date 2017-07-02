@@ -84,10 +84,14 @@ class App(object):
             elif subpage == "plex":
                 return App.plex_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys())
             elif subpage == "directory":
-                home = os.path.expanduser("~")
-                file_list = [i for i in os.listdir(home) if os.path.isdir(os.path.join(home, i)) and not i.startswith('.')]
+                try:
+                    start_dir = os.path.expanduser("~")
+                    file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
+                except PermissionError as e:
+                    start_dir = core.PROG_PATH
+                    file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
                 file_list.append('..')
-                return App.directory_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=home, file_list=file_list)
+                return App.directory_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=start_dir, file_list=file_list)
             else:
                 return self.error_page_404()
         elif page == 'stats':
