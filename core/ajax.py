@@ -567,7 +567,7 @@ class Ajax(object):
                     yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                     continue
                 if metadata['imdbid'] in library:
-                    logging.info('Import {} already in library, ignoring.'.format(metadata['title']))
+                    logging.info('{} ({}) already in library, ignoring.'.format(metadata['title'], metadata['finished_file']))
                     yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
                     continue
                 elif not metadata.get('resolution'):
