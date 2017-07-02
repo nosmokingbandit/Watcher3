@@ -43,13 +43,13 @@ class ImportDirectory(object):
             return {'error': str(e)}
 
         f = []
+        logging.debug('Specified minimum file size: {} Bytes.'.format(minsize * 1024**2))
+        ms = minsize * 1024**2
         for i in files:
-            if not os.path.getsize(i) >= (minsize * 1024**2):
+            s = os.path.getsize(i)
+            if not s >= (ms):
+                logging.debug('{} size is {} skipping.'.format(i, s))
                 continue
-            mt = mimetypes.guess_type(i)[0]
-            if mt and mt.startswith('video'):
-                f.append(i)
-
         return {'files': f}
 
     @staticmethod
@@ -63,11 +63,12 @@ class ImportDirectory(object):
         files = []
         dir_contents = os.listdir(directory)
         for i in dir_contents:
-            logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
             full_path = os.path.join(directory, i)
             if os.path.isdir(full_path):
+                logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
                 files = files + ImportDirectory._walk(full_path)
             else:
+                logging.info('Found file {}'.format(full_path))
                 files.append(full_path)
         return files
 
