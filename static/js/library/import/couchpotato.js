@@ -146,8 +146,7 @@ function import_library(event, elem){
         method: "POST",
         data: {"wanted": JSON.stringify(wanted_movies), "finished": JSON.stringify(finished_movies)},
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false){
@@ -183,14 +182,12 @@ function import_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
         $progress_bar.width("0%");
         $progress_text.empty();
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })

@@ -109,7 +109,7 @@ function init_sortables($sortables=false){
             return (compa < compb) ? -1 : (compa > compb) ? 1 : 0;
         })
 
-        $.each($lis, function(idx, itm) {
+        $.each($lis, function(idx, itm){
                 $this.append(itm);
             });
     })

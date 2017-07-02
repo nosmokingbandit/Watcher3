@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     url_base = $("meta[name='url_base']").attr("content");
     show_notifs = JSON.parse($("meta[name='enable_notifs']").attr("content") || "true");
 

@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     template_config = $("textarea#template_config")[0].innerText
 
 });

@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     var $body = $("body");
     label_color = $body.css("color");
     label_size = $body.css("font-size");

@@ -90,8 +90,7 @@ function scan_library(event, elem){
         method: "POST",
         data: {"directory": directory, "minsize": minsize, "recursive": recursive},
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false)
@@ -251,8 +250,7 @@ function import_library(event, elem){
                "corrected_movies": JSON.stringify(corrected_movies)
                },
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false){

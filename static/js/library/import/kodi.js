@@ -185,14 +185,12 @@ function import_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
         $progress_bar.width("0%");
         $progress_text.empty();
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     })

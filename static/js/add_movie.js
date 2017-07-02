@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     details_template = $("textarea#details_template")[0].innerText;
     $search_input = $("div#search_bar input");
     $search_button = $("div#search_bar #search_button");
@@ -36,7 +36,7 @@ function search_tmdb(event, elem){
     $.post(url_base + "/ajax/search_tmdb", {
         "search_term": search_term
     })
-    .done(function(results) {
+    .done(function(results){
         if (results){
             $.each(results, function(ind, movie){
                 if(movie["poster_path"] != null){

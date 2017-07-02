@@ -39,7 +39,7 @@ function login(event){
         "username": user,
         "password": password
     })
-    .done(function(response) {
+    .done(function(response){
         if(response){
             loc = window.location.href;
             if(loc.endsWith('/')){

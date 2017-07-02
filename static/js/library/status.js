@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     current_page = 1;
 
     movie_count = parseInt($("meta[name='movie_count']").attr("content"));
@@ -91,7 +91,7 @@ $(document).ready(function() {
     // See fn switch_sort_direction()
 
     /* Movie layout style */
-    $("div#movie_layout > div > a").click(function() {
+    $("div#movie_layout > div > a").click(function(){
         var $this = $(this);
         if ($this.hasClass("active")) {
             return
@@ -111,7 +111,7 @@ var exp_date = new Date();
 exp_date.setFullYear(exp_date.getFullYear() + 10);
 exp_date = exp_date.toUTCString();
 
-jQuery.fn.justtext = function() {
+jQuery.fn.justtext = function(){
     return $(this).clone()
         .children()
         .remove()
@@ -323,7 +323,7 @@ function open_info_modal(event, elem){
         "imdbid": movie["imdbid"],
         "quality": movie["quality"]
     })
-    .done(function(response) {
+    .done(function(response){
         if(response["response"] == true){
             movie["table"] = _results_table(response["results"]);
         } else {
@@ -490,7 +490,7 @@ function remove_movie(event, elem, imdbid){
                 $.notify({message: "Unable to read plugin config."}, {type: "danger"})
             }
 
-            var index = cached_movies.map(function(e) { return e.imdbid; }).indexOf(imdbid);
+            var index = cached_movies.map(function(e){ return e.imdbid; }).indexOf(imdbid);
             cached_movies.splice(index, 1);
 
         })
