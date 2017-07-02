@@ -50,6 +50,7 @@ class ImportDirectory(object):
             if not s >= (ms):
                 logging.debug('{} size is {} skipping.'.format(i, s))
                 continue
+            f.append(i)
         return {'files': f}
 
     @staticmethod
