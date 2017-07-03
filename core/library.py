@@ -372,7 +372,7 @@ class ImportCPLibrary(object):
             movie['title'] = m['info']['original_title']
             movie['year'] = m['info']['year']
             movie['overview'] = m['info']['plot']
-            movie['poster_url'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
+            movie['poster_path'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
             movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(m['info']['tmdb_id'])
             movie['vote_average'] = m['info']['rating']['imdb'][0]
             movie['imdbid'] = m['info']['imdb']
@@ -650,17 +650,17 @@ class Metadata(object):
         target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
 
         if new_data.get('poster_path'):
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
+            poster_path = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
             movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
         else:
-            poster_url = None
+            poster_path = None
 
         movie.update(new_data)
         movie = self.convert_to_db(movie)
 
         core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
 
-        if poster_url and get_poster:
+        if poster_path and get_poster:
             if os.path.isfile(target_poster):
                 try:
                     os.remove(target_poster)
@@ -670,7 +670,7 @@ class Metadata(object):
                     logging.warning('Unable to remove existing poster.', exc_info=True)
                     return {'response': False, 'error': 'Unable to remove existing poster.'}
 
-            self.poster.save_poster(imdbid, poster_url)
+            self.poster.save_poster(imdbid, poster_path)
 
         return {'response': True, 'message': 'Metadata updated.'}
 
@@ -706,7 +706,7 @@ class Manage(object):
 
         response = {}
         tmdbid = movie['id']
-        poster_url = movie.get('poster_url')
+        poster_path = movie.get('poster_path')
 
         if not full_metadata:
             tmdb_data = self.tmdb._search_tmdbid(tmdbid)[0]
@@ -732,8 +732,9 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            if poster_url:
-                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
+            if poster_path:
+                poster_path = "http://image.tmdb.org/t/p/w300{}".format(poster_path)
+                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_path)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
