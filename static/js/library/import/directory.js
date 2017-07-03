@@ -166,23 +166,25 @@ function scan_library(event, elem){
                     $complete_div.show();
                 }
 
-                var progress_text = `${response['progress'][0]} / ${response['progress'][1]}`;
+                var progress_text = `${response['progress'][0]} / ${response['progress'][1]} ${response['movie']['title']} ${response['response']}.`.replace("_", " ");
                 var progress_percent = Math.round(parseInt(response['progress'][0]) / parseInt(response['progress'][1]) * 100);
 
-                $progress_text.text(`${response['progress'][0]} / ${response['progress'][1]}`);
+                $progress_text.text(progress_text);
                 $progress_bar.width(progress_percent + "%")
             }
         }
     })
     .done(function(data){
-        $progress.slideUp();
-        $progress_text.empty();
-        if(no_imports == false){
-            $("a#import_library").slideDown();
-        } else {
-            $("div#no_new_movies").slideDown();
-            $("a#import_return").slideDown();
-        }
+        window.setTimeout(function(){
+            $progress.slideUp();
+            $progress_text.slideUp();
+            if(no_imports == false){
+                $("a#import_library").slideDown();
+            } else {
+                $("div#no_new_movies").slideDown();
+                $("a#import_return").slideDown();
+            }
+        }, 500)
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
@@ -244,6 +246,7 @@ function import_library(event, elem){
     var $success_table = $("div#import_success table > tbody");
     var $error = $("div#import_error");
     var $error_table = $("div#import_error table > tbody")
+    $progress_text.text("").show();
 
     var last_response_len = false;
     $.ajax(url_base + '/ajax/import_dir', {
@@ -264,10 +267,10 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
-                $progress_text.text(`${r['progress'][0]} / ${r['progress'][1]}`);
+                $progress_text.text(progress_text);
 
                 $progress_bar.width(progress_percent + "%")
                 if(r['response'] == true){
@@ -290,8 +293,7 @@ function import_library(event, elem){
     })
     .done(function(data){
         $progress.slideUp();
-        $progress_bar.width("0%");
-        $progress_text.empty();
+        $progress_text.slideUp();
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText

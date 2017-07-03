@@ -158,10 +158,10 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} r['movie']['title'].`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
-                $progress_text.text(`${r['progress'][0]} / ${r['progress'][1]}`);
+                $progress_text.text(progress_text);
 
                 $progress_bar.width(progress_percent + "%")
                 if(r['response'] === true){
@@ -184,8 +184,7 @@ function import_library(event, elem){
     })
     .done(function(data){
         $progress.slideUp();
-        $progress_bar.width("0%");
-        $progress_text.empty();
+        $progress_text.slideUp();
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
