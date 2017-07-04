@@ -439,7 +439,7 @@ class Searcher():
             if status == 'Finished' and keepsearching is True:
                 if not i['finished_date']:
                     continue
-                finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d').date()
+                finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d')
                 if finished_date_obj + keepsearchingdelta >= today:
                     logging.info('{} {} was marked Finished on {}, will keep checking RSS feed for new releases.'.format(title, year, i['finished_date']))
                     rss_movies.append(i)
