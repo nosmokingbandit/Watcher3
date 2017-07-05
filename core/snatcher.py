@@ -2,9 +2,9 @@ import logging
 import datetime
 import urllib.parse
 import core
+import os
 from core import plugins
-from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent
-
+from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent, blackhole
 logging = logging.getLogger(__name__)
 
 
@@ -226,8 +226,28 @@ class Snatcher():
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to NZBGet.', 'download_client': 'NZBGet', 'downloadid': response['downloadid']}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
+            else:
+                return response
+
+        # If sending to BLACKHOLE
+        blackhole_conf = core.CONFIG['Downloader']['Usenet']['BlackHole']
+        if blackhole_conf['enabled'] is True:
+            d = blackhole_conf['directory']
+
+            logging.info('Saving NZB as {}'.format(os.path.join(d, title)))
+            response = blackhole.NZB.add_nzb(data)
+
+            if response['response'] is True:
+                logging.info('Successfully saved {} in BlackHole.'.format(title))
+
+                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+
+                if self.update_status_snatched(guid, imdbid):
+                    return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
+                else:
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
             else:
                 return response
 
@@ -357,6 +377,27 @@ class Snatcher():
             else:
                 return response
 
+        # If sending to BlackHole
+        blackhole_conf = core.CONFIG['Downloader']['Torrent']['BlackHole']
+        if blackhole_conf['enabled'] is True:
+            logging.info('Saving {} as {}'.format(data['kind'], os.path.join(d, title)))
+            response = blackhole.Torrent.add_torrent(data)
+
+            if response['response'] is True:
+                logging.info('Successfully saved {} in BlackHole.'.format(title))
+
+                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+
+                db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentHTTP'}
+                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+
+                if self.update_status_snatched(guid, imdbid):
+                    return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
+                else:
+                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
+            else:
+                return response
         else:
             return {'response': False, 'error': 'No download client enabled.'}
 

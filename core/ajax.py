@@ -9,7 +9,7 @@ import datetime
 import core
 from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification
 from core.providers import torrent, newznab
-from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent
+from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent, blackhole
 from core.helpers import Conversions
 from core.rss import predb
 logging = logging.getLogger(__name__)
@@ -312,6 +312,8 @@ class Ajax(object):
             test = sabnzbd.Sabnzbd.test_connection(data)
         elif mode == 'nzbget':
             test = nzbget.Nzbget.test_connection(data)
+        elif mode == 'blackhole':
+            test = blackhole.Base.test_connection(data)
         elif mode == 'transmission':
             test = transmission.Transmission.test_connection(data)
         elif mode == 'delugerpc':

@@ -20,6 +20,7 @@
                         <option value="" selected="false">Disabled</option>
                         <option value="NzbGet">NzbGet</option>
                         <option value="Sabnzbd">Sabnzbd</option>
+                        <option value="BlackHole">Black Hole</option>
                     </select>
                 </div>
                 <div id="usenet_client_settings" class="panel-body">
@@ -105,6 +106,20 @@
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'sabnzbd')">
+                                <i class="mdi mdi-lan-pending"></i>
+                                Test Connection
+                            </a>
+                        </div>
+                    </div>
+<!-- BLACKHOLE -->
+                    <div id="BlackHole" class="hidden" data-enabled="${config['Usenet']['BlackHole']['enabled']}">
+                        <div class="col-md-6">
+                            <label>Directory</label>
+                            <input data-id="directory" type="text" class="form-control" placeholder="/user/downloads/nzb" value="${config['Usenet']['BlackHole']['directory']}">
+                        </div>
+                        <div class='col-md-12'>
+                            <label>&nbsp;</label>
+                            <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
                                 <i class="mdi mdi-lan-pending"></i>
                                 Test Connection
                             </a>
