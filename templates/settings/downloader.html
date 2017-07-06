@@ -139,6 +139,7 @@
                         <option value="rTorrentHTTP">rTorrent HTTP</option>
                         <option value="Transmission">Transmission</option>
                         <option value="QBittorrent">QBittorrent</option>
+                        <option value="BlackHole">Black Hole</option>
                     </select>
                 </div>
                 <div id="torrent_client_settings" class="panel-body">
@@ -193,8 +194,6 @@
                             </a>
                         </div>
                     </div>
-
-
 <!-- DELUGE WEB -->
                     <div id="DelugeWeb" class="hidden" data-enabled="${config['Torrent']['DelugeWeb']['enabled']}">
                         <div class="col-md-6">
@@ -386,6 +385,20 @@
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'qbittorrent')">
+                                <i class="mdi mdi-lan-pending"></i>
+                                Test Connection
+                            </a>
+                        </div>
+                    </div>
+<!-- BLACKHOLE -->
+                    <div id="BlackHole" class="hidden" data-enabled="${config['Torrent']['BlackHole']['enabled']}">
+                        <div class="col-md-6">
+                            <label>Directory</label>
+                            <input type="text" data-id="directory" class="form-control" placeholder="/user/downloads/torrents" value="${config['Torrent']['BlackHole']['directory']}">
+                        </div>
+                        <div class='col-md-12'>
+                            <label>&nbsp;</label>
+                            <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
                                 <i class="mdi mdi-lan-pending"></i>
                                 Test Connection
                             </a>

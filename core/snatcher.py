@@ -380,7 +380,8 @@ class Snatcher():
         # If sending to BlackHole
         blackhole_conf = core.CONFIG['Downloader']['Torrent']['BlackHole']
         if blackhole_conf['enabled'] is True:
-            logging.info('Saving {} as {}'.format(data['kind'], os.path.join(d, title)))
+            d = blackhole_conf['directory']
+            logging.info('Saving {} as {}'.format(kind, os.path.join(d, title)))
             response = blackhole.Torrent.add_torrent(data)
 
             if response['response'] is True:
@@ -389,7 +390,7 @@ class Snatcher():
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
                 core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentHTTP'}
+                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
                 core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):

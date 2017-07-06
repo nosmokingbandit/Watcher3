@@ -125,17 +125,20 @@ class Conversions(object):
 class Torrent(object):
 
     @staticmethod
-    def get_hash(url):
+    def get_hash(url, file_bytes=False):
         ''' Gets hash from torrent or magnet
         url: str url of torrent or magnet link
+        file_bytes: bool if url is bytes of torrent file
 
-        Returns str or None if exception
+        If file_bytes == True, url should be a bytestring of the contents of the torrent file
+
+        Returns str of upper-case torrent hash or None if exception
         '''
-        if url.startswith('magnet'):
+        if not file_bytes and url.startswith('magnet'):
             return url.split('&')[0].split(':')[-1].upper()
         else:
             try:
-                r = Url.open(url, stream=True).content
+                r = url if file_bytes else Url.open(url, stream=True).content
                 metadata = bencodepy.decode(r)
                 hashcontents = bencodepy.encode(metadata[b'info'])
                 return hashlib.sha1(hashcontents).hexdigest().upper()
