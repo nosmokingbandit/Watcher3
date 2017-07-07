@@ -8,8 +8,7 @@ logging = logging.getLogger(__name__)
 
 bt_cache = ['https://itorrents.org/torrent/{}.torrent',
             'http://thetorrent.org/torrent/{}.torrent',
-            'http://btdig.com/torrent/{}.torrent',
-            'http://itorrents.org/torrent/{}.torrent'
+            'http://btdig.com/torrent/{}.torrent'
             ]
 
 
