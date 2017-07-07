@@ -19,5 +19,13 @@ class StringTester(unittest.TestCase):
         See #1132 for discussion.
         """
         if six.PY3:
-            raise nose.SkipTest("Only useful on Python 2")
+            raise nose.SkipTest('Only useful on Python 2')
         self.assertRaises(Exception, compat.ntob, 'fight')
+
+
+class EscapeTester(unittest.TestCase):
+    """Class to test escape_html function from _cpcompat."""
+
+    def test_escape_quote(self):
+        """test_escape_quote - Verify the output for &<>"' chars."""
+        self.assertEqual("""xx&amp;&lt;&gt;"aa'""", compat.escape_html("""xx&<>"aa'"""))
