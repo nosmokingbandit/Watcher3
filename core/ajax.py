@@ -170,15 +170,15 @@ class Ajax(object):
             return {'response': False, 'error': 'Unable to get info for imdb {}'.format(imdbid)}
         else:
             success = self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])
-            movie = core.sql.get_movie_details("imdbid", imdbid)
+            status = core.sql.get_movie_details("imdbid", imdbid)['status']
 
             if success:
                 results = core.sql.get_search_results(imdbid, movie['quality'])
                 for i in results:
                     i['size'] = Conversions.human_file_size(i['size'])
-                return {'response': True, 'results': results, 'movie_status': movie['status'], 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
+                return {'response': True, 'results': results, 'movie_status': status, 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
             else:
-                return {'response': False, 'error': 'Unable to complete search for imdb {}'.format(imdbid), 'movie_status': movie['status']}
+                return {'response': False, 'error': 'Unable to complete search for imdb {}'.format(imdbid), 'movie_status': status}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

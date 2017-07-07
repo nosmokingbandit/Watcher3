@@ -44,12 +44,12 @@ class Torrent(NewzNabProvider):
         return
 
     def search_all(self, imdbid, title, year):
-        ''' Search all Torrent indexers.
+        ''' Search all indexers.
         imdbid: string imdb movie id.
         title: str movie title
         year: str year of movie release
 
-        Returns list of dicts with sorted nzb information.
+        Returns list of dicts with sorted release information.
         '''
 
         torz_indexers = core.CONFIG['Indexers']['TorzNab'].values()

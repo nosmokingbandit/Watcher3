@@ -248,7 +248,7 @@ class AutoUpdateCheck(object):
                      'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}{}" target="_blank" rel="noopener"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
                      }
 
-            notification.add(notif, type_='primary')
+            notification.add(notif, type_='success')
 
             if core.CONFIG['Server']['installupdates']:
                 logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))

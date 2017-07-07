@@ -195,7 +195,7 @@ class Searcher():
 
         proxy.destroy()
 
-        old_results = [dict(r) for r in core.sql.get_search_results(imdbid, quality)]
+        old_results = core.sql.get_search_results(imdbid, quality)
 
         for old in old_results:
             if old['type'] == 'import':
@@ -281,7 +281,7 @@ class Searcher():
                 continue
 
             # Ignore results we've already stored
-            old_results = [dict(r) for r in core.sql.get_search_results(imdbid)]
+            old_results = core.sql.get_search_results(imdbid)
             new_results = []
             for res in results:
                 guid = res['guid']

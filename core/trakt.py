@@ -52,10 +52,9 @@ class Trakt(object):
 
     def get_list(self, list_name, min_score=0, length=10):
         ''' Gets list of trending movies from Trakt
-        list_name: str name of Trakt list. Must be one of
-            ('trending', 'popular', 'watched', 'collected', 'anticipated', 'boxoffice')
-        min_score: float minimum score to accept (max 10)   <default 0>
-        length: int how many results to get from Trakt      <default 10>
+        list_name (str): name of Trakt list. Must be one of ('trending', 'popular', 'watched', 'collected', 'anticipated', 'boxoffice')
+        min_score (float): minimum score to accept (max 10)   <optional - default 0>
+        length (int): how many results to get from Trakt      <optional - default 10>
 
         Length is applied before min_score, so actual result count
             can be less than length

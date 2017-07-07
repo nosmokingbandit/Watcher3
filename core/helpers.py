@@ -87,10 +87,9 @@ class Conversions(object):
     ''' Coverts data formats. '''
 
     @staticmethod
-    def human_file_size(value, format='%.1f'):
+    def human_file_size(value):
         ''' Converts bytes to human readable size.
         value: int file size in bytes
-        format: string to format value into
 
         Returns str file size in highest appropriate suffix.
         '''
@@ -108,7 +107,7 @@ class Conversions(object):
         for i, s in enumerate(suffix):
             unit = base ** (i + 2)
             if bytes < unit:
-                return (format + ' %s') % ((base * bytes / unit), s)
+                return '{} {}'.format(round(base * bytes / unit, 1), s)
         return (format + ' %s') % ((base * bytes / unit), s)
 
     @staticmethod
