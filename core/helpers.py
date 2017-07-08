@@ -67,7 +67,7 @@ class Url(object):
 
         headers['User-Agent'] = random.choice(Url.user_agents)
 
-        verifySSL = True if core.CONFIG['Server']['verifyssl'] else False
+        verifySSL = core.CONFIG.get('Server', {}).get('verifyssl', False)
 
         kwargs = {'timeout': timeout, 'verify': verifySSL, 'stream': stream, 'headers': headers}
 
