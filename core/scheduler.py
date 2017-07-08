@@ -20,7 +20,7 @@ ver = version.Version()
 
 def restart_scheduler(diff):
     ''' Restarts and scheduled tasks in diff
-    diff: dict modified keys in config file
+    diff (dict): modified keys in config file
 
     Reads diff and determines which tasks need to be restart_scheduler
 
@@ -56,7 +56,7 @@ def restart_scheduler(diff):
 
         if 'Watchlists' in diff['Search']:
             d = diff['Search']['Watchlists'].keys()
-            if any(i in d for i in ('imdbfrequency', 'imdsync')):
+            if any(i in d for i in ('imdbfrequency', 'imdbsync')):
                 hr = now.hour
                 min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
                 interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
@@ -97,6 +97,7 @@ All task creation must create a new instance of ScheduledTask.
 
 
 class AutoSearch(object):
+    ''' Scheduled task to automatically run search/snatch methods '''
     @staticmethod
     def create():
         search = searcher.Searcher()
@@ -117,9 +118,9 @@ class AutoSearch(object):
 
 
 class MetadataUpdate(object):
+    ''' Scheduled task to automatically run metadata updater '''
 
     md = Metadata()
-
     @staticmethod
     def create():
         interval = 72 * 60 * 60  # 72 hours
@@ -192,7 +193,7 @@ class MetadataUpdate(object):
 
 
 class AutoUpdateCheck(object):
-
+    ''' Scheduled task to automatically check git for updates and install '''
     @staticmethod
     def create():
 
@@ -268,7 +269,7 @@ class AutoUpdateCheck(object):
 
 
 class ImdbRssSync(object):
-
+    ''' Scheduled task to automatically sync IMDB watchlists '''
     @staticmethod
     def create():
         interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
@@ -294,7 +295,7 @@ class ImdbRssSync(object):
 
 
 class PopularMoviesSync(object):
-
+    ''' Scheduled task to automatically sync PopularMovies list '''
     @staticmethod
     def create():
         interval = 24 * 3600
@@ -320,7 +321,7 @@ class PopularMoviesSync(object):
 
 
 class TraktSync(object):
-
+    ''' Scheduled task to automatically sync selected Trakt lists '''
     trakt = trakt.Trakt()
 
     @staticmethod

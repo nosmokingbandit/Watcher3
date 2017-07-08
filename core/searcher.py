@@ -21,7 +21,7 @@ class Searcher():
 
     def verify(self, movie):
         ''' Checks for verfied releases based on config
-        movie: dict movie info
+        movie (dict): movie info
 
         Checks (in order):
             If verify releases is enabled
@@ -76,7 +76,7 @@ class Searcher():
 
     def _t_search_grab(self, movie):
         ''' Run verify/search/snatch chain
-        movie: dict of movie to run search for
+        movie (dict): movie to run search for
 
         Meant to be executed *IN ITS OWN THREAD* after adding a movie from user-input (ie api, search)
             so the main thread is not tied up.
@@ -107,9 +107,6 @@ class Searcher():
 
         Updates core.NEXT_SEARCH time.
 
-        Gets all movies from database and
-
-
         Searches only for movies that are Wanted, Found,
             or Finished -- if inside user-set date range.
 
@@ -133,7 +130,7 @@ class Searcher():
             logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = core.sql.get_user_movies()
         if not movies:
-            return False
+            return
         else:
             if core.CONFIG['Search']['verifyreleases'] == 'predb':
                 self.predb.check_all()
@@ -163,17 +160,17 @@ class Searcher():
 
     def search(self, imdbid, title, year, quality):
         ''' Executes backlog search for required movies
-        imdbid: str imdb identification number
-        title: str movie title
-        year: str year of movie release
-        quality: str name of quality profile.
+        imdbid (str): imdb identification number
+        title (str): movie title
+        year (str/int): year of movie release
+        quality (str): name of quality profile
 
         Gets new search results from newznab providers.
         Pulls existing search results and updates new data with old. This way the
             found_date doesn't change and scores can be updated if the quality profile
             was modified since last search.
 
-        Sends ALL results to searchresults.Score().score() to be (re-)scored and filtered.
+        Sends ALL results to searchresults.Score.score() to be (re-)scored and filtered.
 
         Checks if guid matches entries in MARKEDRESULTS and
             sets status if found. Default status Available.
@@ -238,7 +235,7 @@ class Searcher():
 
     def rss_sync(self, movies):
         ''' Gets latests RSS feed from all indexers
-        movies: list of dicts of movies to look for
+        movies (list): dicts of movies to look for
 
         Gets latest rss feed from all supported indexers.
 
@@ -249,7 +246,7 @@ class Searcher():
 
         Finally stores results in SEARCHRESULTS
 
-        Does not return
+        Returns bool
         '''
         newznab_results = []
         torrent_results = []
@@ -312,7 +309,7 @@ class Searcher():
 
     def remove_inactive(self, results):
         ''' Removes results from indexers no longer enabled
-        results: list of dicts of search results
+        results (list): dicts of search results
 
         Pulls active indexers from config, then removes any
             result that isn't from an active indexer.
@@ -322,7 +319,7 @@ class Searcher():
             ie demonoid == dnoid.me, we can't filter out disabled torrent
             indexers since all would be removed
 
-        returns list of search results to keep
+        Returns list of search results to keep
         '''
 
         active = []
@@ -342,9 +339,9 @@ class Searcher():
 
     def store_results(self, results, imdbid, backlog=False):
         ''' Stores search results in database.
-        :param results: list of dicts of search results
-        :param imdbid: str imdb identification number (tt123456)
-        backlog: Bool if this call is from a backlog search <default False>
+        results (list): of dicts of search results
+        imdbid (str): imdb identification number
+        backlog (bool): if this call is from a backlog search       <optional - default False>
 
         Writes batch of search results to table.
 
@@ -353,7 +350,7 @@ class Searcher():
             as to not change the found_date. Purging lets us write old results back in
             with updated scores and other info.
 
-        Returns Bool on success/failure.
+        Returns bool
         '''
 
         logging.info('{} results found for {}. Storing results.'.format(len(results), imdbid))
@@ -380,7 +377,7 @@ class Searcher():
 
     def get_source(self, result):
         ''' Parses release resolution and source from title.
-        :param result: dict of individual search result info
+        result (dict): individual search result info
 
         Returns str source based on core.SOURCES
         '''
@@ -410,7 +407,7 @@ class Searcher():
 
     def _get_rss_movies(self, movies):
         ''' Gets list of movies that we'll look in the rss feed for
-        movies: list of dicts of movie rows in movies
+        movies (list): dicts of movie rows in movies
 
         Filters movies so it includes movies where backlog == 1 and
             status is Wanted, Found, Snatched, or Finished
@@ -449,9 +446,9 @@ class Searcher():
 
     def _match_torrent_name(self, movie_title, movie_year, torrent_title):
         ''' Checks if movie_title and torrent_title are a good match
-        movie_title: str title of movie
-        movie_year: str year of movie release
-        torrent_title: str title of torrent
+        movie_title (str): title of movie
+        movie_year (str/int): year of movie release
+        torrent_title (str): title of torrent
 
         Helper function for rss_sync.
 

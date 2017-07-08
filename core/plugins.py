@@ -37,7 +37,9 @@ def list_plugins():
 
 def added(*args):
     ''' Executes added plugins
-    args: title, year, imdbid, quality
+    *args (list): arguments to pass to plugins
+
+    args should contain: title, year, imdbid, quality
 
     Does not return
     '''
@@ -55,7 +57,9 @@ def added(*args):
 
 def snatched(*args):
     ''' Executes snatched plugins
-    args: title, year, imdbid, resolution, kind, downloader, downloadid, indexer, info_link
+    *args (list): arguments to pass to plugins
+
+    args should contain: title, year, imdbid, resolution, kind, downloader, downloadid, indexer, info_link
 
     Does not return
     '''
@@ -73,7 +77,9 @@ def snatched(*args):
 
 def finished(*args):
     ''' Executes finished plugins
-    args: title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date
+    *args (list): arguments to pass to plugins
+
+    args shoudl contain: title, year, imdbid, resolution, rated, original_file, new_file_location, downloadid, finished_date
 
     Does not return
     '''
@@ -91,8 +97,8 @@ def finished(*args):
 
 def execute(plugins, args):
     ''' Executes a list of plugins
-    plugins: list of *absolute* paths to plugins
-    args: list or tuple of args to pass to plugin
+    plugins (list): *absolute* paths to plugins
+    args (list): args to pass to plugin
 
     Does not return
     '''

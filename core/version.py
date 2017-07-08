@@ -20,21 +20,8 @@ logging = logging.getLogger(__name__)
 class Version(object):
 
     def __init__(self):
-        self.install_type = self.get_install_type()
-
-        if self.install_type == 'git':
-            self.manager = GitUpdater()
-        else:
-            self.manager = ZipUpdater()
-
+        self.manager = GitUpdater() if os.path.exists('.git') else ZipUpdater()
         return
-
-    # returns 'git' or 'source' depending on install type
-    def get_install_type(self):
-        if os.path.exists('.git'):
-            return 'git'
-        else:
-            return 'source'
 
 
 class Git(object):
@@ -42,9 +29,13 @@ class Git(object):
 
     def runner(self, args):
         ''' Runs all git commmands.
-        :param args: list of git arguments
+        args (str): git command line arguments, space delimited
 
-        Returns: tuple (output, error message, exit_status).
+        Execcutes args as command line arguments via subprocess
+
+        error message in return tuple is None if everything went well
+
+        Returns tuple: (bytestring output, str error message, int exit_status)
         '''
 
         CREATE_NO_WINDOW = 0x08000000
@@ -81,11 +72,19 @@ class Git(object):
             return (err, 'Subprocess error.', 1)
 
     def get_current_hash(self):
+        ''' Gets current commit hash
+
+        Returns tuple: (str hash, str error, int exit_code)
+        '''
         command = 'rev-parse HEAD'
         output, error, status = self.runner(command)
         return (output, error, status)
 
     def get_commit_hash_history(self):
+        ''' Gets hash history
+
+        Returns tuple: (list hash history, str error, int exit_status)
+        '''
         command = 'rev-list @{u}'
         output, error, status = self.runner(command)
         output = output.splitlines()
@@ -94,22 +93,27 @@ class Git(object):
     def available(self):
         ''' Checks to see if we can execute git.
 
-        Returns: tuple (output, error message, exit_status).
+        Returns: tuple (str git version, str error, int exit_status)
         '''
-
         command = 'version'
         output, error, status = self.runner(command)
         output = output.splitlines()
         return (output, error, status)
 
     def fetch(self):
-        ''' Returns: tuple (output, error message, exit_status). '''
+        ''' Gathers new branch information
 
+        Returns: tuple (str b'', str error, int exit_status)
+        '''
         command = 'fetch'
         output, error, status = self.runner(command)
         return (output, error, status)
 
     def pull(self):
+        ''' Merges remote branch with local
+
+        Returns: tuple (str merge result, str error, int exit_status)
+        '''
         command = 'pull'
         output, error, status = self.runner(command)
         return (output, error, status)
@@ -120,22 +124,32 @@ class GitUpdater(object):
     def __init__(self):
         self.git = Git()
 
-        self.git_available = self.check_git_available()
-
-        if self.git_available[2] == 0:
+        if self._git_available:
             self.current_hash = self.git.get_current_hash()
             core.CURRENT_HASH = self.current_hash[0]
         return
 
-    def check_git_available(self):
+    def _git_available(self):
+        ''' Tests ability to execute Git commands
+
+        Returns bool
+        '''
         git_available = self.git.available()
         if git_available[2] == 1:
             logging.error('Could not execute git: {}'.format(git_available[0]))
-            return git_available
+            return False
         else:
-            return git_available
+            return True
 
     def execute_update(self):
+        ''' Performs update process
+
+        Removes *.pyc in all subdirectories
+
+        Runs git.fetch(), git.pull()
+
+        Returns bool
+        '''
         logging.info('Updating from Git.')
 
         logging.info('Cleaning up before updating.')
@@ -179,9 +193,9 @@ class GitUpdater(object):
 
         result = {}
 
-        if self.git_available[2] == 1:
+        if not self._git_available():
             result['status'] = 'error'
-            result['error'] = self.git_available[0]
+            result['error'] = 'Unable to execute Git commands.'
             core.UPDATE_STATUS = result
             return result
 
@@ -243,9 +257,8 @@ class GitUpdater(object):
 class ZipUpdater(object):
     ''' Manager for updates install without git.
 
-    Updates by downloading the new zip from github. Moves config,
-        database, and posters to temp folder, then extracts zip over
-        existing files before restoring config, db, and posters.
+    Updates by downloading the new zip from github. Uses backup.py to
+        backup and restore user's files.
     '''
 
     def __init__(self):
@@ -278,6 +291,10 @@ class ZipUpdater(object):
         return new_hash
 
     def get_newest_hash(self):
+        ''' Gets latest version hash from Github
+
+        Returns str
+        '''
         url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
         try:
             result = json.loads(Url.open(url).text)
@@ -286,12 +303,13 @@ class ZipUpdater(object):
             raise
         except Exception as e:
             logging.error('Could not get newest hash from git.', exc_info=True)
-            return None
+            return ''
 
     def update_check(self):
-        ''' Gets commit delta from GIT
+        ''' Gets commit delta from Github
 
-        Sets core.UPDATE_STATUS to return value.
+        Sets core.UPDATE_STATUS to return value
+
         Returns dict:
             {'status': 'error', 'error': <error> }
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
@@ -346,34 +364,17 @@ class ZipUpdater(object):
             core.UPDATE_STATUS = result
             return result
 
-    def switch_log(self, new_path=None, handler=None):
+    def switch_log(self, handler):
         ''' Changes log path to tmp file
-        :param new_path: string to new log file     <optional>
-        :param handler: object log handler object   <optional>
+        handler (object): log handler object instance
 
-        One var, and only one var, must be passed.
-
-        Changes the log path the 'new_path/log.txt' or assigns handler
-
-        Used to remove open log file so it can be overwritten
+        Used to move amd restore open log file so it can be overwritten
             if neccesay during update.
 
-        Returns object original log handler object
+        Returns object current log handler object (prior to running this method)
         '''
 
         import logging.handlers
-
-        if new_path is None and handler is None:
-            return False
-
-        if new_path is not None and handler is not None:
-            return False
-
-        if new_path:
-            formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
-            new_file = os.path.join(new_path, 'log.txt')
-            handler = logging.FileHandler(new_file, 'a')
-            handler.setFormatter(formatter)
 
         log = logging.getLogger()  # root logger
         for hdlr in log.handlers[:]:  # remove all old handlers
@@ -384,6 +385,21 @@ class ZipUpdater(object):
         return original
 
     def execute_update(self):
+        ''' Performs update process
+
+        Creates temporary directory to store update files
+        Downloads zip from github and extracts
+        Switches log handler log location in update dir
+        Backs up user's files
+        Overwrites all files with files from zip
+        Restores user's files
+        Appends temporary log to original log file
+        Retores original log handler
+        Removes temporary dir
+
+        Returns bool
+        '''
+
         os.chdir(core.PROG_PATH)
         update_zip = 'update.zip'
         update_path = 'update'
@@ -403,7 +419,10 @@ class ZipUpdater(object):
             return False
 
         logging.info('Creating temporary update log file.')
-        orig_log_handler = self.switch_log(new_path=update_path)
+        formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
+        handler = logging.FileHandler(os.path.join(update_path, 'log.txt'), 'a')
+        handler.setFormatter(formatter)
+        orig_log_handler = self.switch_log(handler)
 
         logging.info('Downloading latest Zip.')
         zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, core.CONFIG['Server']['gitbranch'])
@@ -468,7 +487,7 @@ class ZipUpdater(object):
                 log.write(u_log.read())
 
         logging.info('Changing log handler back to original.')
-        self.switch_log(handler=orig_log_handler)
+        self.switch_log(orig_log_handler)
 
         logging.info('Cleaning up temporary files.')
         try:

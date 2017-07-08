@@ -228,7 +228,7 @@ class Ajax(object):
             response = {'response': False, 'error': 'Could not mark release as bad.'}
 
         response['movie_status'] = core.manage.movie_status(imdbid)
-        if response['movie_status'] is False:
+        if not response['movie_status']:
             response['error'] = response.get('error', '') + ' Could not set movie\'s status.'
 
         if cancel_download:
@@ -616,8 +616,9 @@ class Ajax(object):
 
         if corrected_movies:
             for data in corrected_movies:
-                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])[0]
+                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])
                 if tmdbdata:
+                    tmdbdata = tmdbdata[0]
                     data['year'] = tmdbdata['release_date'][:4]
                     data.update(tmdbdata)
                     movie_data.append(data)
@@ -803,8 +804,8 @@ class Ajax(object):
 
         for movie in movies:
 
-            tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
-            if not tmdb_data.get('id'):
+            tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])
+            if not tmdb_data or not tmdb_data.get('id'):
                 yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(movie['imdbid'])})
                 progress += 1
                 continue
@@ -901,8 +902,9 @@ class Ajax(object):
 
         if corrected_movies:
             for data in corrected_movies:
-                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])[0]
+                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])
                 if tmdbdata:
+                    tmdbdata = tmdbdata[0]
                     data['year'] = tmdbdata['release_date'][:4]
                     data.update(tmdbdata)
                     movie_data.append(data)
@@ -917,8 +919,9 @@ class Ajax(object):
                 movie['predb'] = 'found'
                 movie['origin'] = 'Plex Import'
 
-                tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])[0]
-                movie.update(tmdb_data)
+                tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])
+                if tmdb_data:
+                    movie.update(tmdb_data[0])
 
                 response = core.manage.add_movie(movie)
                 if response['response'] is True:

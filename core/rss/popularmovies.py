@@ -66,6 +66,8 @@ class PopularMoviesFeed(object):
             if not movie:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
+            else:
+                movie = movie[0]
             logging.info('Adding movie {} {} from PopularMovies list.'.format(movie['title'], movie['imdbid']))
             movie['quality'] = 'Default'
             movie['origin'] = 'PopularMovies'

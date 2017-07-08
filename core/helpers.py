@@ -37,11 +37,11 @@ class Url(object):
     @staticmethod
     def normalize(s):
         ''' URL-encode strings
-        s: string text to format
+        s (str): text to format
 
         Do not use with full url, only passed params
 
-        Returns string
+        Returns str
         '''
 
         s = s.translate(Url.trans)
@@ -53,14 +53,14 @@ class Url(object):
     @staticmethod
     def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):
         ''' Assemles and executes requests call
-        url: str url to requests
-        post-data: dict data to send via post
-        timeout: int seconds to wait for timeout
-        headers: dict headers to send with request
-        stream: bool whether or not to read bytes from response
-        proxy_bypass: bool bypass proxy if any are enabled
+        url (str): url to request
+        post-data (dict): data to send via post                     <optional - default None>
+        timeout (int): seconds to wait for timeout                  <optional - default 30>
+        headers (dict): headers to send with request                <optional - default {}>
+        stream (bool): whether or not to read bytes from response   <optional - default False>
+        proxy_bypass (bool): bypass proxy if any are enabled        <optional - default False>
 
-        Sets default timeout and random user-agent
+        Adds user-agent to headers.
 
         Returns object requests response
         '''
@@ -89,9 +89,13 @@ class Conversions(object):
     @staticmethod
     def human_file_size(value):
         ''' Converts bytes to human readable size.
-        value: int file size in bytes
+        value (int): file size in bytes
 
-        Returns str file size in highest appropriate suffix.
+        Creates string of file size in  highest appropriate suffix
+
+        Rounds to one decimal
+
+        Returns str
         '''
 
         suffix = ('kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB')
@@ -102,20 +106,21 @@ class Conversions(object):
         if bytes == 1:
             return '1 Byte'
         elif bytes < base:
-            return '%d Bytes' % bytes
+            return '{} Bytes'.format(bytes)
 
         for i, s in enumerate(suffix):
             unit = base ** (i + 2)
             if bytes < unit:
                 return '{} {}'.format(round(base * bytes / unit, 1), s)
-        return (format + ' %s') % ((base * bytes / unit), s)
 
     @staticmethod
     def human_datetime(dt):
         ''' Converts datetime object into human-readable format.
-        dt: datetime object
+        dt (object): datetime object
 
-        Returns str date formatted as "Monday, Jan 1st, at 12:00" (24hr time)
+        Formats date as "Monday, Jan 1st, at 12:00" (24hr time)
+
+        Returns str
         '''
 
         return dt.strftime('%A, %b %d, at %H:%M')
@@ -124,26 +129,26 @@ class Conversions(object):
 class Torrent(object):
 
     @staticmethod
-    def get_hash(url, file_bytes=False):
+    def get_hash(torrent, file_bytes=False):
         ''' Gets hash from torrent or magnet
-        url: str url of torrent or magnet link
-        file_bytes: bool if url is bytes of torrent file
+        torrent (str): torrent/magnet url or bytestring of torrent file contents
+        file_bytes (bool): if url is bytes of torrent file
 
         If file_bytes == True, url should be a bytestring of the contents of the torrent file
 
         Returns str of upper-case torrent hash or None if exception
         '''
-        if not file_bytes and url.startswith('magnet'):
-            return url.split('&')[0].split(':')[-1].upper()
+        if not file_bytes and torrent.startswith('magnet'):
+            return torrent.split('&')[0].split(':')[-1].upper()
         else:
             try:
-                r = url if file_bytes else Url.open(url, stream=True).content
-                metadata = bencodepy.decode(r)
+                raw = torrent if file_bytes else Url.open(torrent, stream=True).content
+                metadata = bencodepy.decode(raw)
                 hashcontents = bencodepy.encode(metadata[b'info'])
                 return hashlib.sha1(hashcontents).hexdigest().upper()
             except Exception as e:
                 logging.error('Unable to get torrent hash', exc_info=True)
-                return None
+                return ''
 
 
 class Comparisons(object):
@@ -151,16 +156,16 @@ class Comparisons(object):
     @staticmethod
     def compare_dict(new, existing, parent=''):
         ''' Recursively finds differences in dicts
-        :param new: dict newest dictionary
-        :param existing: dict oldest dictionary
-        :param parent: str key of parent dict when recursive. DO NOT PASS.
+        new (dict): newest dictionary
+        existing (dict): oldest dictionary
+        parent (str): key of parent dict when recursive. DO NOT PASS.
 
         Recursively compares 'new' and 'existing' dicts. If any value is different,
             stores the new value as {k: v}. If a recursive difference, stores as
             {parent: {k: v}}
 
         Param 'parent' is only used internally for recurive comparisons. Do not pass any
-            value as parent. Weird things may happen.
+            value as parent. The universe might implode.
 
         Returns dict
         '''
