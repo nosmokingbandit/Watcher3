@@ -39,7 +39,7 @@ function search_tmdb(event, elem){
     .done(function(results){
         $.each(results, function(ind, movie){
             if(movie["poster_path"] != null){
-                var poster_path = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
+                var poster_path = movie['poster_url'] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
             } else {
                 var poster_path = url_base + "/static/images/missing_poster.jpg"
             }
