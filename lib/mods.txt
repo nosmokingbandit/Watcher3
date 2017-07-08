@@ -5,6 +5,11 @@ of recording.
 
 # transmissionrpc
 ## client.py
-+ 21 Add import for urllib.request.request
-+ 371 Create request object for torrent file
-* 372 Pass request to urlopen
++ 21    Add import for urllib.request.request
++ 371   Create request object for torrent file
+* 372   Pass request to urlopen
+
+
+# cheroot
+## workers/threadpool.py
++ 247   Close socket after shutting down
