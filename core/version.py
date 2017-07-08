@@ -20,7 +20,8 @@ logging = logging.getLogger(__name__)
 class Version(object):
 
     def __init__(self):
-        self.manager = GitUpdater() if os.path.exists('.git') else ZipUpdater()
+        branch = 'develop'
+        self.manager = GitUpdater(branch) if os.path.exists('.git') else ZipUpdater(branch)
         return
 
 
@@ -121,7 +122,7 @@ class Git(object):
 
 class GitUpdater(object):
 
-    def __init__(self):
+    def __init__(self, branch):
         self.git = Git()
 
         if self._git_available:
@@ -261,7 +262,8 @@ class ZipUpdater(object):
         backup and restore user's files.
     '''
 
-    def __init__(self):
+    def __init__(self, branch):
+        self.branch = branch
         self.version_file = os.path.join('core', 'version')
         self.current_hash = self.get_current_hash()
         core.CURRENT_HASH = self.current_hash
@@ -295,7 +297,7 @@ class ZipUpdater(object):
 
         Returns str
         '''
-        url = '{}/commits/{}'.format(core.GIT_API, core.CONFIG['Server']['gitbranch'])
+        url = '{}/commits/{}'.format(core.GIT_API, self.branch)
         try:
             result = json.loads(Url.open(url).text)
             return result['sha']
@@ -425,7 +427,7 @@ class ZipUpdater(object):
         orig_log_handler = self.switch_log(handler)
 
         logging.info('Downloading latest Zip.')
-        zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, core.CONFIG['Server']['gitbranch'])
+        zip_url = '{}/archive/{}.zip'.format(core.GIT_URL, self.branch)
         try:
             zip_bytes = Url.open(zip_url, stream=True).content
             with open(update_zip, 'wb') as f:
@@ -450,7 +452,7 @@ class ZipUpdater(object):
         core.UPDATE_STATUS = None
 
         logging.info('Moving update files.')
-        subfolder = 'Watcher3-{}'.format(core.CONFIG['Server']['gitbranch'])
+        subfolder = 'Watcher3-{}'.format(self.branch)
         update_files_path = os.path.join(update_path, subfolder)
         try:
             files = os.listdir(update_files_path)
