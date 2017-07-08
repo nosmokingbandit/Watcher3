@@ -14,14 +14,11 @@ class Score():
 
     def score(self, results, imdbid=None, imported=False):
         ''' Scores and filters search results.
-        results: list of dicts of search results
-        imdbid: str imdb identification number (tt123456)       <optional*>
-        impored: bool indicate if search result is faked import <Default: False>
+        results (list): dicts of search results
+        imdbid (str): imdb identification number                    <optional - default None>
+        impored (bool): indicate if search result is faked import   <optional - default False>
 
-        Either imdbid or quality_profile MUST be passed.
-
-        If imdbid passed, finds quality in database row.
-        If profile_quality passed, uses that quality and ignores db.
+        If imported is True imdbid can be ignored. Otherwise imdbid is required.
 
         If imported, uses modified 'Default' quality profile so results
             cannot be filtered out.
@@ -33,7 +30,9 @@ class Score():
         Word groups are split in to a list of lists:
         [['word'], ['word2', 'word3'], 'word4']
 
-        Returns list of dicts.
+        Adds 'score' key to each dict in results and applies score.
+
+        Returns list of result dicts
         '''
 
         if imdbid is None and imported is False:
@@ -65,15 +64,13 @@ class Score():
         preferred = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
         ignored = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
 
-        today = datetime.datetime.today()
-
         logging.info('Scoring {} results.'.format(len(self.results)))
 
         # These all just modify self.results
         self.reset()
         self.remove_ignored(ignored)
         self.keep_required(required)
-        self.retention_check(retention, today)
+        self.retention_check(retention)
         self.seed_check(seeds)
         self.freeleech(core.CONFIG['Search']['freeleechpoints'])
         self.score_sources(sources, check_size=check_size)
@@ -84,18 +81,19 @@ class Score():
         return self.results
 
     def reset(self):
+        ''' Sets all result's scores to 0 '''
         for i, d in enumerate(self.results):
             self.results[i]['score'] = 0
 
     def remove_ignored(self, group_list):
         ''' Remove results with ignored groups of 'words'
-        :param group_list: list of forbidden groups of words
+        group_list (list): forbidden groups of words
 
-        word_groups is a list of lists.
+        group_list must be formatted as a list of lists ie:
+            [['word1'], ['word2', 'word3']]
 
-        Iterates through self.results and removes every entry that contains
-            any group of 'words'
-        A group of 'words' is multiple 'words' concatenated with an ampersand '&'
+        Iterates through self.results and removes every entry that contains any
+            group of words in group_list
 
         Does not return
         '''
@@ -124,11 +122,13 @@ class Score():
 
     def keep_required(self, group_list):
         ''' Remove results without required groups of 'words'
-        group_list: list of required groups of words
+        group_list (list): required groups of words
+
+        group_list must be formatted as a list of lists ie:
+            [['word1'], ['word2', 'word3']]
 
         Iterates through self.results and removes every entry that does not
-            contain any group of 'words'
-        A group of 'words' is multiple 'words' concatenated with an ampersand '&'
+            contain any group of words in group_list
 
         Does not return
         '''
@@ -154,16 +154,17 @@ class Score():
         self.results = keep
         logging.info('Keeping {} results.'.format(len(self.results)))
 
-    def retention_check(self, retention, today):
+    def retention_check(self, retention):
         ''' Remove results older than 'retention' days
-        :param retention: int days of retention limit
-        :param today: datetime obj today's date
+        retention (int): days of retention limit
 
-        Iterates through self.results and removes any entry that was published
-            more than 'retention' days ago
+        Iterates through self.results and removes any nzb entry that was
+            published more than 'retention' days ago
 
         Does not return
         '''
+
+        today = datetime.datetime.today()
 
         if retention == 0:
             return
@@ -186,7 +187,7 @@ class Score():
 
     def seed_check(self, seeds):
         ''' Remove any torrents with fewer than 'seeds' seeders
-        seeds: int # of seeds required
+        seeds (int): Minimum number of seeds required
 
         Does not return
         '''
@@ -208,6 +209,9 @@ class Score():
 
     def freeleech(self, points):
         ''' Adds points to freeleech torrents
+        points (int): points to add to search result
+
+        Does not return
         '''
         for res in self.results:
             if res['freeleech'] == 1:
@@ -215,11 +219,13 @@ class Score():
 
     def score_preferred(self, group_list):
         ''' Increase score for each group of 'words' match
-        :param word_goups: list of preferred groups of words
+        group_list (list): preferred groups of words
 
-        Iterates through self.results and increases ['score'] each time a
-            preferred group of 'words' is found
-        A group of 'words' is multiple 'words' concatenated with an ampersand '&'
+        group_list must be formatted as a list of lists ie:
+            [['word1'], ['word2', 'word3']]
+
+        Iterates through self.results and adds 10 points to every
+            entry for each word group it contains
 
         Does not return
         '''
@@ -239,15 +245,13 @@ class Score():
 
     def fuzzy_title(self, titles):
         ''' Score and remove results based on title match
-        titles: list of titles to match against
+        titles (list): titles to match against
 
         If titles is an empty list every result is treated as a perfect match
 
         Iterates through self.results and removes any entry that does not
-            fuzzy match 'title' > 60.
+            fuzzy match 'title' > 70.
         Adds fuzzy_score / 20 points to ['score']
-
-        *If title is passed as None, assumes perfect match and scores +20
 
         Does not return
         '''
@@ -277,8 +281,8 @@ class Score():
 
     def score_sources(self, sources, check_size=True):
         ''' Score releases based on quality/source preferences
-        :param sources: dict of Source information
-        :param check_size: bool whether or not to filter based on size
+        sources (dict): sources from user config
+        check_size (bool): whether or not to filter based on size
 
         Iterates through self.results and removes any entry that does not
             fit into quality criteria (source-resoution, filesize)
@@ -350,31 +354,9 @@ class Score():
         return profile
 
 
-"""
-SCORING COLUMNS. I swear some day this will make sense.
-
-4321
-
-<4>
-0-4
-Resolution Match. Starts at 8.
-Remove 1 point for the priority of the matched resolution.
-So if we want 1080P then 720P in that order, 1080 movies will get 0 points
-    removed, where 720P will get 1 point removed.
-We do this because the jquery sortable gives higher priority items a lower
-    number, so 0 is the most important item. This allows a large amount of
-    preferred word matches to overtake a resolution match.
-
-<3-1>
-0-100
-Add 10 points for every preferred word match.
-
-"""
-
-
 def generate_simulacrum(movie):
     ''' Generates phony search result for imported movies
-    movie: dict of movie info
+    movie (dict): movie info
 
     Resturns dict to match SEARCHRESULTS table
     '''

@@ -6,7 +6,8 @@ logging = logging.getLogger(__name__)
 
 def add(data, type_='success'):
     ''' Adds notification to core.NOTIFICATIONS
-    :param data: dict of notification information
+    data (dict): notification information
+    type_ (str): style of notification, see javascript docs for available styles    <optional - default 'success'>
 
     Merges supplied 'data' with 'options' dict to ensure no fields are missing
     Appends notif to core.NOTIFICATIONS
@@ -56,8 +57,8 @@ def add(data, type_='success'):
 
 
 def remove(index):
-    ''' Removes notification from core.notification
-    :param index: int index of notification to remove
+    ''' Removes notification from core.NOTIFICATIONS
+    index (int): index of notification to remove
 
     Replaces list item with None as to not affect other indexes.
 

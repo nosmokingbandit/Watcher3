@@ -13,8 +13,7 @@ logging = logging.getLogger(__name__)
 
 class SQL(object):
     '''
-    All methods will return False on failure.
-    On success they will return the expected data or True.
+    Class to handle all database interactions
 
     SQL.convert_names is used to convert column names in a table.
         This should be formatted as {TABLE: [(new_column, old_column)],
@@ -103,8 +102,9 @@ class SQL(object):
 
     def create_database(self, DB_NAME):
         ''' Creates database and recreates self.engine
-        DB_NAME: str absolute file path to database
+        DB_NAME (str): absolute file path to database
 
+        Does not return. DO NOT supress exceptions, this MUST succeed for Watcer to start.
         '''
         print('Creating tables.')
         self.metadata.create_all(self.engine)
@@ -114,7 +114,7 @@ class SQL(object):
 
     def execute(self, command):
         ''' Executes SQL command
-        command: str or list of SQL commands
+        command (list): SQL commands ie ['INSERT INTO table (columns) VALUES (?)', 'value']
 
         We are going to loop this up to 5 times in case the database is locked.
         After each attempt we wait 1 second to try again. This allows the query
@@ -124,16 +124,15 @@ class SQL(object):
             the get_user_movies request may be able to jump in between them to
             get the user's movies to the browser. Maybe.
 
-        Returns result of command, or False if unable to execute
+        Return type will
+
+        Returns object sqlalchemy ResultProxy of command, or None if unable to execute
         '''
 
         tries = 0
         while tries < 5:
             try:
-                if type(command) == list:
-                    result = self.engine.execute(*command)
-                else:
-                    result = self.engine.execute(command)
+                result = self.engine.execute(*command)
                 return result
 
             except Exception as e:
@@ -146,14 +145,14 @@ class SQL(object):
                     logging.error('SQL Databse Query: {}.'.format(command), exc_info=True)
                     raise
         # all tries exhausted
-        return False
+        return None
 
     def write(self, TABLE, DB_STRING):
         ''' Writes row to table
-        TABLE: str name of db table
-        DB_STRING: dict of columns:values to write
+        TABLE (str): name of db table
+        DB_STRING (dict): {columns:values} to write to TABLE
 
-        Returns Bool on success.
+        Returns Bool
         '''
 
         logging.debug('Writing data to {}.'.format(TABLE))
@@ -163,7 +162,7 @@ class SQL(object):
 
         qmarks = ', '.join(['?'] * len(DB_STRING))
 
-        sql = "INSERT INTO %s ( %s ) VALUES ( %s )" % (TABLE, cols, qmarks)
+        sql = 'INSERT INTO {} ( {} ) VALUES ( {} )'.format(TABLE, cols, qmarks)
 
         command = [sql, vals]
 
@@ -175,7 +174,7 @@ class SQL(object):
 
     def write_search_results(self, LIST):
         ''' Writes search results to table
-        LIST: list of dicts to write into SEARCHRESULTS
+        LIST (list): dicts to write into SEARCHRESULTS
 
         Returns bool
         '''
@@ -197,11 +196,11 @@ class SQL(object):
 
     def update(self, TABLE, COLUMN, VALUE, idcol, idval):
         ''' Updates single value in existing table row.
-        TABLE: str name of database table to write to
-        COLUMN: str column to write into
-        VALUE: str value to write
-        idcol: str column to use to id row to write to
-        idval: str value to use to id row to write to
+        TABLE (str): name of database table to write to
+        COLUMN (str): column to write into
+        VALUE (str): value to write
+        idcol (str): column to use to id row to write to
+        idval (str): value to use to id row to write to
 
         Writes VALUE into COLUMN where idcol == idval
 
@@ -223,10 +222,10 @@ class SQL(object):
 
     def update_multiple(self, TABLE, data, imdbid='', guid=''):
         ''' Updates mulitple values in sql row
-        TABLE: str database table to access
-        data: dict key/value pairs to update in table
-        imdbid: str imdbid # of movie to update
-        guid: str guid of search result to update
+        TABLE (str): database table to access
+        data (dict): key/value pairs to update in table
+        imdbid (str): imdbid # of movie to update
+        guid (str): guid of search result to update
 
         Return bool.
         '''
@@ -238,7 +237,7 @@ class SQL(object):
             idcol = 'guid'
             idval = guid
         else:
-            return 'ID ERROR'
+            return False
 
         logging.debug('Updating {} to {} in {}.'.format(idval.split('&')[0], data, TABLE))
 
@@ -258,10 +257,10 @@ class SQL(object):
 
     def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=0):
         ''' Gets user's movie from database
-        sort_key: str key to sort by
-        sort_direction: order to sort results [ASC, DESC]
-        limit: int how many results to return
-        offset: int list index to start returning results
+        sort_key (str): key to sort by
+        sort_direction (str): order to sort results [ASC, DESC]
+        limit (int): how many results to return
+        offset (int): list index to start returning results
 
         If limit is -1 all results are returned (still honors offset)
 
@@ -282,7 +281,7 @@ class SQL(object):
                           END
                        '''
 
-        command = 'SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)
+        command = ['SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)]
 
         if sort_key != 'title':
             command += ', title ASC'
@@ -296,7 +295,7 @@ class SQL(object):
             return [dict(i) for i in result]
         else:
             logging.error('Unable to get list of user\'s movies.')
-            return False
+            return []
 
     def get_library_count(self):
         ''' Gets count of rows in MOVIES
@@ -306,7 +305,7 @@ class SQL(object):
 
         logging.debug('Getting count of library.')
 
-        command = 'SELECT COUNT(1) FROM MOVIES'
+        command = ['SELECT COUNT(1) FROM MOVIES']
 
         result = self.execute(command)
 
@@ -315,12 +314,12 @@ class SQL(object):
             return x
         else:
             logging.error('Unable to get count of user\'s movies.')
-            return False
+            return 0
 
     def get_movie_details(self, idcol, idval):
         ''' Returns dict of single movie details from MOVIES.
-        idcol: str identifying column
-        idval: str identifying value
+        idcol (str): identifying column
+        idval (str): identifying value
 
         Looks through MOVIES for idcol:idval
 
@@ -329,7 +328,7 @@ class SQL(object):
 
         logging.debug('Retrieving details for {}.'.format(idval))
 
-        command = 'SELECT * FROM MOVIES WHERE {}="{}"'.format(idcol, idval)
+        command = ['SELECT * FROM MOVIES WHERE {}="{}"'.format(idcol, idval)]
 
         result = self.execute(command)
 
@@ -338,14 +337,14 @@ class SQL(object):
             if data:
                 return dict(data)
             else:
-                return False
+                return {}
         else:
-            return False
+            return {}
 
     def get_search_results(self, imdbid, quality=None):
         ''' Gets all search results for a given movie
-        imdbid: str imdb id #
-        quality: str name of quality profile. Used to sort order <optional>
+        imdbid (str): imdb id #
+        quality (str): name of quality profile. Used to sort order <optional>
 
         Gets all search results sorted by score, then size.
 
@@ -363,7 +362,7 @@ class SQL(object):
         logging.debug('Retrieving Search Results for {}.'.format(imdbid))
         TABLE = 'SEARCHRESULTS'
 
-        command = 'SELECT * FROM {} WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(TABLE, imdbid, sort)
+        command = ['SELECT * FROM {} WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(TABLE, imdbid, sort)]
 
         results = self.execute(command)
 
@@ -371,11 +370,11 @@ class SQL(object):
             res = results.fetchall()
             return [dict(i) for i in res]
         else:
-            return False
+            return []
 
     def get_marked_results(self, imdbid):
         ''' Gets all entries in MARKEDRESULTS for given movie
-        imdbid: str imdb id #
+        imdbid (str): imdb id #
 
         Returns dict {guid:status, guid:status, etc}
         '''
@@ -386,26 +385,25 @@ class SQL(object):
 
         results = {}
 
-        command = 'SELECT * FROM {} WHERE imdbid="{}"'.format(TABLE, imdbid)
+        command = ['SELECT * FROM {} WHERE imdbid="{}"'.format(TABLE, imdbid)]
 
         data = self.execute(command)
 
         if data:
             for i in data.fetchall():
                 results[i['guid']] = i['status']
-            return results
-        else:
-            return False
+
+        return results
 
     def remove_movie(self, imdbid):
         ''' Removes movie and search results from DB
-        imdbid: str imdb id #
+        imdbid (str): imdb id #
 
         Doesn't access sql directly, but instructs other methods to delete all information that matches imdbid.
 
         Removes from MOVIE, SEARCHRESULTS, and deletes poster. Keeps MARKEDRESULTS.
 
-        Returns True/False on success/fail or None if movie doesn't exist in DB.
+        Returns bool (True/False on success or None if movie not found)
         '''
 
         logging.debug('Removing {} from {}.'.format(imdbid, 'MOVIES'))
@@ -427,15 +425,16 @@ class SQL(object):
 
     def delete(self, TABLE, idcol, idval):
         ''' Deletes row where idcol == idval
-        idcol: str identifying column
-        idval: str identifying value
+        TABLE (str): table name
+        idcol (str): identifying column
+        idval (str): identifying value
 
         Returns Bool
         '''
 
         logging.debug('Removing from {} where {} is {}.'.format(TABLE, idcol, idval.split('&')[0]))
 
-        command = 'DELETE FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)
+        command = ['DELETE FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)]
 
         if self.execute(command):
             return True
@@ -444,7 +443,7 @@ class SQL(object):
 
     def purge_search_results(self, imdbid=''):
         ''' Deletes all search results
-        imdbid: str imdb id # <optional>
+        imdbid (str): imdb id #     <optional>
 
         Be careful with this one. Supplying an imdbid deletes search results for that
             movie. If you do not supply an imdbid it purges FOR ALL MOVIES.
@@ -457,9 +456,9 @@ class SQL(object):
         TABLE = 'SEARCHRESULTS'
 
         if imdbid:
-            command = 'DELETE FROM {} WHERE imdbid="{}"'.format(TABLE, imdbid)
+            command = ['DELETE FROM {} WHERE imdbid="{}"'.format(TABLE, imdbid)]
         else:
-            command = 'DELETE FROM {}'.format(TABLE)
+            command = ['DELETE FROM {}'.format(TABLE)]
 
         if self.execute(command):
             return True
@@ -468,10 +467,10 @@ class SQL(object):
 
     def get_distinct(self, TABLE, column, idcol, idval):
         ''' Gets unique values in TABLE
-        TABLE: str table name
-        column: str column to return
-        idcol: str identifying column
-        idval: str identifying value
+        TABLE (str): table name
+        column (str): column to return
+        idcol (str): identifying column
+        idval (str): identifying value
 
         Gets values in TABLE:column where idcol == idval
 
@@ -480,7 +479,7 @@ class SQL(object):
 
         logging.debug('Getting distinct values for {} in {}'.format(idval.split('&')[0], TABLE))
 
-        command = 'SELECT DISTINCT {} FROM {} WHERE {}="{}"'.format(column, TABLE, idcol, idval)
+        command = ['SELECT DISTINCT {} FROM {} WHERE {}="{}"'.format(column, TABLE, idcol, idval)]
 
         data = self.execute(command)
 
@@ -493,21 +492,21 @@ class SQL(object):
             return lst
         else:
             logging.error('Unable to read database.')
-            return False
+            return []
 
     def row_exists(self, TABLE, imdbid='', guid='', downloadid=''):
         ''' Checks if row exists in table
-        TABLE: str name of sql table to look through
-        imdbid: str imdb identification number <optional>
-        guid: str download guid <optional>
-        downloadid: str downloader id <optional>
+        TABLE (str): name of sql table to look through
+        imdbid (str): imdb identification number    <optional - see notes>
+        guid (str): download guid                   <optional - see notes>
+        downloadid (str): downloader id             <optional - see notes>
 
         Checks TABLE for imdbid, guid, or downloadid.
         Exactly one optional variable must be supplied.
 
         Used to check if we need to add row or update existing row.
 
-        Returns Bool of found status
+        Returns Bool
         '''
 
         if imdbid:
@@ -523,7 +522,7 @@ class SQL(object):
         else:
             return 'ID ERROR'
 
-        command = 'SELECT 1 FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)
+        command = ['SELECT 1 FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)]
 
         row = self.execute(command)
 
@@ -534,8 +533,8 @@ class SQL(object):
 
     def get_single_search_result(self, idcol, idval):
         ''' Gets single search result
-        idcol: str identifying column
-        idval: str identifying value
+        idcol (str): identifying column
+        idval (str): identifying value
 
         Finds in SEARCHRESULTS a row where idcol == idval
 
@@ -544,7 +543,7 @@ class SQL(object):
 
         logging.debug('Retrieving search result details for {}.'.format(idval.split('&')[0]))
 
-        command = 'SELECT * FROM SEARCHRESULTS WHERE {}="{}"'.format(idcol, idval)
+        command = ['SELECT * FROM SEARCHRESULTS WHERE {}="{}"'.format(idcol, idval)]
 
         result = self.execute(command)
 
@@ -563,17 +562,17 @@ class SQL(object):
         table_dict = {}
 
         # get list of tables in db:
-        command = 'SELECT name FROM sqlite_master WHERE type="table"'
+        command = ['SELECT name FROM sqlite_master WHERE type="table"']
         tables = self.execute(command)
 
         table_dict = {}
 
         if not tables:
-            return False
+            return {}
 
         for i in tables:
             i = i[0]
-            command = 'PRAGMA table_info({})'.format(i)
+            command = ['PRAGMA table_info({})'.format(i)]
             columns = self.execute(command)
             if not columns:
                 continue
@@ -605,6 +604,8 @@ class SQL(object):
         ''' Updates database tables
 
         Adds new rows to table based on diff between intended and existing schema
+
+        Also includes other methods required to manipulate database on startup
 
         Returns Bool
         '''
@@ -655,21 +656,21 @@ class SQL(object):
             logging.debug('Modifying table {}.'.format(table))
             print('Modifying table {}'.format(table))
             for name, kind in schema.items():
-                command = 'ALTER TABLE {} ADD COLUMN {} {}'.format(table, name, kind)
+                command = ['ALTER TABLE {} ADD COLUMN {} {}'.format(table, name, kind)]
 
                 self.execute(command)
 
                 if table in SQL.convert_names.keys():
                     for pair in SQL.convert_names[table]:
                         if pair[0] == name:
-                            command = 'UPDATE {} SET {} = {}'.format(table, pair[0], pair[1])
+                            command = ['UPDATE {} SET {} = {}'.format(table, pair[0], pair[1])]
                             self.execute(command)
 
             # move TABLE to TABLE_TMP
             table_tmp = '{}_TMP'.format(table)
             logging.debug('Renaming table to {}.'.format(table_tmp))
             print('Renaming table to {}'.format(table_tmp))
-            command = 'ALTER TABLE {} RENAME TO {}'.format(table, table_tmp)
+            command = ['ALTER TABLE {} RENAME TO {}'.format(table, table_tmp)]
             self.execute(command)
 
             # create new table
@@ -682,12 +683,12 @@ class SQL(object):
             logging.debug('Merging data from {} to {}.'.format(table_tmp, table))
             print('Merging data from {} to {}'.format(table_tmp, table))
             names = ', '.join(intended[table].keys())
-            command = 'INSERT INTO {} ({}) SELECT {} FROM {}'.format(table, names, names, table_tmp)
+            command = ['INSERT INTO {} ({}) SELECT {} FROM {}'.format(table, names, names, table_tmp)]
             self.execute(command)
 
             logging.debug('Dropping table {}.'.format(table_tmp))
             print('Dropping table {}'.format(table_tmp))
-            command = 'DROP TABLE {}'.format(table_tmp)
+            command = ['DROP TABLE {}'.format(table_tmp)]
             self.execute(command)
 
             logging.debug('Finished updating table {}.'.format(table))
@@ -698,18 +699,18 @@ class SQL(object):
 
     def torznab_caps(self, url):
         ''' Gets caps list for torznab providers
-        url: str url of torznab indexer
+        url (str): url of torznab indexer
 
-        Returns list of caps ie ['q', 'imdbid'] or None if not found
+        Returns list of caps ie ['q', 'imdbid'] or []
         '''
 
         logging.debug('Retreiving caps for {}'.format(url))
 
-        command = 'SELECT "caps" FROM CAPS WHERE url="{}"'.format(url)
+        command = ['SELECT "caps" FROM CAPS WHERE url="{}"'.format(url)]
 
         row = self.execute(command)
         caps = row.fetchone()
         if caps is None:
-            return None
+            return []
         else:
             return caps[0].split(',')

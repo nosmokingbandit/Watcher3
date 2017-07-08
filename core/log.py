@@ -7,7 +7,7 @@ import core
 
 def start(path):
     ''' Starts logging service
-    :param path: srt path to log directory
+    path (str): absolute path to log directory
 
     Does not return
     '''

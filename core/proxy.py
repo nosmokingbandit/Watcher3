@@ -16,6 +16,8 @@ on = False
 def create():
     ''' Starts proxy connection
     Sets global on to True
+
+    Does not return
     '''
     global on
     if core.CONFIG['Server']['Proxy']['enabled']:
@@ -77,6 +79,8 @@ def create():
 def destroy():
     ''' Ends proxy connection
     Sets global on to False
+
+    Does not return
     '''
     global on
     if on:
@@ -88,10 +92,10 @@ def destroy():
 
 
 def whitelist(url):
-    ''' Checks url against proxy whitelist
-    url: str url
+    ''' Checks if url is in whitelist
+    url (str): url to check against whitelist
 
-    Returns True if url in whitelist
+    Returns bool
     '''
     whitelist = core.CONFIG['Server']['Proxy']['whitelist'].split(',')
 
@@ -109,7 +113,7 @@ def whitelist(url):
 
 def bypass(request):
     ''' Temporaily turns off proxy for single request.
-    request: urllib.request request object
+    request (object): urllib.request request object
 
     Restores the default urllib.request socket and uses the default opener to send request.
     When finished restores the proxy socket. If using an http/s proxy the socket is

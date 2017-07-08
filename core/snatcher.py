@@ -28,7 +28,7 @@ class Snatcher():
             executes self.best_release() to find best result then sends release
             dict to self.download()
 
-        Does not return
+        Returns bool (False is no movies to grab, True if any movies were attempted)
         '''
 
         today = datetime.datetime.today()
@@ -75,11 +75,12 @@ class Snatcher():
 
     def best_release(self, movie, minscore=0):
         ''' Grabs the best scoring result that isn't 'Bad'
-        movie: dict of movie info from local db
+        movie (dict): movie info from local db
+        minscore (int): minimum acceptable score for best release   <optional - default 0>
 
-        Picks the best release
+        Picks the best release that is available and above minscore threshold
 
-        Returns dict of search result or None
+        Returns dict of search result from local database
         '''
 
         try:
@@ -90,12 +91,12 @@ class Snatcher():
             release_date = movie['release_date']
         except Exception as e:
             logging.error('Invalid movie data.', exc_info=True)
-            return None
+            return {}
 
         search_results = core.sql.get_search_results(imdbid, quality)
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results.'.format(imdbid))
-            return None
+            return {}
 
         # Filter out any results we don't want to grab
         search_results = [i for i in search_results if i['type'] != 'import']
@@ -106,7 +107,7 @@ class Snatcher():
 
         if not search_results:
             logging.warning('Unable to automatically grab {}, no results available for enabled download client.'.format(imdbid))
-            return None
+            return {}
 
         # Check if we are past the 'waitdays'
         today = datetime.datetime.today()
@@ -120,7 +121,7 @@ class Snatcher():
             if core.CONFIG['Search']['skipwait'] and release_weeks_old > core.CONFIG['Search']['skipwaitweeks']:
                     logging.info('{} released {} weeks ago, skipping wait and grabbing immediately.'.format(title, release_weeks_old))
             else:
-                return None
+                return {}
 
         # Since seach_results comes back in order of score we can go through in
         # order until we find the first Available result and grab it.
@@ -135,7 +136,7 @@ class Snatcher():
             # if doing a re-search, if top ranked result is Snatched we have nothing to do.
             elif status in ('Snatched', 'Finished'):
                 logging.info('Top-scoring release for {} has already been snatched.'.format(imdbid))
-                return None
+                return {}
             else:
                 continue
 
@@ -143,12 +144,14 @@ class Snatcher():
         return None
 
     def download(self, data):
-        '''
-        Takes single result dict and sends it to the active downloader.
-        Returns response from download.
-        Marks release and movie as 'Snatched'
+        ''' Sends release to download client
+        data (dict): search result from local database
 
-        Returns dict {'response': True, 'message': 'lorem impsum'}
+        Sends data to helper method snatch_nzb or snatch_torrent based on download type
+
+        Executes snatched plugins if successful
+
+        Returns dict from helper method snatch_nzb or snatch_torrent
         '''
 
         if data['type'] == 'import':
@@ -185,9 +188,9 @@ class Snatcher():
 
     def snatch_nzb(self, data):
         ''' Sends nzb to download client
-        data: dict of search result data from SEARCHRESULTS table
+        data (dict): search result from local database
 
-        Returns dict for ajax response
+        Returns dict {'response': True, 'message': 'lorem impsum'}
         '''
         guid = data['guid']
         imdbid = data['imdbid']
@@ -255,9 +258,9 @@ class Snatcher():
 
     def snatch_torrent(self, data):
         ''' Sends torrent or magnet to download client
-        data: dict of search result data from SEARCHRESULTS table
+        data (dict): search result from local database
 
-        Returns dict for ajax response
+        Returns dict {'response': True, 'message': 'lorem impsum'}
         '''
         guid = data['guid']
         imdbid = data['imdbid']
@@ -405,13 +408,13 @@ class Snatcher():
             return {'response': False, 'error': 'No download client enabled.'}
 
     def update_status_snatched(self, guid, imdbid):
-        ''' Mark search result status
-        guid: str guid for download link
-        imdbid: str imdb id #
+        ''' Sets status to Snatched
+        guid (str): guid for download link
+        imdbid (str): imdb id #
 
         Updates MOVIES, SEARCHRESULTS, and MARKEDRESULTS to 'Snatched'
 
-        Returns Bool on success/fail
+        Returns bool
         '''
 
         if not core.manage.searchresults(guid, 'Snatched'):
