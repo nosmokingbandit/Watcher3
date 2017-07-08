@@ -20,7 +20,7 @@ logging = logging.getLogger(__name__)
 class Version(object):
 
     def __init__(self):
-        branch = 'develop'
+        branch = 'master'
         self.manager = GitUpdater(branch) if os.path.exists('.git') else ZipUpdater(branch)
         return
 
