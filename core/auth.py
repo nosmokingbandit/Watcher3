@@ -10,8 +10,8 @@ logging = logging.getLogger(__name__)
 
 def check_credentials(username, password):
     ''' Verifies credentials for username and password.
-    :param username: str name to check against config
-    :param password: str password to check against config
+    username (str): name to check against config
+    password (str): password to check against config
 
     Returns bool
     '''
@@ -23,9 +23,19 @@ def check_credentials(username, password):
 
 
 def check_auth(*args, **kwargs):
-    """A tool that looks in config for 'auth.require'. If found and it
-    is not None, a login is required and the entry is evaluated as a list of
-    conditions that the user must fulfill"""
+    ''' Checks auth against required tests
+
+    Uses methods decorated by self.require() to check auth conditions
+
+    A tool that looks in config for 'auth.require'. If found and it is
+        not None, a login is required and the entry is evaluated as a
+        list of conditions that the user must fulfill
+
+    If all checks are passed the page is loaded. If checks fail the
+        user is internally redirected to the login page.
+
+    Does not return
+    '''
 
     conditions = cherrypy.request.config.get('auth.require', None)
     if conditions is not None:
@@ -44,8 +54,8 @@ cherrypy.tools.auth = cherrypy.Tool('before_handler', check_auth)
 
 
 def require(*conditions):
-    """A decorator that appends conditions to the auth.require config
-    variable."""
+    ''' A decorator that appends conditions to the auth.require config variable.
+    '''
     def decorate(f):
         if not hasattr(f, '_cp_config'):
             f._cp_config = dict()
@@ -71,10 +81,10 @@ class AuthController(object):
 
     def on_login(self, username, origin_ip):
         ''' Called on successful login
-        username: str user that logged in
-        origin_ip: str ip address of user
+        username (str): username that logged in
+        origin_ip (str): ip address of user
 
-        origin_ip uses headers['X-Forwarded-For'] or headers['Remote-Addr'] to get client IP
+        Used to call various methods when a user successfully logs in
 
         Does not return
         '''
@@ -83,40 +93,39 @@ class AuthController(object):
 
     def on_logout(self, username, origin_ip):
         ''' Called on logout
-        username: str user that logged in
+        username (str): username that logged out
+
+        Used to call various methods when a user logs out
 
         Does not return
         '''
+
         logging.info('Logging out IP {}'.format(origin_ip))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def login(self, username=None, password=None):
         ''' Tests user data against check_credentials
-        :param username: str submitted username <optional>
-        :param password: str submitted password <optional>
+        username (str): submitted username      <optional - default None>
+        password (str): submitted password      <optional - default None>
 
         Checks creds against check_credentials()
         Executes on_login() with username and origin_ip
 
         Returns bool
         '''
+
         if not username or not password:
             return False
 
-        # get origin_ip ip
         if 'X-Forwarded-For' in cherrypy.request.headers:
             origin_ip = cherrypy.request.headers['X-Forwarded-For']
         else:
             origin_ip = cherrypy.request.headers['Remote-Addr']
 
-        # on failed attempt
         if check_credentials(username, password) is False:
             logging.warning('Failed login attempt {}:{} from {}'.format(username, password, origin_ip))
-
             return False
-
-        # on successful login
         else:
             cherrypy.session[core.SESSION_KEY] = cherrypy.request.login = username
             self.on_login(username, origin_ip)
@@ -125,7 +134,11 @@ class AuthController(object):
     @cherrypy.expose
     def logout(self):
         ''' Logs out user
-        Clears session
+
+        Clears session for user
+
+        CP knows the user's session, so all we need to do is
+            clear the session key.
 
         Internally redirects user to login page.
 

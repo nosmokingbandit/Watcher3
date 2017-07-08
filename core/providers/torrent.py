@@ -29,7 +29,9 @@ trackers = '&tr'.join(('udp://tracker.leechers-paradise.org:6969',
 
 def magnet(hash_):
     ''' Creates magnet link
-    hash_: str torrent hash
+    hash_ (str): base64 formatted torrent hash
+
+    Formats as magnet uri and adds trackers
 
     Returns str margnet uri
     '''
@@ -45,9 +47,9 @@ class Torrent(NewzNabProvider):
 
     def search_all(self, imdbid, title, year):
         ''' Search all indexers.
-        imdbid: string imdb movie id.
-        title: str movie title
-        year: str year of movie release
+        imdbid (str): imdb id #
+        title (str): movie title
+        year (str/int): year of movie release
 
         Returns list of dicts with sorted release information.
         '''
@@ -164,12 +166,13 @@ class Torrent(NewzNabProvider):
 
     def _get_caps(self, url):
         ''' Gets caps for indexer url
-        url: string url of torznab indexer
+        url (str): url of torznab indexer
 
-        Stores caps in CAPS table
+        Gets indexer caps from CAPS table
 
         Returns list of caps
         '''
+
         url = '{}?t=caps'.format(url)
 
         xml = Url.open(url).text
@@ -183,7 +186,7 @@ class Torrent(NewzNabProvider):
 
 class Rarbg(object):
     '''
-    This api is limited to once request every 2 seconds.
+    This api is limited to one request every 2 seconds.
     '''
 
     timeout = None
@@ -191,6 +194,12 @@ class Rarbg(object):
 
     @staticmethod
     def search(imdbid):
+        ''' Search api for movie
+        imdbid (str): imdb id #
+
+        Returns list of dicts of parsed releases
+        '''
+
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         logging.info('Searching Rarbg for {}.'.format(imdbid))
@@ -229,6 +238,10 @@ class Rarbg(object):
 
     @staticmethod
     def get_rss():
+        ''' Gets latest rss feed from api
+
+        Returns list of dicts of parsed releases
+        '''
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         logging.info('Fetching latest RSS from Rarbg.')
@@ -267,6 +280,10 @@ class Rarbg(object):
 
     @staticmethod
     def get_token():
+        ''' Get api access token
+
+        Returns str or None
+        '''
         url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token'
 
         try:
@@ -281,6 +298,12 @@ class Rarbg(object):
 
     @staticmethod
     def parse(results):
+        ''' Parse api response
+        results (list): dicts of releases
+
+        Returns list of dicts
+        '''
+
         logging.info('Parsing Rarbg results.')
         item_keep = ('size', 'pubdate', 'title', 'indexer', 'info_link', 'guid', 'torrentfile', 'resolution', 'type', 'seeders')
 

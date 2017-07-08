@@ -16,7 +16,7 @@ class PreDB(object):
         Simply loops through MOVIES table and executes self.backlog_search if
             predb column is not 'found'
 
-        Returns bool False is movies cannot be retrieved
+        Returns bool
         '''
 
         logging.info('Checking predb.me for new available releases.')
@@ -38,14 +38,14 @@ class PreDB(object):
 
     def backlog_search(self, data):
         ''' Searches predb for releases and marks row in MOVIES
-        :param data: dict data from row in MOVIES
+        data (dict): data from row in MOVIES
 
         'data' requires key 'title', 'year', 'imdbid'
 
         Searches predb backlog for releases. Marks row predb:'found' and status:'Wanted'
             if found. Marks predb_backlog:1 as long as predb url request doesn't fail.
 
-        Returns bool on success/failure
+        Returns bool
         '''
 
         title = data['title']
@@ -73,9 +73,9 @@ class PreDB(object):
 
     def _search_db(self, title_year):
         ''' Helper for backlog_search
-        :param title_year: str movie title and year 'Black Swan 2010'
+        title_year (str): movie title and year 'Black Swan 2010'
 
-        Returns list of found predb entries or None if not found.
+        Returns list of found predb entries
         '''
 
         title_year = Url.normalize(title_year)
@@ -91,7 +91,7 @@ class PreDB(object):
             raise
         except Exception as e:
             logging.error('Predb.me search failed.', exc_info=True)
-            return None
+            return []
 
     def _search_rss(self, movies):
         ''' Search rss feed for applicable releases
@@ -101,6 +101,7 @@ class PreDB(object):
 
         Does not return
         '''
+
         db_update = {'predb': 'found', 'status': 'Wanted', 'predb_backlog': 1}
 
         logging.info('Checking predb rss for {}'.format(', '.join(i['title'] for i in movies)))
@@ -124,7 +125,7 @@ class PreDB(object):
 
     def _parse_predb_xml(self, feed):
         ''' Helper function to parse predb xmlrpclib
-        :param feed: str rss feed
+        feed (str): rss feed text
 
         Returns list of items with 'title' in tag
         '''
@@ -142,10 +143,12 @@ class PreDB(object):
     # keeps checking release titles until one matches or all are checked
     def _fuzzy_match(self, items, test):
         ''' Fuzzy matches title with predb titles
-        :param items: list of titles in predb response
-        :param test: str to match to rss titles
+        items (list): titles in predb response
+        test (str): title to match to rss titles
 
-        Returns bool if any one 'items' fuzzy matches above 50%
+        Checks for any fuzzy match over 60%
+
+        Returns bool
         '''
 
         for item in items:

@@ -37,27 +37,25 @@ function search_tmdb(event, elem){
         "search_term": search_term
     })
     .done(function(results){
-        if (results){
-            $.each(results, function(ind, movie){
-                if(movie["poster_path"] != null){
-                    var poster_path = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
-                } else {
-                    var poster_path = url_base + "/static/images/missing_poster.jpg"
-                }
+        $.each(results, function(ind, movie){
+            if(movie["poster_path"] != null){
+                var poster_path = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
+            } else {
+                var poster_path = url_base + "/static/images/missing_poster.jpg"
+            }
 
-                movie["year"] = (movie["release_date"] || "N/A").slice(0,4)
+            movie["year"] = (movie["release_date"] || "N/A").slice(0,4)
 
-                var template_dictionary = {"img_url": poster_path,
-                                            "title": movie["title"],
-                                            "year": movie["year"]
-                                            }
+            var template_dictionary = {"img_url": poster_path,
+                                        "title": movie["title"],
+                                        "year": movie["year"]
+                                        }
 
-                var li = format_template(item_template, template_dictionary);
-                var $li = $(li);
-                $li.data("movie", movie);
-                $movie_list.append($li)
-            });
-        }
+            var li = format_template(item_template, template_dictionary);
+            var $li = $(li);
+            $li.data("movie", movie);
+            $movie_list.append($li)
+        });
 
         $movie_list.css("display", "flex").hide().fadeIn();
     })

@@ -19,7 +19,7 @@ class PopularMoviesFeed(object):
 
         Gets raw feed (JSON), sends to self.parse_xml to turn into dict
 
-        Returns True or None on success or failure (due to exception or empty movie list)
+        Returns bool
         '''
 
         movies = None
@@ -32,7 +32,7 @@ class PopularMoviesFeed(object):
             raise
         except Exception as e:
             logging.error('Popular feed request failed.', exc_info=True)
-            return None
+            return False
 
         if movies:
             logging.info('Found {} movies in popular movies.'.format(len(movies)))
@@ -40,11 +40,11 @@ class PopularMoviesFeed(object):
             logging.info('Popular movies sync complete.')
             return True
         else:
-            return None
+            return False
 
     def sync_new_movies(self, movies):
         ''' Adds new movies from rss feed
-        :params movies: list of dicts of movies
+        movies (list): dicts of movies
 
         Checks last sync time and pulls new imdbids from feed.
 

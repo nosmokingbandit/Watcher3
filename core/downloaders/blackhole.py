@@ -13,11 +13,12 @@ bt_cache = ['https://itorrents.org/torrent/{}.torrent',
 
 
 class Base(object):
+    ''' Base class to be inherited by download method classes '''
 
     @staticmethod
     def test_connection(data):
         ''' Tests ability to write to directory
-        data: dict of blackhole settings
+        data (dict): blackhole settings
 
         Returns True on success or str error message on failure
         '''
@@ -44,8 +45,8 @@ class Base(object):
     @staticmethod
     def _download_link(url, file):
         ''' Downloads url to file
-        url: str url to downloadable file (nzb, torrent)
-        file: str absolute path to FILE in which to save url
+        url (str): url to downloadable file (nzb, torrent)
+        file (str): absolute path to FILE in which to save url
 
         Returns bool
         '''
@@ -64,7 +65,7 @@ class Base(object):
     @staticmethod
     def cancel_download(downloadid):
         ''' Placeholder method
-        downloadid: int download id
+        downloadid (int): download id
 
         This method does nothing. It simply exists so we don't throw an exception
             if it is called automatically.
@@ -79,9 +80,9 @@ class NZB(Base):
     @staticmethod
     def add_nzb(data):
         ''' Downloads NZB to blackhole directory
-        data: dict of release information
+        data (dict): release information
 
-        Returns dict of ajax-style response
+        Returns dict ajax-style response
         '''
 
         conf = core.CONFIG['Downloader']['Usenet']['BlackHole']
@@ -102,9 +103,9 @@ class Torrent(Base):
     @staticmethod
     def add_torrent(data):
         ''' Downloads Torrent/magnet to blackhole directory
-        data: dict of release information
+        data (dict): release information
 
-        Returns dict of ajax-style response
+        Returns dict ajax-style response
         '''
 
         conf = core.CONFIG['Downloader']['Torrent']['BlackHole']
@@ -128,8 +129,8 @@ class Torrent(Base):
     @staticmethod
     def _download_magnet(data, file):
         ''' Resolves magnet link to torrent file
-        data: dict of release information
-        file: str absolute path to FILE in which to save file
+        data (dict): release information
+        file (str): absolute path to FILE in which to save file
 
         Iterates through bt_cache sites and attempts to get download.
 

@@ -201,13 +201,11 @@ class DelugeWeb(object):
     @staticmethod
     def add_torrent(data):
         ''' Adds torrent or magnet to deluge web api
-        data: dict of torrrent/magnet information
+        data (dict): torrrent/magnet information
 
         Adds torrents to default/path/<category>
 
-        Returns dict {'response': True, 'download_id': 'id'}
-                     {'response': False, 'error': 'exception'}
-
+        Returns dict ajax-style response
         '''
 
         conf = core.CONFIG['Downloader']['Torrent']['DelugeWeb']

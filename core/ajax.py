@@ -18,8 +18,11 @@ logging = logging.getLogger(__name__)
 class Ajax(object):
     ''' These are all the methods that handle ajax post/get requests from the browser.
 
-    Except in special circumstances, all should return a JSON formatted string
-        since that is the only datatype sent over http
+    Except in special circumstances, all should return an 'ajax-style response', which is a
+        dict with a response key to indicate success, and additional keys for expected data output.
+
+        For example {'response': False, 'error': 'something broke'}
+                    {'response': True, 'results': ['this', 'is', 'the', 'output']}
 
     '''
 
@@ -37,15 +40,15 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def library(self, sort_key, sort_direction, limit=50, offset=0):
         ''' Get 50 movies from library
-        sort_key: column name to sort by
-        sort_direction: direction to sort [ASC, DESC]
+        sort_key (str): column name to sort by
+        sort_direction (str): direction to sort [ASC, DESC]
 
-        limit: int number of movies to get
-        offset: int list index postition to start slice
+        limit: int number of movies to get                  <optional - default 50>
+        offset: int list index postition to start slice     <optional - default 0>
 
         Gets a 25-movie slice from library sorted by sort key
 
-        Returns str json-encoded list of dicts
+        Returns list of dicts of movies
         '''
 
         return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset)
@@ -54,27 +57,27 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def search_tmdb(self, search_term):
         ''' Search tmdb for movies
-        :param search_term: str title and year of movie (Movie Title 2016)
+        search_term (str): title and year of movie (Movie Title 2016)
 
         Returns str json-encoded list of dicts that contain tmdb's data.
         '''
 
         results = self.tmdb.search(search_term)
-        if not results or results == ['']:
+        if not results:
             logging.info('No Results found for {}'.format(search_term))
-            return None
-        else:
-            return results
+
+        return results
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def get_search_results(self, imdbid, quality=None):
         ''' Gets search results for movie
-        imdbid: str imdb identification number (tt123456)
+        imdbid (str): imdb id #
+        quality (str): quality profile for movie    <optional - default None>
 
         Passes request to sql.get_search_results() then filters out unused download methods.
 
-        Returns str json-encoded list of dicts
+        Returns dict ajax-style response
         '''
 
         results = core.sql.get_search_results(imdbid, quality=quality)
@@ -93,15 +96,24 @@ class Ajax(object):
 
     @cherrypy.expose
     def get_trailer(self, title, year):
+        ''' Gets trailer embed url from youtube
+        title (str): title of movie
+        year (str/int): year of movie release
+
+        Returns str
+        '''
+
         return movieinfo.trailer('{} {}'.format(title, year))
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def add_wanted_movie(self, data):
         ''' Adds movie to library
-        data: dict of known movie data
+        data (str): json-formatted dict of known movie data
 
         Calls library.Manage.add_movie to add to library.
+
+        Returns dict ajax-style response
         '''
         movie = json.loads(data)
 
@@ -111,14 +123,14 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def save_settings(self, data):
         ''' Saves settings to config file
-        :param data: dict of Section with nested dict of keys and values:
+        data (dict): of Section with nested dict of keys and values:
         {'Section': {'key': 'val', 'key2': 'val2'}, 'Section2': {'key': 'val'}}
 
         All dicts must contain the full tree or data will be lost.
 
         Fires off additional methods if neccesary.
 
-        Returns json.dumps(dict)
+        Returns dict ajax-style response
         '''
 
         logging.info('Saving settings.')
@@ -146,9 +158,9 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def remove_movie(self, imdbid):
         ''' Removes movie
-        :param imdbid: str imdb identification number (tt123456)
+        imdbid (str): imdb identification number (tt123456)
 
-        Returns str json dict
+        Returns dict ajax-style response
         '''
 
         return core.manage.remove_movie(imdbid)
@@ -157,11 +169,11 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def search(self, imdbid):
         ''' Search indexers for specific movie.
-        :param imdbid: str imdb identification number (tt123456)
+        imdbid (str): imdb id #
 
         Gets movie data from database and sends to searcher.search()
 
-        Returns str json dict
+        Returns dict ajax-style response
         '''
 
         movie = core.sql.get_movie_details("imdbid", imdbid)
@@ -184,10 +196,10 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def manual_download(self, year, guid, kind):
         ''' Sends search result to downloader manually
-        :param guid: str download link for nzb/magnet/torrent file.
-        :param kind: str type of download (torrent, magnet, nzb)
+        guid (str): download link for nzb/magnet/torrent file.
+        kind (str): type of download (torrent, magnet, nzb)
 
-        Returns str json.dumps(dict) success/fail message
+        Returns dict ajax-style response
         '''
 
         torrent_enabled = core.CONFIG['Downloader']['Sources']['torrentenabled']
@@ -210,11 +222,11 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def mark_bad(self, guid, imdbid, cancel_download=False):
         ''' Marks guid as bad in SEARCHRESULTS and MARKEDRESULTS
-        :param guid: str guid to mark
-        :param imdbid: str imdbid # of movie to mark
-        cancel_download: bool send command to download client to cancel download
+        guid (str): guid of download to mark
+        imdbid (str): imdb id # of movie
+        cancel_download (bool): send command to download client to cancel download
 
-        Returns str json.dumps(dict) with keys response, error (if response is False), movie_status
+        Returns dict ajax-style response
         '''
 
         sr_orig = core.sql.get_single_search_result('guid', guid)
@@ -268,7 +280,7 @@ class Ajax(object):
     @cherrypy.expose
     def notification_remove(self, index):
         ''' Removes notification from core.notification
-        :param index: str or unicode index of notification to remove
+        index (str/int): index of notification to remove
 
         'index' will be of type string since it comes from ajax request.
             Therefore we convert to int here before passing to Notification
@@ -286,6 +298,8 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def update_check(self):
         ''' Manually check for updates
+
+        Returns dict ajax-style response
         '''
 
         response = self.version.manager.update_check()
@@ -295,13 +309,12 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def test_downloader_connection(self, mode, data):
         ''' Test connection to downloader.
-        :param mode: str which downloader to test.
-        :param data: dict connection information (url, port, login, etc)
+        mode (str): which downloader to test.
+        data (dict): connection information (url, port, login, etc)
 
         Executes staticmethod in the chosen downloader's class.
 
-        Returns str json.dumps dict:
-        {'status': 'false', 'message': 'this is a message'}
+        Returns dict ajax-style response
         '''
 
         response = {}
@@ -339,7 +352,7 @@ class Ajax(object):
     @cherrypy.expose
     def server_status(self, mode):
         ''' Check or modify status of CherryPy server_status
-        :param mode: str command or request of state
+        mode (str): command or request of state
 
         Restarts or Shuts Down server in separate thread.
             Delays by one second to allow browser to redirect.
@@ -378,13 +391,15 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def update_now(self, mode):
         ''' Starts and executes update process.
-        :param mode: str 'set_true' or 'update_now'
+        mode (str): 'set_true' or 'update_now'
 
         The ajax response is a generator that will contain
             only the success/fail message.
 
         This is done so the message can be passed to the ajax
             request in the browser while cherrypy restarts.
+
+        Returns dict ajax-style response
         '''
 
         response = self._update_now(mode)
@@ -394,7 +409,7 @@ class Ajax(object):
     @cherrypy.expose
     def _update_now(self, mode):
         ''' Starts and executes update process.
-        :param mode: str 'set_true' or 'update_now'
+        mode (str): 'set_true' or 'update_now'
 
         Helper for self.update_now()
 
@@ -405,6 +420,8 @@ class Ajax(object):
 
         If mode == 'update_now', starts update process.
         Yields 'true' or 'failed'. If true, restarts server.
+
+        Returns dict ajax-style response
         '''
 
         if mode == 'set_true':
@@ -429,10 +446,11 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def update_movie_options(self, quality, status, imdbid):
         ''' Updates quality settings for individual title
-        :param quality: str name of new quality
-        :param status: str status management state
-        :param imdbid: str imdb identification number
+        quality (str): name of new quality
+        status (str): management state ('automatic', 'disabled')
+        imdbid (str): imdb identification number
 
+        Returns dict ajax-style response
         '''
 
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
@@ -458,6 +476,13 @@ class Ajax(object):
 
     @cherrypy.expose
     def get_log_text(self, logfile):
+        ''' Gets log file contents
+        logfile (str): name of log file to read
+
+        logfile should be filename only, not the path to the file
+
+        Returns str
+        '''
 
         with open(os.path.join(core.LOG_DIR, logfile), 'r') as f:
             log_text = ''.join(reversed(f.readlines()))
@@ -467,6 +492,14 @@ class Ajax(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def indexer_test(self, indexer, apikey, mode):
+        ''' Tests connection to newznab indexer
+        indexer (str): url of indexer
+        apikey (str): indexer's api key
+        mode (str): newznab or torznab
+
+        Returns dict ajax-style response
+        '''
+
         if mode == 'newznab':
             return newznab.NewzNab.test_connection(indexer, apikey)
         elif mode == 'torznab':
@@ -478,10 +511,10 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def get_plugin_conf(self, folder, conf):
         ''' Calls plugin_conf_popup to render html
-        folder: str folder to read config file from
-        conf: str filename of config file (ie 'my_plugin.conf')
+        folder (str): folder to read config file from
+        conf (str): filename of config file (ie 'my_plugin.conf')
 
-        Returns str html content.
+        Returns dict config contents
         '''
 
         try:
@@ -496,11 +529,11 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def save_plugin_conf(self, folder, filename, config):
         ''' Calls plugin_conf_popup to render html
-        folder: str folder to store config file
-        filename: str filename of config file (ie 'my_plugin.conf')
-        config: str json data to store in conf file
+        folder (str): folder to store config file
+        filename (str): filename of config file (ie 'my_plugin.conf')
+        config (str): json data to store in conf file
 
-        Returns str json dumps dict of success/fail message
+        Returns dict ajax-style response
         '''
 
         config = json.loads(config)
@@ -520,11 +553,12 @@ class Ajax(object):
     @cherrypy.expose
     def scan_library_directory(self, directory, minsize, recursive):
         ''' Calls library to scan directory for movie files
-        directory: str directory to scan
-        minsize: str minimum file size in mb, coerced to int
-        resursive: str 'true' or 'false', coerced to bool
+        directory (str): directory to scan
+        minsize (str/int): minimum file size in mb, coerced to int
+        resursive (bool): whether or not to search subdirs
 
-        Removes all movies already in library.
+        Finds all files larger than minsize in directory.
+        Removes all movies from gathered list that are already in library.
 
         If error, yields {'error': reason} and stops Iteration
         If movie has all metadata, yields:
@@ -536,7 +570,7 @@ class Ajax(object):
             'path': 'absolute path to file'
             'progress': '10 of 250'
 
-        Yeilds generator object of json objects
+        Yeilds dict ajax-style response
         '''
 
         recursive = json.loads(recursive)
@@ -587,8 +621,8 @@ class Ajax(object):
     @cherrypy.expose
     def import_dir(self, movies, corrected_movies):
         ''' Imports list of movies in data
-        movie_data: list of dicts of movie info ready to import
-        corrected_movies: list of dicts of user-corrected movie info
+        movie_data (list): dicts of movie info ready to import
+        corrected_movies (list): dicts of user-corrected movie info
 
         corrected_movies must be [{'/path/to/file': {'known': 'metadata'}}]
 
@@ -599,7 +633,7 @@ class Ajax(object):
         Creates dict {'success': [], 'failed': []} and
             appends movie data to the appropriate list.
 
-        Yeilds generator object of json objects
+        Yeilds dict ajax-style response
         '''
 
         today = str(datetime.date.today())
@@ -670,16 +704,14 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def list_files(self, current_dir, move_dir):
         ''' Lists files in directory
-        current_dir: str base path
-        move_dir: str child path to read
+        current_dir (str): base path
+        move_dir (str): child path to read
 
         Joins and normalizes paths:
             ('/home/user/movies', '..')
             Becomes /home/user
 
-        Sends path to import_library template to generate html
-
-        Returns json dict {'new_path': '/path', 'html': '<li>...'}
+        Returns dict ajax-style response
         '''
 
         current_dir = current_dir.strip()
@@ -702,13 +734,15 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def update_metadata(self, imdbid, tmdbid=None):
         ''' Re-downloads metadata for imdbid
-        imdbid: str imdbid of movie
-        tmdbid: str tmdbid of movie     <optional, default None>
+        imdbid (str): imdbid of movie
+        tmdbid (str): tmdbid of movie     <optional - default None>
 
         If tmdbid is None, looks in database for tmdbid using imdbid.
         If that fails, looks on tmdb api for imdbid
         If that fails returns error message
 
+
+        Returns dict ajax-style response
         '''
 
         r = self.metadata.update(imdbid, tmdbid)
@@ -721,8 +755,8 @@ class Ajax(object):
     @cherrypy.expose
     def change_quality_profile(self, profiles, imdbid=None):
         ''' Updates quality profile name
-        profiles: dict of profile names. k:v is currentname:newname
-        imdbid: str imdbid of movie to change   <default None>
+        profiles (dict): profile names to change. k:v is currentname:newname
+        imdbid (str): imdb id # of movie to change                          <optional - default None>
 
         Changes movie quality profiles from k in names to v in names
 
@@ -737,6 +771,7 @@ class Ajax(object):
             Then changes tmp values to target values.
         This way you can swap two names without them all becoming one.
 
+        Returns dict ajax-style response
         '''
 
         profiles = json.loads(profiles)
@@ -769,11 +804,11 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def get_kodi_movies(self, url):
         ''' Gets list of movies from kodi server
-        url: str url of kodi server
+        url (str): url of kodi server
 
         Calls Kodi import method to gather list.
 
-        Returns list of dicts of movies
+        Returns dict ajax-style response
         '''
 
         return library.ImportKodiLibrary.get_movies(url)
@@ -781,7 +816,7 @@ class Ajax(object):
     @cherrypy.expose
     def import_kodi_movies(self, movies):
         ''' Imports list of movies in movies from Kodi library
-        movie_data: JSON list of dicts of movies
+        movie_data (str): json-formatted list of dicts of movies
 
         Iterates through movies and gathers all required metadata.
 
@@ -790,7 +825,7 @@ class Ajax(object):
         Creates dict {'success': [], 'failed': []} and
             appends movie data to the appropriate list.
 
-        Yeilds generator object of json objects
+        Yeilds dict ajax-style response
         '''
 
         movies = json.loads(movies)
@@ -847,6 +882,14 @@ class Ajax(object):
 
     @cherrypy.expose
     def get_plex_libraries(self, server, username, password):
+        ''' Gets list of libraries in plex server
+        server (str): plex server url
+        username (str): username for plex account
+        password (str): password for plex account
+
+        Returns dict ajax-style response
+        '''
+
         if core.CONFIG['External']['plex_tokens'].get(server) is None:
             token = library.ImportPlexLibrary.get_token(username, password)
             if token is None:
@@ -862,6 +905,13 @@ class Ajax(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def upload_plex_csv(self, file_input):
+        ''' Recieves upload of csv from browser
+        file_input (b'str): csv file fo read
+
+        Reads/parses csv file into a usable dict
+
+        Returns dict ajax-style response
+        '''
         try:
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
@@ -872,13 +922,13 @@ class Ajax(object):
         if csv_text:
             return library.ImportPlexLibrary.read_csv(csv_text)
         else:
-            return None
+            return {'response': True, 'complete': [], 'incomplete': []}
 
     @cherrypy.expose
     def import_plex_csv(self, movies, corrected_movies):
         ''' Imports list of movies genrated by csv import
-        movie_data: list of dicts of movie info ready to import
-        corrected_movies: list of dicts of user-corrected movie info
+        movie_data (list): dicts of movie info ready to import
+        corrected_movies (list): dicts of user-corrected movie info
 
         Iterates through corrected_movies and attmpts to get metadata again if required.
 
@@ -887,7 +937,7 @@ class Ajax(object):
         Creates dict {'success': [], 'failed': []} and
             appends movie data to the appropriate list.
 
-        Yeilds generator object of json objects
+        Yeilds dict ajax-style response
         '''
 
         movie_data = json.loads(movies)
@@ -958,6 +1008,14 @@ class Ajax(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def get_cp_movies(self, url, apikey):
+        ''' Gets movies from CP server
+        url (str): url to cp server
+        apikey (str): cp api key
+
+        Reads/parses cp api response
+
+        Returns dict ajax-style response
+        '''
 
         url = '{}/api/{}/movie.list/'.format(url, apikey)
 
@@ -968,6 +1026,12 @@ class Ajax(object):
 
     @cherrypy.expose
     def import_cp_movies(self, wanted, finished):
+        ''' Imports movies from CP list to library
+        wanted (list): dicts of wanted movies
+        finished (list): dicts of finished movies
+
+        Yields dict ajax-style response
+        '''
         wanted = json.loads(wanted)
         finished = json.loads(finished)
 
@@ -1023,8 +1087,10 @@ class Ajax(object):
 
     @cherrypy.expose
     def manager_backlog_search(self, movies):
-        '''
-        movies: list of dict of movies, must contain keys imdbid and tmdbid
+        ''' Bulk manager action for backlog search
+        movies (list): dicts of movies, must contain keys imdbid and tmdbid
+
+        Yields dict ajax-style response
         '''
 
         movies = json.loads(movies)
@@ -1052,9 +1118,12 @@ class Ajax(object):
 
     @cherrypy.expose
     def manager_update_metadata(self, movies):
+        ''' Bulk manager action for metadata update
+        movies (list): dicts of movies, must contain keys imdbid and tmdbid
+
+        Yields dict ajax-style response
         '''
-        movies: list of dict of movies, must contain keys imdbid and tmdbid
-        '''
+
         movies = json.loads(movies)
         for i, movie in enumerate(movies):
             r = self.metadata.update(movie.get('imdbid'), movie.get('tmdbid'))
@@ -1070,10 +1139,13 @@ class Ajax(object):
 
     @cherrypy.expose
     def manager_change_quality(self, movies, quality):
+        ''' Bulk manager action to change movie quality profile
+        movies (list): dicts of movies, must contain keys imdbid
+        quality (str): quality to set movies to
+
+        Yields dict ajax-style response
         '''
-        movies: list of dict of movies, must contain keys imdbid
-        quality: str quality to set movies to
-        '''
+
         movies = json.loads(movies)
         for i, movie in enumerate(movies):
             r = json.loads(self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid']))
@@ -1088,6 +1160,16 @@ class Ajax(object):
 
     @cherrypy.expose
     def manager_reset_movies(self, movies):
+        ''' Bulk manager action to reset movies
+        movies (list): dicts of movies, must contain key imdbid
+
+        Removes all search results
+
+        Updates database row with db_reset dict
+
+        Yields dict ajax-style response
+        '''
+
         movies = json.loads(movies)
 
         for i, movie in enumerate(movies):
@@ -1114,6 +1196,12 @@ class Ajax(object):
 
     @cherrypy.expose
     def manager_remove_movies(self, movies):
+        ''' Bulk action to remove movies
+        movies (list): dicts of movies, must contain key imdbid
+
+        Yields dict ajax-style response
+        '''
+
         movies = json.loads(movies)
 
         for i, movie in enumerate(movies):
@@ -1131,4 +1219,8 @@ class Ajax(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def generate_stats(self):
+        ''' Gets library stats for graphing page
+
+        Returns dict ajax-style response
+        '''
         return core.manage.get_stats()
