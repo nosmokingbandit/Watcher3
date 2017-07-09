@@ -28,22 +28,10 @@ $(document).ready(function () {
 
             $.notify({title: "<u>Update Failed</u><br/>", message: "Please check logs for more information."}, {type: "danger", delay: 0})
 
-        }else if(response["response"] == true){
-            // if the update succeeds we"ll start checking for the server to come back online
-            var check = setInterval(function(){
-                $.post(url_base + "/ajax/server_status", {
-                    "mode": "online"
-                })
-                .done(function(r){
-                    if(r == "states.STARTED"){
-                        $.notify({message: "Update successful."}, {delay: 0});
-                        setTimeout(function() {window.location =  url_base + "/system/restart/";}, 2500);
-                    }
-                })
-                .fail(function(r){
-                    return;
-                });
-            }, 3000);
+        } else if(response["response"] == true){
+            $.notify({message: "Update successful."}, {delay: 0});
+            setTimeout(function() {window.location =  url_base + "/system/restart/";}, 2500);
+
 
         } else {
             $thinker.css("opacity", 0);

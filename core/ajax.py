@@ -393,54 +393,40 @@ class Ajax(object):
         ''' Starts and executes update process.
         mode (str): 'set_true' or 'update_now'
 
-        The ajax response is a generator that will contain
-            only the success/fail message.
+        This method has two major functions based on mode
 
-        This is done so the message can be passed to the ajax
-            request in the browser while cherrypy restarts.
+        set_true:
+            Sets core.UPDATING to True, the browser should then automatically redirect
+                the user to the update page that calls update_now('update_now')
 
-        Returns dict ajax-style response
-        '''
+        update_now:
+            If core.UPDATING is False, returns False response. This keeps the update process
+                from firing any time the update page is opened. The page should redirect the
+                user to the status page when this response is recieved.
 
-        response = self._update_now(mode)
-        for i in response:
-            return i
-
-    @cherrypy.expose
-    def _update_now(self, mode):
-        ''' Starts and executes update process.
-        mode (str): 'set_true' or 'update_now'
-
-        Helper for self.update_now()
-
-        If mode == set_true, sets core.UPDATING to True
-        This is done so if the user visits /update without setting true
-            they will be redirected back to status.
-        Yields 'true' back to browser
-
-        If mode == 'update_now', starts update process.
-        Yields 'true' or 'failed'. If true, restarts server.
+            If core.UPDATING is True, starts update process. core.UPDATING is set back to
+                False regardless of outcome. The update's success is returned to the browser
+                which should then immediately direct the user to the restart page if the
+                update was successful.
 
         Returns dict ajax-style response
         '''
 
         if mode == 'set_true':
             core.UPDATING = True
-            yield {'response': True}
+            return {'response': True}
         if mode == 'update_now':
             update_status = version.Version().manager.execute_update()
             core.UPDATING = False
+
             if update_status is False:
                 logging.error('Update Failed.')
-                yield {'response': False}
+                return {'response': False}
+
             elif update_status is True:
-                yield {'response': True}
-                logging.info('Respawning process...')
-                cherrypy.engine.stop()
-                python = sys.executable
-                os.execl(python, python, *sys.argv)
+                return {'response': True}
         else:
-            return
+            return {'response': False}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
