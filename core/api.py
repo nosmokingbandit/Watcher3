@@ -1,6 +1,6 @@
 import core
 from core.movieinfo import TMDB
-from cherrypy import tools
+import cherrypy
 
 import logging
 
@@ -114,7 +114,7 @@ class API(object):
         self.tmdb = TMDB()
         return
 
-    @tools.json_out()
+    @cherrypy.tools.json_out()
     def GET(self, **params):
         ''' Get handler for API calls
 
@@ -206,6 +206,8 @@ class API(object):
         Returns str dict) {"status": "success", "message": "X added to wanted list."}
         '''
 
+        origin = cherrypy.request.headers.get('User-Agent', 'API')
+        origin = 'API' if origin.startswith('Mozilla/') else origin
         if quality is None:
             quality = 'Default'
 
@@ -228,7 +230,7 @@ class API(object):
 
         movie['quality'] = quality
         movie['status'] = 'Waiting'
-        movie['origin'] = 'API'
+        movie['origin'] = origin
 
         return core.manage.add_movie(movie, full_metadata=True)
 
