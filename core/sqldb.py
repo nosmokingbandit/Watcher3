@@ -266,11 +266,9 @@ class SQL(object):
 
         Returns list of dicts with all information in MOVIES
         '''
-        sort_reverse = {'ASC': 'DESC', 'DESC': 'ASC'}
+        sort_direction = {'ASC': 'DESC', 'DESC': 'ASC'}[sort_direction]
 
         logging.debug('Retrieving list of user\'s movies.')
-
-        sort_direction = sort_reverse[sort_direction]
 
         if sort_key == 'status':
             sort_key = '''CASE WHEN status = "Waiting" THEN 1
@@ -281,7 +279,7 @@ class SQL(object):
                           END
                        '''
 
-        command = ['SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)]
+        command = 'SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)
 
         if sort_key != 'title':
             command += ', title ASC'
@@ -289,7 +287,7 @@ class SQL(object):
         if int(offset) > 0:
             command += ' LIMIT {} OFFSET {}'.format(limit, offset)
 
-        result = self.execute(command)
+        result = self.execute([command])
 
         if result:
             return [dict(i) for i in result]
