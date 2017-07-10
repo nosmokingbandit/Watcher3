@@ -21,7 +21,7 @@ class Url(object):
 
     proxies = None
 
-    user_agents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
+    user_agents = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
                    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
                    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
@@ -30,7 +30,7 @@ class Url(object):
                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36',
                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8',
                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
-                   ]
+                   )
 
     trans = {i: ' ' for i in map(ord, '+.-_')}
 
@@ -189,10 +189,10 @@ class Comparisons(object):
     def _k(a):
         k = be(a)
 
-        d = {b'746D6462': ['GE4DIMLFMVRGCOLCMEZDMMZTG5TGEZBUGJSDANRQME3DONBRMZRQ====',
-                           'MY3GEZBWHA3WMZTBGYZWGZBSHAZGENTGMYZGGNRYG43WMMRWGY4Q===='],
-             b'796F7574756265': ['IFEXUYKTPFBU65JVJNUGCUZZK5RVIZSOOZXFES32PJFE2ZRWPIWTMTSHMIZDQTI='],
-             b'7472616B74': ['GZQWMNZQGU3WMYLBMNSTANRQGJQWENDEMI4TKZDGHBSDINDDMVSTIMBVMZSWCM3GGE4GCZRWMU3DQOJWGAYDGYRVME4DGOBTMQZDQYQ=']
+        d = {b'746D6462': ('GE4DIMLFMVRGCOLCMEZDMMZTG5TGEZBUGJSDANRQME3DONBRMZRQ====',
+                           'MY3GEZBWHA3WMZTBGYZWGZBSHAZGENTGMYZGGNRYG43WMMRWGY4Q===='),
+             b'796F7574756265': ('IFEXUYKTPFBU65JVJNUGCUZZK5RVIZSOOZXFES32PJFE2ZRWPIWTMTSHMIZDQTI='),
+             b'7472616B74': ('GZQWMNZQGU3WMYLBMNSTANRQGJQWENDEMI4TKZDGHBSDINDDMVSTIMBVMZSWCM3GGE4GCZRWMU3DQOJWGAYDGYRVME4DGOBTMQZDQYQ=')
              }
 
         return bd(rc(d[k])).decode('ascii')  # looooooooooooooooool

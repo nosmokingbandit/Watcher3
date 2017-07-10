@@ -383,7 +383,7 @@ class Searcher():
         '''
 
         title = result['title']
-        if '4K' in title or 'UHD' in title or '2160P' in title:
+        if any(i in title for i in ('4K', 'UHD', '2160P')):
             resolution = '4K'
         elif '1080' in title:
             resolution = '1080P'
@@ -392,7 +392,7 @@ class Searcher():
         else:
             resolution = 'SD'
 
-        delimiters = ['.', '_', ' ', '-', '+']
+        delimiters = ('.', '_', ' ', '-', '+')
         brk = False
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
             for a in aliases:

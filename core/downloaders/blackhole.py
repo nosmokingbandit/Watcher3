@@ -6,10 +6,10 @@ from core.helpers import Torrent as th
 
 logging = logging.getLogger(__name__)
 
-bt_cache = ['https://itorrents.org/torrent/{}.torrent',
+bt_cache = ('https://itorrents.org/torrent/{}.torrent',
             'http://thetorrent.org/torrent/{}.torrent',
             'http://btdig.com/torrent/{}.torrent'
-            ]
+            )
 
 
 class Base(object):
