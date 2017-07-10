@@ -886,10 +886,7 @@ class Manage(object):
             return 'Disabled'
 
         result_status = core.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
-        if not result_status:
-            logging.error('Could not get SEARCHRESULTS statuses for {}'.format(imdbid))
-            return ''
-        elif 'Finished' in result_status:
+        if 'Finished' in result_status:
             status = 'Finished'
         elif 'Snatched' in result_status:
             status = 'Snatched'
