@@ -598,7 +598,7 @@ class Ajax(object):
                     logging.info('All data found for import {}'.format(metadata['title']))
                     yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
             except Exception as e:
-                logging.warning('Error gathering metadata.', exec_info=True)
+                logging.warning('Error gathering metadata.', exc_info=True)
                 yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                 continue
 
