@@ -276,6 +276,7 @@ class SQL(object):
                                WHEN status = "Found" THEN 3
                                WHEN status = "Snatched" THEN 4
                                WHEN status = "Finished" THEN 5
+                               WHEN status = "Disabled" THEN 5
                           END
                        '''
 
