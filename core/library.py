@@ -438,11 +438,12 @@ class Metadata(object):
 
         if data.get('title') and not data.get('imdbid'):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
-            tmdbdata = self.tmdb.search(title_date, single=True)[0]
+            tmdbdata = self.tmdb.search(title_date, single=True)
             if not tmdbdata:
                 logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
                 return data
             else:
+                tmdbdata = tmdbdata[0]
                 data['year'] = tmdbdata['release_date'][:4]
                 data.update(tmdbdata)
                 imdbid = self.tmdb.get_imdbid(data['id'])
@@ -509,9 +510,9 @@ class Metadata(object):
         logging.info('Parsing {} for movie information.'.format(filepath))
 
         titledata = PTN.parse(os.path.basename(filepath))
-        # this key is useless
-        if 'excess' in titledata:
-            titledata.pop('excess')
+        #remove usless keys before measuring length
+        for i in ('excess', 'episode', 'episodeName', 'season', 'garbage', 'website'):
+            titledata.pop(i, None)
 
         if len(titledata) < 3:
             logging.info('Parsing filename doesn\'t look accurate. Parsing parent folder name.')
