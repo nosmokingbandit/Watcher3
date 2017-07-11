@@ -365,7 +365,8 @@ class Ajax(object):
         '''
 
         def server_restart():
-            cherrypy.engine.exit()
+            cherrypy.engine.stop()
+            os.fsync()
             python = sys.executable
             os.execv(python, [core.SCRIPT_PATH] + sys.argv)
             return
