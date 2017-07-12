@@ -44,7 +44,7 @@ $(document).ready(function(){
         movie_sort_key = 'status'
     }
 /* Set sort ui elements off cookie */
-    $movie_list.removeClass().addClass(movie_layout + is_striped(movie_layout));
+    $movie_list.removeClass().addClass(movie_layout);
     $(`div#movie_layout > div > a[data-layout="${movie_layout}"]`).addClass("active");
     echo.render();
 
@@ -82,7 +82,7 @@ $(document).ready(function(){
             sort_movie_cache(movie_sort_key);
         }
 
-		document.cookie = "movie_sort_key=" + movie_sort_key + ";path=/";
+		set_cookie("movie_sort_key", movie_sort_key);
 
         load_library(movie_sort_key, movie_sort_direction, current_page);
 	});
@@ -99,8 +99,8 @@ $(document).ready(function(){
             var movie_layout = $this.attr("data-layout");
             $this.siblings().removeClass("active");
             $this.addClass("active");
-            $movie_list.removeClass().addClass(movie_layout + is_striped(movie_layout));
-            document.cookie = `movie_layout=${movie_layout};path=/`;
+            $movie_list.removeClass().addClass(movie_layout);
+            set_cookie('movie_layout', movie_layout)
             echo.render();
         }
     });
@@ -129,10 +129,27 @@ function read_cookie() {
 
     for (var i = 0; i < cookiearray.length; i++) {
         key = cookiearray[i].split("=")[0];
-        value = cookiearray[i].split("=")[1];
+        value = decodeURIComponent(cookiearray[i].split("=")[1]);
         cookie_obj[key] = value
     }
     return cookie_obj
+}
+
+function set_cookie(k, v){
+    /* Helper method to set cookies
+    k (str): cookie key
+    v (str): cookie value
+
+    Constructs and sets cookie in browser
+
+    Returns cookie string
+    */
+
+    var c = `${k}=${encodeURIComponent(v)};path=/`
+
+    document.cookie = c;
+
+    return
 }
 
 function sort_movie_cache(key){
@@ -300,7 +317,8 @@ function switch_sort_direction(event, elem){
         $sort_direction_button.removeClass("mdi-sort-descending").addClass("mdi-sort-ascending");
         movie_sort_direction = "asc";
     }
-    document.cookie = `movie_sort_direction=${movie_sort_direction};path=/`;
+
+    set_cookie('movie_sort_direction', movie_sort_direction);
 
     cached_movies.reverse();
     reversed_pages = [];
@@ -627,22 +645,4 @@ function update_result_status($child, status){
     $status_label.removeClass($status_label.text());
     $status_label.addClass(status).text(status);
 
-}
-
-function is_striped(layout){
-    /* Determines if movie layout should have striped LI elements
-    layout (str): layout class to be applied to $movie_list
-
-    Returns string ' striped' if list is to be striped, empty string otherwise.
-    Should be used to add striped class when adding classes to the element, ie:
-        $movie_list.addClass(layout + is_striped(layout))
-
-    Returns str
-    */
-
-    if(["compact", "list"].indexOf(layout) >= 0){
-        return " striped"
-    } else {
-        return ""
-    }
 }
