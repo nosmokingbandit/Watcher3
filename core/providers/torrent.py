@@ -23,8 +23,8 @@ trackers = '&tr'.join(('udp://tracker.leechers-paradise.org:6969',
                        'udp://tracker.opentrackr.org:1337/announce',
                        'udp://torrent.gresille.org:80/announce',
                        'udp://p4p.arenabg.com:1337',
-                       'udp://tracker.leechers-paradise.org:6969')
-                       )
+                       'udp://tracker.leechers-paradise.org:6969'
+                       ))
 
 
 def magnet(hash_):
