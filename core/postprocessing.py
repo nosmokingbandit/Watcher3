@@ -49,20 +49,17 @@ class Postprocessing(object):
         for key in ('apikey', 'mode', 'guid', 'path'):
             if key not in data:
                 logging.warning('Missing key {}'.format(key))
-                return json.dumps({'response': False,
-                                   'error': 'missing key: {}'.format(key)})
+                return {'response': False, 'error': 'missing key: {}'.format(key)}
 
         # check if api key is correct
         if data['apikey'] != core.CONFIG['Server']['apikey']:
             logging.warning('Incorrect API key.'.format(key))
-            return json.dumps({'response': False,
-                               'error': 'incorrect api key'})
+            return {'response': False, 'error': 'incorrect api key'}
 
         # check if mode is valid
         if data['mode'] not in ('failed', 'complete'):
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': False,
-                               'error': 'invalid mode value'})
+            return {'response': False, 'error': 'invalid mode value'}
 
         logging.debug(data)
 
@@ -106,15 +103,14 @@ class Postprocessing(object):
             logging.info(response)
         else:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': False,
-                               'error': 'invalid mode value'}, indent=2, sort_keys=True)
+            return {'response': False, 'error': 'invalid mode value'}
 
         logging.info('#################################')
         logging.info('Post-processing complete.')
         logging.info(json.dumps(response, indent=2, sort_keys=True))
         logging.info('#################################')
 
-        return json.dumps(response, indent=2, sort_keys=True)
+        return response
 
     def get_movie_file(self, path):
         ''' Looks for the filename of the movie being processed
