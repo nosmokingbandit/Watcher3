@@ -44,7 +44,7 @@ $(document).ready(function(){
         movie_sort_key = 'status'
     }
 /* Set sort ui elements off cookie */
-    $movie_list.removeClass().addClass(movie_layout);
+    $movie_list.removeClass().addClass(movie_layout + is_striped(movie_layout));
     $(`div#movie_layout > div > a[data-layout="${movie_layout}"]`).addClass("active");
     echo.render();
 
@@ -96,10 +96,10 @@ $(document).ready(function(){
         if ($this.hasClass("active")) {
             return
         } else {
-            movie_layout = $this.attr("data-layout");
+            var movie_layout = $this.attr("data-layout");
             $this.siblings().removeClass("active");
             $this.addClass("active");
-            $movie_list.removeClass().addClass(movie_layout);
+            $movie_list.removeClass().addClass(movie_layout + is_striped(movie_layout));
             document.cookie = `movie_layout=${movie_layout};path=/`;
             echo.render();
         }
@@ -627,4 +627,22 @@ function update_result_status($child, status){
     $status_label.removeClass($status_label.text());
     $status_label.addClass(status).text(status);
 
+}
+
+function is_striped(layout){
+    /* Determines if movie layout should have striped LI elements
+    layout (str): layout class to be applied to $movie_list
+
+    Returns string ' striped' if list is to be striped, empty string otherwise.
+    Should be used to add striped class when adding classes to the element, ie:
+        $movie_list.addClass(layout + is_striped(layout))
+
+    Returns str
+    */
+
+    if(["compact", "list"].indexOf(layout) >= 0){
+        return " striped"
+    } else {
+        return ""
+    }
 }
