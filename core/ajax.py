@@ -1191,7 +1191,7 @@ class Ajax(object):
         movies = json.loads(movies)
 
         for i, movie in enumerate(movies):
-            r = json.loads(self.remove_movie(movie['imdbid']))
+            r = self.remove_movie(movie['imdbid'])
 
             if r['response'] is False:
                 response = {'response': False, 'error': r['error'], 'imdbid': movie['imdbid'], "index": i + 1}
