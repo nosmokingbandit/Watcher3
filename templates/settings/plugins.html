@@ -10,7 +10,7 @@
         %>
         <li id="${kind}${fid}" class="list-group-item" data-name="${plugin[0]}" data-sort="${sort}">
             <i class="mdi mdi-drag-horizontal sortable_handle"></i>
-            <i class="mdi mdi-checkbox-blank-outline c_box" value="True"></i>
+            <i class="mdi mdi-checkbox-blank-outline c_box" value="${enabled}"></i>
             ${name[:-3]}
             %if plugin[1]:
             <i class="mdi mdi-settings" onclick="edit_plugin_conf(event, this, '${kind}', '${plugin[1]}')"></i>
