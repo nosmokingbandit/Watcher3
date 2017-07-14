@@ -133,7 +133,7 @@ function import_library(event, elem){
         }
 
         movie = $row.data("movie");
-        movie["finished_file"] = $row.find("td.file_path").text();
+        movie["finished_file"] = $row.find("td.file_path").text().trim();
         movie["resolution"] = $row.find("select.source_select").val();
         kodi_movies.push(movie);
     });
