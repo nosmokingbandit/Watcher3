@@ -107,7 +107,7 @@ $(document).ready(function(){
 
 });
 
-var exp_date = new Date();
+exp_date = new Date();
 exp_date.setFullYear(exp_date.getFullYear() + 10);
 exp_date = exp_date.toUTCString();
 
@@ -145,7 +145,7 @@ function set_cookie(k, v){
     Returns cookie string
     */
 
-    var c = `${k}=${encodeURIComponent(v)};path=/`
+    var c = `${k}=${encodeURIComponent(v)};path=/;expires=${exp_date}`;
 
     document.cookie = c;
 
@@ -318,7 +318,7 @@ function switch_sort_direction(event, elem){
         movie_sort_direction = "asc";
     }
 
-    set_cookie('movie_sort_direction', movie_sort_direction);
+    set_cookie("movie_sort_direction", movie_sort_direction);
 
     cached_movies.reverse();
     reversed_pages = [];
