@@ -145,20 +145,11 @@ class GitUpdater(object):
     def execute_update(self):
         ''' Performs update process
 
-        Removes *.pyc in all subdirectories
-
         Runs git.fetch(), git.pull()
 
         Returns bool
         '''
         logging.info('Updating from Git.')
-
-        logging.info('Cleaning up before updating.')
-
-        for root, dirs, files in os.walk(core.PROG_PATH):
-            for file in files:
-                if file.endswith('.pyc'):
-                    os.remove(os.path.join(root, file))
 
         logging.info('Executing git fetch.')
         fetch = self.git.fetch()
