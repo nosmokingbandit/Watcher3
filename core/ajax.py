@@ -649,7 +649,7 @@ class Ajax(object):
                     progress += 1
 
         for movie in movie_data:
-            if movie['imdbid']:
+            if movie.get('imdbid'):
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
                 movie['finished_file'] = movie['path']
@@ -667,7 +667,8 @@ class Ajax(object):
                     progress += 1
                     continue
             else:
-                logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
+                logging.error('Unable to find {} on TMDB.'.format(movie['title']))
+                logging.debug(movie)
                 yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'IMDB ID invalid or missing.'})
                 progress += 1
 
@@ -951,7 +952,7 @@ class Ajax(object):
                     progress += 1
 
         for movie in movie_data:
-            if movie['imdbid']:
+            if movie.get('imdbid'):
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
                 movie['origin'] = 'Plex Import'
@@ -972,7 +973,8 @@ class Ajax(object):
                     progress += 1
                     continue
             else:
-                logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
+                logging.error('Unable to find {} on TMDB.'.format(movie['title']))
+                logging.debug(movie)
                 yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'IMDB ID invalid or missing.'})
                 progress += 1
 
