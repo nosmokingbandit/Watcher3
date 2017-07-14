@@ -7,7 +7,7 @@ import cherrypy
 from base64 import b16encode
 import datetime
 import core
-from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification
+from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification, plugins
 from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent, blackhole
 from core.helpers import Conversions
@@ -500,16 +500,17 @@ class Ajax(object):
         folder (str): folder to read config file from
         conf (str): filename of config file (ie 'my_plugin.conf')
 
-        Returns dict config contents
+        Returns string
         '''
 
         try:
             with open(os.path.join(core.PLUGIN_DIR, folder, conf)) as f:
                 config = json.load(f)
-            return config
         except Exception as e:
             logging.error("Unable to read config file.", exc_info=True)
-            return None
+            return ''
+
+        return plugins.render_config(config)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

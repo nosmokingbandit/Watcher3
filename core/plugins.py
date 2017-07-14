@@ -35,6 +35,117 @@ def list_plugins():
     return plugins
 
 
+def render_config(config):
+    ''' Generates config html for plugins
+    config (dict): contents of plugin config
+
+    Returns str html form
+    '''
+
+    html = ''
+
+    if config.pop('Config Version', 0) < 2:
+        for k, v in config.items():
+            html += '''
+            <div class="col-md-6" data-type="string">
+                <label>{0}</label>
+                <input type="text" class="form-control" data-key="{0}" value="{1}">
+            </div>
+            '''.format(k, v)
+
+    else:
+        inputs = []
+        for name, c in config.items():
+            c['name'] = name
+            inputs.append(c)
+
+        for i in sorted(inputs, key=lambda x: x.get('display', 0)):
+            if i['type'] == 'string':
+                html += _config_string(i)
+            elif i['type'] == 'int':
+                html += _config_int(i)
+            elif i['type'] == 'bool':
+                html += _config_bool(i)
+
+    return html
+
+
+''' The next group of methods all generate the actual html for a V2 config file
+All take one argument, config (dict), which is a dictionary of the config for that datatype
+
+All return a string of html
+'''
+
+
+def _config_string(config):
+
+    base = {'label': '&nbsp',
+            'helptext': '',
+            'value': ''
+            }
+
+    base.update(config)
+    try:
+        return '''
+        <div class="col-md-6" data-type="string" title="{helptext}">
+            <label>{label}</label>
+            <input type="text" class="form-control" data-key="{name}" value="{value}">
+        </div>
+        '''.format(**base)
+    except Exception as e:
+        logging.warning('Unable to parse plugin config.', exc_info=True)
+        return ''
+
+
+def _config_int(config):
+
+    base = {'label': '&nbsp',
+            'helptext': '',
+            'value': '',
+            'min': '',
+            'max': ''
+            }
+
+    base.update(config)
+    try:
+        return '''
+        <div class="col-md-6" data-type="int" title="{helptext}">
+            <label>{label}</label>
+            <input type="number" class="form-control" data-key="{name}" value="{value}" min="{min}" max="{max}">
+        </div>
+        '''.format(**base)
+    except Exception as e:
+        logging.warning('Unable to parse plugin config.', exc_info=True)
+        return ''
+
+
+def _config_bool(config):
+
+    base = {'label': '&nbsp',
+            'helptext': '',
+            'value': False
+            }
+
+    base.update(config)
+    try:
+        return '''
+        <div class="col-md-6" data-type="bool" title="{helptext}">
+            <label>&nbsp;</label>
+            <div class="input-group">
+                <span class="input-group-addon box_box">
+                <i class="mdi mdi-checkbox-blank-outline c_box" data-key="{name}" value="{value}"></i>
+                </span>
+                <span class="input-group-item form-control _label">
+                    {label}
+                </span>
+            </div>
+        </div>
+        '''.format(**base)
+    except Exception as e:
+        logging.warning('Unable to parse plugin config.', exc_info=True)
+        return ''
+
+
 def added(*args):
     ''' Executes added plugins
     *args (list): arguments to pass to plugins
@@ -48,7 +159,7 @@ def added(*args):
 
     sorted_plugins = sorted(core.CONFIG['Plugins']['added'].items(), key=operator.itemgetter(1))
 
-    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins]
+    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
     threading.Thread(target=execute, args=(plugins, args)).start()
 
@@ -68,7 +179,7 @@ def snatched(*args):
 
     sorted_plugins = sorted(core.CONFIG['Plugins']['snatched'].items(), key=operator.itemgetter(1))
 
-    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins]
+    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
     threading.Thread(target=execute, args=(plugins, args)).start()
 
@@ -88,7 +199,7 @@ def finished(*args):
 
     sorted_plugins = sorted(core.CONFIG['Plugins']['finished'].items(), key=operator.itemgetter(1))
 
-    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins]
+    plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
     threading.Thread(target=execute, args=(plugins, args)).start()
 
@@ -106,17 +217,26 @@ def execute(plugins, args):
     args = list(args)
 
     for plugin in plugins:
+
         conf_file = '{}.conf'.format(os.path.splitext(plugin)[0])
 
         try:
             if os.path.isfile(conf_file):
                 with open(conf_file) as f:
-                    args.append(json.dumps(json.load(f)))
+                    config = json.load(f)
+                    if config.pop('Config Version', 0) > 1:
+                        config = {i: config[i]['value'] for i in config}
+            else:
+                config = {}
         except Exception as e:
             logging.error('Loading config {} failed.'.format(conf_file), exc_info=True)
             continue
 
+        config = json.dumps(config)
+
         command = [sys.executable, plugin] + args
+        command.append(config)
+
         if core.PLATFORM == 'windows':
             cmd = ['cmd', '/c']
             command = cmd + command

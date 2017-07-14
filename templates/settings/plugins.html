@@ -72,13 +72,13 @@
         </div>
 
         <textarea id="template_config" class="hidden">
-            <div class="modal fade" id="modal_plugin_conf">
+            <div class="modal fade" id="modal_plugin_conf" data-folder="{folder}" data-filename="{filename}">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">{name}</h4>
                         </div>
-                        <div class="modal-body" data-folder="{folder}" data-filename="{filename}">
+                        <div class="modal-body">
                             {config}
                         </div>
                         <div class="modal-footer">

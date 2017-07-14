@@ -8,30 +8,28 @@ function edit_plugin_conf(event, elem, folder, filename){
     var config_file;
 
     $.post(url_base + "/ajax/get_plugin_conf", {"folder": folder, "conf": filename})
-    .done(function(config_file){
-        if(!config_file){
+    .done(function(config_html){
+        if(!config_html){
             $.notify({message: "Unable to read plugin config."}, {type: "danger"})
             return false
         }
 
-        var conf_table = "";
-
-        $.each(config_file, function(k, v){
-            conf_table += `
-                            <div class="col-md-6">
-                               <label>${k}</label>
-                               <input type="text" class="form-control" data-key="${k}" value="${v}">
-                            </div>
-                          `
-        })
-
         var template_dictionary = {"name": filename.replace(".conf", ""),
                                    "folder": folder,
                                    "filename": filename,
-                                   "config": conf_table
+                                   "config": config_html
                                    }
 
-        $(format_template(template_config, template_dictionary)).modal('show');
+        $conf_modal = $(format_template(template_config, template_dictionary));
+
+        $conf_modal.find("i.c_box").each(function(){
+            $this = $(this);
+            if ($this.attr("value") == "True" ){
+                $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+            }
+        });
+
+        $conf_modal.modal('show');
 
     })
     .fail(function(response){
@@ -46,16 +44,53 @@ function save_plugin_conf(event, elem){
     event.preventDefault()
     var $this = $(elem);
     var original_content = $this.text();
-    var $modal = $this.closest(".modal-content").find(".modal-body");
 
-    var config = {};
-    $modal.find("input").each(function(i, elem){
-        $input = $(elem);
-        config[$input.data("key")] = $input.val();
+    var config = {"Config Version": 2};
+    $conf_modal.find(".modal-body > div.col-md-6").each(function(i, elem){
+        var p = {};
+        p["display"] = i;
+        var $this = $(elem);
+        p["type"] = $this.data("type");
+        p["label"] = $this.find("label")[0].innerText.trim();
+        p["helptext"] = $this.attr("title") || "";
+
+        if(p["type"] == "int"){
+            var $input = $this.find("input");
+            var name = $input.data("key");
+            p["max"] = parseInt($input.attr("max"));
+            p["max"] = (isNaN(p["max"]) ? "" : p["max"]);
+            p["min"] = parseInt($input.attr("min"));
+            p["min"] = (isNaN(p["min"]) ? "" : p["min"]);
+            var v = parseInt($input.val());
+            if(p["max"] && v > p["max"]){
+                p["value"] = p["max"];
+            }
+            else if(p["min"] && v < p["min"]){
+                p["value"] = p["min"];
+            }
+            else {
+                p["value"] = v;
+            }
+        }
+        else if(p["type"] == "string"){
+            var $input = $this.find("input");
+            var name = $input.data("key");
+            p["value"] = $input.val();
+        }
+        else if(p["type"] == "bool"){
+            var $i = $this.find("i.c_box");
+            var name = $i.data("key");
+            p["value"] = is_checked($i);
+            p["label"] = $this.find("span._label")[0].innerText
+        }
+        else {
+            return;
+        }
+
+        config[name] = p;
     })
-
-    var folder = $modal.data("folder");
-    var filename = $modal.data("filename");
+    var folder = $conf_modal.data("folder");
+    var filename = $conf_modal.data("filename");
     config = JSON.stringify(config);
 
     $.post(url_base + "/ajax/save_plugin_conf", {"folder": folder,
@@ -153,6 +188,8 @@ function _get_settings(){
     if(blanks == true){
         return false;
     };
+
+    console.log(settings)
 
     return {"Plugins": settings}
 }
