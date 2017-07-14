@@ -253,7 +253,7 @@ class Ajax(object):
             downloadid = sr_orig['downloadid'] if sr_orig else None
             if not client:
                 logging.info('Download client not found, cannot cancel download.')
-                return json.dumps(response)
+                return response
             elif client == 'NZBGet':
                 cancelled = nzbget.Nzbget.cancel_download(downloadid)
             elif client == 'SABnzbd':
@@ -741,6 +741,7 @@ class Ajax(object):
             return r
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def change_quality_profile(self, profiles, imdbid=None):
         ''' Updates quality profile name
         profiles (dict): profile names to change. k:v is currentname:newname
@@ -768,25 +769,25 @@ class Ajax(object):
             q = list(profiles.values())[0]
 
             if not core.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
-                return json.dumps({'response': False, 'error': 'Unable to update {} to quality {}'.format(imdbid, q)})
+                return {'response': False, 'error': 'Unable to update {} to quality {}'.format(imdbid, q)}
             else:
-                return json.dumps({'response': True, 'Message': '{} changed to {}'.format(imdbid, q)})
+                return {'response': True, 'Message': '{} changed to {}'.format(imdbid, q)}
         else:
             tmp_qualities = {}
             for k, v in profiles.items():
                 q = b16encode(v.encode('ascii')).decode('ascii')
                 if not core.sql.update('MOVIES', 'quality', q, 'quality', k):
-                    return json.dumps({'response': False, 'error': 'Unable to change {} to temporary quality {}'.format(k, q)})
+                    return {'response': False, 'error': 'Unable to change {} to temporary quality {}'.format(k, q)}
                 else:
                     tmp_qualities[q] = v
 
             for k, v in tmp_qualities.items():
                 if not core.sql.update('MOVIES', 'quality', v, 'quality', k):
-                    return json.dumps({'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)})
+                    return {'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)}
                 if not core.sql.update('MOVIES', 'backlog', 0, 'quality', k):
-                    return json.dumps({'response': False, 'error': 'Unable to set backlog flag. Manual backlog search required for affected titles.'})
+                    return {'response': False, 'error': 'Unable to set backlog flag. Manual backlog search required for affected titles.'}
 
-            return json.dumps({'response': True, 'message': 'Quality profiles updated.'})
+            return {'response': True, 'message': 'Quality profiles updated.'}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -869,6 +870,7 @@ class Ajax(object):
     import_kodi_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_plex_libraries(self, server, username, password):
         ''' Gets list of libraries in plex server
         server (str): plex server url
@@ -881,14 +883,14 @@ class Ajax(object):
         if core.CONFIG['External']['plex_tokens'].get(server) is None:
             token = library.ImportPlexLibrary.get_token(username, password)
             if token is None:
-                return json.dumps({'response': False, 'error': 'Unable to get Plex token.'})
+                return {'response': False, 'error': 'Unable to get Plex token.'}
             else:
                 core.CONFIG['External']['plex_tokens'][server] = token
                 self.config.dump(core.CONFIG)
         else:
             token = core.CONFIG['External']['plex_tokens'][server]
 
-        return json.dumps(library.ImportPlexLibrary.get_libraries(server, token))
+        return library.ImportPlexLibrary.get_libraries(server, token)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -1137,7 +1139,7 @@ class Ajax(object):
 
         movies = json.loads(movies)
         for i, movie in enumerate(movies):
-            r = json.loads(self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid']))
+            r = self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid'])
             if r['response'] is False:
                 response = {'response': False, 'error': r['error'], 'imdbid': movie['imdbid'], "index": i + 1}
             else:
