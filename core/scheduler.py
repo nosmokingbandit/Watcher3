@@ -73,22 +73,6 @@ def restart_scheduler(diff):
             return
 
 
-class Scheduler(object):
-    ''' Simple wrapper to create plugin instance '''
-
-    def __init__(self):
-        self.plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
-
-
-''' The following is all methods to create sheduled tasks.
-
-Task creation need not be wrapped in a class, but a separate namespace helps
-    make the code easier to read.
-
-All task creation must create a new instance of ScheduledTask.
-'''
-
-
 class AutoSearch(object):
     ''' Scheduled task to automatically run search/snatch methods '''
     @staticmethod

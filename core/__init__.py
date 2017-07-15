@@ -51,3 +51,6 @@ SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
 # Module instances
 sql = None
 manage = None
+
+# Plugin instances
+scheduler_plugin = None
