@@ -17,7 +17,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
     bus: class instance of Cherrypy engine
 
     Class Vars:
-    task_list: list of ScheduledTask instances.
+    task_list (dict): {name (str): class instance (obj)} of ScheduledTask instances.
 
     Requires that each ScheduledTask instance be appended to task_list
 
@@ -42,11 +42,12 @@ class ScheduledTask(object):
     ''' Class that creates a new scheduled task.
 
     __init__:
-    hour: int hour to first execute function (24hr time)
-    minute: int minute to first execute function
-    interval: int how many *seconds* to wait between executions
-    task: function reference to function to execute
-    auto_start: bool If timer should start on creation <default True>
+    hour (int): hour to first execute function (24hr time)
+    minute (int): minute to first execute function
+    interval (int): how many *seconds* to wait between executions
+    task (function): function to execute on timer
+    auto_start (bool): if timer should start on creation    <optional - default True>
+    name (str): name of sceduled task                       <optional - default None>
 
     Creates a persistence_file that records the last execution of the
         scheduled task. This file is updated immediately before executing
@@ -70,8 +71,9 @@ class ScheduledTask(object):
                         __init__ and just passes them along to __init__
 
     Class Vars: (there are more, but interact with them at your own risk)
-        name: str name of 'function'
-        delay: int seconds to next execution
+        name (str): passed arg 'name' or name of 'task' function if not passed
+        delay (int): seconds to next execution
+        running (bool): if assigned task is currently being executed
 
     Does not return
     '''
@@ -80,10 +82,11 @@ class ScheduledTask(object):
     persistence_record = None
     lock = None
 
-    def __init__(self, hour, minute, interval, task, auto_start=True):
+    def __init__(self, hour, minute, interval, task, auto_start=True, name=None):
         self.task = task
-        self.task_name = task.__name__
+        self.name = name or task.__name__
         self.interval = interval
+        self.running = False
 
         if not ScheduledTask.lock:
             ScheduledTask.lock = Lock()
@@ -98,7 +101,7 @@ class ScheduledTask(object):
                         ScheduledTask.persistence_record = {}
                         f.seek(0)
                         json.dump({}, f)
-        record = ScheduledTask.persistence_record.get(self.task_name, {}).get('lastexecution', None)
+        record = ScheduledTask.persistence_record.get(self.name, {}).get('lastexecution', None)
 
         if record:
             next_exec = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
@@ -113,7 +116,7 @@ class ScheduledTask(object):
         if auto_start:
             self.start()
 
-        SchedulerPlugin.task_list[self.task_name] = self
+        SchedulerPlugin.task_list[self.name] = self
 
     def _calc_delay(self, hour, minute, interval):
         ''' Calculates the next possible time to run an iteration
@@ -153,19 +156,22 @@ class ScheduledTask(object):
         return delay
 
     def _task(self):
-        logging.info('== Executing Scheduled Task: {} =='.format(self.task_name))
+        logging.info('== Executing Scheduled Task: {} =='.format(self.name))
         self.timer = Timer(self.interval, self._task)
         self.timer.start()
         self.write_record()
+        self.running = True
         self.task()
+        self.running = False
+        logging.info('== Finished Scheduled Task: {} =='.format(self.name))
 
     def start(self):
         self.timer.start()
 
     def stop(self):
         if self.timer.is_alive():
-            logging.info('Stopping scheduled task {}.'.format(self.task_name))
-            print('Stopping scheduled task: {}'.format(self.task_name))
+            logging.info('Stopping scheduled task {}.'.format(self.name))
+            print('Stopping scheduled task: {}'.format(self.name))
             self.timer.cancel()
 
     def reload(self, hr, min, interval, auto_start=True):
@@ -173,11 +179,11 @@ class ScheduledTask(object):
         See self.__init__ for param descriptions
         '''
 
-        logging.info('Reloading scheduler for {}'.format(self.task_name))
+        logging.info('Reloading scheduler for {}'.format(self.name))
         try:
             if self.timer.is_alive():
                 self.timer.cancel()
-            self.__init__(hr, min, interval, self.task, auto_start=auto_start)
+            self.__init__(hr, min, interval, self.task, auto_start=auto_start, name=self.name)
             return True
         except Exception as e:
             logging.error('Unable to start task', exc_info=True)
@@ -191,7 +197,7 @@ class ScheduledTask(object):
         with self.lock:
             with open(self.persistence_file, 'r+') as f:
                 p = json.load(f)
-                p[self.task_name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
+                p[self.name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
                 f.seek(0)
                 json.dump(p, f, indent=4, sort_keys=True)
                 f.seek(0)

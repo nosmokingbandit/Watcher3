@@ -36,14 +36,7 @@ def restart_scheduler(diff):
             min = now.minute
             interval = core.CONFIG['Server']['checkupdatefrequency'] * 3600
             auto_start = core.CONFIG['Server']['checkupdates']
-            taskscheduler.SchedulerPlugin.task_list['update_check'].reload(hr, min, interval, auto_start=auto_start)
-
-        if any(i in d for i in ('installupdates', 'installupdatehr', 'installupdatemin')):
-            hr = core.CONFIG['Server']['installupdatehr']
-            min = core.CONFIG['Server']['installupdatemin']
-            interval = 24 * 3600
-            auto_start = core.CONFIG['Server']['installupdates']
-            taskscheduler.SchedulerPlugin.task_list['update_install'].reload(hr, min, interval, auto_start=auto_start)
+            taskscheduler.SchedulerPlugin.task_list['Update Checker'].reload(hr, min, interval, auto_start=auto_start)
 
     if 'Search' in diff:
         d = diff['Search'].keys()
@@ -52,7 +45,7 @@ def restart_scheduler(diff):
             min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
             interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
             auto_start = True
-            taskscheduler.SchedulerPlugin.task_list['search_all'].reload(hr, min, interval, auto_start=auto_start)
+            taskscheduler.SchedulerPlugin.task_list['Movie Search'].reload(hr, min, interval, auto_start=auto_start)
 
         if 'Watchlists' in diff['Search']:
             d = diff['Search']['Watchlists'].keys()
@@ -61,21 +54,21 @@ def restart_scheduler(diff):
                 min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
                 interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
                 auto_start = core.CONFIG['Search']['Watchlists']['imdbsync']
-                taskscheduler.SchedulerPlugin.task_list['imdb_sync'].reload(hr, min, interval, auto_start=auto_start)
+                taskscheduler.SchedulerPlugin.task_list['IMDB Sync'].reload(hr, min, interval, auto_start=auto_start)
 
             if any(i in d for i in ('popularmoviessync', 'popularmovieshour', 'popularmoviesmin')):
                 hr = core.CONFIG['Search']['Watchlists']['popularmovieshour']
                 min = core.CONFIG['Search']['Watchlists']['popularmoviesmin']
                 interval = 24 * 3600
                 auto_start = core.CONFIG['Search']['Watchlists']['popularmoviessync']
-                taskscheduler.SchedulerPlugin.task_list['popularmovies_sync'].reload(hr, min, interval, auto_start=auto_start)
+                taskscheduler.SchedulerPlugin.task_list['PopularMovies Sync'].reload(hr, min, interval, auto_start=auto_start)
 
             if any(i in d for i in ('traktsync', 'traktfrequency')):
                 hr = now.hour
                 min = now.minute + core.CONFIG['Search']['Watchlists']['traktfrequency']
                 interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
                 auto_start = core.CONFIG['Search']['Watchlists']['traktsync']
-                taskscheduler.SchedulerPlugin.task_list['trakt_sync'].reload(hr, min, interval, auto_start=auto_start)
+                taskscheduler.SchedulerPlugin.task_list['Trakt Sync'].reload(hr, min, interval, auto_start=auto_start)
         else:
             return
 
@@ -107,9 +100,7 @@ class AutoSearch(object):
         hr = now.hour
         min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
 
-        task_search = taskscheduler.ScheduledTask(hr, min, interval,
-                                                  search.search_all,
-                                                  auto_start=True)
+        task_search = taskscheduler.ScheduledTask(hr, min, interval, search.search_all, auto_start=True, name='Movie Search')
 
         # update core.NEXT_SEARCH
         delay = task_search.delay
@@ -130,8 +121,7 @@ class MetadataUpdate(object):
         hr = now.hour
         min = now.minute
 
-        taskscheduler.ScheduledTask(hr, min, interval, MetadataUpdate.metadata_update,
-                                    auto_start=True)
+        taskscheduler.ScheduledTask(hr, min, interval, MetadataUpdate.metadata_update, auto_start=True, name='Metadata Update')
         return
 
     @staticmethod
@@ -210,8 +200,7 @@ class AutoUpdateCheck(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, AutoUpdateCheck.update_check,
-                                    auto_start=auto_start)
+        taskscheduler.ScheduledTask(hr, min, interval, AutoUpdateCheck.update_check, auto_start=auto_start, name='Update Checker')
         return
 
     @staticmethod
@@ -283,8 +272,7 @@ class ImdbRssSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, ImdbRssSync.imdb_sync,
-                                    auto_start=auto_start)
+        taskscheduler.ScheduledTask(hr, min, interval, ImdbRssSync.imdb_sync, auto_start=auto_start, name='IMDB Sync')
         return
 
     @staticmethod
@@ -308,8 +296,7 @@ class PopularMoviesSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, PopularMoviesSync.popularmovies_sync,
-                                    auto_start=auto_start)
+        taskscheduler.ScheduledTask(hr, min, interval, PopularMoviesSync.popularmovies_sync, auto_start=auto_start, name='PopularMovies Sync')
         return
 
     @staticmethod
@@ -342,6 +329,5 @@ class TraktSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.trakt_sync,
-                                    auto_start=auto_start)
+        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
         return
