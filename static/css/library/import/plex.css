@@ -1,3 +1,7 @@
+td > input.form-control {
+    width: 8em;
+}
+
 label{
     display: inline-block;
     margin: 1.5em 0 0.5em 0;
