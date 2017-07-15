@@ -101,6 +101,7 @@ function scan_library(event, elem){
                     response_update = response.substring(last_response_len);
                     last_response_len = response.length;
                 }
+                console.log(response_update)
                 var response = JSON.parse(response_update);
                 if(response['response'] == null){
                     return
@@ -121,7 +122,7 @@ function scan_library(event, elem){
                                         ${movie["title"]}
                                     </td>
                                     <td>
-                                        <input type="text" class="incomplete_imdbid" placeholder="tt0123456" value="${movie['imdbid']}"/>
+                                        <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
                                     </td>
                                     <td class="resolution">
                                         ${select[0].outerHTML}
@@ -195,12 +196,6 @@ function scan_library(event, elem){
 function import_library(event, elem){
     event.preventDefault();
 
-    $("div#complete_movies").slideUp();
-    $("div#incomplete_movies").slideUp();
-    $("a#import_library").slideUp();
-    $progress_bar.width("0%");
-    $progress.slideDown();
-
     var movies = [];
     var corrected_movies = [];
 
@@ -241,6 +236,12 @@ function import_library(event, elem){
         $.notify({message: "Please fill highlighted fields or disable movie to continue."}, {type: "warning"});
         return false;
     }
+
+    $("div#complete_movies").slideUp();
+    $("div#incomplete_movies").slideUp();
+    $("a#import_library").slideUp();
+    $progress_bar.width("0%");
+    $progress.slideDown();
 
     var $success = $("div#import_success");
     var $success_table = $("div#import_success table > tbody");
