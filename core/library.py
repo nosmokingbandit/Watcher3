@@ -515,11 +515,13 @@ class Metadata(object):
             titledata.pop(i, None)
 
         if len(titledata) < 3:
-            logging.info('Parsing filename doesn\'t look accurate. Parsing parent folder name.')
+            logging.info('Parsing filename does not look accurate. Parsing parent folder name.')
 
             path_list = os.path.split(filepath)[0].split(os.sep)
             titledata = PTN.parse(path_list[-1])
             logging.info('Found {} in parent folder.'.format(titledata))
+            if len(titledata) < 2:
+                logging.warning('Little information found in parent folder name. Movie may be incomplete.')
         else:
             logging.info('Found {} in filename.'.format(titledata))
 

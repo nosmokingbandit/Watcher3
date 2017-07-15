@@ -158,7 +158,7 @@ class Ajax(object):
     @cherrypy.tools.json_out()
     def remove_movie(self, imdbid):
         ''' Removes movie
-        imdbid (str): imdb identification number (tt123456)
+        imdbid (str): imdb id #
 
         Returns dict ajax-style response
         '''
@@ -587,7 +587,7 @@ class Ajax(object):
                     logging.info('IMDB unknown for import {}'.format(metadata['title']))
                     yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
                     continue
-                if metadata['imdbid'] in library:
+                elif metadata['imdbid'] in library:
                     logging.info('{} ({}) already in library, ignoring.'.format(metadata['title'], metadata['finished_file']))
                     yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
                     continue
