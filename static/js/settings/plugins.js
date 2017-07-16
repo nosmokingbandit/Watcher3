@@ -189,7 +189,5 @@ function _get_settings(){
         return false;
     };
 
-    console.log(settings)
-
     return {"Plugins": settings}
 }

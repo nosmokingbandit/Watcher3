@@ -101,7 +101,6 @@ function scan_library(event, elem){
                     response_update = response.substring(last_response_len);
                     last_response_len = response.length;
                 }
-                console.log(response_update)
                 var response = JSON.parse(response_update);
                 if(response['response'] == null){
                     return

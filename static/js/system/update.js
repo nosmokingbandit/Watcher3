@@ -26,7 +26,6 @@ $.ajax(url_base + '/ajax/update_server', {
                     response_update = response.substring(last_response_len);
                     last_response_len = response.length;
                 }
-                console.log(response)
                 var r = JSON.parse(response_update);
 
                 var $tasks_list = $("div.tasks")
@@ -52,7 +51,6 @@ $.ajax(url_base + '/ajax/update_server', {
                     });
 
                     $(r["active_tasks"]).each(function(index, name){
-                        console.log(name)
                         if(active_names.indexOf(name) == -1){
                             $tasks_list.append(`<div>${name}</div>`)
                         }
