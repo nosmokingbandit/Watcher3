@@ -13,8 +13,10 @@ class SchedulerPlugin(plugins.SimplePlugin):
     CherryPy plugin that schedules events at a specific time of day,
         repeating at a certain interval.
 
+
+    Class Methods:
     __init__
-    bus: class instance of Cherrypy engine
+    bus (obj): instance of Cherrypy engine
 
     Class Vars:
     task_list (dict): {name (str): class instance (obj)} of ScheduledTask instances.
@@ -31,11 +33,18 @@ class SchedulerPlugin(plugins.SimplePlugin):
         plugins.SimplePlugin.__init__(self, bus)
 
     def start(self):
+        ''' Does nothing, but neccesary for plugin subscription '''
         return
 
     def stop(self):
+        ''' Calls task.stop for all tasks in task_list '''
         for name, task in self.task_list.items():
             task.stop()
+
+    def restart(self):
+        ''' Calls task.restart for all tasks in task_list '''
+        for name, task in self.task_list.items():
+            task.restart()
 
 
 class ScheduledTask(object):
@@ -66,7 +75,7 @@ class ScheduledTask(object):
 
     Class Methods:
         start()     Starts countdown to initial execution
-        stop()      Stops countdown. Waits for any in-process tasks to finish
+        stop()      Stops countdown. Allows any in-process tasks to finish
         reload()    Cancels timer then calls __init__() and start(), takes same args as
                         __init__ and just passes them along to __init__
 
@@ -83,6 +92,7 @@ class ScheduledTask(object):
     lock = None
 
     def __init__(self, hour, minute, interval, task, auto_start=True, name=None):
+        self._init_args = [hour, minute, interval, task, auto_start, name]
         self.task = task
         self.name = name or task.__name__
         self.interval = interval
@@ -169,6 +179,13 @@ class ScheduledTask(object):
         self.timer.start()
 
     def stop(self):
+        ''' Stops Timer if currently running
+        Logs and prints task name being cancelled
+        Cancels timer for next task
+
+        Allows in-process tasks to finish, will not kill thread.
+
+        '''
         if self.timer.is_alive():
             logging.info('Stopping scheduled task {}.'.format(self.name))
             print('Stopping scheduled task: {}'.format(self.name))
@@ -176,7 +193,17 @@ class ScheduledTask(object):
 
     def reload(self, hr, min, interval, auto_start=True):
         ''' Reloads scheduled task to change time or interval
-        See self.__init__ for param descriptions
+        See self.__init__ for param descriptions.
+
+        Does not require 'task', or 'name' args since that is
+            stored in the class instance as self.task & self.name
+
+        Stops current timer (allowing in-process tasks to finish, a la self.stop())
+        Calls self.__init__ with passed args.
+        Starts timer.
+
+        Use to change start time or interval.
+
         '''
 
         logging.info('Reloading scheduler for {}'.format(self.name))
@@ -188,6 +215,24 @@ class ScheduledTask(object):
         except Exception as e:
             logging.error('Unable to start task', exc_info=True)
             return e
+
+    def restart(self):
+        ''' Restarts stopped task using initial parameters
+        args (list): original params passed to __init__
+
+        Unlike self.reload(), does not change any timing information.
+
+        Calls self.stop() to ensure timer is stopped before restarting.
+
+        Uses self._init_args to start timer based on original params.
+
+        Does not return
+        '''
+
+        logging.info('Restarting schduled task {}'.format(self.name))
+        self.stop()
+
+        self.__init__(*self._init_args)
 
     def write_record(self):
         ''' Writes last execution to persistence record
