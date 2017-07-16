@@ -365,24 +365,14 @@ class Ajax(object):
         Returns str server state if mode == online
         '''
 
-        def server_restart():
-            cherrypy.engine.stop()
-            python = sys.executable
-            os.execv(python, [core.SCRIPT_PATH] + sys.argv)
-            return
-
-        def server_shutdown():
-            cherrypy.engine.exit()
-            sys.exit(0)
-
         if mode == 'restart':
             logging.info('Restarting Server...')
-            threading.Timer(1, server_restart).start()
+            threading.Timer(1, core.restart).start()
             return
 
         elif mode == 'shutdown':
             logging.info('Shutting Down Server...')
-            threading.Timer(1, server_shutdown).start()
+            threading.Timer(1, core.shutdown).start()
             return
 
         elif mode == 'online':

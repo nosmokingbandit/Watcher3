@@ -166,6 +166,17 @@ if __name__ == '__main__':
     scheduler.MetadataUpdate.create()
     scheduler.PopularMoviesSync.create()
     scheduler.TraktSync.create()
+
+    import time
+    def _test():
+        logging.error('Starting TEST method')
+        time.sleep(15)
+        logging.error('End TEST method')
+
+    import datetime
+    now = datetime.datetime.now()
+    taskscheduler.ScheduledTask(now.hour, now.minute, 30, _test, auto_start=True, name='Test')
+
     core.scheduler_plugin.subscribe()
 
     # If windows os and daemon selected, start systray
