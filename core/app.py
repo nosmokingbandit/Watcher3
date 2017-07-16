@@ -63,6 +63,13 @@ class App(object):
         return self.library('status')
 
     @cherrypy.expose
+    def _test(self):
+        h = ''
+        active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
+
+        return ', '.join(active_tasks)
+
+    @cherrypy.expose
     def library(self, *path):
         page = path[0] if len(path) > 0 else 'status'
 
