@@ -188,8 +188,12 @@ class AutoUpdateCheck(object):
         return
 
     @staticmethod
-    def update_check():
+    def update_check(install=True):
         ''' Checks for any available updates
+        install (bool): install updates if found
+
+        Setting 'install' for False will ignore user's config for update installation
+        If 'install' is True, user config must also allow automatic updates
 
         Creates notification if updates are available.
 
@@ -224,15 +228,17 @@ class AutoUpdateCheck(object):
 
             notification.add(notif, type_='success')
 
-            if core.CONFIG['Server']['installupdates']:
+            if install and core.CONFIG['Server']['installupdates']:
                 logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
 
                 core.UPDATING = True
+                core.scheduler_plugin.stop()
                 update = ver.manager.execute_update()
                 core.UPDATING = False
 
                 if not update:
                     logging.error('Update failed.')
+                    core.scheduler_plugin.restart()
 
                 logging.info('Update successful, restarting.')
                 core.restart()

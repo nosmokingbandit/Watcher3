@@ -26,7 +26,7 @@ class App(object):
         })
 
         if core.CONFIG['Server']['checkupdates']:
-            scheduler.AutoUpdateCheck.update_check()
+            scheduler.AutoUpdateCheck.update_check(install=False)
 
     # All dispatching methods from here down
 
