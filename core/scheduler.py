@@ -235,7 +235,7 @@ class AutoUpdateCheck(object):
                     logging.error('Update failed.')
 
                 logging.info('Update successful, restarting.')
-                cherrypy.engine.restart()
+                core.restart()
             else:
                 logging.info('Currently {} commits behind. Automatic install disabled'.format(core.UPDATE_STATUS['behind_count']))
         return data
