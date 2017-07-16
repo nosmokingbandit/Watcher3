@@ -64,7 +64,7 @@ function each(arr, fn){
 function _start_update(event){
     // Method called to start update from notification.
     event.preventDefault();
-    $.post(url_base + "/ajax/update_now", {"mode": "set_true"})
+    $.post(url_base + "/ajax/update_server", {"mode": "set_true"})
     .done(function(){
         window.location = url_base + "/system/update";
     })

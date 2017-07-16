@@ -49,7 +49,7 @@ function update_check(event, elem){
 }
 
 function update_now(){
-    $.post(url_base + "/ajax/update_now", {"mode": "set_true"})
+    $.post(url_base + "/ajax/update_server", {"mode": "set_true"})
     .done(function(){
         window.location = url_base + "/update";
     })

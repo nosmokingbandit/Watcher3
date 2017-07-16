@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import threading
+import time
 import cherrypy
 from base64 import b16encode
 import datetime
@@ -364,32 +365,21 @@ class Ajax(object):
         Returns str server state if mode == online
         '''
 
-        def server_restart():
-            cherrypy.engine.stop()
-            python = sys.executable
-            os.execv(python, [core.SCRIPT_PATH] + sys.argv)
-            return
-
-        def server_shutdown():
-            cherrypy.engine.exit()
-            sys.exit(0)
-
         if mode == 'restart':
             logging.info('Restarting Server...')
-            threading.Timer(1, server_restart).start()
+            threading.Timer(1, core.restart).start()
             return
 
         elif mode == 'shutdown':
             logging.info('Shutting Down Server...')
-            threading.Timer(1, server_shutdown).start()
+            threading.Timer(1, core.shutdown).start()
             return
 
         elif mode == 'online':
             return str(cherrypy.engine.state)
 
     @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def update_now(self, mode):
+    def update_server(self, mode):
         ''' Starts and executes update process.
         mode (str): 'set_true' or 'update_now'
 
@@ -397,36 +387,57 @@ class Ajax(object):
 
         set_true:
             Sets core.UPDATING to True, the browser should then automatically redirect
-                the user to the update page that calls update_now('update_now')
+                the user to the update page that calls update_server('update_now')
 
         update_now:
-            If core.UPDATING is False, returns False response. This keeps the update process
-                from firing any time the update page is opened. The page should redirect the
-                user to the status page when this response is recieved.
-
-            If core.UPDATING is True, starts update process. core.UPDATING is set back to
-                False regardless of outcome. The update's success is returned to the browser
-                which should then immediately direct the user to the restart page if the
-                update was successful.
+            Starts update process:
+                * Stops task scheduler to cancel all Timers
+                * Waits for in-process tasks to finish. Yields to browser a list of
+                    currently-running tasks every 1.5 seconds
+                * Yields updating message to browser. Calls update method
+                * Sets core.UPDATING to False
+                * Yields response from update method to browser
+                    If False, starts scheduler plugin again to get back to a normal state
+                    If True, calls restart method. Browser is responsible for redirecting
+                        afer the server is back up.
 
         Returns dict ajax-style response
         '''
 
         if mode == 'set_true':
             core.UPDATING = True
-            return {'response': True}
+            return json.dumps({'response': True})
         if mode == 'update_now':
+            logging.info('Update process started.')
+
+            core.scheduler_plugin.stop()
+
+            active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
+
+            while len(active_tasks) > 0:
+                yield(json.dumps({'response': True, 'status': 'waiting', 'active_tasks': active_tasks}))
+                active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
+                time.sleep(1.5)
+
+            yield(json.dumps({'response': True, 'status': 'updating'}))
+
             update_status = version.Version().manager.execute_update()
             core.UPDATING = False
 
             if update_status is False:
                 logging.error('Update Failed.')
-                return {'response': False}
+                yield json.dumps({'response': False, 'error': 'Unable to complete update.'})
+                core.scheduler_plugin.restart()
 
             elif update_status is True:
-                return {'response': True}
+                yield json.dumps({'response': True, 'status': 'complete'})
+                self.server_status('restart')
+
         else:
             return {'response': False}
+
+    update_server._cp_config = {'response.stream': True, 'tools.gzip.on': False}
+
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

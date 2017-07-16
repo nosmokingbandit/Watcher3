@@ -1,4 +1,7 @@
 import ssl
+import sys
+import os
+import cherrypy
 
 # Paths to local things
 PROG_PATH = None            # Absolute path to watcher.py parent dir
@@ -54,3 +57,19 @@ manage = None
 
 # Plugin instances
 scheduler_plugin = None
+
+
+# Methods
+def restart():
+    ''' Stops server and re-executes script
+    '''
+    cherrypy.engine.stop()
+    python = sys.executable
+    os.execv(python, [SCRIPT_PATH] + sys.argv)
+
+
+def shutdown():
+    ''' Exits server and script
+    '''
+    cherrypy.engine.exit()
+    sys.exit(0)

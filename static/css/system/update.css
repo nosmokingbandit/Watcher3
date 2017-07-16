@@ -11,15 +11,22 @@ div#content{
     background-image: url('../../images/logo_big.png');
     background-position: 50% 25%;
     background-repeat: no-repeat;
+    text-align: center;
 }
 
-div.message{
+div.tasks{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 45%;
+}
+
+div.updating{
     font-size: 1.75em;
     position: absolute;
     left: 0;
     right: 0;
     top: 70%;
-    text-align: center;
 }
 
 div#thinker{

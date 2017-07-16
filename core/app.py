@@ -26,7 +26,7 @@ class App(object):
         })
 
         if core.CONFIG['Server']['checkupdates']:
-            scheduler.AutoUpdateCheck.update_check()
+            scheduler.AutoUpdateCheck.update_check(install=False)
 
     # All dispatching methods from here down
 
@@ -61,6 +61,13 @@ class App(object):
     @cherrypy.expose
     def default(self):
         return self.library('status')
+
+    @cherrypy.expose
+    def _test(self):
+        h = ''
+        active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
+
+        return ', '.join(active_tasks)
 
     @cherrypy.expose
     def library(self, *path):

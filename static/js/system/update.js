@@ -11,36 +11,94 @@ $(document).ready(function () {
 
     $message = $("div.message");
 
-    /*
-    This repeats every 3 seconds to check if the server is back online.
-    Sends the browser to /restart if it is started.
-    This sometimes creates an error in CherryPy because we ask for a response
-        when the server is turned off, but this is ok.
-    */
+var last_response_len = false;
+$.ajax(url_base + '/ajax/update_server', {
+        method: "POST",
+        data: {"mode": "update_now"},
+        xhrFields: {
+            onprogress: function(e){
+                var response_update;
+                var response = e.currentTarget.response;
+                if(last_response_len === false){
+                    response_update = response;
+                    last_response_len = response.length;
+                } else {
+                    response_update = response.substring(last_response_len);
+                    last_response_len = response.length;
+                }
+                var r = JSON.parse(response_update);
 
-    $.post(url_base + "/ajax/update_now", {
-        "mode": "update_now"
-    })
-    .done(function(response){
-        if(response["response"] == false){
-            $thinker.css("opacity", 0);
-            $message.css("opacity", 0);
+                var $tasks_list = $("div.tasks")
 
-            $.notify({title: "<u>Update Failed</u><br/>", message: "Please check logs for more information."}, {type: "danger", delay: 0})
+                if(r["response"] == false){
+                    $thinker.fadeOut();
+                    $.notify({message: r["error"]}, {type: "danger", delay: 0});
+                    return
+                }
+                else if(r["status"] == "waiting"){
+                    $tasks_list.show();
+                    $thinker.css("opacity", "0.25")
+                    var $active_tasks = $("div.tasks > div")
+                    var active_names = [];
 
-        } else if(response["response"] == true){
-            $.notify({message: "Update successful."}, {delay: 0});
-            setTimeout(function() {window.location =  url_base + "/system/restart/";}, 2500);
+                    $active_tasks.each(function(index, element){
+                        var $task = $(element);
+                        var name = $task.text();
+                        active_names.push(name);
+                        if(r["active_tasks"].indexOf(name) == -1){
+                            $task.slideUp();
+                        }
+                    });
 
-
-        } else {
-            $thinker.css("opacity", 0);
-            $message.css("opacity", 0);
-            $.notify({title: "<u>Update Failed</u><br/>", message: "Please check logs for more information."}, {type: "danger", delay: 0})
+                    $(r["active_tasks"]).each(function(index, name){
+                        if(active_names.indexOf(name) == -1){
+                            $tasks_list.append(`<div>${name}</div>`)
+                        }
+                    });
+                }
+                else if(r["status"] == "updating"){
+                    $tasks_list.fadeOut();
+                    $thinker.css("opacity", 1);
+                    $("div.updating").fadeIn();
+                }
+                else if(r["status"] == "complete"){
+                    $.notify({message: "Update successful."}, {delay: 0});
+                    $("div.updating").text("Restarting");
+                    redirect();
+                }
+            }
         }
+    })
+    .done(function(data){
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger", delay: 0});
+        $.notify({message: err}, {type: "danger"});
     });
 });
+
+
+function redirect(){
+    /*
+    This repeats every 3 seconds to check. Times out after 10 attempts and
+        shows span.error message.
+    */
+    var try_count = 0
+    var check = setInterval(function(){
+        if(try_count < 10){
+            try_count += 1;
+            $.post(url_base + "/ajax/server_status", {
+                mode: "online",
+            })
+            .done(function(r){
+                if(r != "states.STOPPING"){
+                    window.location = url_base+"/library/status/";
+                }
+            });
+        } else {
+            clearInterval(check);
+            $.notify({title: "<u>Timout Exceeded</u><br/>", message: "Watcher is taking too long to restart. Please check your logs and restart manually."}, {type: "warning", delay: 0})
+            $thinker.css("opacity", 0);
+        }
+    }, 3000);
+}
