@@ -47,7 +47,7 @@ def restart_scheduler(diff):
             auto_start = True
             taskscheduler.SchedulerPlugin.task_list['Movie Search'].reload(hr, min, interval, auto_start=auto_start)
 
-        if 'Watchlists' in diff['Search']:
+        if 'Watchlists' in d:
             d = diff['Search']['Watchlists'].keys()
             if any(i in d for i in ('imdbfrequency', 'imdbsync')):
                 hr = now.hour
