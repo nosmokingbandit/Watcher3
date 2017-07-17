@@ -2,8 +2,8 @@
 <html>
     <head>
         ${head}
-        <script src="${url_base}/static/js/add_movie.js?v=06.06"  type="text/javascript"></script>
         <link href="${url_base}/static/css/add_movie.css?v=06.08" rel="stylesheet">
+        <script src="${url_base}/static/js/add_movie.js?v=07.08" type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -12,7 +12,7 @@
             <div class="input-group" id="search_bar">
                 <input type="text" id="apikey" class="form-control">
                 <span class="input-group-btn">
-                    <a id="search_button" class="btn btn-default">
+                    <a id="search_button" class="btn btn-default" onclick="search_tmdb(event, this)">
                         <i class="mdi mdi-magnify"></i>
                     </a>
                 </span>
@@ -74,7 +74,7 @@
                             <span class="label label-default">
                                 Score: {vote_average}
                             </span>
-                            <a class="label label-info" href="https://www.themoviedb.org/movie/{id}" target="_blank">
+                            <a class="label label-info" href="https://www.themoviedb.org/movie/{id}" target="_blank" rel="noopener">
                                 TheMovieDB <i class="mdi mdi-earth"></i>
                             </a>
                         </div>
@@ -82,7 +82,7 @@
                         <div class="modal-body">
 
                             <div class="col-md-5">
-                                <img src="{img_url}" class="img-responsive">
+                                <img src="{poster_url}" class="img-responsive">
                             </div>
                             <div class="col-md-7">
                                 <div class="embed-responsive embed-responsive-16by9">

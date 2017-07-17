@@ -1,8 +1,14 @@
 import ssl
-from core.sqldb import SQL
+import sys
+import os
+import cherrypy
+import logging
+
+logging = logging.getLogger(__name__)
 
 # Paths to local things
-PROG_PATH = None            # Absolute path to watcher.py
+PROG_PATH = None            # Absolute path to watcher.py parent dir
+SCRIPT_PATH = None          # Absolute path to watcher.py file
 CONF_FILE = 'config.cfg'
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
@@ -33,18 +39,42 @@ NOTIFICATIONS = []                          # List of dicts of notifications and
 NO_VERIFY = ssl.create_default_context()    # Obj no verify context for requests
 NO_VERIFY.check_hostname = False
 NO_VERIFY.verify_mode = ssl.CERT_NONE
+PLATFORM = None                             # Host OS ['windows', '*nix']
+SESSION_KEY = '_cp_username'                # Key to use when generating login session
 
 # Rate limiting
 TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting
 TMDB_LAST_FILL = None   # Obj datetime.datetime.now() of last time TMDB tokens have been filled
 
 # Global Media Constants
-SOURCES = ['BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
+SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
            'WebDL-4K', 'WebDL-1080P', 'WebDL-720P',
            'WebRip-4K', 'WebRip-1080P', 'WebRip-720P',
            'DVD-SD',
            'Screener-1080P', 'Screener-720P',
-           'Telesync-SD', 'CAM-SD']
+           'Telesync-SD', 'CAM-SD')
 
 # Module instances
-sql = SQL()
+sql = None
+manage = None
+
+# Plugin instances
+scheduler_plugin = None
+
+
+# Methods
+def restart():
+    ''' Stops server and re-executes script
+    '''
+    cherrypy.engine.stop()
+    logging.info("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
+    print("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
+    python = sys.executable
+    os.execv(python, [SCRIPT_PATH] + sys.argv)
+
+
+def shutdown():
+    ''' Exits server and script
+    '''
+    cherrypy.engine.exit()
+    sys.exit(0)

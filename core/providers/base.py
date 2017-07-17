@@ -4,7 +4,7 @@ import logging
 
 import core
 from core.helpers import Url
-from core.proxy import Proxy
+from core import proxy
 
 
 class NewzNabProvider(object):
@@ -15,19 +15,13 @@ class NewzNabProvider(object):
         parse_newznab_xml   parses newznab-formatted xml into dictionary
         test_connection     static_method to test connetion and apikey
 
-    Required imports:
-        import xml.etree.cElementTree as ET
-        from core.helpers import Url
-        from core.proxy import Proxy
-        from core.providers.base import NewzNabProvider
-
     '''
 
     def search_newznab(self, url_base, apikey, **params):
         ''' Searches Newznab for imdbid
-        url_base: str base url for all requests (https://indexer.com/)
-        apikey: str api key for indexer
-        params: parameters to url encode and append to url
+        url_base (str): base url for all requests (https://indexer.com/)
+        apikey (str): api key for indexer
+        params (dict): parameters to url encode and append to url
 
         Creates url based off url_base. Appends url-encoded **params to url.
 
@@ -41,7 +35,7 @@ class NewzNabProvider(object):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         try:
-            if proxy_enabled and Proxy.whitelist(url) is True:
+            if proxy_enabled and proxy.whitelist(url) is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -49,14 +43,14 @@ class NewzNabProvider(object):
             return self.parse_newznab_xml(response)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Newz/TorzNab backlog search.', exc_info=True)
             return []
 
     def _get_rss(self):
         ''' Get latest uploads from all indexers
 
-        Returns list of dicts with parsed nzb info
+        Returns list of dicts with parsed release info
         '''
 
         self.imdbid = None
@@ -83,7 +77,7 @@ class NewzNabProvider(object):
             logging.info('RSS_SYNC: {}api?t=movie&cat=2000&extended=1&offset=0&apikey=APIKEY'.format(url_base))
 
             try:
-                if proxy_enabled and Proxy.whitelist(url) is True:
+                if proxy_enabled and proxy.whitelist(url) is True:
                     response = Url.open(url, proxy_bypass=True).text
                 else:
                     response = Url.open(url).text
@@ -91,18 +85,16 @@ class NewzNabProvider(object):
                 return self.parse_newznab_xml(response)
             except (SystemExit, KeyboardInterrupt):
                 raise
-            except Exception as e: # noqa
+            except Exception as e:
                 logging.error('Newz/TorzNab rss get xml.', exc_info=True)
 
         return results
 
-    # Returns a list of results in dictionaries. Adds to each dict a key:val of 'indexer':<indexer>
     def parse_newznab_xml(self, feed):
         ''' Parse xml from Newnzb api.
-        :param feed: str nn xml feed
-        kind: str type of feed we are parsing, either nzb or torrent
+        feed (str): xml feed text
 
-        Returns dict of sorted nzb information.
+        Returns list of dicts of parsed nzb information.
         '''
 
         root = ET.fromstring(feed)
@@ -124,7 +116,7 @@ class NewzNabProvider(object):
 
     def _make_item_dict(self, item):
         ''' Converts parsed xml into dict.
-        item: obj elementtree parse object of xml information
+        item (object): elementtree parse object of xml information
 
         Helper function for parse_newznab_xml().
 
@@ -135,7 +127,7 @@ class NewzNabProvider(object):
 
         Gets torrent hash and determines if download is torrent file or magnet uri.
 
-        Returns dict.
+        Returns dict
         '''
 
         item_keep = ('title', 'link', 'guid', 'size', 'pubDate', 'comments', 'description')
@@ -196,7 +188,12 @@ class NewzNabProvider(object):
     @staticmethod
     def test_connection(indexer, apikey):
         ''' Tests connection to NewzNab API
+        indexer (str): url of indexer
+        apikey (str): indexer api key
 
+        Test searches for imdbid tt0063350 (Night of the Living Dead 1968)
+
+        Returns dict ajax-style response
         '''
 
         if not indexer:
@@ -219,7 +216,7 @@ class NewzNabProvider(object):
                 response = r.text
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Newz/TorzNab connection check.', exc_info=True)
             return {'response': False, 'error': 'No connection could be made because the target machine actively refused it.'}
 

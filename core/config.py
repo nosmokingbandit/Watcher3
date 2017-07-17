@@ -110,12 +110,33 @@ class Config():
         if type(new_config['Search']['Watchlists']['imdbrss']) == str:
             new_config['Search']['Watchlists']['imdbrss'] = new_config['Search']['Watchlists']['imdbrss'].split(',')
 
+        # Convert from predb-only verifying to multiple choice
+        if new_config['Search'].get('predbcheck') is True:
+            new_config['Search']['verifyreleases'] = 'predb'
+            del new_config['Search']['predbcheck']
+
+        # Convert from hardlink option to multiple choice
+        if new_config['Postprocessing'].get('createhardlink') is True:
+            new_config['Postprocessing']['movermethod'] = 'hardlink'
+            del new_config['Postprocessing']['createhardlink']
+
         with open(self.file, 'w') as f:
             json.dump(new_config, f, indent=4, sort_keys=True)
 
         return
 
     def _merge(self, d, u):
+        ''' Deep merge dictionaries
+        d: dict base dict to merge into
+        u: dict dict to update from
+
+        If any k:v pair in u is not in d, adds k:v pair.
+
+        Will not overwrite any values in d, nor will it remove
+            any k:v pairs in d.
+
+        Returns dict
+        '''
         for k, v in u.items():
             if isinstance(v, collections.Mapping):
                 r = self._merge(d.get(k, {}), v)
@@ -135,7 +156,7 @@ class Config():
         try:
             with open(self.file, 'w') as f:
                 json.dump(config, f, indent=4, sort_keys=True)
-        except Exception as e:  # noqa
+        except Exception as e:
             return False
 
         return True

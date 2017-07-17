@@ -1,82 +1,86 @@
-<%
-    import json
-    status_key = {'Waiting': 0, 'Wanted': 1, 'Found': 2, 'Snatched': 3, 'Finished': 4, 'Disabled': 4}
-%>
 <!DOCTYPE>
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/status.css?v=06.08.2" rel="stylesheet">
+        <link href="${url_base}/static/css/library/status.css?v=07.17b" rel="stylesheet">
+        <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=07.17" type="text/javascript"></script>
 
-        <script src="${url_base}/static/js/lib/echo.min.js?v=06.07"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=06.07"  type="text/javascript"></script>
+        <meta name="movie_count" content="${movie_count}"/>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
-            <div class="toolbar">
-                <div id="movie_layout" class="btn-group">
-                    <a class="btn btn-default" data-layout="posters">
-                        <i class="mdi mdi-view-grid"></i>
-                    </a>
-                    <a class="btn btn-default" data-layout="list striped">
-                        <i class="mdi mdi-view-list"></i>
-                    </a>
-                    <a class="btn btn-default" data-layout="compact striped">
-                        <i class="mdi mdi-view-headline"></i>
-                    </a>
+        <div class="container-fluid clearfix">
+            <div id="toolbar" class="col-md-12">
+                <div id="movie_layout" class="col-md-4 col-sm-6">
+                    <div class="btn-group pull-left">
+                        <a class="btn btn-default" data-layout="posters">
+                            <i class="mdi mdi-view-grid"></i>
+                        </a>
+                        <a class="btn btn-default" data-layout="list striped">
+                            <i class="mdi mdi-view-list"></i>
+                        </a>
+                        <a class="btn btn-default" data-layout="compact striped">
+                            <i class="mdi mdi-view-headline"></i>
+                        </a>
+                    </div>
                 </div>
-                <div id="sort_options" class="btn-group pull-right">
-                    <select id="movie_sort_key" class="btn btn-default">
-                        <option value="title">Title</option>
-                        <option value="year">Year</option>
-                        <option value="status_key">Status</option>
-                    </select>
-                    <a class="btn btn-default" id="sort_direction" onclick="sort_direction(event, this)">
-                        <i class="mdi"></i>
-                    </a>
+
+                <div class="col-md-4 col-md-push-4 col-sm-6">
+                    <div class="btn-group pull-right">
+                        <select id="movie_sort_key" class="btn btn-default">
+                            <option value="title">Title</option>
+                            <option value="year">Year</option>
+                            <option value="status">Status</option>
+                        </select>
+                        <a class="btn btn-default" id="sort_direction" onclick="switch_sort_direction(event, this)">
+                            <i class="mdi"></i>
+                        </a>
+                    </div>
                 </div>
+
+                <div class="col-md-4 col-md-pull-4 col-sm-12">
+                    <span id="page_left" onclick="change_page_sequential(event, -1)">
+                        <i class="mdi mdi-chevron-double-left"></i>
+                    </span>
+                    <div class="btn-group">
+                        <select id="page_number" class="btn btn-default">
+                        </select>
+                        <a id="page_count" class="btn btn-default active"></a>
+                    </div>
+                    <span id="page_right" onclick="change_page_sequential(event, 1)">
+                        <i class="mdi mdi-chevron-double-right"></i>
+                    </span>
+                </div>
+
             </div>
         </div>
 
         <div class="container-fluid">
             <ul id="movie_list" class="hidden striped">
-                %for movie in movies:
-                <%
-                _status = 'Finished' if movie['status'] == 'Disabled' else movie['status']
-                score = 0 if not movie['score'].replace('.', '').isdigit() else round(int(movie['score'][0]))
-                %>
-                <li class="movie" data-imdbid="${movie['imdbid']}" onclick="open_info_modal(event, this)">
-                    <span class="hidden movie">${json.dumps(movie)}</span>
-                    <img data-echo="${url_base}/static/images/posters/${movie['imdbid']}.jpg" src="${url_base}/static/images/missing_poster.jpg">
-                    <span class="label status ${_status}">${_status}</span>
-                    <span class="hidden status_key">${status_key[_status]}</span>
-                    <span class="score">
-                        %for i in range(5):
-                            %if score > 1:
-                            <i class="mdi mdi-star"></i>
-                            %elif score == 1:
-                            <i class="mdi mdi-star-half"></i>
-                            %else:
-                            <i class="mdi mdi-star-outline"></i>
-                            %endif
-                        <%
-                        score -= 2
-                        %>
-                        %endfor
-                    </span>
-                    <span class="title">
-                        ${movie['title']}
-                    </span>
-                    <span class="year">
-                        ${movie['year']}
-                    </span>
-                </li>
-
-                %endfor
             </ul>
         </div>
         <div id="overlay"></div>
+
+        <textarea id="template_movie" class="hidden">
+            <li class="movie" data-imdbid="{imdbid}" onclick="open_info_modal(event, this)">
+                <img data-echo="{url_base}/static/{poster}" src="{url_base}/static/images/missing_poster.jpg">
+                <span class="label status {status}">{status}</span>
+                <span class="score">
+                    <i class="mdi mdi-star-outline"></i>
+                    <i class="mdi mdi-star-outline"></i>
+                    <i class="mdi mdi-star-outline"></i>
+                    <i class="mdi mdi-star-outline"></i>
+                    <i class="mdi mdi-star-outline"></i>
+                </span>
+                <span class="title">
+                    {title}
+                </span>
+                <span class="year">
+                    {year}
+                </span>
+            </li>
+        </textarea>
 
         <textarea id="template_movie_info" class="hidden">
             <div class="modal fade" id="modal_details">
@@ -94,29 +98,30 @@
                                 Theatrical Release: {release_date}
                             </span>
                             <span class="label label-default">
+                                Home Release: {media_release_date}
+                            </span>
+                            <span class="label label-default">
                                 Score: {score}
                             </span>
                             <span class="label label-default">
                                 Date Added: {added_date}
                             </span>
-                            <a class="label label-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank">
+                            <a class="label label-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank" rel="noopener">
                                 TheMovieDB <i class="mdi mdi-earth"></i>
                             </a>
-                            <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank">
+                            <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank" rel="noopener">
                                 IMDB <i class="mdi mdi-earth"></i>
                             </a>
-
-
                         </div>
 
                         <div class="modal-body">
-                            <div class="col-md-4">
-                                <img src="{poster}" class="img-responsive">
+                            <div class="col-md-3">
+                                <img src="{url_base}/static/{poster}" class="img-responsive poster">
                             </div>
 
-                            <div class="col-md-8">
+                            <div class="col-md-9">
 
-                                <div id="movie_actions" class="btn-group btn-group-justified">
+                                <div id="movie_actions" class="col-md-4 btn-group btn-group-justified">
                                     <a class="btn btn-default" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
                                         <i class="mdi mdi-magnify"></i>
                                     </a>
@@ -127,31 +132,33 @@
                                         <i class="mdi mdi-delete"></i>
                                     </a>
                                 </div>
-                                <div class="well">
-                                    <p class="plot">{plot}</p>
+                                <div class="col-md-8 labels">
+                                    <label class="col-md-5 col-sm-5">Quality</label>
+                                    <label class="col-md-5 col-sm-5">Status</label>
+
                                 </div>
 
-                                <div class="col-md-5">
-                                    <label>Quality</label>
-                                        <select id="movie_quality" class="btn btn-default form-control" value="{quality}">
+                                <div id="movie_settings" class="col-md-8 btn-group">
+                                        <select id="movie_quality" class="btn btn-default col-md-5 col-sm-5">
                                             %for i in profiles:
                                             <option value="${i}">${i}</option>
                                             %endfor
                                         </select>
-                                </div>
-                                <div class="col-md-5">
-                                    <label>Status</label>
-                                        <select id="movie_status" class="btn btn-default col-md-5" value="{quality}">
+                                        <select id="movie_status" class="btn btn-default col-md-5 col-sm-5">
                                             <option value="Automatic">Automatic</option>
                                             <option value="Disabled">Finished</option>
                                         </select>
+                                        <a id="update_movie_options" class="btn btn-success col-md-2 col-sm-2" onclick="update_movie_options(event, this, '{imdbid}')">
+                                            <i class="mdi mdi-content-save"></i>
+                                        </a>
                                 </div>
-                                <div class="col-md-2">
-                                    <a id="update_movie_options" class="btn btn-success" onclick="update_movie_options(event, this, '{imdbid}')">
-                                        <i class="mdi mdi-content-save"></i>
-                                    </a>
 
+
+                                <div class="well col-md-12">
+                                    <p class="plot">{plot}</p>
                                 </div>
+
+
                             </div>
                             <div id="search_results_table" class="col-md-12 panel panel-default striped">
                                 {table}

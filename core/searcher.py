@@ -2,7 +2,7 @@ import datetime
 import logging
 
 import core
-from core import library, searchresults, snatcher, proxy
+from core import searchresults, snatcher, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
 from fuzzywuzzy import fuzz
@@ -18,7 +18,87 @@ class Searcher():
         self.predb = predb.PreDB()
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
-        self.manage = library.Manage()
+
+    def verify(self, movie):
+        ''' Checks for verfied releases based on config
+        movie (dict): movie info
+
+        Checks (in order):
+            If verify releases is enabled
+            If movie has a theatrical release date
+            If theatrical release date is older than skip weeks per user config
+            If predb verification -- check predb
+            If home media release verification - check if release is in the past
+
+            If all enabled conditions fail, return False
+
+        Returns Bool
+        '''
+        now = datetime.datetime.today()
+
+        if core.CONFIG['Search']['verifyreleases'] == '':
+            verified = True
+        elif not movie.get('release_date'):
+            verified = False
+
+        elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < now:
+            verified = True
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'predb':
+            if movie.get('predb') == 'found':
+                verified = True
+            else:
+                verified = False
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'mediareleasedate':
+            if not movie.get('predb') and movie.get('predb_backlog'):
+                logging.debug('Resetting predb backlog status for unfound movie {} {}'.format(movie['title'], movie['year']))
+                core.sql.update('MOVIES', 'predb_backlog', None, 'imdbid', movie['imdbid'])
+            if not movie.get('media_release_date'):
+                verified = False
+            else:
+                media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
+                if media_release < now:
+                    verified = True
+                else:
+                    verified = False
+        else:
+            verified = False
+
+        if verified and movie['status'] == 'Waiting':
+            logging.info('Verification criteria met for {} {}, setting status to Wanted'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Wanted', 'imdbid', movie['imdbid'])
+        elif not verified and movie['status'] != 'Waiting':
+            logging.info('Verified criteria not met for {} {}, resetting setting status to Waiting'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', movie['imdbid'])
+
+        return verified
+
+    def _t_search_grab(self, movie):
+        ''' Run verify/search/snatch chain
+        movie (dict): movie to run search for
+
+        Meant to be executed *IN ITS OWN THREAD* after adding a movie from user-input (ie api, search)
+            so the main thread is not tied up.
+
+        Does not return
+        '''
+
+        imdbid = movie['imdbid']
+        title = movie['title']
+        year = movie['year']
+        quality = movie['quality']
+
+        if core.CONFIG['Search']['verifyreleases'] == 'predb':
+            self.predb.backlog_search(movie)
+
+        if not self.verify(movie):
+            return
+
+        if core.CONFIG['Search']['searchafteradd'] and self.search(imdbid, title, year, quality) and core.CONFIG['Search']['autograb']:
+            best_release = self.snatcher.best_release(movie)
+            if best_release:
+                self.snatcher.download(best_release)
 
     def search_all(self):
         ''' Searches for all movies
@@ -26,10 +106,6 @@ class Searcher():
         Automatically runs as scheduled task.
 
         Updates core.NEXT_SEARCH time.
-
-        Checks for all movies on predb.
-
-        Searches only for movies where predb == 'found'.
 
         Searches only for movies that are Wanted, Found,
             or Finished -- if inside user-set date range.
@@ -49,16 +125,18 @@ class Searcher():
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        self.predb.check_all()
-
         logging.info('############# Running automatic search #############')
         if core.CONFIG['Search']['keepsearching']:
             logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = core.sql.get_user_movies()
         if not movies:
-            return False
+            return
+        else:
+            if core.CONFIG['Search']['verifyreleases'] == 'predb':
+                self.predb.check_all()
+            movies = [i for i in movies if self.verify(i)]
 
-        backlog_movies = self._get_backlog_movies(movies)
+        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished')]
         if backlog_movies:
             logging.debug('Backlog movies: {}'.format(', '.join(i['title'] for i in backlog_movies)))
             for movie in backlog_movies:
@@ -72,31 +150,27 @@ class Searcher():
                 continue
 
         rss_movies = self._get_rss_movies(movies)
-
         if rss_movies:
             logging.info('Checking RSS feeds for {} movies.'.format(len(rss_movies)))
             self.rss_sync(rss_movies)
 
-        '''
-        If autograb is enabled, loops through movies and grabs any appropriate releases.
-        '''
         if core.CONFIG['Search']['autograb']:
             self.snatcher.grab_all()
         return
 
     def search(self, imdbid, title, year, quality):
         ''' Executes backlog search for required movies
-        imdbid: str imdb identification number
-        title: str movie title
-        year: str year of movie release
-        quality: str name of quality profile.
+        imdbid (str): imdb identification number
+        title (str): movie title
+        year (str/int): year of movie release
+        quality (str): name of quality profile
 
         Gets new search results from newznab providers.
         Pulls existing search results and updates new data with old. This way the
             found_date doesn't change and scores can be updated if the quality profile
             was modified since last search.
 
-        Sends ALL results to searchresults.Score().score() to be (re-)scored and filtered.
+        Sends ALL results to searchresults.Score.score() to be (re-)scored and filtered.
 
         Checks if guid matches entries in MARKEDRESULTS and
             sets status if found. Default status Available.
@@ -105,7 +179,7 @@ class Searcher():
 
         Returns Bool if movie is found.
         '''
-        proxy.Proxy.create()
+        proxy.create()
 
         results = []
 
@@ -116,9 +190,9 @@ class Searcher():
             for i in self.torrent.search_all(imdbid, title, year):
                 results.append(i)
 
-        proxy.Proxy.destroy()
+        proxy.destroy()
 
-        old_results = [dict(r) for r in core.sql.get_search_results(imdbid, quality)]
+        old_results = core.sql.get_search_results(imdbid, quality)
 
         for old in old_results:
             if old['type'] == 'import':
@@ -149,7 +223,7 @@ class Searcher():
             logging.error('Unable to store search results for {}'.format(imdbid))
             return False
 
-        if not self.manage.movie_status(imdbid):
+        if not core.manage.movie_status(imdbid):
             logging.error('Unable to update movie status for {}'.format(imdbid))
             return False
 
@@ -161,7 +235,7 @@ class Searcher():
 
     def rss_sync(self, movies):
         ''' Gets latests RSS feed from all indexers
-        movies: list of dicts of movies to look for
+        movies (list): dicts of movies to look for
 
         Gets latest rss feed from all supported indexers.
 
@@ -172,19 +246,19 @@ class Searcher():
 
         Finally stores results in SEARCHRESULTS
 
-        Does not return
+        Returns bool
         '''
         newznab_results = []
         torrent_results = []
 
-        proxy.Proxy.create()
+        proxy.create()
 
         if core.CONFIG['Downloader']['Sources']['usenetenabled']:
             newznab_results = self.nn.get_rss()
         if core.CONFIG['Downloader']['Sources']['torrentenabled']:
             torrent_results = self.torrent.get_rss()
 
-        proxy.Proxy.destroy()
+        proxy.destroy()
 
         for movie in movies:
             imdbid = movie['imdbid']
@@ -204,7 +278,7 @@ class Searcher():
                 continue
 
             # Ignore results we've already stored
-            old_results = [dict(r) for r in core.sql.get_search_results(imdbid)]
+            old_results = core.sql.get_search_results(imdbid)
             new_results = []
             for res in results:
                 guid = res['guid']
@@ -222,20 +296,20 @@ class Searcher():
             scored_results = self.score.score(new_results, imdbid=imdbid)
 
             if len(scored_results) == 0:
+                logging.info('No acceptable results found for {}'.format(imdbid))
                 continue
 
             if not self.store_results(scored_results, imdbid):
                 return False
 
-            if not self.manage.movie_status(imdbid):
-                logging.info('No acceptable results found for {}'.format(imdbid))
+            if not core.manage.movie_status(imdbid):
                 return False
 
         return True
 
     def remove_inactive(self, results):
         ''' Removes results from indexers no longer enabled
-        results: list of dicts of search results
+        results (list): dicts of search results
 
         Pulls active indexers from config, then removes any
             result that isn't from an active indexer.
@@ -245,7 +319,7 @@ class Searcher():
             ie demonoid == dnoid.me, we can't filter out disabled torrent
             indexers since all would be removed
 
-        returns list of search results to keep
+        Returns list of search results to keep
         '''
 
         active = []
@@ -265,9 +339,9 @@ class Searcher():
 
     def store_results(self, results, imdbid, backlog=False):
         ''' Stores search results in database.
-        :param results: list of dicts of search results
-        :param imdbid: str imdb identification number (tt123456)
-        backlog: Bool if this call is from a backlog search <default False>
+        results (list): of dicts of search results
+        imdbid (str): imdb identification number
+        backlog (bool): if this call is from a backlog search       <optional - default False>
 
         Writes batch of search results to table.
 
@@ -276,7 +350,7 @@ class Searcher():
             as to not change the found_date. Purging lets us write old results back in
             with updated scores and other info.
 
-        Returns Bool on success/failure.
+        Returns bool
         '''
 
         logging.info('{} results found for {}. Storing results.'.format(len(results), imdbid))
@@ -303,13 +377,13 @@ class Searcher():
 
     def get_source(self, result):
         ''' Parses release resolution and source from title.
-        :param result: dict of individual search result info
+        result (dict): individual search result info
 
         Returns str source based on core.SOURCES
         '''
 
         title = result['title']
-        if '4K' in title or 'UHD' in title or '2160P' in title:
+        if any(i in title for i in ('4K', 'UHD', '2160P')):
             resolution = '4K'
         elif '1080' in title:
             resolution = '1080P'
@@ -318,7 +392,7 @@ class Searcher():
         else:
             resolution = 'SD'
 
-        delimiters = ['.', '_', ' ', '-', '+']
+        delimiters = ('.', '_', ' ', '-', '+')
         brk = False
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
             for a in aliases:
@@ -331,35 +405,9 @@ class Searcher():
                 break
         return 'Unknown-{}'.format(resolution)
 
-    def _get_backlog_movies(self, movies):
-        ''' Gets list of movies that require backlog search
-        movies: list of dicts of movie rows in movies
-
-        Filters movies so it includes movies where backlog == 0 and
-            status is Wanted, Found, or Finished
-
-        Returns list of dicts of movies that require backlog search
-        '''
-
-        backlog_movies = []
-
-        checkpredb = core.CONFIG['Search']['predbcheck']
-
-        for i in movies:
-            if not checkpredb and ['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished'):
-                logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
-                backlog_movies.append(i)
-            elif checkpredb and i['predb'] == 'found' and i['backlog'] != 1 and i['status'] in ('Wanted', 'Found', 'Finished'):
-                logging.info('{} {} has not yet recieved a full backlog search, will execute.'.format(i['title'], i['year']))
-                backlog_movies.append(i)
-            else:
-                continue
-
-        return backlog_movies
-
     def _get_rss_movies(self, movies):
         ''' Gets list of movies that we'll look in the rss feed for
-        movies: list of dicts of movie rows in movies
+        movies (list): dicts of movie rows in movies
 
         Filters movies so it includes movies where backlog == 1 and
             status is Wanted, Found, Snatched, or Finished
@@ -367,7 +415,7 @@ class Searcher():
 
         Returns list of dicts of movies that require backlog search
         '''
-        today = datetime.date.today()
+        today = datetime.datetime.today()
         keepsearching = core.CONFIG['Search']['keepsearching']
         keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
         keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
@@ -386,7 +434,9 @@ class Searcher():
                 rss_movies.append(i)
                 logging.info('{} {} is {}. Will look for new releases in RSS feed.'.format(title, year, status))
             if status == 'Finished' and keepsearching is True:
-                finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d').date()
+                if not i['finished_date']:
+                    continue
+                finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d')
                 if finished_date_obj + keepsearchingdelta >= today:
                     logging.info('{} {} was marked Finished on {}, will keep checking RSS feed for new releases.'.format(title, year, i['finished_date']))
                     rss_movies.append(i)
@@ -396,9 +446,9 @@ class Searcher():
 
     def _match_torrent_name(self, movie_title, movie_year, torrent_title):
         ''' Checks if movie_title and torrent_title are a good match
-        movie_title: str title of movie
-        movie_year: str year of movie release
-        torrent_title: str title of torrent
+        movie_title (str): title of movie
+        movie_year (str/int): year of movie release
+        torrent_title (str): title of torrent
 
         Helper function for rss_sync.
 

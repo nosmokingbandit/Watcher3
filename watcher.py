@@ -1,7 +1,6 @@
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'templates'))
 
 MIN_PYTHON = (3, 0, 0)
 if sys.version_info < MIN_PYTHON:
@@ -11,6 +10,7 @@ if sys.version_info < MIN_PYTHON:
 import core
 core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
 os.chdir(core.PROG_PATH)
+core.SCRIPT_PATH = os.path.join(core.PROG_PATH, __file__)
 
 import argparse
 import locale
@@ -20,13 +20,13 @@ import shutil
 
 import cherrypy
 from cherrypy.process.plugins import Daemonizer, PIDFile
-from core import api, config, postprocessing, scheduler
-from core.app import App
-from core.log import log
+from core.cp_plugins import taskscheduler
 
 if os.name == 'nt':
+    core.PLATFORM = 'windows'
     from core.cp_plugins import systray
-
+else:
+    core.PLATFORM = '*nix'
 
 if __name__ == '__main__':
 
@@ -61,17 +61,19 @@ if __name__ == '__main__':
                         help='Directory in which to store pid file.', type=str)
     passed_args = parser.parse_args()
 
-    if passed_args.plugins:
-        core.PLUGIN_DIR = passed_args.plugins
-
-    if passed_args.pid:
-        PIDFile(cherrypy.engine, passed_args.pid).subscribe()
-
-    # Set up conf file
-    if passed_args.conf:
-        core.CONF_FILE = passed_args.conf
+    # set up db connection
+    from core import sqldb, library
+    if passed_args.db:
+        core.DB_FILE = passed_args.db
+    else:
+        core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
+    core.sql = sqldb.SQL()
+    core.manage = library.Manage()
 
     # set up config file on first launch
+    if passed_args.conf:
+        core.CONF_FILE = passed_args.conf
+    from core import config
     conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
         print('Config file not found. Creating new basic config {}. Please review settings.'.format(core.CONF_FILE))
@@ -82,12 +84,30 @@ if __name__ == '__main__':
     conf.stash()
 
     # Set up logging
+    from core import log
     if passed_args.log:
         core.LOG_DIR = passed_args.log
     log.start(core.LOG_DIR)
     logging = logging.getLogger(__name__)
     cherrypy.log.error_log.propagate = True
     cherrypy.log.access_log.propagate = False
+
+    # clean mako cache
+    try:
+        print("Clearing Mako cache.")
+        shutil.rmtree(core.MAKO_CACHE)
+    except Exception as e:
+        print("Unable to clear Mako cache.")
+        print(e)
+
+    # Finish core application
+    from core import api, config, postprocessing, scheduler
+    from core.app import App
+
+    if passed_args.plugins:
+        core.PLUGIN_DIR = passed_args.plugins
+    if passed_args.pid:
+        PIDFile(cherrypy.engine, passed_args.pid).subscribe()
 
     # Set up server
     if passed_args.address:
@@ -98,27 +118,6 @@ if __name__ == '__main__':
         core.SERVER_PORT = passed_args.port
     else:
         core.SERVER_PORT = core.CONFIG['Server']['serverport']
-
-    # set up db on first launch, check for updates afterward
-    if passed_args.db:
-        core.DB_FILE = passed_args.db
-    else:
-        core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
-    if not os.path.isfile(core.DB_FILE):
-        logging.info(u'SQL DB not found. Creating.')
-        core.sql.create_database()
-    else:
-        logging.info(u'SQL DB found.')
-        print('Database found.')
-        core.sql.update_tables()
-
-    # clean mako cache
-    try:
-        print("Clearing Mako cache.")
-        shutil.rmtree(core.MAKO_CACHE)
-    except Exception as e:
-        print("Unable to clear Mako cache.")
-        print(e)
 
     # mount and configure applications
     if core.CONFIG['Server']['customwebroot']:
@@ -150,7 +149,7 @@ if __name__ == '__main__':
         logging.info(u'Launching web browser.')
 
     # daemonize in *nix if desired
-    if passed_args.daemon and os.name == 'posix':
+    if passed_args.daemon and core.PLATFORM == '*nix':
         Daemonizer(cherrypy.engine).subscribe()
 
     # start engine
@@ -160,16 +159,17 @@ if __name__ == '__main__':
     os.chdir(core.PROG_PATH)  # have to do this for the daemon
 
     # Create plugin instances and subscribe
-    scheduler_plugin = scheduler.Scheduler()
+    core.scheduler_plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
     scheduler.AutoSearch.create()
     scheduler.AutoUpdateCheck.create()
     scheduler.ImdbRssSync.create()
+    scheduler.MetadataUpdate.create()
     scheduler.PopularMoviesSync.create()
     scheduler.TraktSync.create()
-    scheduler_plugin.plugin.subscribe()
+    core.scheduler_plugin.subscribe()
 
     # If windows os and daemon selected, start systray
-    if passed_args.daemon and os.name == 'nt':
+    if passed_args.daemon and core.PLATFORM == 'windows':
         systrayplugin = systray.SysTrayPlugin(cherrypy.engine)
         systrayplugin.subscribe()
         systrayplugin.start()

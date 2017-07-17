@@ -1,5 +1,5 @@
 import core
-from core import library, searcher
+from core import searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 import json
@@ -11,7 +11,6 @@ logging = logging.getLogger(__name__)
 class PopularMoviesFeed(object):
     def __init__(self):
         self.tmdb = TMDB()
-        self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
 
@@ -20,7 +19,7 @@ class PopularMoviesFeed(object):
 
         Gets raw feed (JSON), sends to self.parse_xml to turn into dict
 
-        Returns True or None on success or failure (due to exception or empty movie list)
+        Returns bool
         '''
 
         movies = None
@@ -31,9 +30,9 @@ class PopularMoviesFeed(object):
             movies = json.loads(Url.open('https://s3.amazonaws.com/popular-movies/movies.json').text)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Popular feed request failed.', exc_info=True)
-            return None
+            return False
 
         if movies:
             logging.info('Found {} movies in popular movies.'.format(len(movies)))
@@ -41,11 +40,11 @@ class PopularMoviesFeed(object):
             logging.info('Popular movies sync complete.')
             return True
         else:
-            return None
+            return False
 
     def sync_new_movies(self, movies):
         ''' Adds new movies from rss feed
-        :params movies: list of dicts of movies
+        movies (list): dicts of movies
 
         Checks last sync time and pulls new imdbids from feed.
 
@@ -67,9 +66,11 @@ class PopularMoviesFeed(object):
             if not movie:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
+            else:
+                movie = movie[0]
             logging.info('Adding movie {} {} from PopularMovies list.'.format(movie['title'], movie['imdbid']))
             movie['quality'] = 'Default'
             movie['origin'] = 'PopularMovies'
-            added = self.library.add_movie(movie)
+            added = core.manage.add_movie(movie)
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])

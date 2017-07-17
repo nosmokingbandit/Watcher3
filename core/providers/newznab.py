@@ -15,7 +15,7 @@ class NewzNab(NewzNabProvider):
     # Returns a list of results stored as dicts
     def search_all(self, imdbid):
         ''' Search all Newznab indexers.
-        :param imdbid: string imdb movie id.
+        imdbid (str): imdb id #
 
         Returns list of dicts with sorted nzb information.
         '''
@@ -43,4 +43,8 @@ class NewzNab(NewzNabProvider):
         return results
 
     def get_rss(self):
+        ''' Calls _get_rss from inherited Base class
+
+        Returns list of dicts with parsed nzb info
+        '''
         return self._get_rss()

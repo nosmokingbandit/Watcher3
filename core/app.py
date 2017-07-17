@@ -26,7 +26,7 @@ class App(object):
         })
 
         if core.CONFIG['Server']['checkupdates']:
-            scheduler.AutoUpdateCheck.update_check()
+            scheduler.AutoUpdateCheck.update_check(install=False)
 
     # All dispatching methods from here down
 
@@ -63,17 +63,21 @@ class App(object):
         return self.library('status')
 
     @cherrypy.expose
+    def _test(self):
+        h = ''
+        active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
+
+        return ', '.join(active_tasks)
+
+    @cherrypy.expose
     def library(self, *path):
         page = path[0] if len(path) > 0 else 'status'
 
         if page == 'status':
-            movies = core.sql.get_user_movies()
-            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
+            movie_count = core.sql.get_library_count()
+            return App.status_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count)
         elif page == 'manage':
             movies = core.sql.get_user_movies()
-            for i in movies:
-                if i['status'] == 'Disabled':
-                    i['status'] = 'Finished'
             return App.manage_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
         elif page == 'import':
             subpage = path[1] if len(path) > 1 else None
@@ -87,10 +91,14 @@ class App(object):
             elif subpage == "plex":
                 return App.plex_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys())
             elif subpage == "directory":
-                home = os.path.expanduser("~")
-                file_list = [i for i in os.listdir(home) if os.path.isdir(os.path.join(home, i)) and not i.startswith('.')]
+                try:
+                    start_dir = os.path.expanduser("~")
+                    file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
+                except PermissionError as e:
+                    start_dir = core.PROG_PATH
+                    file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
                 file_list.append('..')
-                return App.directory_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=home, file_list=file_list)
+                return App.directory_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='status'), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=start_dir, file_list=file_list)
             else:
                 return self.error_page_404()
         elif page == 'stats':
@@ -118,7 +126,7 @@ class App(object):
         elif page == 'downloader':
             return App.downloader_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Downloader'])
         elif page == 'postprocessing':
-            return App.postprocessing_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Postprocessing'])
+            return App.postprocessing_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Postprocessing'], os=core.PLATFORM)
         elif page == 'plugins':
             plugs = plugins.list_plugins()
             return App.plugins_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), config=core.CONFIG['Plugins'], plugins=plugs)
@@ -151,4 +159,5 @@ class App(object):
         return App.head_template.render(url_base=core.URL_BASE, uitheme=core.CONFIG['Server']['uitheme'], notifications=json.dumps([i for i in core.NOTIFICATIONS if i is not None]))
 
     def nav_bar(self, current=None):
-        return App.navbar_template.render(url_base=core.URL_BASE, current=current)
+        show_logout = True if cherrypy.session.get(core.SESSION_KEY) else False
+        return App.navbar_template.render(url_base=core.URL_BASE, current=current, show_logout=show_logout)

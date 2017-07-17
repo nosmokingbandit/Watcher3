@@ -28,8 +28,7 @@ function scan_library(event, elem){
         "url": url,
         "apikey": apikey
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
         $progress_bar.width("100%");
         $progress.slideUp();
 
@@ -147,8 +146,7 @@ function import_library(event, elem){
         method: "POST",
         data: {"wanted": JSON.stringify(wanted_movies), "finished": JSON.stringify(finished_movies)},
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false){
@@ -160,10 +158,10 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} r['movie']['title'].`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
-                $progress_text.text(`${r['progress'][0]} / ${r['progress'][1]}`);
+                $progress_text.text(progress_text);
 
                 $progress_bar.width(progress_percent + "%")
                 if(r['response'] === true){
@@ -184,14 +182,11 @@ function import_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
-        $progress_bar.width("0%");
-        $progress_text.empty();
+        $progress_text.slideUp();
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })

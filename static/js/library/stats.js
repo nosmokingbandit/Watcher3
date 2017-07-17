@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     var $body = $("body");
     label_color = $body.css("color");
     label_size = $body.css("font-size");
@@ -16,9 +16,8 @@ $(document).ready(function() {
     });
 
     var get_stats = $.get(url_base + "/ajax/generate_stats")
-    .done(function(r){
-        stats = JSON.parse(r)
-        render_charts(stats)
+    .done(function(response){
+        render_charts(response)
     })
 
     $(window).on("beforeunload", function(){

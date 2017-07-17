@@ -21,8 +21,8 @@
         <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
         <link href="${url_base}/static/css/settings/postprocessing.css?v=06.02" rel="stylesheet">
 
-        <script src="${url_base}/static/js/settings/shared.js?v=06.06"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/postprocessing.js?v=06.06"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=07.15"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/postprocessing.js?v=06.25"  type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -31,7 +31,7 @@
             <h1>Postprocessing</h1>
 
             <div class="col-md-12 well">
-                See the <a href="https://github.com/nosmokingbandit/watcher3/wiki", target="_blank">Wiki</a> for help configuring your download client.
+                See the <a href="https://github.com/nosmokingbandit/watcher3/wiki", target="_blank" rel="noopener">Wiki</a> for help configuring your download client.
             </div>
 
             <form class="form-horizontal well" data-category="postprocessing">
@@ -84,20 +84,17 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Move Additional File Types</label>
-                    <input type="text" id="moveextensions" class="form-control" placeholder="srt, nfo" value="${config['moveextensions']}"  data-toggle="tooltip" title="Separate file extensions with commas.">
+                    <label>Move Method</label>
+                    <select class="form-control select-sm" id="movermethod" value="${config['movermethod']}">
+                        <option value="move">Move</option>
+                        <option value="hardlink">Hardlink</option>
+                        <option value="symboliclink" ${'disabled=true' if os == 'windows' else ''}>Symbolic Link</option>
+                    </select>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Create Hardlinks</label>
-                    <div class="input-group">
-                        <span class="input-group-addon box_box">
-                            <i id="createhardlink" class="mdi mdi-checkbox-blank-outline c_box" value="${config['createhardlink']}"></i>
-                        </span>
-                        <span class="input-group-item form-control">
-                            Create hardlink for torrent seeding.
-                        </span>
-                    </div>
+                    <label>Move Additional File Types</label>
+                    <input type="text" id="moveextensions" class="form-control" placeholder="srt, nfo" value="${config['moveextensions']}"  data-toggle="tooltip" title="Separate file extensions with commas.">
                 </div>
 
                 <div class="col-md-6">
@@ -151,7 +148,7 @@
             </form>
 
             <h1>Remote Mapping</h1>
-            <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Remote-Mapping" target="_blank">
+            <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Remote-Mapping" target="_blank" rel="noopener">
                 <i class="mdi mdi-help-circle-outline"></i>
             </a>
             <form class="form-horizontal well" data-category="remote_mapping">

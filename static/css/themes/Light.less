@@ -29,7 +29,7 @@
 @font-color-main: #212121;
 @font-color-muted: #9E9E9E;
 @font-color-main-inverse: #FFFFFF;
-@font-color-label: @font-color-main;
+@font-color-label: #FFFFFF;
 @font-color-hidden: transparent;
 
 // Colors for Search Result and Movie status
@@ -99,3 +99,10 @@
 @bg-color-code: #FFEBEE;
 @bg-color-table-hover: #F5F5F5;
 @carousel-indicator: #000000;
+
+
+@media(max-width: 768px){
+    .navbar-nav .open .dropdown-menu>li>a {
+        color: @font-color-main-inverse;
+    }
+}

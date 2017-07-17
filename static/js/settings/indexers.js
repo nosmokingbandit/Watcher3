@@ -5,6 +5,9 @@ $(document).ready(function () {
 
 function test_indexer(event, elem){
     event.preventDefault();
+    var orig_oc = elem.getAttribute("onClick");
+    elem.removeAttribute("onClick");
+
     $this = $(elem).find("i");
     var $tr = $this.closest('tr');
 
@@ -23,8 +26,7 @@ function test_indexer(event, elem){
     $.post(url_base + "/ajax/indexer_test", {"indexer": url,
                                              "apikey": api,
                                              "mode": mode})
-    .done(function(r){
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `Connection Successful.`})
         } else {
@@ -37,6 +39,7 @@ function test_indexer(event, elem){
     })
     .always(function(){
         $this.removeClass("mdi-circle-outline animated").addClass("mdi-lan-pending");
+        elem.setAttribute("onClick", orig_oc);
     });
 }
 

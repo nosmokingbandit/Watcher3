@@ -21,16 +21,16 @@ def is_closable_iterator(obj):
     # Not an iterator.
     if not is_iterator(obj):
         return False
-    
+
     # A generator - the easiest thing to deal with.
     import inspect
     if inspect.isgenerator(obj):
         return True
-    
+
     # A custom iterator. Look for a close method...
     if not (hasattr(obj, 'close') and callable(obj.close)):
         return False
-    
+
     #  ... which doesn't require any arguments.
     try:
         inspect.getcallargs(obj.close)
@@ -77,9 +77,9 @@ def file_generator_limited(fileobj, count, chunk_size=65536):
 
 
 def set_vary_header(response, header_name):
-    "Add a Vary header to a response"
-    varies = response.headers.get("Vary", "")
-    varies = [x.strip() for x in varies.split(",") if x.strip()]
+    'Add a Vary header to a response'
+    varies = response.headers.get('Vary', '')
+    varies = [x.strip() for x in varies.split(',') if x.strip()]
     if header_name not in varies:
         varies.append(header_name)
-    response.headers['Vary'] = ", ".join(varies)
+    response.headers['Vary'] = ', '.join(varies)

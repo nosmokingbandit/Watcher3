@@ -5,8 +5,8 @@
         <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
         <link href="${url_base}/static/css/settings/search.css?v=06.02" rel="stylesheet">
 
-        <script src="${url_base}/static/js/settings/shared.js?v=06.06"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/search.js?v=06.06"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=07.15"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/search.js?v=06.14"  type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -41,14 +41,21 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Predb Check</label>
+                    <label>Verify Availability</label>
+                    <select id="verifyreleases" class="form-control select-sm" value="${config['verifyreleases']}">
+                        <option value="">Disabled</option>
+                        <option value="predb">PreDB</option>
+                        <option value="mediareleasedate">Home Media Release Date</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Skip verification if Movie is older than [X] weeks.</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
-                            <i id="predbcheck" class="mdi mdi-checkbox-blank-outline c_box" value="${config['predbcheck']}"></i>
+                            <i id="verifyreleasesskip" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyreleasesskip']}"></i>
                         </span>
-                        <span class="input-group-item form-control">
-                            Check Predb before searching.
-                        </span>
+                        <input type="number" id="verifyreleasesskipweeks" class="form-control" min="0" placeholder="26" value="${config['verifyreleasesskipweeks']}">
                     </div>
                 </div>
 
@@ -103,8 +110,13 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Usenet Server Retention [Days]</label>
-                    <input type="number" id="retention" class="form-control" min="0" placeholder="1500" value="${config['retention']}">
+                    <label>Usenet Server Retention</label>
+                    <div class="input-group">
+                        <input type="number" id="retention" class="form-control" min="0" placeholder="1500" value="${config['retention']}">
+                        <span class="input-group-addon">
+                            Days
+                        </span>
+                    </div>
                 </div>
             </form>
 
@@ -131,7 +143,7 @@
 
                 <div class="col-md-6">
                     <label>Sync Popular Movies Every Day At
-                        <a href="https://github.com/sjlu/popular-movies" target="_blank">
+                        <a href="https://github.com/sjlu/popular-movies" target="_blank" rel="noopener">
                             &nbsp;<i class="mdi mdi-help-circle-outline"></i>
                         </a>
                     </label>

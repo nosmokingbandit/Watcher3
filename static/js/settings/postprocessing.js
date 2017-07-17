@@ -41,15 +41,20 @@ function _get_settings(){
     }
 
     $("form[data-category='postprocessing'] :input:not(button)").each(function(){
-        var $this = $(this);
 
-        if($this.val() == "" && required_fields.includes($this.attr("id"))){
-            $this.addClass("empty");
-            blanks = true;
-            return;
+        if(this.tagName == 'SELECT'){
+            settings[this.id] = this.options[this.selectedIndex].value;
+        } else {
+            var $this = $(this);
+
+            if($this.val() == "" && required_fields.includes($this.attr("id"))){
+                $this.addClass("empty");
+                blanks = true;
+                return;
+            }
+
+            settings[$this.attr("id")] = $this.val();
         }
-
-        settings[$this.attr("id")] = $this.val();
     });
 
 

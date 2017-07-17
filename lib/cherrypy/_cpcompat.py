@@ -15,6 +15,8 @@ specifically with bytes, and a 'StringIO' name for dealing with native strings.
 It also provides a 'base64_decode' function with native strings as input and
 output.
 """
+
+import binascii
 import os
 import re
 import sys
@@ -86,7 +88,7 @@ else:
 
 def assert_native(n):
     if not isinstance(n, str):
-        raise TypeError("n must be a native str (got %s)" % type(n).__name__)
+        raise TypeError('n must be a native str (got %s)' % type(n).__name__)
 
 try:
     # Python 3.1+
@@ -141,11 +143,6 @@ except ImportError:
     from urllib import quote, quote_plus  # noqa
     from urllib import unquote  # noqa
     from urllib2 import parse_http_list, parse_keqv_list  # noqa
-
-try:
-    from threading import local as threadlocal
-except ImportError:
-    from cherrypy._cpthreadinglocal import local as threadlocal  # noqa
 
 try:
     dict.iteritems
@@ -218,21 +215,6 @@ except NameError:
     # Python 3
     xrange = range
 
-import threading
-if hasattr(threading.Thread, "daemon"):
-    # Python 2.6+
-    def get_daemon(t):
-        return t.daemon
-
-    def set_daemon(t, val):
-        t.daemon = val
-else:
-    def get_daemon(t):
-        return t.isDaemon()
-
-    def set_daemon(t, val):
-        t.setDaemon(val)
-
 try:
     # Python 3
     from urllib.parse import unquote as parse_unquote
@@ -288,8 +270,6 @@ except ImportError:
     # In Python 3, pickle is the sped-up C version.
     import pickle  # noqa
 
-import binascii
-
 def random20():
     return binascii.hexlify(os.urandom(20)).decode('ascii')
 
@@ -314,17 +294,57 @@ else:
     Timer = threading._Timer
     Event = threading._Event
 
-# Prior to Python 2.6, the Thread class did not have a .daemon property.
-# This mix-in adds that property.
+try:
+    # Python 2.7+
+    from subprocess import _args_from_interpreter_flags
+except ImportError:
+    def _args_from_interpreter_flags():
+        """Tries to reconstruct original interpreter args from sys.flags for Python 2.6
 
+        Backported from Python 3.5. Aims to return a list of
+        command-line arguments reproducing the current
+        settings in sys.flags and sys.warnoptions.
+        """
+        flag_opt_map = {
+            'debug': 'd',
+            # 'inspect': 'i',
+            # 'interactive': 'i',
+            'optimize': 'O',
+            'dont_write_bytecode': 'B',
+            'no_user_site': 's',
+            'no_site': 'S',
+            'ignore_environment': 'E',
+            'verbose': 'v',
+            'bytes_warning': 'b',
+            'quiet': 'q',
+            'hash_randomization': 'R',
+            'py3k_warning': '3',
+        }
 
-class SetDaemonProperty:
+        args = []
+        for flag, opt in flag_opt_map.items():
+            v = getattr(sys.flags, flag)
+            if v > 0:
+                if flag == 'hash_randomization':
+                    v = 1 # Handle specification of an exact seed
+                args.append('-' + opt * v)
+        for opt in sys.warnoptions:
+            args.append('-W' + opt)
 
-    def __get_daemon(self):
-        return self.isDaemon()
+        return args
 
-    def __set_daemon(self, daemon):
-        self.setDaemon(daemon)
+# html module come in 3.2 version
+try:
+    from html import escape
+except ImportError:
+    from cgi import escape
 
-    if sys.version_info < (2, 6):
-        daemon = property(__get_daemon, __set_daemon)
+# html module needed the argument quote=False because in cgi the default
+# is False. With quote=True the results differ.
+
+def escape_html(s, escape_quote=False):
+    """Replace special characters "&", "<" and ">" to HTML-safe sequences.
+
+    When escape_quote=True, escape (') and (") chars.
+    """
+    return escape(s, quote=escape_quote)

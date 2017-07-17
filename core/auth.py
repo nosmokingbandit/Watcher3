@@ -1,20 +1,17 @@
 import cherrypy
 import core
 import logging
-import json
 from mako.template import Template
 
-SESSION_KEY = '_cp_username'
-LOGIN_URL = core.URL_BASE + '/auth/'
+LOGIN_URL = '/auth/'
 
 logging = logging.getLogger(__name__)
 
 
 def check_credentials(username, password):
     ''' Verifies credentials for username and password.
-    :param username: str name to check against config
-    :param password: str password to check against config
-
+    username (str): name to check against config
+    password (str): password to check against config
 
     Returns bool
     '''
@@ -26,13 +23,23 @@ def check_credentials(username, password):
 
 
 def check_auth(*args, **kwargs):
-    """A tool that looks in config for 'auth.require'. If found and it
-    is not None, a login is required and the entry is evaluated as a list of
-    conditions that the user must fulfill"""
+    ''' Checks auth against required tests
+
+    Uses methods decorated by self.require() to check auth conditions
+
+    A tool that looks in config for 'auth.require'. If found and it is
+        not None, a login is required and the entry is evaluated as a
+        list of conditions that the user must fulfill
+
+    If all checks are passed the page is loaded. If checks fail the
+        user is internally redirected to the login page.
+
+    Does not return
+    '''
 
     conditions = cherrypy.request.config.get('auth.require', None)
     if conditions is not None:
-        username = cherrypy.session.get(SESSION_KEY)
+        username = cherrypy.session.get(core.SESSION_KEY)
         if username:
             cherrypy.request.login = username
             for condition in conditions:
@@ -47,8 +54,8 @@ cherrypy.tools.auth = cherrypy.Tool('before_handler', check_auth)
 
 
 def require(*conditions):
-    """A decorator that appends conditions to the auth.require config
-    variable."""
+    ''' A decorator that appends conditions to the auth.require config variable.
+    '''
     def decorate(f):
         if not hasattr(f, '_cp_config'):
             f._cp_config = dict()
@@ -74,65 +81,78 @@ class AuthController(object):
 
     def on_login(self, username, origin_ip):
         ''' Called on successful login
-        username: str user that logged in
-        origin_ip: str ip address of user
+        username (str): username that logged in
+        origin_ip (str): ip address of user
 
-        origin_ip uses headers['X-Forwarded-For'] or headers['Remote-Addr'] to get client IP
+        Used to call various methods when a user successfully logs in
 
         Does not return
         '''
 
         logging.info('Successful login from {}'.format(origin_ip))
 
-    def on_logout(self, username):
+    def on_logout(self, username, origin_ip):
         ''' Called on logout
-        username: str user that logged in
+        username (str): username that logged out
+
+        Used to call various methods when a user logs out
 
         Does not return
         '''
 
+        logging.info('Logging out IP {}'.format(origin_ip))
+
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def login(self, username=None, password=None):
         ''' Tests user data against check_credentials
-        :param username: str submitted username <optional>
-        :param password: str submitted password <optional>
+        username (str): submitted username      <optional - default None>
+        password (str): submitted password      <optional - default None>
 
         Checks creds against check_credentials()
         Executes on_login() with username and origin_ip
 
-        Returns json.dumps() bool
+        Returns bool
         '''
-        if not username or not password:
-            return json.dumps(False)
 
-        # get origin_ip ip
+        if not username or not password:
+            return False
+
         if 'X-Forwarded-For' in cherrypy.request.headers:
             origin_ip = cherrypy.request.headers['X-Forwarded-For']
         else:
             origin_ip = cherrypy.request.headers['Remote-Addr']
 
-        # on failed attempt
         if check_credentials(username, password) is False:
             logging.warning('Failed login attempt {}:{} from {}'.format(username, password, origin_ip))
-
-            return json.dumps(False)
-
-        # on successful login
+            return False
         else:
-            cherrypy.session[SESSION_KEY] = cherrypy.request.login = username
+            cherrypy.session[core.SESSION_KEY] = cherrypy.request.login = username
             self.on_login(username, origin_ip)
-            return json.dumps(True)
+            return True
 
     @cherrypy.expose
     def logout(self):
         ''' Logs out user
-        Clears session and redirects user to login page.
 
+        Clears session for user
+
+        CP knows the user's session, so all we need to do is
+            clear the session key.
+
+        Internally redirects user to login page.
+
+        Returns str url path to login page
         '''
 
-        username = cherrypy.session.get(SESSION_KEY, None)
-        cherrypy.session[SESSION_KEY] = None
+        username = cherrypy.session.get(core.SESSION_KEY, None)
+        cherrypy.session[core.SESSION_KEY] = None
         if username:
             cherrypy.request.login = None
-            self.on_logout(username)
-        raise cherrypy.InternalRedirect(LOGIN_URL)
+            if 'X-Forwarded-For' in cherrypy.request.headers:
+                origin_ip = cherrypy.request.headers['X-Forwarded-For']
+            else:
+                origin_ip = cherrypy.request.headers['Remote-Addr']
+            self.on_logout(username, origin_ip)
+
+        return core.URL_BASE + LOGIN_URL

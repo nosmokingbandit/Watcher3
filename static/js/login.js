@@ -12,7 +12,6 @@ $(document).ready(function(){
     });
 });
 
-
 function login(event){
     event.preventDefault();
 
@@ -40,9 +39,17 @@ function login(event){
         "username": user,
         "password": password
     })
-    .done(function(r) {
-        if(JSON.parse(r)){
-            location.reload()
+    .done(function(response){
+        if(response){
+            loc = window.location.href;
+            if(loc.endsWith('/')){
+                loc = loc.slice(0, -1);
+            }
+            if(loc.split("/").pop() == "auth"){
+                window.location = url_base+"/library/status"
+            } else {
+                location.reload()
+            }
         } else {
             $input_password.val("");
         }

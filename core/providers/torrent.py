@@ -4,7 +4,7 @@ import datetime
 import time
 import xml.etree.cElementTree as ET
 import core
-from core.proxy import Proxy
+from core import proxy
 from core.helpers import Url
 from core.providers.base import NewzNabProvider
 
@@ -23,13 +23,15 @@ trackers = '&tr'.join(('udp://tracker.leechers-paradise.org:6969',
                        'udp://tracker.opentrackr.org:1337/announce',
                        'udp://torrent.gresille.org:80/announce',
                        'udp://p4p.arenabg.com:1337',
-                       'udp://tracker.leechers-paradise.org:6969')
-                       )
+                       'udp://tracker.leechers-paradise.org:6969'
+                       ))
 
 
 def magnet(hash_):
     ''' Creates magnet link
-    hash_: str torrent hash
+    hash_ (str): base64 formatted torrent hash
+
+    Formats as magnet uri and adds trackers
 
     Returns str margnet uri
     '''
@@ -44,12 +46,12 @@ class Torrent(NewzNabProvider):
         return
 
     def search_all(self, imdbid, title, year):
-        ''' Search all Torrent indexers.
-        imdbid: string imdb movie id.
-        title: str movie title
-        year: str year of movie release
+        ''' Search all indexers.
+        imdbid (str): imdb id #
+        title (str): movie title
+        year (str/int): year of movie release
 
-        Returns list of dicts with sorted nzb information.
+        Returns list of dicts with sorted release information.
         '''
 
         torz_indexers = core.CONFIG['Indexers']['TorzNab'].values()
@@ -164,12 +166,13 @@ class Torrent(NewzNabProvider):
 
     def _get_caps(self, url):
         ''' Gets caps for indexer url
-        url: string url of torznab indexer
+        url (str): url of torznab indexer
 
-        Stores caps in CAPS table
+        Gets indexer caps from CAPS table
 
         Returns list of caps
         '''
+
         url = '{}?t=caps'.format(url)
 
         xml = Url.open(url).text
@@ -183,7 +186,7 @@ class Torrent(NewzNabProvider):
 
 class Rarbg(object):
     '''
-    This api is limited to once request every 2 seconds.
+    This api is limited to one request every 2 seconds.
     '''
 
     timeout = None
@@ -191,6 +194,12 @@ class Rarbg(object):
 
     @staticmethod
     def search(imdbid):
+        ''' Search api for movie
+        imdbid (str): imdb id #
+
+        Returns list of dicts of parsed releases
+        '''
+
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         logging.info('Searching Rarbg for {}.'.format(imdbid))
@@ -210,7 +219,7 @@ class Rarbg(object):
 
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -223,12 +232,16 @@ class Rarbg(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Rarbg search failed.', exc_info=True)
             return []
 
     @staticmethod
     def get_rss():
+        ''' Gets latest rss feed from api
+
+        Returns list of dicts of parsed releases
+        '''
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         logging.info('Fetching latest RSS from Rarbg.')
@@ -248,7 +261,7 @@ class Rarbg(object):
 
         Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentapi.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -261,12 +274,16 @@ class Rarbg(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Rarbg RSS fetch failed.', exc_info=True)
             return []
 
     @staticmethod
     def get_token():
+        ''' Get api access token
+
+        Returns str or None
+        '''
         url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token'
 
         try:
@@ -275,12 +292,18 @@ class Rarbg(object):
             return token
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Failed to get Rarbg token.', exc_info=True)
             return None
 
     @staticmethod
     def parse(results):
+        ''' Parse api response
+        results (list): dicts of releases
+
+        Returns list of dicts
+        '''
+
         logging.info('Parsing Rarbg results.')
         item_keep = ('size', 'pubdate', 'title', 'indexer', 'info_link', 'guid', 'torrentfile', 'resolution', 'type', 'seeders')
 
@@ -317,7 +340,7 @@ class LimeTorrents(object):
         url = 'https://www.limetorrents.cc/searchrss/{}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
+            if proxy_enabled and proxy.whitelist('https://www.limetorrents.cc') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -328,7 +351,7 @@ class LimeTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('LimeTorrent search failed.', exc_info=True)
             return []
 
@@ -341,7 +364,7 @@ class LimeTorrents(object):
         url = 'https://www.limetorrents.cc/rss/16/'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.limetorrents.cc') is True:
+            if proxy_enabled and proxy.whitelist('https://www.limetorrents.cc') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -352,7 +375,7 @@ class LimeTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('LimeTorrent RSS fetch failed.', exc_info=True)
             return []
 
@@ -392,7 +415,7 @@ class LimeTorrents(object):
                 result['seeders'] = int(seed_str)
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing LimeTorrents XML.', exc_info=True)
                 continue
 
@@ -411,7 +434,7 @@ class YTS(object):
         url = 'https://yts.ag/api/v2/list_movies.json?limit=1&query_term={}'.format(imdbid)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
+            if proxy_enabled and proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -426,7 +449,7 @@ class YTS(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('YTS search failed.', exc_info=True)
             return []
 
@@ -439,7 +462,7 @@ class YTS(object):
         url = 'https://yts.ag/rss/0/all/all/0'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.yts.ag') is True:
+            if proxy_enabled and proxy.whitelist('https://www.yts.ag') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -450,7 +473,7 @@ class YTS(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('YTS RSS fetch failed.', exc_info=True)
             return []
 
@@ -481,7 +504,7 @@ class YTS(object):
                 result['seeders'] = i['seeds']
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing YTS JSON.', exc_info=True)
                 continue
 
@@ -527,7 +550,7 @@ class YTS(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing YTS XML.', exc_info=True)
                 continue
 
@@ -547,7 +570,7 @@ class SkyTorrents(object):
         url = 'https://www.skytorrents.in/rss/all/ed/1/{}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.skytorrents.in') is True:
+            if proxy_enabled and proxy.whitelist('https://www.skytorrents.in') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -558,7 +581,7 @@ class SkyTorrents(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('SkyTorrents search failed.', exc_info=True)
             return []
 
@@ -597,7 +620,7 @@ class SkyTorrents(object):
                 result['seeders'] = desc[0]
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing SkyTorrents XML.', exc_info=True)
                 continue
 
@@ -616,7 +639,7 @@ class Torrentz2(object):
         url = 'https://www.torrentz2.eu/feed?f={}'.format(term)
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentz2.e') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -627,7 +650,7 @@ class Torrentz2(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Torrentz2 search failed.', exc_info=True)
             return []
 
@@ -640,7 +663,7 @@ class Torrentz2(object):
         url = 'https://www.torrentz2.eu/feed?f=movies'
 
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.torrentz2.e') is True:
+            if proxy_enabled and proxy.whitelist('https://www.torrentz2.e') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
                 response = Url.open(url).text
@@ -651,7 +674,7 @@ class Torrentz2(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('Torrentz2 RSS fetch failed.', exc_info=True)
             return []
 
@@ -689,7 +712,7 @@ class Torrentz2(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing Torrentz2 XML.', exc_info=True)
                 continue
 
@@ -709,7 +732,7 @@ class ThePirateBay(object):
 
         headers = {'Cookie': 'lw=s'}
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
+            if proxy_enabled and proxy.whitelist('https://www.thepiratebay.org') is True:
                 response = Url.open(url, proxy_bypass=True, headers=headers).text
             else:
                 response = Url.open(url, headers=headers).text
@@ -720,7 +743,7 @@ class ThePirateBay(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('ThePirateBay search failed.', exc_info=True)
             return []
 
@@ -731,12 +754,12 @@ class ThePirateBay(object):
         logging.info('Fetching latest RSS from ThePirateBay.')
 
         url = 'https://www.thepiratebay.org/browse/201/0/3/0'
-
+        headers = {'Cookie': 'lw=s'}
         try:
-            if proxy_enabled and Proxy.whitelist('https://www.thepiratebay.org') is True:
-                response = Url.open(url, proxy_bypass=True).text
+            if proxy_enabled and proxy.whitelist('https://www.thepiratebay.org') is True:
+                response = Url.open(url, proxy_bypass=True, headers=headers).text
             else:
-                response = Url.open(url).text
+                response = Url.open(url, headers=headers).text
 
             if response:
                 return ThePirateBay.parse(response, None)
@@ -744,7 +767,7 @@ class ThePirateBay(object):
                 return []
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e: # noqa
+        except Exception as e:
             logging.error('ThePirateBay RSS fetch failed.', exc_info=True)
             return []
 
@@ -790,7 +813,7 @@ class ThePirateBay(object):
                 result['freeleech'] = 0
 
                 results.append(result)
-            except Exception as e: #noqa
+            except Exception as e:
                 logging.error('Error parsing ThePirateBay XML.', exc_info=True)
                 continue
 

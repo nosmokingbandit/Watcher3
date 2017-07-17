@@ -2,14 +2,21 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/system/update.css?v=06.02" rel="stylesheet">
-        <script src="${url_base}/static/js/system/update.js?v=06.06"  type="text/javascript"></script>
+        <link href="${url_base}/static/css/system/update.css?v=07.15" rel="stylesheet">
+        <script src="${url_base}/static/js/system/update.js?v=07.15"  type="text/javascript"></script>
         <meta name="enable_notifs" content="false">
         <meta name="updating" content="${updating}">
     </head>
     <body>
         <div id="content" class="container-fluid">
-            <div class="message">Updating</div>
+
+            <div class="tasks hidden">
+                <h4>Waiting for tasks to finish...</h4>
+
+            </div>
+
+
+            <div class="updating hidden">Updating</div>
             <div id="thinker">
                 <i class="mdi mdi-circle-outline animated"></i>
             </div>

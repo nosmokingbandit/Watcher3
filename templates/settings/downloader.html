@@ -2,8 +2,8 @@
 <html>
     <head>
         ${head}
-        <script src="${url_base}/static/js/settings/shared.js?v=06.06"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/downloader.js?v=06.06"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=07.15"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/downloader.js?v=06.14"  type="text/javascript"></script>
 
         <link href="${url_base}/static/css/settings/shared.css?v=06.02" rel="stylesheet">
         <link href="${url_base}/static/css/settings/downloader.css?v=06.02" rel="stylesheet">
@@ -20,6 +20,7 @@
                         <option value="" selected="false">Disabled</option>
                         <option value="NzbGet">NzbGet</option>
                         <option value="Sabnzbd">Sabnzbd</option>
+                        <option value="BlackHole">Black Hole</option>
                     </select>
                 </div>
                 <div id="usenet_client_settings" class="panel-body">
@@ -110,6 +111,20 @@
                             </a>
                         </div>
                     </div>
+<!-- BLACKHOLE -->
+                    <div id="BlackHole" class="hidden" data-enabled="${config['Usenet']['BlackHole']['enabled']}">
+                        <div class="col-md-6">
+                            <label>Directory</label>
+                            <input data-id="directory" type="text" class="form-control" placeholder="/user/downloads/nzb" value="${config['Usenet']['BlackHole']['directory']}">
+                        </div>
+                        <div class='col-md-12'>
+                            <label>&nbsp;</label>
+                            <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
+                                <i class="mdi mdi-lan-pending"></i>
+                                Test Connection
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -124,6 +139,7 @@
                         <option value="rTorrentHTTP">rTorrent HTTP</option>
                         <option value="Transmission">Transmission</option>
                         <option value="QBittorrent">QBittorrent</option>
+                        <option value="BlackHole">Black Hole</option>
                     </select>
                 </div>
                 <div id="torrent_client_settings" class="panel-body">
@@ -147,7 +163,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}">
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
                         </div>
                         <div class="col-md-6">
                             <label>Priority</label>
@@ -178,8 +194,6 @@
                             </a>
                         </div>
                     </div>
-
-
 <!-- DELUGE WEB -->
                     <div id="DelugeWeb" class="hidden" data-enabled="${config['Torrent']['DelugeWeb']['enabled']}">
                         <div class="col-md-6">
@@ -196,7 +210,7 @@
                         </div>
                         <div class="col-md-6">
                             <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}">
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
                         </div>
                         <div class="col-md-6">
                             <label>Priority</label>
@@ -371,6 +385,20 @@
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'qbittorrent')">
+                                <i class="mdi mdi-lan-pending"></i>
+                                Test Connection
+                            </a>
+                        </div>
+                    </div>
+<!-- BLACKHOLE -->
+                    <div id="BlackHole" class="hidden" data-enabled="${config['Torrent']['BlackHole']['enabled']}">
+                        <div class="col-md-6">
+                            <label>Directory</label>
+                            <input type="text" data-id="directory" class="form-control" placeholder="/user/downloads/torrents" value="${config['Torrent']['BlackHole']['directory']}">
+                        </div>
+                        <div class='col-md-12'>
+                            <label>&nbsp;</label>
+                            <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
                                 <i class="mdi mdi-lan-pending"></i>
                                 Test Connection
                             </a>

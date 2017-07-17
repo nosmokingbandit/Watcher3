@@ -11,9 +11,7 @@ $(document).ready(function(){
             "current_dir": $modal_current_dir.text(),
             "move_dir": path
         })
-        .done(function(r){
-            response = JSON.parse(r);
-
+        .done(function(response){
             if(response['error']){
                 $.notify({message: response['error']}, {type: "danger"})
             } else {
@@ -32,12 +30,13 @@ $(document).ready(function(){
                               </li>`
                 $modal_file_list.html(file_list);
             }
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
         });
     })
-    .fail(function(data){
-        var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger", delay: 0});
-    });
+
 
 });
 
@@ -45,7 +44,7 @@ function file_browser_select(event, elem){
     event.preventDefault();
     var $modal = $(elem).closest("div#modal_browser");
 
-    var dir = $modal.find("div#modal_current_dir").text().replace(/ /g,'');;
+    var dir = $modal.find("div#modal_current_dir").text().trim();
 
     $dir_input.val(dir);
 
@@ -84,15 +83,14 @@ function scan_library(event, elem){
     $incomplete_div = $("div#incomplete_movies");
     $incomplete_table = $("div#incomplete_movies table > tbody");
 
-    var no_imports = false;
+    var no_imports = true;
 
     var last_response_len = false;
     $.ajax(url_base + '/ajax/scan_library_directory', {
         method: "POST",
         data: {"directory": directory, "minsize": minsize, "recursive": recursive},
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false)
@@ -104,13 +102,11 @@ function scan_library(event, elem){
                     last_response_len = response.length;
                 }
                 var response = JSON.parse(response_update);
-
                 if(response['response'] == null){
-                    $("div#no_new_movies").slideDown();
-                    $("a#import_return").slideDown();
-                    no_imports = true;
+                    return
 
                 } else if(response["response"] == "incomplete"){
+                    no_imports = false;
                     var movie = response["movie"];
                     var select = $(source_select);
                     select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
@@ -119,13 +115,13 @@ function scan_library(event, elem){
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
                                     </td>
                                     <td>
-                                        ${movie["path"]}
+                                        ${movie["finished_file"]}
                                     </td>
                                     <td>
                                         ${movie["title"]}
                                     </td>
                                     <td>
-                                        <input type="text" class="incomplete_imdbid" placeholder="tt0123456" value="${movie['imdbid']}"/>
+                                        <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
                                     </td>
                                     <td class="resolution">
                                         ${select[0].outerHTML}
@@ -140,6 +136,7 @@ function scan_library(event, elem){
                     $incomplete_div.show();
 
                 } else if(response["response"] == "complete"){
+                    no_imports = false;
                     var movie = response["movie"];
                     var select = $(source_select);
                     select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
@@ -148,7 +145,7 @@ function scan_library(event, elem){
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
                                     </td>
                                     <td>
-                                        ${movie["path"]}
+                                        ${movie["finished_file"]}
                                     </td>
                                     <td>
                                         ${movie["title"]}
@@ -169,20 +166,25 @@ function scan_library(event, elem){
                     $complete_div.show();
                 }
 
-                var progress_text = `${response['progress'][0]} / ${response['progress'][1]}`;
+                var progress_text = `${response['progress'][0]} / ${response['progress'][1]} ${response['movie']['title']} ${response['response']}.`.replace("_", " ");
                 var progress_percent = Math.round(parseInt(response['progress'][0]) / parseInt(response['progress'][1]) * 100);
 
-                $progress_text.text(`${response['progress'][0]} / ${response['progress'][1]}`);
+                $progress_text.text(progress_text);
                 $progress_bar.width(progress_percent + "%")
             }
         }
     })
     .done(function(data){
-        $progress.slideUp();
-        $progress_text.empty();
-        if(no_imports == false){
-            $("a#import_library").slideDown();
-        }
+        window.setTimeout(function(){
+            $progress.slideUp();
+            $progress_text.slideUp();
+            if(no_imports == false){
+                $("a#import_library").slideDown();
+            } else {
+                $("div#no_new_movies").slideDown();
+                $("a#import_return").slideDown();
+            }
+        }, 500)
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
@@ -192,12 +194,6 @@ function scan_library(event, elem){
 
 function import_library(event, elem){
     event.preventDefault();
-
-    $("div#complete_movies").slideUp();
-    $("div#incomplete_movies").slideUp();
-    $("a#import_library").slideUp();
-    $progress_bar.width("0%");
-    $progress.slideDown();
 
     var movies = [];
     var corrected_movies = [];
@@ -209,7 +205,7 @@ function import_library(event, elem){
         }
 
         movie = $row.data("movie");
-        movie["finished_file"] = $row.find("td.file_path").text();
+        movie["finished_file"] = $row.find("td.file_path").text().trim();
         movie["resolution"] = $row.find("select.source_select").val();
         movies.push(movie);
     });
@@ -230,7 +226,7 @@ function import_library(event, elem){
             return
         }
 
-        movie["finished_file"] = $row.find("td.file_path").text();
+        movie["finished_file"] = $row.find("td.file_path").text().trim();
         movie["resolution"] = $row.find("select.source_select").val();
         corrected_movies.push(movie);
     });
@@ -240,10 +236,17 @@ function import_library(event, elem){
         return false;
     }
 
+    $("div#complete_movies").slideUp();
+    $("div#incomplete_movies").slideUp();
+    $("a#import_library").slideUp();
+    $progress_bar.width("0%");
+    $progress.slideDown();
+
     var $success = $("div#import_success");
     var $success_table = $("div#import_success table > tbody");
     var $error = $("div#import_error");
     var $error_table = $("div#import_error table > tbody")
+    $progress_text.text("").show();
 
     var last_response_len = false;
     $.ajax(url_base + '/ajax/import_dir', {
@@ -252,8 +255,7 @@ function import_library(event, elem){
                "corrected_movies": JSON.stringify(corrected_movies)
                },
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false){
@@ -265,10 +267,10 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
-                $progress_text.text(`${r['progress'][0]} / ${r['progress'][1]}`);
+                $progress_text.text(progress_text);
 
                 $progress_bar.width(progress_percent + "%")
                 if(r['response'] == true){
@@ -291,16 +293,14 @@ function import_library(event, elem){
     })
     .done(function(data){
         $progress.slideUp();
-        $progress_bar.width("0%");
-        $progress_text.empty();
-        $('a#import_return').slideDown();
+        $progress_text.slideUp();
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })
     .always(function(){
-       $.notify({message: err}, {type: "danger"});
+        $('a#import_return').slideDown();
     });
 }
 

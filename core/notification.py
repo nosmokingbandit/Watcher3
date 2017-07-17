@@ -4,88 +4,82 @@ import logging
 logging = logging.getLogger(__name__)
 
 
-class Notification(object):
+def add(data, type_='success'):
+    ''' Adds notification to core.NOTIFICATIONS
+    data (dict): notification information
+    type_ (str): style of notification, see javascript docs for available styles    <optional - default 'success'>
 
-    def __init__(self):
+    Merges supplied 'data' with 'options' dict to ensure no fields are missing
+    Appends notif to core.NOTIFICATIONS
+
+    Notif structure is tuple of two dicts. [0] containing 'options' dict and [1] with 'settings' dict
+
+    Does not return
+    '''
+
+    options = {'title': '',
+               'message': '',
+               'type': None
+               }
+
+    settings = {'type': type_,
+                'delay': 0
+                }
+
+    options.update(data)
+
+    logging.debug('Creating new notification:')
+    logging.debug(options)
+
+    # if it already exists, ignore it
+    if options in core.NOTIFICATIONS:
         return
 
-    @staticmethod
-    def add(data, type_='success'):
-        ''' Adds notification to core.NOTIFICATIONS
-        :param data: dict of notification information
+    # if this is an update notif, remove other update notifs first
+    if options['type'] == 'update':
+        for i, v in enumerate(core.NOTIFICATIONS):
+            if v[0]['type'] == 'update':
+                core.NOTIFICATIONS[i] = None
 
-        Merges supplied 'data' with 'options' dict to ensure no fields are missing
-        Appends notif to core.NOTIFICATIONS
+    new_notif = [options, settings]
 
-        Notif structure is tuple of two dicts. [0] containing 'options' dict and [1] with 'settings' dict
-
-
-        Does not return
-        '''
-
-        options = {'title': '',
-                   'message': '',
-                   'type': None
-                   }
-
-        settings = {'type': type_,
-                    'delay': 0
-                    }
-
-        options.update(data)
-
-        logging.debug('Creating new notification:')
-        logging.debug(options)
-
-        # if it already exists, ignore it
-        if options in core.NOTIFICATIONS:
+    # if there is a None in the list, overwrite it. If not, just append
+    for i, v in enumerate(core.NOTIFICATIONS):
+        if v is None:
+            new_notif[1]['index'] = i
+            core.NOTIFICATIONS[i] = new_notif
             return
 
-        # if this is an update notif, remove other update notifs first
-        if options['type'] == 'update':
-            for i, v in enumerate(core.NOTIFICATIONS):
-                if v[0]['type'] == 'update':
-                    core.NOTIFICATIONS[i] = None
+    new_notif[1]['index'] = len(core.NOTIFICATIONS)
+    core.NOTIFICATIONS.append(new_notif)
 
-        new_notif = [options, settings]
+    return
 
-        # if there is a None in the list, overwrite it. If not, just append
-        for i, v in enumerate(core.NOTIFICATIONS):
-            if v is None:
-                new_notif[1]['index'] = i
-                core.NOTIFICATIONS[i] = new_notif
-                return
 
-        new_notif[1]['index'] = len(core.NOTIFICATIONS)
-        core.NOTIFICATIONS.append(new_notif)
+def remove(index):
+    ''' Removes notification from core.NOTIFICATIONS
+    index (int): index of notification to remove
 
-        return
+    Replaces list item with None as to not affect other indexes.
 
-    @staticmethod
-    def remove(index):
-        ''' Removes notification from core.notification
-        :param index: int index of notification to remove
+    When adding new notifs through core.notification, any None values
+        will be overwritten before appending to the end of the list.
+    Removes all trailing 'None' entries in list.
 
-        Replaces list item with None as to not affect other indexes.
+    This ensures the list will always be as small as possible without
+        changing existing indexes.
 
-        When adding new notifs through core.notification, any None values
-            will be overwritten before appending to the end of the list.
-        Removes all trailing 'None' entries in list.
+    Does not return
+    '''
 
-        This ensures the list will always be as small as possible without
-            changing existing indexes.
+    logging.debug('Remove notification #{}.'.format(index))
+    try:
+        core.NOTIFICATIONS[int(index)] = None
+    except Exception as e:
+        pass
 
-        Does not return
-        '''
+    logging.debug('Cleaning notification queue.')
+    while len(core.NOTIFICATIONS) > 0 and core.NOTIFICATIONS[-1] is None:
+        core.NOTIFICATIONS.pop()
 
-        logging.debug('Remove notification #{}.'.format(index))
-        try:
-            core.NOTIFICATIONS[int(index)] = None
-        except Exception as e:
-            pass
-
-        logging.debug('Cleaning notification queue.')
-        while len(core.NOTIFICATIONS) > 0 and core.NOTIFICATIONS[-1] is None:
-            core.NOTIFICATIONS.pop()
-
-        return
+    return

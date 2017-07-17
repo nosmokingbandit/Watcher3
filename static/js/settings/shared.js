@@ -65,8 +65,7 @@ function save_settings(event, elem){
     $.post(url_base + "/ajax/save_settings", {
         "data": JSON.stringify(settings)
     })
-    .done(function(r) {
-        response = JSON.parse(r);
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `Settings saved.`})
         } else {
@@ -110,7 +109,7 @@ function init_sortables($sortables=false){
             return (compa < compb) ? -1 : (compa > compb) ? 1 : 0;
         })
 
-        $.each($lis, function(idx, itm) {
+        $.each($lis, function(idx, itm){
                 $this.append(itm);
             });
     })

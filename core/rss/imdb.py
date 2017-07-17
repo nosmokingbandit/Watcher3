@@ -1,5 +1,5 @@
 import core
-from core import library, searcher
+from core import searcher
 from core.movieinfo import TMDB
 from core.helpers import Url
 from datetime import datetime
@@ -16,17 +16,18 @@ class ImdbRss(object):
         self.tmdb = TMDB()
         self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
         self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
-        self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
 
     def get_rss(self):
-        ''' Gets rss feed from imdb
-        :param rss_url: str url to rss feed
+        ''' Syncs rss feed from imdb with library
+        rss_url (str): url of rss feed
 
         Gets raw rss, sends to self.parse_xml to turn into dict
 
-        Returns True or None on success or failure (due to exception or empty movie list)
+        Sends parsed xml to self.sync_new_movies
+
+        Does not return
         '''
 
         movies = []
@@ -38,7 +39,7 @@ class ImdbRss(object):
             logging.info('Syncing rss IMDB watchlist {}'.format(url))
             try:
                 response = Url.open(url).text
-            except Exception as e: # noqa
+            except Exception as e:
                 logging.error('IMDB rss request.', exc_info=True)
                 continue
 
@@ -85,7 +86,7 @@ class ImdbRss(object):
 
     def parse_xml(self, feed):
         ''' Turns rss into python dict
-        :param feed: str rss feed
+        feed (str): rss feed text
 
         Returns list of dicts of movies in rss
         '''
@@ -103,7 +104,7 @@ class ImdbRss(object):
 
     def parse_build_date(self, feed):
         ''' Gets lastBuildDate from imdb rss
-        :param feed: str xml feed
+        feed (str): str xml feed
 
         Last build date is used as a stopping point when iterating over the rss.
             There is no need to check movies twice since they will be removed anyway
@@ -119,8 +120,8 @@ class ImdbRss(object):
 
     def sync_new_movies(self, new_movies, list_id, lastbuilddate):
         ''' Adds new movies from rss feed
-        new_movies: list of dicts of movies
-        list_id: str id # of watch list
+        new_movies (list): dicts of movies
+        list_id (str): id # of watch list
 
         Checks last sync time and pulls new imdbids from feed.
 
@@ -138,14 +139,16 @@ class ImdbRss(object):
         # do quick-add procedure
         for movie in movies_to_add:
             imdbid = movie['imdbid']
-            movie = self.tmdb._search_imdbid(imdbid)[0]
+            movie = self.tmdb._search_imdbid(imdbid)
             if not movie:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
+            else:
+                movie = movie[0]
             logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
             movie['year'] = movie['release_date'][:4]
             movie['origin'] = 'IMDB'
 
-            added = self.library.add_movie(movie)
+            added = core.manage.add_movie(movie)
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, movie['title'], movie['year'], 'Default')

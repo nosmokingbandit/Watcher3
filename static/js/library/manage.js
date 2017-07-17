@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    $checkboxes = $("ul#movie_list > li > .c_box")
+    $checkboxes = $("ul#movie_list > li > .c_box");
+    $movie_lis = $("ul#movie_list > li");
 
     echo.init({offsetVertical: 100,
                callback: function(element, op){
@@ -8,16 +9,7 @@ $(document).ready(function(){
     });
 
     $checkboxes.click(function(){
-        $this = $(this);
-        // turn on
-        if( $this.attr("value") == "False" ){
-            $this.attr("value", "True");
-            $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
-        // turn off
-        } else if ($this.attr("value") == "True" ){
-            $this.attr("value", "False");
-            $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
-        }
+        checkbox_switch(this)
     });
 
     // Reset modal inner html after close
@@ -32,19 +24,32 @@ $(document).ready(function(){
 
 });
 
+function checkbox_switch(elem){
+    $this = $(elem);
+    // turn on
+    if( $this.attr("value") == "False" ){
+        $this.attr("value", "True");
+        $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+    // turn off
+    } else if ($this.attr("value") == "True" ){
+        $this.attr("value", "False");
+        $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
+    }
+};
+
 function select_all(){
-    $checkboxes.attr("value", "False").click();
+    each($checkboxes.attr("value", "False"), checkbox_switch);
 }
 
 function select_none(){
-    $checkboxes.attr("value", "True").click();
+each($checkboxes.attr("value", "True"), checkbox_switch);
 }
 
 function select_inverse(){
-    $checkboxes.click();
+    each($checkboxes, checkbox_switch);
 }
 
-function select_attrib(event, elem){
+function select_attrib(event, elem, key, value){
     event.preventDefault();
     var $this = $(elem);
     var key = $this.data("key");
@@ -52,12 +57,13 @@ function select_attrib(event, elem){
 
     select_none();
 
-    $("ul#movie_list > li").each(function(){
-        var $this = $(this);
+    var i = $movie_lis.length;
+    while (--i >= 0){
+        var $this = $($movie_lis[i]);
         if($this.find("span."+key).text() == value){
-            $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+            $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked").attr("value", "True");
         }
-    })
+    }
 }
 
 function backlog_search(event, elem){
@@ -94,6 +100,11 @@ function change_quality(event, elem){
     }
 
     var quality = $("div#modal_quality select#quality").val();
+
+    if(!quality){
+        $.notify({message: "Select a new Quality Profile."}, {type: "warning"})
+        return
+    }
 
     _manager_request($("div#modal_quality"), "manager_change_quality", {"movies": movies, "quality": quality});
 }

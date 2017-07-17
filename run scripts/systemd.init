@@ -33,6 +33,6 @@ Group=watcher
 Type=forking
 GuessMainPID=no
 ExecStart=/usr/bin/python3 /opt/watcher3/watcher.py -d
-Restart=no
+
 [Install]
 WantedBy=multi-user.target

@@ -1,10 +1,11 @@
-"""A library for integrating pyOpenSSL with CherryPy.
+"""
+A library for integrating pyOpenSSL with Cheroot.
 
 The OpenSSL module must be importable for SSL functionality.
 You can obtain it from `here <https://launchpad.net/pyopenssl>`_.
 
-To use this module, set CherryPyWSGIServer.ssl_adapter to an instance of
-SSLAdapter. There are two ways to use SSL:
+To use this module, set HTTPServer.ssl_adapter to an instance of
+ssl.Adapter. There are two ways to use SSL:
 
 Method One
 ----------
@@ -34,17 +35,18 @@ import socket
 import threading
 import time
 
-from cherrypy import wsgiserver
-
 try:
     from OpenSSL import SSL
     from OpenSSL import crypto
 except ImportError:
     SSL = None
 
+from . import Adapter
+from .. import errors, server as cheroot_server
+from ..makefile import MakeFile
 
-class SSL_fileobject(wsgiserver.CP_makefile):
 
+class SSL_fileobject(MakeFile):
     """SSL file object attached to a socket object."""
 
     ssl_timeout = 3
@@ -70,15 +72,15 @@ class SSL_fileobject(wsgiserver.CP_makefile):
                 time.sleep(self.ssl_retry)
             except SSL.SysCallError as e:
                 if is_reader and e.args == (-1, 'Unexpected EOF'):
-                    return ""
+                    return ''
 
                 errnum = e.args[0]
-                if is_reader and errnum in wsgiserver.socket_errors_to_ignore:
-                    return ""
+                if is_reader and errnum in errors.socket_errors_to_ignore:
+                    return ''
                 raise socket.error(errnum)
             except SSL.Error as e:
                 if is_reader and e.args == (-1, 'Unexpected EOF'):
-                    return ""
+                    return ''
 
                 thirdarg = None
                 try:
@@ -88,35 +90,38 @@ class SSL_fileobject(wsgiserver.CP_makefile):
 
                 if thirdarg == 'http request':
                     # The client is talking HTTP to an HTTPS server.
-                    raise wsgiserver.NoSSLError()
+                    raise errors.NoSSLError()
 
-                raise wsgiserver.FatalSSLAlert(*e.args)
+                raise errors.FatalSSLAlert(*e.args)
             except:
                 raise
 
             if time.time() - start > self.ssl_timeout:
-                raise socket.timeout("timed out")
+                raise socket.timeout('timed out')
 
     def recv(self, size):
+        """Receive message of a size from the socket."""
         return self._safe_call(True, super(SSL_fileobject, self).recv, size)
 
     def sendall(self, *args, **kwargs):
+        """Send whole message to the socket."""
         return self._safe_call(False, super(SSL_fileobject, self).sendall,
                                *args, **kwargs)
 
     def send(self, *args, **kwargs):
+        """Send some part of message to the socket."""
         return self._safe_call(False, super(SSL_fileobject, self).send,
                                *args, **kwargs)
 
 
 class SSLConnection:
-
     """A thread-safe wrapper for an SSL.Connection.
 
     ``*args``: the arguments to create the wrapped ``SSL.Connection(*args)``.
     """
 
     def __init__(self, *args):
+        """Initialize SSLConnection instance."""
         self._ssl_conn = SSL.Connection(*args)
         self._lock = threading.RLock()
 
@@ -137,20 +142,19 @@ class SSLConnection:
 """ % (f, f))
 
     def shutdown(self, *args):
+        """Shutdown the SSL connection.
+
+        Ignore all incoming args since pyOpenSSL.socket.shutdown takes no args.
+        """
         self._lock.acquire()
         try:
-            # pyOpenSSL.socket.shutdown takes no args
             return self._ssl_conn.shutdown()
         finally:
             self._lock.release()
 
 
-class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
-
-    """A wrapper for integrating pyOpenSSL with CherryPy."""
-
-    context = None
-    """An instance of SSL.Context."""
+class pyOpenSSLAdapter(Adapter):
+    """A wrapper for integrating pyOpenSSL with Cheroot."""
 
     certificate = None
     """The filename of the server SSL certificate."""
@@ -164,14 +168,19 @@ class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
     This is needed for cheaper "chained root" SSL certificates, and should be
     left as None if not required."""
 
-    def __init__(self, certificate, private_key, certificate_chain=None):
-        if SSL is None:
-            raise ImportError("You must install pyOpenSSL to use HTTPS.")
+    context = None
+    """An instance of SSL.Context."""
 
-        self.context = None
-        self.certificate = certificate
-        self.private_key = private_key
-        self.certificate_chain = certificate_chain
+    ciphers = None
+    """The ciphers list of SSL."""
+
+    def __init__(self, certificate, private_key, certificate_chain=None, ciphers=None):
+        """Initialize OpenSSL Adapter instance."""
+        if SSL is None:
+            raise ImportError('You must install pyOpenSSL to use HTTPS.')
+
+        super(pyOpenSSLAdapter, self).__init__(certificate, private_key, certificate_chain, ciphers)
+
         self._environ = None
 
     def bind(self, sock):
@@ -199,12 +208,12 @@ class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
     def get_environ(self):
         """Return WSGI environ entries to be merged into each request."""
         ssl_environ = {
-            "HTTPS": "on",
+            'HTTPS': 'on',
             # pyOpenSSL doesn't provide access to any of these AFAICT
             # 'SSL_PROTOCOL': 'SSLv2',
-            # SSL_CIPHER 	string 	The cipher specification name
-            # SSL_VERSION_INTERFACE 	string 	The mod_ssl program version
-            # SSL_VERSION_LIBRARY 	string 	The OpenSSL program version
+            # SSL_CIPHER    string  The cipher specification name
+            # SSL_VERSION_INTERFACE     string  The mod_ssl program version
+            # SSL_VERSION_LIBRARY   string  The OpenSSL program version
         }
 
         if self.certificate:
@@ -220,8 +229,8 @@ class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
                 #   Validity of server's certificate (end time),
             })
 
-            for prefix, dn in [("I", cert.get_issuer()),
-                               ("S", cert.get_subject())]:
+            for prefix, dn in [('I', cert.get_issuer()),
+                               ('S', cert.get_subject())]:
                 # X509Name objects don't seem to have a way to get the
                 # complete DN string. Use str() and slice it instead,
                 # because str(dn) == "<X509Name object '/C=US/ST=...'>"
@@ -233,9 +242,9 @@ class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
                 # The DN should be of the form: /k1=v1/k2=v2, but we must allow
                 # for any value to contain slashes itself (in a URL).
                 while dnstr:
-                    pos = dnstr.rfind("=")
+                    pos = dnstr.rfind('=')
                     dnstr, value = dnstr[:pos], dnstr[pos + 1:]
-                    pos = dnstr.rfind("/")
+                    pos = dnstr.rfind('/')
                     dnstr, key = dnstr[:pos], dnstr[pos + 1:]
                     if key and value:
                         wsgikey = 'SSL_SERVER_%s_DN_%s' % (prefix, key)
@@ -244,10 +253,11 @@ class pyOpenSSLAdapter(wsgiserver.SSLAdapter):
         return ssl_environ
 
     def makefile(self, sock, mode='r', bufsize=-1):
+        """Return socket file object."""
         if SSL and isinstance(sock, SSL.ConnectionType):
             timeout = sock.gettimeout()
             f = SSL_fileobject(sock, mode, bufsize)
             f.ssl_timeout = timeout
             return f
         else:
-            return wsgiserver.CP_fileobject(sock, mode, bufsize)
+            return cheroot_server.CP_fileobject(sock, mode, bufsize)

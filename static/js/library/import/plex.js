@@ -29,8 +29,7 @@ function read_csv(event, elem){
         processData: false,
         contentType: false
     })
-    .done(function(r){
-        var response = JSON.parse(r);
+    .done(function(response){
         $progress_bar.width("100%");
         $progress.slideUp();
 
@@ -95,7 +94,7 @@ function read_csv(event, elem){
                                 ${movie["title"]}
                             </td>
                             <td>
-                                <input type="text" class="incomplete_imdbid" placeholder="tt0123456" value="${movie['imdbid']}"/>
+                                <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
                             </td>
                             <td class="resolution">
                                 ${select[0].outerHTML}
@@ -144,13 +143,6 @@ function reset_remote(event){
 function import_library(event, elem){
     event.preventDefault();
 
-    $("div#remote_map").slideUp();
-    $("div#complete_movies").slideUp();
-    $("div#incomplete_movies").slideUp();
-    $("a#import_library").slideUp();
-    $progress_bar.width("0%");
-    $progress.slideDown();
-
     var movies = [];
     var corrected_movies = [];
 
@@ -161,7 +153,7 @@ function import_library(event, elem){
         }
 
         movie = $row.data("movie");
-        movie["finished_file"] = $row.find("td.file_path").text();
+        movie["finished_file"] = $row.find("td.file_path").text().trim();
         movie["resolution"] = $row.find("select.source_select").val();
         movies.push(movie);
     });
@@ -182,7 +174,7 @@ function import_library(event, elem){
             return
         }
 
-        movie["finished_file"] = $row.find("td.file_path").text();
+        movie["finished_file"] = $row.find("td.file_path").text().trim();
         movie["resolution"] = $row.find("select.source_select").val();
         corrected_movies.push(movie);
     });
@@ -191,6 +183,13 @@ function import_library(event, elem){
         $.notify({message: "Please fill highlighted fields or disable movie to continue."}, {type: "warning"});
         return false;
     }
+
+    $("div#remote_map").slideUp();
+    $("div#complete_movies").slideUp();
+    $("div#incomplete_movies").slideUp();
+    $("a#import_library").slideUp();
+    $progress_bar.width("0%");
+    $progress.slideDown();
 
     var $success = $("div#import_success");
     var $success_table = $("div#import_success table > tbody");
@@ -204,8 +203,7 @@ function import_library(event, elem){
                "corrected_movies": JSON.stringify(corrected_movies)
                },
         xhrFields: {
-            onprogress: function(e)
-            {
+            onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
                 if(last_response_len === false){
@@ -217,11 +215,11 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]}`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
 
-                $progress_text.text(`${r['progress'][0]} / ${r['progress'][1]}`);
+                $progress_text.text(progress_text);
 
                 $progress_bar.width(progress_percent + "%")
                 if(r['response'] == true){
@@ -242,14 +240,11 @@ function import_library(event, elem){
             }
         }
     })
-    .done(function(data)
-    {
+    .done(function(data){
         $progress.slideUp();
-        $progress_bar.width("0%");
-        $progress_text.empty();
+        $progress_text.slideUp();
     })
-    .fail(function(data)
-    {
+    .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })

@@ -1,38 +1,33 @@
 import os
 import json
-from hachoir.parser import createParser
-from hachoir.metadata import extractMetadata
-from core import searchresults, plugins
-import core
-from core.movieinfo import TMDB
-from core.helpers import Url, Conversions
-import PTN
 import datetime
 import logging
-import uuid
-import xml.etree.cElementTree as ET
 import csv
-import shutil
 import threading
+from core import searchresults, plugins, searcher
+import core
+from core.movieinfo import TMDB
+from core.helpers import Url
+from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+import PTN
+
 
 logging = logging.getLogger(__name__)
-
-MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
 
 
 class ImportDirectory(object):
 
-    def __init__(self):
-        return
-
     @staticmethod
     def scan_dir(directory, minsize=500, recursive=True):
         ''' Scans directory for movie files
-        directory: str base directory of movie library
-        minsize: int minimum filesize in MB <default 500>
-        recursive: bool scan recursively or just root directory <default True>
+        directory (str): absolute path to base directory of movie library
+        minsize (int): minimum filesize in MB                       <optional - default 500>
+        recursive (bool): scan recursively or just root directory   <optional - default True>
 
-        Returns list of files
+        Checks mimetype for video type
+
+        Returns dict ajax-style response
         '''
 
         logging.info('Scanning {} for movies.'.format(directory))
@@ -46,14 +41,21 @@ class ImportDirectory(object):
         except Exception as e:
             return {'error': str(e)}
 
-        files = [i for i in files if os.path.getsize(i) >= (minsize * 1024**2)]
-
-        return {'files': files}
+        f = []
+        logging.debug('Specified minimum file size: {} Bytes.'.format(minsize * 1024**2))
+        ms = minsize * 1024**2
+        for i in files:
+            s = os.path.getsize(i)
+            if not s >= (ms):
+                logging.debug('{} size is {} skipping.'.format(i, s))
+                continue
+            f.append(i)
+        return {'files': f}
 
     @staticmethod
     def _walk(directory):
         ''' Recursively gets all files in dir
-        dir: directory to scan for files
+        directory: directory to scan for files
 
         Returns list of absolute file paths
         '''
@@ -61,11 +63,12 @@ class ImportDirectory(object):
         files = []
         dir_contents = os.listdir(directory)
         for i in dir_contents:
-            logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
             full_path = os.path.join(directory, i)
             if os.path.isdir(full_path):
+                logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
                 files = files + ImportDirectory._walk(full_path)
             else:
+                logging.info('Found file {}'.format(full_path))
                 files.append(full_path)
         return files
 
@@ -75,24 +78,19 @@ class ImportKodiLibrary(object):
     @staticmethod
     def get_movies(url):
         ''' Gets list of movies from kodi server
-        url: str url of kodi server
+        url (str): url of kodi server
 
         url should include auth info if required.
 
         Gets movies from kodi, reformats list, and adds resolution/source info.
         Since Kodi doesn't care about souce we default to BluRay-<resolution>
 
-        Returns list of dicts of movies
+        Returns dict ajax-style response
         '''
 
         krequest = {"jsonrpc": "2.0",
                     "method": "VideoLibrary.GetMovies",
                     "params": {
-                        "filter": {
-                            "field": "playcount",
-                            "operator": "is",
-                            "value": "0"
-                        },
                         "limits": {
                             "start": 0,
                             "end": 0
@@ -171,109 +169,85 @@ class ImportKodiLibrary(object):
 
 
 class ImportPlexLibrary(object):
+    ''' Several of these methods are not currently used due to Plex's
+    api being less than ideal.
+    '''
 
     @staticmethod
     def get_libraries(url, token):
         ''' Gets list of libraries in server url
-        url: url and port of plex server
-        token: plex auth token for server
+        url (str): url and port of plex server
+        token (str): plex auth token for server
 
-        Returns list of dicts
+        Returns dict ajax-style response
         '''
 
-        headers = {'X-Plex-Token': token}
+        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
 
         url = '{}/library/sections'.format(url)
 
         try:
-            r = Url.open(url, headers=headers)
-            xml = r.text
-        except Exception as e:  # noqa
+            response = Url.open(url, headers=headers)
+            if response.status_code != 200:
+                return {'response', False, 'error', 'Unable to contact Plex server, error {}'.format(response.status_code)}
+            libraries = json.loads(response.text).get('MediaContainer', {}).get('Directory')
+        except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
             return {'response', False, 'error', 'Unable to contact Plex server.'}
 
-        libs = []
-        try:
-            root = ET.fromstring(xml)
+        if not libraries:
+            return {'response', False, 'error', 'No libraries found on Plex server.'}
 
-            for directory in root.findall('Directory'):
-                lib = directory.attrib
-                lib['path'] = directory.find('Location').attrib['path']
-                libs.append(lib)
-        except Exception as e:  # noqa
-            logging.error('Unable to parse Plex xml.', exc_info=True)
-            return {'response', False, 'error', 'Unable to parse Plex xml.'}
-
-        return {'response': True, 'libraries': libs}
+        return {'response': True, 'libraries': libraries}
 
     @staticmethod
-    def get_movies(server, libid, token):
+    def get_movies(url, token, library_key):
+        ''' Get movies from plex library
+        url (str): url of server
+        token (str): plex access token
+        library_key (int): library id #
 
-        headers = {'X-Plex-Token': token}
-        url = '{}/library/sections/{}/all'.format(server, libid)
+        Returns dict ajax-style response
+        '''
+
+        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
+
+        url = '{}/library/sections/{}/all?includeExtras=1'.format(url, library_key)
 
         try:
-            r = Url.open(url, headers=headers)
-            xml = r.text
-        except Exception as e:  # noqa
+            response = Url.open(url, headers=headers)
+            if response.status_code != 200:
+                return {'response': False, 'error': 'Unable to contact Plex server, error {}'.format(response.status_code)}
+            movies = json.loads(response.text)
+        except Exception as e:
             logging.error('Unable to contact Plex server.', exc_info=True)
-            return {'response', False, 'error', 'Unable to contact Plex server.'}
-
-        movies = []
-        try:
-            root = ET.fromstring(xml)
-
-            for i in root:
-                movie = {}
-
-                movies.append(movie)
-
-        except Exception as e:  # noqa
-            logging.error('Unable to parse Plex xml.', exc_info=True)
-            return {'response', False, 'error', 'Unable to parse Plex xml.'}
+            return {'response': False, 'error': 'Unable to contact Plex server.'}
 
         return {'response': True, 'movies': movies}
 
     @staticmethod
-    def get_token(username=None, password=None):
-        ''' Gets auth token for plex
-        username: str username of plex account
-        password: str password of plex account
+    def read_csv(csv_text):
+        ''' Parse plex csv
+        csv_text (str): text from csv file
 
-        Returns str token or None
+        Returns dict ajax-style response
         '''
 
-        plex_url = 'https://plex.tv/users/sign_in.json'
-        post_data = {'user[login]': username,
-                     'user[password]': password
-                     }
-        headers = {'X-Plex-Client-Identifier': str(uuid.getnode()),
-                   'X-Plex-Product': 'Watcher',
-                   'X-Plex-Version': '1.0'}
-
-        try:
-            r = Url.open(plex_url, post_data=post_data, headers=headers)
-            return json.loads(r.text)['user'].get('authentication_token')
-        except Exception as e:  # noqa
-            logging.error('Unable to get Plex token.', exc_info=True)
-            return None
-
-    @staticmethod
-    def read_csv(csv_text):
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
         try:
             movies = []
             reader = csv.DictReader(csv_text.splitlines())
             for row in reader:
                 movies.append(dict(row))
-        except Exception as e:  # noqa
+        except Exception as e:
             return {'response': False, 'error': e}
 
         parsed_movies = []
         incomplete = []
         today = str(datetime.date.today())
-        try:
-            for movie in movies:
+
+        for movie in movies:
+            try:
                 complete = True
                 parsed = {}
 
@@ -298,7 +272,17 @@ class ImportPlexLibrary(object):
                 if parsed['audiocodec'] == 'dca' or parsed['audiocodec'].startswith('dts'):
                     parsed['audiocodec'] = 'DTS'
 
-                width = int(movie['Width'])
+                w = movie['Width']
+                pw = ''
+                while len(w) > 0 and w[0].isdigit():
+                    pw += w[0]
+                    w = w[1:]
+
+                if pw:
+                    width = int(pw)
+                else:
+                    width = 0
+                    complete = False
                 if width > 1920:
                     parsed['resolution'] = 'BluRay-4K'
                 elif 1920 >= width > 1440:
@@ -308,16 +292,22 @@ class ImportPlexLibrary(object):
                 else:
                     parsed['resolution'] = 'DVD-SD'
 
-                parsed['size'] = int(movie['Part Size as Bytes'])
+                s = movie['Part Size as Bytes']
+                ps = ''
+                while len(s) > 0 and s[0].isdigit():
+                    ps += s[0]
+                    s = s[1:]
+
+                parsed['size'] = int(ps) if ps else 0
                 parsed['file'] = movie['Part File']
 
                 if complete:
                     parsed_movies.append(parsed)
                 else:
                     incomplete.append(parsed)
-        except Exception as e:
-            logging.error('Error parsing Plex CSV.', exc_info=True)
-            return {'response': False, 'error': 'Unable to parse CSV file.'}
+            except Exception as e:
+                logging.error('Error parsing Plex CSV.', exc_info=True)
+                incomplete.append(parsed)
 
         return {'response': True, 'complete': parsed_movies, 'incomplete': incomplete}
 
@@ -327,9 +317,9 @@ class ImportCPLibrary(object):
     @staticmethod
     def get_movies(url):
         ''' Gets list of movies from CP
-        url: str full url of cp movies.list api call
+        url (str): full url of cp movies.list api call
 
-        Returns list of dicts of movie info
+        Returns dict ajax-style response
         '''
 
         try:
@@ -405,11 +395,13 @@ class Metadata(object):
 
     def __init__(self):
         self.tmdb = TMDB()
+        self.poster = Poster()
+        self.MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
         return
 
     def from_file(self, filepath):
         ''' Gets video metadata using hachoir.parser
-        filepath: str absolute path to movie file
+        filepath (str): absolute path to movie file
 
         On failure can return empty dict
 
@@ -447,19 +439,21 @@ class Metadata(object):
         if data.get('title') and not data.get('imdbid'):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
             tmdbdata = self.tmdb.search(title_date, single=True)
-            if tmdbdata:
-                data['year'] = tmdbdata['release_date'][:4]
-                data.update(tmdbdata)
-                data['imdbid'] = self.tmdb.get_imdbid(data['id'])
-            else:
+            if not tmdbdata:
                 logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
                 return data
+            else:
+                tmdbdata = tmdbdata[0]
+                data['year'] = tmdbdata['release_date'][:4]
+                data.update(tmdbdata)
+                imdbid = self.tmdb.get_imdbid(data['id'])
+                data['imdbid'] = imdbid if imdbid else None
 
         return data
 
     def parse_media(self, filepath):
         ''' Uses Hachoir-metadata to parse the file header to metadata
-        filepath: str absolute path to file
+        filepath (str): absolute path to file
 
         Attempts to get resolution from media width
 
@@ -473,57 +467,61 @@ class Metadata(object):
             filedata = extractor.exportDictionary(human=False)
             parser.stream._input.close()
 
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Unable to parse metadata from file header.', exc_info=True)
             return metadata
 
         if filedata:
-            if filedata.get('Metadata'):
-                width = filedata['Metadata'].get('width')
-            elif metadata.get('video[1]'):
-                width = filedata['video[1]'].get('width')
-            else:
-                width = None
+            # For mp4, mvk, avi in order
+            video = filedata.get('Metadata') or \
+                filedata.get('video[1]') or \
+                filedata.get('video') or \
+                {}
 
-            if width:
-                width = int(width)
+            # mp4 doesn't have audio data so this is just for mkv and avi
+            audio = filedata.get('audio[1]') or {}
+
+            if video.get('width'):
+                width = int(video.get('width'))
                 if width > 1920:
-                    filedata['resolution'] = '4K'
+                    metadata['resolution'] = '4K'
                 elif 1920 >= width > 1440:
-                    filedata['resolution'] = '1080P'
+                    metadata['resolution'] = '1080P'
                 elif 1440 >= width > 720:
-                    filedata['resolution'] = '720P'
+                    metadata['resolution'] = '720P'
                 else:
-                    filedata['resolution'] = 'SD'
+                    metadata['resolution'] = 'SD'
             else:
-                filedata['resolution'] = 'SD'
+                metadata['resolution'] = 'SD'
 
-            if filedata.get('audio[1]'):
-                metadata['audiocodec'] = filedata['audio[1]'].get('compression').replace('A_', '')
-            if filedata.get('video[1]'):
-                metadata['videocodec'] = filedata['video[1]'].get('compression').split('/')[0].replace('V_', '')
+            if audio.get('compression'):
+                metadata['audiocodec'] = audio['compression'].replace('A_', '')
+            if video.get('compression'):
+                metadata['videocodec'] = video['compression'].split('/')[0].split('(')[0].replace('V_', '')
 
         return metadata
 
     def parse_filename(self, filepath):
         ''' Uses PTN to get as much info as possible from path
-        filepath: str absolute path to file
+        filepath (str): absolute path to file
 
-        Returns dict of Metadata
+        Returns dict of metadata
         '''
         logging.info('Parsing {} for movie information.'.format(filepath))
 
         titledata = PTN.parse(os.path.basename(filepath))
-        # this key is useless
-        if 'excess' in titledata:
-            titledata.pop('excess')
+        #remove usless keys before measuring length
+        for i in ('excess', 'episode', 'episodeName', 'season', 'garbage', 'website'):
+            titledata.pop(i, None)
 
         if len(titledata) < 3:
-            logging.info('Parsing filename doesn\'t look accurate. Parsing parent folder name.')
+            logging.info('Parsing filename does not look accurate. Parsing parent folder name.')
 
             path_list = os.path.split(filepath)[0].split(os.sep)
             titledata = PTN.parse(path_list[-1])
             logging.info('Found {} in parent folder.'.format(titledata))
+            if len(titledata) < 2:
+                logging.warning('Little information found in parent folder name. Movie may be incomplete.')
         else:
             logging.info('Found {} in filename.'.format(titledata))
 
@@ -543,11 +541,11 @@ class Metadata(object):
 
     def convert_to_db(self, movie):
         ''' Takes movie data and converts to a database-writable dict
-        movie: dict of movie information
+        movie (dict): of movie information
 
         Used to prepare TMDB's movie response for write into MOVIES
-        Must include Watcher-specific keys ie resolution,
-        Makes sure all keys match and are present.
+        Must include Watcher-specific keys ie resolution
+        Makes sure all keys match and are present
         Sorts out alternative titles and digital release dates
 
         Returns dict ready to sql.write into MOVIES
@@ -561,17 +559,18 @@ class Metadata(object):
         elif not movie.get('year'):
             movie['year'] = 'N/A'
 
-        if movie.get('added_date') is None:
-            movie['added_date'] = str(datetime.date.today())
+        movie['added_date'] = movie.get('added_date', str(datetime.date.today()))
 
-        movie['poster'] = 'images/poster/{}.jpg'.format(movie['imdbid'])
+        if movie.get('poster_path'):
+            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+        else:
+            movie['poster'] = None
         movie['plot'] = movie['overview']
         movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie['id'])
         movie['score'] = movie['vote_average']
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
-        movie['added_date'] = str(datetime.date.today())
         movie['backlog'] = 0
         movie['tmdbid'] = movie['id']
 
@@ -585,11 +584,11 @@ class Metadata(object):
         dates = []
         for i in movie.get('release_dates', {}).get('results', []):
             for d in i['release_dates']:
-                if d['type'] == 4:
+                if d['type'] > 4:
                     dates.append(d['release_date'])
 
         if dates:
-            movie['digital_release_date'] = max(dates)[:10]
+            movie['media_release_date'] = min(dates)[:10]
 
         if movie.get('quality') is None:
             movie['quality'] = 'Default'
@@ -600,9 +599,86 @@ class Metadata(object):
             if isinstance(v, str):
                 movie[k] = v.strip()
 
-        movie = {k: v for k, v in movie.items() if k in MOVIES_cols}
+        movie = {k: v for k, v in movie.items() if k in self.MOVIES_cols}
 
         return movie
+
+    def update(self, imdbid, tmdbid=None, force_poster=True):
+        ''' Updates metadata from TMDB
+        imdbid (str): imdb id #
+        tmdbid (str): or int tmdb id #                                  <optional - default None>
+        force_poster (bool): whether or not to always redownload poster <optional - default True>
+
+        If tmdbid is None, looks in database for tmdbid using imdbid.
+        If that fails, looks on tmdb api for imdbid
+        If that fails returns error message
+
+        If force_poster is True, the poster will be re-downloaded.
+        If force_poster is False, the poster will only be redownloaded if the local
+            database does not have a 'poster' filepath stored. In other words, this
+            will only grab missing posters.
+
+        Returns dict ajax-style response
+        '''
+
+        logging.info('Updating metadata for {}'.format(imdbid))
+        movie = core.sql.get_movie_details('imdbid', imdbid)
+
+        if force_poster:
+            get_poster = True
+        elif not movie.get('poster'):
+            get_poster = True
+        elif not os.path.isfile(os.path.join(core.PROG_PATH, movie['poster'])):
+            get_poster = True
+        else:
+            get_poster = False
+
+        if tmdbid is None:
+            tmdbid = movie.get('tmdbid')
+
+            if not tmdbid:
+                logging.warning('TMDB id not found in local database, searching TMDB for {}'.format(imdbid))
+                tmdb_data = self.tmdb._search_imdbid(imdbid)
+                tmdbid = tmdb_data[0].get('id') if tmdb_data else None
+            if not tmdbid:
+                return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
+
+        new_data = self.tmdb._search_tmdbid(tmdbid)
+
+        if not new_data:
+            logging.warning('Empty response from TMDB.')
+            return
+        else:
+            new_data = new_data[0]
+
+        new_data.pop('status')
+
+        target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
+
+        if new_data.get('poster_path'):
+            poster_path = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
+            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+        else:
+            poster_path = None
+
+        movie.update(new_data)
+        movie = self.convert_to_db(movie)
+
+        core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
+
+        if poster_path and get_poster:
+            if os.path.isfile(target_poster):
+                try:
+                    os.remove(target_poster)
+                except FileNotFoundError:
+                    pass
+                except Exception as e:
+                    logging.warning('Unable to remove existing poster.', exc_info=True)
+                    return {'response': False, 'error': 'Unable to remove existing poster.'}
+
+            self.poster.save_poster(imdbid, poster_path)
+
+        return {'response': True, 'message': 'Metadata updated.'}
 
 
 class Manage(object):
@@ -614,31 +690,39 @@ class Manage(object):
         self.tmdb = TMDB()
         self.metadata = Metadata()
         self.poster = Poster()
-        self.plugins = plugins.Plugins()
+        self.searcher = searcher.Searcher()
 
     def add_movie(self, movie, full_metadata=False):
         ''' Adds movie to Wanted list.
-        :param data: str json.dumps(dict) of info to add to database.
-        full_metadata: bool if data is complete and ready for write
+        movie (dict): movie info to add to database.
+        full_metadata (bool): if data is complete and ready for write
 
-        data MUST inlcude tmdb id as data['id']
+        movie MUST inlcude tmdb id as data['id']
 
         Writes data to MOVIES table.
 
         If full_metadata is False, searches tmdb for data['id'] and updates data
+            full_metadata should only be True when passing movie as data pulled
+            directly from a tmdbid search
 
         If Search on Add enabled,
             searches for movie immediately in separate thread.
             If Auto Grab enabled, will snatch movie if found.
 
-        Returns dict of status and message ie {'response': False, 'error': 'Something broke'}
+        Returns dict ajax-style response
         '''
 
         response = {}
         tmdbid = movie['id']
+        poster_path = movie.get('poster_path')
 
         if not full_metadata:
-            tmdb_data = self.tmdb._search_tmdbid(tmdbid)[0]
+            tmdb_data = self.tmdb._search_tmdbid(tmdbid)
+            if not tmdb_data:
+                response['error'] = 'Unable to find {} on TMDB.'.format(tmdbid)
+                return response
+            else:
+                tmdb_data = tmdb_data[0]
             tmdb_data.pop('status')
             movie.update(tmdb_data)
 
@@ -654,11 +738,6 @@ class Manage(object):
         movie['status'] = movie.get('status', 'Waiting')
         movie['origin'] = movie.get('origin', 'Search')
 
-        if movie.get('poster_path'):
-            poster_url = 'http://image.tmdb.org/t/p/w300{}'.format(movie['poster_path'])
-        else:
-            poster_url = 'static/images/missing_poster.jpg'
-
         movie = self.metadata.convert_to_db(movie)
 
         if not core.sql.write('MOVIES', movie):
@@ -666,29 +745,33 @@ class Manage(object):
             response['error'] = 'Could not write to database.'
             return response
         else:
-            t2 = threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url))
-            t2.start()
+            if poster_path:
+                poster_path = "http://image.tmdb.org/t/p/w300{}".format(poster_path)
+                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_path)).start()
+
+            if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
+                threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
 
             response['response'] = True
             response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
-            response['movie'] = movie
-            self.plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
+            plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
 
             return response
 
     def remove_movie(self, imdbid):
-        '''
-        Removes row from MOVIES, removes any entries in SEARCHRESULTS
-        In separate thread deletes poster image.
-        '''
+        ''' Remove movie from library
+        imdbid (str): imdb id #
 
-        t = threading.Thread(target=self.poster.remove_poster, args=(imdbid,))
+        Calls core.sql.remove_movie and removes poster (in separate thread)
+
+        Returns dict ajax-style response
+        '''
 
         removed = core.sql.remove_movie(imdbid)
 
         if removed is True:
             response = {'response': True, 'removed': imdbid}
-            t.start()
+            threading.Thread(target=self.poster.remove_poster, args=(imdbid,)).start()
         elif removed is False:
             response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
         elif removed is None:
@@ -698,15 +781,15 @@ class Manage(object):
 
     def searchresults(self, guid, status, movie_info=None):
         ''' Marks searchresults status
-        :param guid: str download link guid
-        :param status: str status to set
-        movie_info: dict of movie metadata  <optional>
+        guid (str): download link guid
+        status (str): status to set
+        movie_info (dict): of movie metadata    <optional - default None>
 
         If guid is in SEARCHRESULTS table, marks it as status.
 
         If guid not in SEARCHRESULTS, uses movie_info to create a result.
 
-        Returns Bool on success/fail
+        Returns bool
         '''
 
         TABLE = 'SEARCHRESULTS'
@@ -726,7 +809,7 @@ class Manage(object):
         else:
             logging.info('Guid {} not found in SEARCHRESULTS, attempting to create entry.'.format(guid.split('&')[0]))
             if movie_info is None:
-                logging.warning('Metadata not supplied, unable to create SEARCHRESULTS entry.')
+                logging.warning('Movie metadata not supplied, unable to create SEARCHRESULTS entry.')
                 return False
             search_result = searchresults.generate_simulacrum(movie_info)
             search_result['indexer'] = 'Post-Processing Import'
@@ -748,15 +831,14 @@ class Manage(object):
 
     def markedresults(self, guid, status, imdbid=None):
         ''' Marks markedresults status
-
-        :param guid: str download link guid
-        :param status: str status to set
-        :param imdbid: str imdb identification number   <optional>
+        guid (str): download link guid
+        status (str): status to set
+        imdbid (str): imdb identification number    <optional - default None>
 
         If guid is in MARKEDRESULTS table, marks it as status.
         If guid not in MARKEDRSULTS table, created entry. Requires imdbid.
 
-        Returns Bool on success/fail
+        Returns bool
         '''
 
         TABLE = 'MARKEDRESULTS'
@@ -789,28 +871,25 @@ class Manage(object):
 
     def movie_status(self, imdbid):
         ''' Updates Movie status.
-        :param imdbid: str imdb identification number (tt123456)
+        imdbid (str): imdb identification number (tt123456)
 
         Updates Movie status based on search results.
         Always sets the status to the highest possible level.
 
-        Returns str new movie status or bool False on failure
+        Returns str new movie status
         '''
 
         local_details = core.sql.get_movie_details('imdbid', imdbid)
         if local_details:
             current_status = local_details.get('status')
         else:
-            return False
+            return ''
 
         if current_status == 'Disabled':
             return 'Disabled'
 
         result_status = core.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
-        if result_status is False:
-            logging.error('Could not get SEARCHRESULTS statuses for {}'.format(imdbid))
-            return False
-        elif 'Finished' in result_status:
+        if 'Finished' in result_status:
             status = 'Finished'
         elif 'Snatched' in result_status:
             status = 'Snatched'
@@ -826,7 +905,7 @@ class Manage(object):
             return status
         else:
             logging.error('Could not set {} to {}'.format(imdbid, status))
-            return False
+            return ''
 
     def get_stats(self):
         ''' Gets stats from database for graphing
@@ -894,28 +973,10 @@ class Manage(object):
         stats['years'] = sorted([{'year': k, 'value': v} for k, v in years.items()], key=lambda k: k['year'])
         stats['added_dates'] = sorted([{'added_date': k, 'value': v} for k, v in added_dates.items() if v is not None], key=lambda k: k['added_date'])
         stats['scores'] = sorted([{'score': k, 'value': v} for k, v in scores.items()], key=lambda k: k['score'])
-
         return stats
 
-    def estimate_size(self, human=True):
-        movies = core.sql.get_user_movies()
-        files = [i['finished_file'] for i in movies if i['finished_file'] is not None]
 
-        size = 0
-
-        for i in files:
-            try:
-                size += os.path.getsize(i)
-            except Exception as e:
-                logging.warning('Unable to get filesize for {}'.format(e), exc_info=True)
-
-        if not human:
-            return size
-        else:
-            return Conversions.human_file_size(size)
-
-
-class Poster():
+class Poster(object):
 
     def __init__(self):
         self.poster_folder = 'static/images/posters/'
@@ -923,52 +984,51 @@ class Poster():
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)
 
-    def save_poster(self, imdbid, poster_url):
+    def save_poster(self, imdbid, poster):
         ''' Saves poster locally
-        :param imdbid: str imdb identification number (tt123456)
-        :param poster_url: str url of poster image
+        imdbid (str): imdb id #
+        poster (str): url of poster image.jpg
 
         Saves poster as watcher/static/images/posters/[imdbid].jpg
 
-        Does not return.
+        Does not return
         '''
 
         logging.info('Grabbing poster for {}.'.format(imdbid))
 
         new_poster_path = '{}{}.jpg'.format(self.poster_folder, imdbid)
 
-        if os.path.exists(new_poster_path) is False:
+        if os.path.exists(new_poster_path):
+            logging.warning('{} already exists.'.format(new_poster_path))
+            return
+        else:
             logging.info('Saving poster to {}'.format(new_poster_path))
 
-            if poster_url == 'static/images/missing_poster.jpg':
-                shutil.copy2(poster_url, new_poster_path)
+            try:
+                poster_bytes = Url.open(poster, stream=True).content
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception as e:
+                logging.error('Poster save_poster get', exc_info=True)
+                return
 
-            else:
-                try:
-                    poster_bytes = Url.open(poster_url, stream=True).content
-                except (SystemExit, KeyboardInterrupt):
-                    raise
-                except Exception as e:
-                    logging.error('Poster save_poster get', exc_info=True)
-
-                try:
-                    with open(new_poster_path, 'wb') as output:
-                        output.write(poster_bytes)
-                    del poster_bytes
-                except (SystemExit, KeyboardInterrupt):
-                    raise
-                except Exception as e: # noqa
-                    logging.error('Unable to save poster to disk.', exc_info=True)
+            try:
+                with open(new_poster_path, 'wb') as output:
+                    output.write(poster_bytes)
+                del poster_bytes
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except Exception as e:
+                logging.error('Unable to save poster to disk.', exc_info=True)
+                return
 
             logging.info('Poster saved to {}'.format(new_poster_path))
-        else:
-            logging.warning('{} already exists.'.format(new_poster_path))
 
     def remove_poster(self, imdbid):
         ''' Deletes poster from disk.
-        :param imdbid: str imdb identification number (tt123456)
+        imdbid (str): imdb id #
 
-        Does not return.
+        Does not return
         '''
 
         logging.info('Removing poster for {}'.format(imdbid))

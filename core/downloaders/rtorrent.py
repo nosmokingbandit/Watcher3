@@ -183,10 +183,10 @@ class rTorrentHTTP(object):
                     if downloadid in rTorrentHTTP.client.download_list():
                         rTorrentHTTP.client.d.set_custom1(downloadid, conf['label'])
                         return {'response': True, 'downloadid': downloadid}
-                    time.sleep(1)
+                    time.sleep(2)
                     t += 1
-                logging.error('Torrent hash ({}) not found in rTorrent after 5 seconds, cannot apply label.'.format(downloadid))
-                return {'response': False, 'error': 'Torrent hash not found in rTorrent after 5 seconds, cannot apply label.'}
+                logging.error('Torrent hash ({}) not found in rTorrent after 10 seconds, cannot apply label.'.format(downloadid))
+                return {'response': False, 'error': 'Torrent hash not found in rTorrent after 10 seconds, cannot apply label.'}
             else:
                 return {'response': True, 'downloadid': downloadid}
 

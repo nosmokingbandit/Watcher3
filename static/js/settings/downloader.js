@@ -74,9 +74,7 @@ function test_connection(event, elem, client){
         "mode": client,
         "data": settings
     })
-    .done(function(r){
-        var response = JSON.parse(r);
-
+    .done(function(response){
         if(response["response"] == true){
             $.notify({message: `${response["message"]}`});
         } else {
@@ -160,6 +158,10 @@ function _get_settings(){
             }
         });
     });
+
+    settings['Torrent']['DelugeWeb']['category'] = settings['Torrent']['DelugeWeb']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
+    settings['Torrent']['DelugeRPC']['category'] = settings['Torrent']['DelugeRPC']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
+
 
 // DOWNLOADER['SOURCES']
 

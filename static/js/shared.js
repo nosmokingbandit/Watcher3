@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function(){
     url_base = $("meta[name='url_base']").attr("content");
     show_notifs = JSON.parse($("meta[name='enable_notifs']").attr("content") || "true");
 
@@ -12,6 +12,19 @@ $(document).ready(function() {
         });
     }
 });
+
+function logout(event){
+    event.preventDefault();
+
+    $.post(url_base+"/auth/logout", {})
+    .done(function(r){
+        window.location = r;
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+}
 
 $.notifyDefaults({type: "success",
                     allow_dismiss: true,
@@ -40,11 +53,18 @@ function format_template(t, d){
     return t;
 }
 
+function each(arr, fn){
+    // Executes fn(array_item, array_index) for each item in arr
+    var i = arr.length;
+    while (--i >= 0){
+        fn(arr[i], i)
+    }
+}
 
 function _start_update(event){
     // Method called to start update from notification.
     event.preventDefault();
-    $.post(url_base + "/ajax/update_now", {"mode": "set_true"})
+    $.post(url_base + "/ajax/update_server", {"mode": "set_true"})
     .done(function(){
         window.location = url_base + "/system/update";
     })

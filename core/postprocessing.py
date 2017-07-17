@@ -7,7 +7,7 @@ import shutil
 
 import cherrypy
 import core
-from core import plugins, movieinfo, snatcher, library, ajax
+from core import plugins, snatcher, library
 
 logging = logging.getLogger(__name__)
 
@@ -16,32 +16,29 @@ class Postprocessing(object):
     exposed = True
 
     def __init__(self):
-        self.tmdb = movieinfo.TMDB()
-        self.plugins = plugins.Plugins()
-        self.ajax = ajax.Ajax()
         self.snatcher = snatcher.Snatcher()
-        self.manage = library.Manage()
         self.metadata = library.Metadata()
 
     def null(*args, **kwargs):
         return
 
     @cherrypy.expose
+    @cherrypy.tools.json_out()
     def POST(self, **data):
         ''' Handles post-processing requests.
-        :kwparam **data: keyword params send through POST request URL
+        **data: keyword params send through POST request payload
 
-        required kw params:
-            apikey: str Watcher api key
-            mode: str post-processing mode (complete, failed)
-            guid: str download link of file. Can be url or magnet link.
-            path: str path to downloaded files. Can be single file or dir
+        Required kw params:
+            apikey (str): Watcher api key
+            mode (str): post-processing mode (complete, failed)
+            guid (str): download link of file. Can be url or magnet link.
+            path (str): absolute path to downloaded files. Can be single file or dir
 
-        optional kw params:
-            imdbid: str imdb identification number (tt123456)
-            downloadid: str id number from downloader
+        Optional kw params:
+            imdbid (str): imdb identification number (tt123456)
+            downloadid (str): id number from downloader
 
-        Returns str json.dumps(dict) to post-process reqesting application.
+        Returns dict of post-processing tasks and data
         '''
 
         logging.info('#################################')
@@ -52,20 +49,17 @@ class Postprocessing(object):
         for key in ('apikey', 'mode', 'guid', 'path'):
             if key not in data:
                 logging.warning('Missing key {}'.format(key))
-                return json.dumps({'response': False,
-                                   'error': 'missing key: {}'.format(key)})
+                return {'response': False, 'error': 'missing key: {}'.format(key)}
 
         # check if api key is correct
         if data['apikey'] != core.CONFIG['Server']['apikey']:
             logging.warning('Incorrect API key.'.format(key))
-            return json.dumps({'response': False,
-                               'error': 'incorrect api key'})
+            return {'response': False, 'error': 'incorrect api key'}
 
         # check if mode is valid
         if data['mode'] not in ('failed', 'complete'):
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': False,
-                               'error': 'invalid mode value'})
+            return {'response': False, 'error': 'invalid mode value'}
 
         logging.debug(data)
 
@@ -104,29 +98,28 @@ class Postprocessing(object):
             finished_date = response['data'].get('finished_date')
             quality = response['data'].get('quality')
 
-            self.plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
+            plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
             logging.info(response)
         else:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
-            return json.dumps({'response': False,
-                               'error': 'invalid mode value'}, indent=2, sort_keys=True)
+            return {'response': False, 'error': 'invalid mode value'}
 
         logging.info('#################################')
         logging.info('Post-processing complete.')
         logging.info(json.dumps(response, indent=2, sort_keys=True))
         logging.info('#################################')
 
-        return json.dumps(response, indent=2, sort_keys=True)
+        return response
 
     def get_movie_file(self, path):
         ''' Looks for the filename of the movie being processed
-        :param path: str url-passed path to download dir
+        path (str): url-passed path to download dir
 
         If path is a file, just returns path.
-        If path is a directory, finds the largest file in that dir.
+        If path is a directory, recursively finds the largest file in that dir.
 
-        Returns str absolute path /home/user/filename.ext
+        Returns str absolute path of movie file
         '''
 
         logging.info('Finding movie file.')
@@ -137,7 +130,7 @@ class Postprocessing(object):
             # Find the biggest file in the dir. Assume that this is the movie.
             try:
                 files = os.listdir(path)
-            except Exception as e:  # noqa
+            except Exception as e:
                 logging.error('Path not found in filesystem. Will be unable to move or rename.',
                               exc_info=True)
                 return ''
@@ -164,7 +157,7 @@ class Postprocessing(object):
 
     def get_movie_info(self, data):
         ''' Gets score, imdbid, and other information to help process
-        :param data: dict url-passed params with any additional info
+        data (dict): url-passed params with any additional info
 
         Uses guid to look up local details.
         If that fails, uses downloadid.
@@ -197,9 +190,10 @@ class Postprocessing(object):
         # if we found it, get local movie info
         if result:
             logging.info('Searching local database by imdbid.')
-            data.update(core.sql.get_movie_details('imdbid', result['imdbid']))
-            if data:
+            local = core.sql.get_movie_details('imdbid', result['imdbid'])
+            if local:
                 logging.info('Movie data found locally by imdbid.')
+                data.update(local)
                 data['finished_score'] = result['score']
                 data['resolution'] = result['resolution']
                 data['downloadid'] = result['downloadid']
@@ -220,8 +214,8 @@ class Postprocessing(object):
             return {}
 
     def failed(self, data):
-        ''' Post-process failed downloads.
-        :param data: dict of gathered data from downloader and localdb/tmdb
+        ''' Post-process a failed download
+        data (dict): of gathered data from downloader and localdb/tmdb
 
         In SEARCHRESULTS marks guid as Bad
         In MARKEDRESULTS:
@@ -247,12 +241,12 @@ class Postprocessing(object):
         guid_result = {'url': data['guid']}
 
         if data['guid']:  # guid can be empty string
-            if self.manage.searchresults(data['guid'], 'Bad'):
+            if core.manage.searchresults(data['guid'], 'Bad'):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
+            if core.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -264,12 +258,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys():
             logging.info('Marking guid2 as Bad.')
             guid2_result = {'url': data['guid2']}
-            if self.manage.searchresults(data['guid2'], 'Bad'):
+            if core.manage.searchresults(data['guid2'], 'Bad'):
                 guid2_result['update SEARCHRESULTS'] = True
             else:
                 guid2_result['update SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
+            if core.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
                 guid2_result['update_MARKEDRESULTS'] = False
@@ -279,10 +273,10 @@ class Postprocessing(object):
         # set movie status
         if data['imdbid']:
             logging.info('Setting MOVIE status.')
-            r = self.manage.movie_status(data['imdbid'])
+            r = core.manage.movie_status(data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
-            r = False
+            r = ''
         result['tasks']['update_movie_status'] = r
 
         # delete failed files
@@ -318,10 +312,8 @@ class Postprocessing(object):
         return result
 
     def complete(self, data):
-        '''
-        :param data: str guid of downloads
-        :param downloadid: str watcher-generated downloadid
-        :param path: str path to downloaded files.
+        ''' Post-processes a complete, successful download
+        data (dict): all gathered file information and metadata
 
         All params can be blank strings ie ""
 
@@ -353,12 +345,12 @@ class Postprocessing(object):
         logging.info('Marking guid as Finished.')
         guid_result = {}
         if data['guid'] and data.get('imdbid'):
-            if self.manage.searchresults(data['guid'], 'Finished', movie_info=data):
+            if core.manage.searchresults(data['guid'], 'Finished', movie_info=data):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+            if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -370,12 +362,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys() and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
-            if self.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
+            if core.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
                 guid2_result['update_SEARCHRESULTS'] = True
             else:
                 guid2_result['update_SEARCHRESULTS'] = False
 
-            if self.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
+            if core.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
                                          ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
@@ -389,28 +381,28 @@ class Postprocessing(object):
             if not core.sql.row_exists('MOVIES', imdbid=data['imdbid']):
                 logging.info('{} not found in library, adding now.'.format(data.get('title')))
                 data['status'] = 'Disabled'
-                self.ajax.add_wanted_movie(json.dumps(data))
+                core.manage.add_movie(data)
 
             logging.info('Setting MOVIE status.')
-            r = self.manage.movie_status(data['imdbid'])
+            r = core.manage.movie_status(data['imdbid'])
             db_update = {'finished_date': result['data']['finished_date'], 'finished_score': result['data'].get('finished_score')}
             core.sql.update_multiple('MOVIES', db_update, imdbid=data['imdbid'])
 
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
-            r = False
+            r = ''
         result['tasks']['update_movie_status'] = r
 
         # renamer
         if config['renamerenabled']:
             result['tasks']['renamer'] = {'enabled': True}
             result['data']['original_file'] = result['data']['movie_file']
-            response = self.renamer(data)
-            if response is None:
+            new_file_name = self.renamer(data)
+            if new_file_name == '':
                 result['tasks']['renamer']['response'] = False
             else:
                 path = os.path.split(data['movie_file'])[0]
-                data['movie_file'] = os.path.join(path, response)
+                data['movie_file'] = os.path.join(path, new_file_name)
                 result['tasks']['renamer']['response'] = True
         else:
             logging.info('Renamer disabled.')
@@ -420,7 +412,7 @@ class Postprocessing(object):
         if config['moverenabled']:
             result['tasks']['mover'] = {'enabled': True}
             response = self.mover(data)
-            if response is False:
+            if not response:
                 result['tasks']['mover']['response'] = False
             else:
                 data['finished_file'] = response
@@ -432,20 +424,19 @@ class Postprocessing(object):
         if data.get('imdbid'):
             core.sql.update('MOVIES', 'finished_file', result['data'].get('finished_file'), 'imdbid', data['imdbid'])
 
-        # Delete leftover dir. Skip if createhardlinks enabled or if mover disabled/failed
+        # Delete leftover dir. Skip if file links are enabled or if mover disabled/failed
         if config['cleanupenabled']:
             result['tasks']['cleanup'] = {'enabled': True}
 
-            if config['createhardlink']:
-                logging.info('Hardlink creation enabled. Skipping Cleanup.')
+            if config['movermethod'] in ('hardlink', 'symboliclink'):
+                logging.info('File linking enabled -- skipping Cleanup.')
                 result['tasks']['cleanup']['response'] = None
                 return result
 
             # fail if mover disabled or failed
-            if config['moverenabled'] is False or \
-                    result['tasks']['mover']['response'] is False:
-                logging.info('Mover either disabled or failed. Skipping Cleanup.')
-                result['tasks']['cleanup']['response'] = False
+            if config['moverenabled'] is False or result['tasks']['mover']['response'] is False:
+                logging.info('Mover either disabled or failed -- skipping Cleanup.')
+                result['tasks']['cleanup']['response'] = None
             else:
                 if self.cleanup(data['path']):
                     r = True
@@ -461,7 +452,7 @@ class Postprocessing(object):
 
     def map_remote(self, path):
         ''' Alters directory based on remote mappings settings
-        path: str path from download client
+        path (str): path from download client
 
         Replaces the base of the file tree with the 'local' mapping.
             Ie, '/home/user/downloads/Watcher' becomes '//server/downloads/Watcher'
@@ -473,6 +464,7 @@ class Postprocessing(object):
                             '/home/users/downloads/Watcher/': '//server/downloads/Watcher/'
             In this case, a supplied remote '/home/users/downloads/Watcher/' will match a
             startswith() for both supplied settings. So we will default to the longest path.
+
         Returns str new path
         '''
 
@@ -492,8 +484,8 @@ class Postprocessing(object):
 
     def compile_path(self, string, data):
         ''' Compiles string to file/path names
-        :param string: str brace-formatted string to substitue values
-        :data data: dict of values to sub into string
+        string (str): brace-formatted string to substitue values (ie '/movies/{title}/')
+        data (dict): of values to sub into string
 
         Takes a renamer/mover path and adds values.
             ie '{title} {year} {resolution}' -> 'Movie 2017 1080P'
@@ -525,11 +517,11 @@ class Postprocessing(object):
 
     def renamer(self, data):
         ''' Renames movie file based on renamerstring.
-        :param data: dict of movie information.
+        data (dict): movie information.
 
         Renames movie file based on params in core.CONFIG
 
-        Returns str new file name or None on failure
+        Returns str new file name (blank string on failure)
         '''
 
         config = core.CONFIG['Postprocessing']
@@ -539,7 +531,7 @@ class Postprocessing(object):
         # check to see if we have a valid renamerstring
         if re.match(r'{(.*?)}', renamer_string) is None:
             logging.info('Invalid renamer string {}'.format(renamer_string))
-            return None
+            return ''
 
         # existing absolute path
         abs_path_old = data['movie_file']
@@ -553,7 +545,7 @@ class Postprocessing(object):
 
         if not new_name:
             logging.info('New file name would be blank. Cancelling renamer.')
-            return None
+            return ''
 
         if core.CONFIG['Postprocessing']['replacespaces']:
             new_name = new_name.replace(' ', '.')
@@ -567,17 +559,28 @@ class Postprocessing(object):
             os.rename(abs_path_old, abs_path_new)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Renamer failed: Could not rename file.', exc_info=True)
-            return None
+            return ''
 
         # return the new name so the mover knows what our file is
         return new_name
 
     def recycle(self, recycle_bin, abs_filepath):
+        ''' Sends file to recycle bin dir
+        recycle_bin (str): absolute path to recycle bin directory
+        abs_filepath (str): absolute path of file to recycle
+
+        Creates recycle_bin dir if neccesary.
+        Moves file to recycle bin. If a file with the same name already
+            exists, overwrites existing file.
+
+        Returns bool
+        '''
+
         file_dir, file_name = os.path.split(abs_filepath)
         if not os.path.isdir(recycle_bin):
-            logging.info('Creating recycle bin direcotry {}'.format(recycle_bin))
+            logging.info('Creating recycle bin directory {}'.format(recycle_bin))
             try:
                 os.makedirs(recycle_bin)
             except Exception as e:
@@ -590,17 +593,18 @@ class Postprocessing(object):
             shutil.copystat = self.null
             shutil.move(abs_filepath, recycle_bin)
             return True
-        except Exception as e:  # noqa
+        except Exception as e:
             logging.error('Recycling failed: Could not move file.', exc_info=True)
             return False
 
     def remove_additional_files(self, movie_file):
         ''' Removes addtional associated file of movie_file
-        movie_file: str absolute file path of old movie file
+        movie_file (str): absolute file path of old movie file
 
         Removes any file in movie_file's directory that share the same file name
 
         Does not cause mover failure on error.
+
         Returns bool
         '''
 
@@ -615,13 +619,14 @@ class Postprocessing(object):
                 logging.info('Removing additional file {}'.format(i))
                 try:
                     os.remove(os.path.join(path, i))
-                except Exception as e:  # noqa
+                except Exception as e:
                     logging.warning('Unable to remove {}'.format(i), exc_info=True)
-        return
+                    return False
+        return True
 
     def mover(self, data):
         '''Moves movie file to path constructed by moverstring
-        :param data: dict of movie information.
+        data (dict): movie information.
 
         Moves file to location specified in core.CONFIG
 
@@ -632,11 +637,12 @@ class Postprocessing(object):
 
         Copies and renames additional files
 
-        Returns str new file location or False on failure
+        Returns str new file location (blank string on failure)
         '''
 
         config = core.CONFIG['Postprocessing']
-        recycle_bin = self.compile_path(config['recyclebindirectory'], data)
+        if config['recyclebinenabled']:
+            recycle_bin = self.compile_path(config['recyclebindirectory'], data)
         target_folder = os.path.normpath(self.compile_path(config['moverpath'], data))
         target_folder = os.path.join(target_folder, '')
 
@@ -646,7 +652,7 @@ class Postprocessing(object):
                 os.makedirs(target_folder)
         except Exception as e:
             logging.error('Mover failed: Could not create directory {}.'.format(target_folder), exc_info=True)
-            return False
+            return ''
 
         current_file_path = data['movie_file']
         current_path, file_name = os.path.split(current_file_path)
@@ -659,14 +665,14 @@ class Postprocessing(object):
                 if config['recyclebinenabled']:
                     logging.info('Old movie file found, recycling.')
                     if not self.recycle(recycle_bin, old_movie):
-                        return False
+                        return ''
                 else:
                     logging.info('Deleting old file {}'.format(old_movie))
                     try:
                         os.remove(old_movie)
                     except Exception as e:
                         logging.error('Mover failed: Could not delete file.', exc_info=True)
-                        return False
+                        return ''
                 if config['removeadditionalfiles']:
                     self.remove_additional_files(old_movie)
         # Check if the target file name exists in target dir, recycle or remove
@@ -675,68 +681,80 @@ class Postprocessing(object):
             logging.info('Existing file {} found in {}'.format(file_name, target_folder))
             if config['recyclebinenabled']:
                 if not self.recycle(recycle_bin, existing_movie_file):
-                    return False
+                    return ''
             else:
                 logging.info('Deleting old file {}'.format(existing_movie_file))
                 try:
                     os.remove(existing_movie_file)
                 except Exception as e:
                     logging.error('Mover failed: Could not delete file.', exc_info=True)
-                    return False
+                    return ''
             if config['removeadditionalfiles']:
                 self.remove_additional_files(existing_movie_file)
-        # Now to actually move the new Movie
-        logging.info('Moving {} to {}'.format(current_file_path, target_folder))
-        try:
-            shutil.copystat = self.null
-            shutil.move(current_file_path, target_folder)
-        except Exception as e:  # noqa
-            logging.error('Mover failed: Could not move file.', exc_info=True)
-            return False
 
+        # Finally the actual move process
         new_file_location = os.path.join(target_folder, os.path.basename(data['movie_file']))
 
-        # Create hardlink
+        if config['movermethod'] == 'hardlink':
+            logging.info('Creating hardlink from {} to {}.'.format(data['original_file'], new_file_location))
+            try:
+                os.link(data['original_file'], new_file_location)
+            except Exception as e:
+                logging.error('Mover failed: Unable to create hardlink.', exc_info=True)
+                return ''
+        else:
+            logging.info('Moving {} to {}'.format(current_file_path, target_folder))
+            try:
+                shutil.copystat = self.null
+                shutil.move(current_file_path, target_folder)
+            except Exception as e:
+                logging.error('Mover failed: Could not move file.', exc_info=True)
+                return ''
 
-        if config['createhardlink']:
-            logging.info('Creating hardlink from {} to {}.'.format(new_file_location, data['original_file']))
-            os.link(new_file_location, data['original_file'])
+            if config['movermethod'] == 'symboliclink':
+                if core.PLATFORM == 'windows':
+                    logging.warning('Attempting to create symbolic link on Windows. This will fail without SeCreateSymbolicLinkPrivilege.')
+                logging.info('Creating symbolic link from {} to {}'.format(new_file_location, data['original_file']))
+                try:
+                    os.symlink(new_file_location, data['original_file'])
+                except Exception as e:
+                    logging.error('Mover failed: Unable to create symbolic link.', exc_info=True)
+                    return ''
 
-        logging.info('Copying and renaming any extra files.')
+        keep_extensions = [i for i in config['moveextensions'].split(',') if i != '']
 
-        moveextensions = config['moveextensions']
-        keep_extentions = [i for i in moveextensions.split(',') if i != '']
+        if len(keep_extensions) > 0:
+            logging.info('Moving addition files with extensions {}.'.format(','.join(keep_extensions)))
+            renamer_string = config['renamerstring']
+            new_name = self.compile_path(renamer_string, data)
 
-        renamer_string = config['renamerstring']
-        new_name = self.compile_path(renamer_string, data)
+            for root, dirs, filenames in os.walk(data['path']):
+                for name in filenames:
+                    old_abs_path = os.path.join(root, name)
+                    ext = os.path.splitext(old_abs_path)[1]  # '.ext'
 
-        for root, dirs, filenames in os.walk(data['path']):
-            for name in filenames:
-                old_abs_path = os.path.join(root, name)
-                ext = os.path.splitext(old_abs_path)[1]  # '.ext'
+                    target_file = '{}{}'.format(os.path.join(target_folder, new_name), ext)
 
-                target_file = '{}{}'.format(os.path.join(target_folder, new_name), ext)
-
-                if ext.replace('.', '') in keep_extentions:
-                    append = 0
-                    while os.path.isfile(target_file):
-                        append += 1
-                        new_filename = '{}({})'.format(new_name, str(append))
-                        target_file = '{}{}'.format(os.path.join(target_folder, new_filename), ext)
-                    try:
-                        logging.info('Moving {} to {}'.format(old_abs_path, target_file))
-                        shutil.copyfile(old_abs_path, target_file)
-                    except Exception as e:  # noqa
-                        logging.error('Mover failed: Could not copy {}.'.format(old_abs_path), exc_info=True)
+                    if ext.replace('.', '') in keep_extensions:
+                        append = 0
+                        while os.path.isfile(target_file):
+                            append += 1
+                            new_filename = '{}({})'.format(new_name, str(append))
+                            target_file = '{}{}'.format(os.path.join(target_folder, new_filename), ext)
+                        try:
+                            logging.info('Moving {} to {}'.format(old_abs_path, target_file))
+                            shutil.copyfile(old_abs_path, target_file)
+                        except Exception as e:
+                            logging.error('Moving additional files failed: Could not copy {}.'.format(old_abs_path), exc_info=True)
         return new_file_location
 
     def cleanup(self, path):
         ''' Deletes specified path
-        :param path: str of path to remover
+        path (str): of path to remover
 
         path can be file or dir
 
-        Returns Bool on success/failure
+        Returns bool
         '''
 
         # if its a dir
@@ -752,7 +770,7 @@ class Postprocessing(object):
             try:
                 os.remove(path)
                 return True
-            except Exception as e:  # noqa
+            except Exception as e:
                 logging.error('Could not delete path.', exc_info=True)
                 return False
         else:
@@ -760,6 +778,14 @@ class Postprocessing(object):
             return False
 
     def sanitize(self, string):
+        ''' Sanitize file names and paths
+        string (str): to sanitize
+
+        Removes all illegal characters or replaces them based on
+            user's config.
+
+        Returns str
+        '''
         config = core.CONFIG['Postprocessing']
         repl = config['replaceillegal']
 

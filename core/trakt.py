@@ -2,7 +2,7 @@ from core.helpers import Url
 from core.helpers import Comparisons
 import json
 import core
-from core import library, searcher
+from core import searcher
 
 import logging
 logging = logging.getLogger(__name__)
@@ -11,7 +11,6 @@ logging = logging.getLogger(__name__)
 class Trakt(object):
 
     def __init__(self):
-        self.library = library.Manage()
         self.searcher = searcher.Searcher()
         return
 
@@ -45,7 +44,7 @@ class Trakt(object):
         for i in movies:
             imdbid = i['ids']['imdb']
             logging.info('Adding movie {} {} from Trakt'.format(i['title'], imdbid))
-            added = self.library.add_movie({'id': i['ids']['tmdb'], 'origin': 'Trakt'})
+            added = core.manage.add_movie({'id': i['ids']['tmdb'], 'origin': 'Trakt'})
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
                 self.searcher.search(imdbid, i['title'], i['year'], 'Default')
 
@@ -53,10 +52,9 @@ class Trakt(object):
 
     def get_list(self, list_name, min_score=0, length=10):
         ''' Gets list of trending movies from Trakt
-        list_name: str name of Trakt list. Must be one of
-            ('trending', 'popular', 'watched', 'collected', 'anticipated', 'boxoffice')
-        min_score: float minimum score to accept (max 10)   <default 0>
-        length: int how many results to get from Trakt      <default 10>
+        list_name (str): name of Trakt list. Must be one of ('trending', 'popular', 'watched', 'collected', 'anticipated', 'boxoffice')
+        min_score (float): minimum score to accept (max 10)   <optional - default 0>
+        length (int): how many results to get from Trakt      <optional - default 10>
 
         Length is applied before min_score, so actual result count
             can be less than length
