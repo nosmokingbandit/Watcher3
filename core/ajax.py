@@ -587,31 +587,37 @@ class Ajax(object):
 
         for index, path in enumerate(files):
             metadata = {}
-            progress = [index + 1, length]
+            response = {'progress': [index + 1, length]}
             try:
                 metadata = self.metadata.from_file(path)
-                metadata['size'] = os.path.getsize(path)
-                metadata['finished_file'] = path
-                metadata['human_size'] = Conversions.human_file_size(metadata['size'])
+
                 if not metadata.get('imdbid'):
                     metadata['imdbid'] = ''
                     logging.info('IMDB unknown for import {}'.format(metadata['title']))
-                    yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
-                    continue
+                    response['response'] = 'incomplete'
                 elif metadata['imdbid'] in library:
-                    logging.info('{} ({}) already in library, ignoring.'.format(metadata['title'], metadata['finished_file']))
-                    yield json.dumps({'response': 'in_library', 'movie': metadata, 'progress': progress})
-                    continue
+                    logging.info('{} ({}) already in library, ignoring.'.format(metadata['title'], path))
+                    response['response'] = 'in_library'
                 elif not metadata.get('resolution'):
                     logging.info('Resolution/Source unknown for import {}'.format(metadata['title']))
-                    yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
-                    continue
+                    response['response'] = 'incomplete'
                 else:
                     logging.info('All data found for import {}'.format(metadata['title']))
-                    yield json.dumps({'response': 'complete', 'movie': metadata, 'progress': progress})
+                    response['response'] = 'complete'
+
+                if response['response'] == 'complete':
+                    metadata = self.metadata.convert_to_db(metadata)
+
+                metadata['size'] = os.path.getsize(path)
+                metadata['human_size'] = Conversions.human_file_size(metadata['size'])
+                metadata['finished_file'] = path
+
+                response['movie'] = metadata
+                yield json.dumps(response)
+
             except Exception as e:
                 logging.warning('Error gathering metadata.', exc_info=True)
-                yield json.dumps({'response': 'incomplete', 'movie': metadata, 'progress': progress})
+                yield json.dumps({'response': 'incomplete', 'movie': metadata})
                 continue
 
     scan_library_directory._cp_config = {'response.stream': True, 'tools.gzip.on': False}
@@ -651,6 +657,7 @@ class Ajax(object):
                 tmdbdata = self.tmdb._search_imdbid(data['imdbid'])
                 if tmdbdata:
                     tmdbdata = tmdbdata[0]
+                    tmdbdata = self.tmdb._search_tmdbid(tmdbdata['id'])[0]
                     data['year'] = tmdbdata['release_date'][:4]
                     data.update(tmdbdata)
                     movie_data.append(data)

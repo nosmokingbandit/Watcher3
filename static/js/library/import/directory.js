@@ -115,7 +115,7 @@ function scan_library(event, elem){
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
                                     </td>
                                     <td>
-                                        ${movie["path"]}
+                                        ${movie["finished_file"]}
                                     </td>
                                     <td>
                                         ${movie["title"]}
@@ -145,7 +145,7 @@ function scan_library(event, elem){
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
                                     </td>
                                     <td>
-                                        ${movie["path"]}
+                                        ${movie["finished_file"]}
                                     </td>
                                     <td>
                                         ${movie["title"]}
