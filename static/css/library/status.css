@@ -220,9 +220,3 @@ div.modal-body div#search_results_table div.search_result span.title{
 div.modal-body div#search_results_table div.search_result i.mdi{
     font-size: 1.5em;
 }
-
-@media (min-width: 992px) {
-    div.modal-body p.plot{
-        min-height: 10.5em;
-    }
-}
