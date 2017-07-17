@@ -2,6 +2,9 @@ import ssl
 import sys
 import os
 import cherrypy
+import logging
+
+logging = logging.getLogger(__name__)
 
 # Paths to local things
 PROG_PATH = None            # Absolute path to watcher.py parent dir
@@ -64,6 +67,8 @@ def restart():
     ''' Stops server and re-executes script
     '''
     cherrypy.engine.stop()
+    logging.info("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
+    print("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
     python = sys.executable
     os.execv(python, [SCRIPT_PATH] + sys.argv)
 
