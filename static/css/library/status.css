@@ -214,8 +214,8 @@ div.modal-body div#search_results_table{
     overflow-y: scroll;
     max-height: 17em;
     transition: none;
-    position: relative;
-    min-height: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 div.modal-body div#search_results_table div.result_actions{
