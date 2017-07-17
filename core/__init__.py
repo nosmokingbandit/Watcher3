@@ -67,10 +67,12 @@ def restart():
     ''' Stops server and re-executes script
     '''
     cherrypy.engine.stop()
-    logging.info("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
-    print("Server stopped -- respawning script as {}".format(' '.join(sys.argv)))
     python = sys.executable
-    os.execv(python, [SCRIPT_PATH] + sys.argv)
+    args = [SCRIPT_PATH] + sys.argv[1:]
+    p = "Server stopped -- respawning script as {} {}".format(python, *args)
+    logging.info(p)
+    print(p)
+    os.execl(python, python, *args)
 
 
 def shutdown():
