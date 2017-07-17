@@ -69,7 +69,6 @@ function search_tmdb(event, elem){
     });
 }
 
-
 function add_movie(event, elem, quality_profile, modal=false){
     $this = $(elem);
     var $add_button = $this.closest("div.btn-group").find("span.dropdown-toggle");

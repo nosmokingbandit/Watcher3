@@ -108,7 +108,6 @@ function save_plugin_conf(event, elem){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     });
-
 }
 
 function _get_settings(){

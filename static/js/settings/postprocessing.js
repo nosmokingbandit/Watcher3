@@ -8,12 +8,10 @@ function add_mapping(event, elem){
     $mapping_table.append(mapping_template);
 }
 
-
 function remove_mapping(event, elem){
     var $this = $(elem);
     $this.closest("tr").fadeOut(500, function(){$(this).remove()});
 }
-
 
 function _get_settings(){
     var settings = {};
@@ -56,7 +54,6 @@ function _get_settings(){
             settings[$this.attr("id")] = $this.val();
         }
     });
-
 
 // POSTPROCESSING['REMOTEMAPPING']
     $("form[data-category='remote_mapping'] tbody > tr").each(function(){

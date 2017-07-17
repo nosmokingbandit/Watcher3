@@ -59,7 +59,6 @@ function update_now(){
     });
 };
 
-
 function _get_settings(){
 
     var settings = {};
@@ -105,7 +104,6 @@ function _get_settings(){
         $this = $(this);
         settings["Proxy"][$this.attr("id")] = is_checked($this);
     });
-
 
     if(settings['Proxy']['enabled']){
         required_fields = ["host", "port"];

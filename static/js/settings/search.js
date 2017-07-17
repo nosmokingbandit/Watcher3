@@ -99,7 +99,6 @@ function _get_settings(){
         }
     });
 
-
     if(blanks == true){
         return false;
     };

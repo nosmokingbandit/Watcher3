@@ -2,7 +2,6 @@ $(document).ready(function () {
     $log_display = $("pre#log_text");
 });
 
-
 // Open log file
 function view_log(){
     $log_display.hide();

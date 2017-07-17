@@ -23,7 +23,6 @@ $(document).ready(function () {
         }
     })
 
-
     $select_usenet.change(function(){
         var $this = $(this);
         var val = $this.val();
@@ -32,7 +31,6 @@ $(document).ready(function () {
         if(val){
             $usenet_clients.filter("#" +val).slideDown();
         }
-
     });
 
     $select_torrent.change(function(){
@@ -43,7 +41,6 @@ $(document).ready(function () {
         if(val){
             $torrent_clients.filter("#" +val).slideDown();
         }
-
     });
 });
 
@@ -164,7 +161,6 @@ function _get_settings(){
 
 
 // DOWNLOADER['SOURCES']
-
     if($("select#usenet_client").val()){
         settings['Sources']['usenetenabled'] = true;
     } else {

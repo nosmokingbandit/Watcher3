@@ -102,7 +102,6 @@ function init_sortables($sortables=false){
             items: ':not(.not_sortable)'
         })
 
-
         $lis.sort(function(a, b){
             var compa = parseInt($(a).data("sort"));
             var compb = parseInt($(b).data("sort"));

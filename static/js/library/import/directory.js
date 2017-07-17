@@ -35,9 +35,7 @@ $(document).ready(function(){
             var err = data.status + ' ' + data.statusText
             $.notify({message: err}, {type: "danger", delay: 0});
         });
-    })
-
-
+    });
 });
 
 function file_browser_select(event, elem){

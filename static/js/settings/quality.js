@@ -11,7 +11,6 @@ $(document).ready(function () {
     });
 
     $profiles_form = $("form#profiles");
-
 });
 
 function add_profile(event){
@@ -61,7 +60,6 @@ function _get_settings(){
             blanks = true;
             return;
         }
-
 
         // Sources
         var enabled_sources = [];
