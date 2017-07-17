@@ -272,7 +272,7 @@ class Score():
                 test = Url.normalize(result['title'])
                 matches = [fuzz.partial_ratio(Url.normalize(title), test) for title in titles]
                 if any([match > 70 for match in matches]):
-                    result['score'] += (max(matches) / 5)
+                    result['score'] += int(max(matches) / 5)
                     lst.append(result)
                 else:
                     logging.debug('{} best title match was {}%, removing search result.'.format(test, max(matches)))
