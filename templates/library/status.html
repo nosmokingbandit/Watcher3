@@ -2,9 +2,9 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/status.css?v=06.28" rel="stylesheet">
+        <link href="${url_base}/static/css/library/status.css?v=07.17" rel="stylesheet">
         <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/status.js?v=07.14" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/status.js?v=07.17" type="text/javascript"></script>
 
         <meta name="movie_count" content="${movie_count}"/>
     </head>
@@ -115,13 +115,13 @@
                         </div>
 
                         <div class="modal-body">
-                            <div class="col-md-4">
-                                <img src="{url_base}/static/{poster}" class="img-responsive">
+                            <div class="col-md-3">
+                                <img src="{url_base}/static/{poster}" class="img-responsive poster">
                             </div>
 
-                            <div class="col-md-8">
+                            <div class="col-md-9">
 
-                                <div id="movie_actions" class="btn-group btn-group-justified">
+                                <div id="movie_actions" class="col-md-4 btn-group btn-group-justified">
                                     <a class="btn btn-default" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
                                         <i class="mdi mdi-magnify"></i>
                                     </a>
@@ -132,31 +132,33 @@
                                         <i class="mdi mdi-delete"></i>
                                     </a>
                                 </div>
-                                <div class="well">
-                                    <p class="plot">{plot}</p>
+                                <div class="col-md-8 labels">
+                                    <label class="col-md-5 col-sm-5">Quality</label>
+                                    <label class="col-md-5 col-sm-5">Status</label>
+
                                 </div>
 
-                                <div class="col-md-5">
-                                    <label>Quality</label>
-                                        <select id="movie_quality" class="btn btn-default form-control">
+                                <div id="movie_settings" class="col-md-8 btn-group">
+                                        <select id="movie_quality" class="btn btn-default col-md-5 col-sm-5">
                                             %for i in profiles:
                                             <option value="${i}">${i}</option>
                                             %endfor
                                         </select>
-                                </div>
-                                <div class="col-md-5">
-                                    <label>Status</label>
-                                        <select id="movie_status" class="btn btn-default col-md-5">
+                                        <select id="movie_status" class="btn btn-default col-md-5 col-sm-5">
                                             <option value="Automatic">Automatic</option>
                                             <option value="Disabled">Finished</option>
                                         </select>
+                                        <a id="update_movie_options" class="btn btn-success col-md-2 col-sm-2" onclick="update_movie_options(event, this, '{imdbid}')">
+                                            <i class="mdi mdi-content-save"></i>
+                                        </a>
                                 </div>
-                                <div class="col-md-2">
-                                    <a id="update_movie_options" class="btn btn-success" onclick="update_movie_options(event, this, '{imdbid}')">
-                                        <i class="mdi mdi-content-save"></i>
-                                    </a>
 
+
+                                <div class="well col-md-12">
+                                    <p class="plot">{plot}</p>
                                 </div>
+
+
                             </div>
                             <div id="search_results_table" class="col-md-12 panel panel-default striped">
                                 {table}

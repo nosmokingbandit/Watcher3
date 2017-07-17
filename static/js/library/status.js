@@ -495,7 +495,8 @@ function remove_movie(event, elem, imdbid){
     var title = $movie_status.data("title");
 
     if($this.data("confirm") !== true){
-        $this.removeClass("btn-default").addClass("btn-danger").data("confirm", true).text("Confirm Delete?");
+        $this.removeClass("btn-default").addClass("btn-danger").data("confirm", true).find("i.mdi").removeClass("mdi-delete").addClass("mdi-delete-forever");
+        $.notify({message: `Click once more to remove <b>${title}</b> from library. <br/> This will not delete movie files.`}, {type: "warning"});
     } else if($this.data("confirm") === true){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
         .done(function(response){

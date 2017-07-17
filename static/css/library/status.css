@@ -157,6 +157,10 @@ div.modal-header > *:not(h3){
     display: inline-block;
 }
 
+img.poster{
+    margin-bottom: 1em;
+}
+
 div.modal-body div.search_result{
     overflow: auto;
     line-height: 2em;
@@ -165,6 +169,7 @@ div.modal-body div.search_result{
 
 div.modal-body label{
     margin-top: 0;
+    padding-left: 1em;
 }
 
 div.modal-body div#movie_actions a{
@@ -175,23 +180,21 @@ div.modal-body div#movie_actions i{
     font-size: 1.5em;
 }
 
-div.modal-body div#movie_actions,
+div.modal-body div#movie_actions{
+    margin: 1.25em 0 1em 0;
+}
+
+div.modal-body div#movie_actions > .btn{
+    padding: 0;
+}
+
 div.modal-body div#movie_settings{
     margin: 0 0 1em 0;
 }
 
-div.modal-body select{
-    width: 100%;
-    margin: 0 0 0.5em 0;
-}
-
-div.modal-body a#update_movie_options{
-    width: 100%;
-    margin: 1.25em 0 0 0;
-}
-
 div.modal-body p.plot{
     text-indent: 2em;
+    margin: 1em;
 }
 
     /* Search Results table */
