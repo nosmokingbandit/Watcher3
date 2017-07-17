@@ -612,6 +612,9 @@ class Ajax(object):
                 metadata['human_size'] = Conversions.human_file_size(metadata['size'])
                 metadata['finished_file'] = path
 
+                if response['response'] == 'in_library':
+                    metadata = {'title': metadata['title']}
+
                 response['movie'] = metadata
                 yield json.dumps(response)
 
