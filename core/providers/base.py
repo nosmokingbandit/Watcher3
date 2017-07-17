@@ -170,6 +170,7 @@ class NewzNabProvider(object):
         d['status'] = 'Available'
         d['torrentfile'] = None
         d['downloadid'] = None
+        d['download_client'] = None
         if not d.get('freeleech'):
             d['freeleech'] = 0
 
