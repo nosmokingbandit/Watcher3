@@ -415,11 +415,11 @@ class Ajax(object):
             active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
 
             while len(active_tasks) > 0:
-                yield(json.dumps({'response': True, 'status': 'waiting', 'active_tasks': active_tasks}))
+                yield json.dumps({'response': True, 'status': 'waiting', 'active_tasks': active_tasks})
                 active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
                 time.sleep(1.5)
 
-            yield(json.dumps({'response': True, 'status': 'updating'}))
+            yield json.dumps({'response': True, 'status': 'updating'})
 
             update_status = version.Version().manager.execute_update()
             core.UPDATING = False
@@ -434,7 +434,7 @@ class Ajax(object):
                 self.server_status('restart')
 
         else:
-            return {'response': False}
+            return json.dumps({'response': False})
 
     update_server._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
