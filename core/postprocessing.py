@@ -433,6 +433,11 @@ class Postprocessing(object):
                 result['tasks']['cleanup']['response'] = None
                 return result
 
+            elif os.path.isfile(data['path']):
+                logging.info('Download is file, not directory -- skipping Cleanup.')
+                result['tasks']['cleanup']['response'] = None
+                return result
+
             # fail if mover disabled or failed
             if config['moverenabled'] is False or result['tasks']['mover']['response'] is False:
                 logging.info('Mover either disabled or failed -- skipping Cleanup.')
