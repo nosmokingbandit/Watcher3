@@ -86,7 +86,7 @@ function add_movie(event, elem, quality_profile, modal=false){
     $.post(url_base + "/ajax/add_wanted_movie", {"data":JSON.stringify(data)})
     .done(function(response){
         if(response["response"] == true){
-            $.notify({message: `${title} added to library.`})
+            $.notify({message: `<b>${title}</b> added to library.`})
         } else {
             $.notify({message: `${response['error']}`}, {type: "warning"})
         }

@@ -501,7 +501,7 @@ function remove_movie(event, elem, imdbid){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
         .done(function(response){
             if(response["response"] == true){
-                $.notify({message: `${title} removed from library.`})
+                $.notify({message: `<b>${title}</b> removed from library.`})
                 $movie_list.find(`li[data-imdbid="${imdbid}"]`).remove();
                 $movie_status.modal("hide");
             } else {
