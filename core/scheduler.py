@@ -27,7 +27,7 @@ def restart_scheduler(diff):
     Does not return
     '''
 
-    now = datetime.datetime.now()
+    now = datetime.datetime.today()
     if 'Server' in diff:
         d = diff['Server'].keys()
 
@@ -100,7 +100,7 @@ class MetadataUpdate(object):
     def create():
         interval = 72 * 60 * 60  # 72 hours
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.today()
 
         hr = now.hour
         min = now.minute
@@ -252,7 +252,7 @@ class ImdbRssSync(object):
     @staticmethod
     def create():
         interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
-        now = datetime.datetime.now()
+        now = datetime.datetime.today()
 
         hr = now.hour
         min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
@@ -305,7 +305,7 @@ class TraktSync(object):
     def create():
         interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.today()
 
         hr = now.hour
         min = now.minute + core.CONFIG['Search']['Watchlists']['traktfrequency']
