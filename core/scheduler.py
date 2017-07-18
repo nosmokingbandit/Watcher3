@@ -16,6 +16,8 @@ from core.library import Metadata
 logging = logging.getLogger(__name__)
 
 ver = version.Version()
+md = Metadata()
+search = searcher.Searcher()
 
 
 def restart_scheduler(diff):
@@ -77,7 +79,6 @@ class AutoSearch(object):
     ''' Scheduled task to automatically run search/snatch methods '''
     @staticmethod
     def create():
-        search = searcher.Searcher()
         interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
 
         now = datetime.datetime.today()
@@ -95,7 +96,6 @@ class AutoSearch(object):
 class MetadataUpdate(object):
     ''' Scheduled task to automatically run metadata updater '''
 
-    md = Metadata()
     @staticmethod
     def create():
         interval = 72 * 60 * 60  # 72 hours
@@ -203,8 +203,6 @@ class AutoUpdateCheck(object):
             {'status': 'current'}
         '''
 
-        ver = version.Version()
-
         data = ver.manager.update_check()
         # if data['status'] == 'current', nothing to do.
         if data['status'] == 'error':
@@ -292,7 +290,6 @@ class PopularMoviesSync(object):
     @staticmethod
     def popularmovies_sync():
         popular_feed = popularmovies.PopularMoviesFeed()
-
         popular_feed.get_feed()
         return
 
