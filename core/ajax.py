@@ -960,16 +960,16 @@ class Ajax(object):
         progress = 1
 
         if corrected_movies:
-            for data in corrected_movies:
-                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])
+            for movie in corrected_movies:
+                tmdbdata = self.tmdb._search_imdbid(movie['imdbid'])
                 if tmdbdata:
                     tmdbdata = tmdbdata[0]
-                    data['year'] = tmdbdata['release_date'][:4]
-                    data.update(tmdbdata)
-                    movie_data.append(data)
+                    movie['year'] = tmdbdata['release_date'][:4]
+                    movie.update(tmdbdata)
+                    movie_data.append(movie)
                 else:
-                    logging.error('Unable to find {} on TMDB.'.format(data['imdbid']))
-                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(data['imdbid'])})
+                    logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
+                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(movie['imdbid'])})
                     progress += 1
 
         for movie in movie_data:
@@ -978,9 +978,12 @@ class Ajax(object):
                 movie['predb'] = 'found'
                 movie['origin'] = 'Plex Import'
 
-                tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])
-                if tmdb_data:
-                    movie.update(tmdb_data[0])
+                if not movie.get('id'):
+                    tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])
+                    if tmdb_data:
+                        movie.update(tmdb_data[0])
+                    else:
+                        yield json.dumps({'response': False, 'progress': [progress, length], 'movie': movie, 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
 
                 response = core.manage.add_movie(movie)
                 if response['response'] is True:
