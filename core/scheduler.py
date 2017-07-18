@@ -32,7 +32,6 @@ def create_plugin():
     MetadataUpdate.create()
     PopularMoviesSync.create()
     TraktSync.create()
-    PostProcessingScan.create()
     core.scheduler_plugin.subscribe()
 
 
