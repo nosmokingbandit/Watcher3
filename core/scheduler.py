@@ -20,6 +20,22 @@ md = Metadata()
 search = searcher.Searcher()
 
 
+def create_plugin():
+    ''' Creates plugin instance, adds tasks, and subscribes to cherrypy.engine
+
+    Does not return
+    '''
+    core.scheduler_plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
+    AutoSearch.create()
+    AutoUpdateCheck.create()
+    ImdbRssSync.create()
+    MetadataUpdate.create()
+    PopularMoviesSync.create()
+    TraktSync.create()
+    PostProcessingScan.create()
+    core.scheduler_plugin.subscribe()
+
+
 def restart_scheduler(diff):
     ''' Restarts and scheduled tasks in diff
     diff (dict): modified keys in config file

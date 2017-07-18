@@ -20,7 +20,6 @@ import shutil
 
 import cherrypy
 from cherrypy.process.plugins import Daemonizer, PIDFile
-from core.cp_plugins import taskscheduler
 
 if os.name == 'nt':
     core.PLATFORM = 'windows'
@@ -158,15 +157,8 @@ if __name__ == '__main__':
     cherrypy.engine.start()
     os.chdir(core.PROG_PATH)  # have to do this for the daemon
 
-    # Create plugin instances and subscribe
-    core.scheduler_plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
-    scheduler.AutoSearch.create()
-    scheduler.AutoUpdateCheck.create()
-    scheduler.ImdbRssSync.create()
-    scheduler.MetadataUpdate.create()
-    scheduler.PopularMoviesSync.create()
-    scheduler.TraktSync.create()
-    core.scheduler_plugin.subscribe()
+    # start scheduler plugin
+    scheduler.create_plugin()
 
     # If windows os and daemon selected, start systray
     if passed_args.daemon and core.PLATFORM == 'windows':
