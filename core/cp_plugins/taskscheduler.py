@@ -20,6 +20,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
     Class Vars:
     task_list (dict): {name (str): class instance (obj)} of ScheduledTask instances.
+    record (dict): {name (str): {'last_execution': "2017-01-01 23:28:00"}}
 
     Requires that each ScheduledTask instance be appended to task_list
 
@@ -28,6 +29,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
     '''
 
     task_list = {}
+    record = None
 
     def __init__(self, bus):
         plugins.SimplePlugin.__init__(self, bus)
@@ -66,6 +68,8 @@ class ScheduledTask(object):
         time. This ensures that long-interval tasks are not perpetually
         delayed if the server updates or restarts often.
 
+        Stores persistence record in SchedulerPlugin.record as dict
+
     Executes a given 'task' function on a scheduled basis
     First execution occurs at hr:min
     Subsequent executions occur at regularly afterwards, at
@@ -88,7 +92,7 @@ class ScheduledTask(object):
     '''
 
     persistence_file = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'tasks.json')
-    persistence_record = None
+
     lock = None
 
     def __init__(self, hour, minute, interval, task, auto_start=True, name=None):
@@ -101,21 +105,22 @@ class ScheduledTask(object):
         if not ScheduledTask.lock:
             ScheduledTask.lock = Lock()
 
-        if ScheduledTask.persistence_record is None:
+        if SchedulerPlugin.record is None:
             with self.lock:
                 with open(self.persistence_file, 'a+') as f:
                     try:
                         f.seek(0)
-                        ScheduledTask.persistence_record = json.load(f)
+                        SchedulerPlugin.record = json.load(f)
                     except Exception as e:
-                        ScheduledTask.persistence_record = {}
+                        SchedulerPlugin.record = {}
                         f.seek(0)
                         json.dump({}, f)
-        record = ScheduledTask.persistence_record.get(self.name, {}).get('lastexecution', None)
+
+        record = SchedulerPlugin.record.get(self.name, {}).get('lastexecution', None)
 
         if record:
-            next_exec = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
-            hour, minute = next_exec.hour, next_exec.minute
+            le = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
+            hour, minute = le.hour, le.minute
         else:
             self.write_record()
 
@@ -236,13 +241,16 @@ class ScheduledTask(object):
 
     def write_record(self):
         ''' Writes last execution to persistence record
-        Does not return
-        '''
 
+        Stores last execution in persistence file and SchedulerPlugin.record
+
+        '''
+        le = datetime.today().replace(second=0, microsecond=0)
         with self.lock:
             with open(self.persistence_file, 'r+') as f:
                 p = json.load(f)
-                p[self.name] = {'lastexecution': str(datetime.today().replace(second=0, microsecond=0))}
+                p[self.name] = {'lastexecution': str(le)}
                 f.seek(0)
                 json.dump(p, f, indent=4, sort_keys=True)
+                SchedulerPlugin.record = p
                 f.seek(0)
