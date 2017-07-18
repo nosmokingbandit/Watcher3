@@ -657,23 +657,21 @@ class Ajax(object):
 
         if corrected_movies:
             for data in corrected_movies:
-                tmdbdata = self.tmdb._search_imdbid(data['imdbid'])
+                tmdbdata = self.tmdb._search_tmdbid(data['tmdbid'])
                 if tmdbdata:
                     tmdbdata = tmdbdata[0]
-                    tmdbdata = self.tmdb._search_tmdbid(tmdbdata['id'])[0]
                     data['year'] = tmdbdata['release_date'][:4]
                     data.update(tmdbdata)
                     movie_data.append(data)
                 else:
                     logging.error('Unable to find {} on TMDB.'.format(data['imdbid']))
-                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(data['imdbid'])})
+                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(data['tmdbid'])})
                     progress += 1
 
         for movie in movie_data:
             if movie.get('imdbid'):
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
-                movie['finished_file'] = movie['path']
                 movie['origin'] = 'Directory Import'
                 movie['finished_date'] = today
                 response = core.manage.add_movie(movie, full_metadata=True)

@@ -119,7 +119,7 @@ function scan_library(event, elem){
                                         ${movie["title"]}
                                     </td>
                                     <td>
-                                        <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
+                                        <input type="text" class="incomplete_tmdbid form-control" placeholder="0000" value="${movie['tmdbid'] || ''}"/>
                                     </td>
                                     <td class="resolution">
                                         ${select[0].outerHTML}
@@ -149,7 +149,7 @@ function scan_library(event, elem){
                                         ${movie["title"]}
                                     </td>
                                     <td>
-                                        ${movie["imdbid"]}
+                                        ${movie["tmdbid"]}
                                     </td>
                                     <td class="resolution">
                                         ${select[0].outerHTML}
@@ -216,9 +216,9 @@ function import_library(event, elem){
         }
 
         movie = $row.data("movie");
-        movie["imdbid"] = $row.find("input.incomplete_imdbid").val();
+        movie["tmdbid"] = $row.find("input.incomplete_tmdbid").val();
 
-        if(!movie["imdbid"]){
+        if(!movie["tmdbid"]){
             blanks = true;
             $row.find("input.incomplete_imdbid").addClass("empty");
             return
@@ -275,7 +275,7 @@ function import_library(event, elem){
                     $success.slideDown()
                     var row = `<tr>
                                     <td>${r['movie']['title']}</td>
-                                    <td>${r['movie']['imdbid']}</td>
+                                    <td>${r['movie']['tmdbid']}</td>
                                 </tr>`
                     $success_table.append(row)
                 } else {
