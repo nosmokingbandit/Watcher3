@@ -176,7 +176,7 @@ class MetadataUpdate(object):
         logging.info('Updating metadata for: {}.'.format(', '.join([i['title'] for i in u])))
 
         for i in u:
-            MetadataUpdate.md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'), force_poster=False)
+            md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'), force_poster=False)
 
         return
 
