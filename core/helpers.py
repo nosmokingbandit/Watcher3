@@ -36,8 +36,10 @@ class Url(object):
 
     @staticmethod
     def normalize(s):
-        ''' URL-encode strings
+        ''' "normalizes" strings for url params
         s (str): text to format
+
+        Strips/replaces unicode chars and replaces punctuation with spaces
 
         Do not use with full url, only passed params
 
@@ -45,10 +47,10 @@ class Url(object):
         '''
 
         s = s.translate(Url.trans)
-        s = ''.join([i for i in s if i not in punctuation])
-        s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore')
-        s = urllib.parse.quote(s.replace(b' ', b'+'), safe='+').lower()
-        return s
+        s = ''.join(i for i in s if i not in punctuation)
+        s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
+
+        return s.lower()
 
     @staticmethod
     def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):

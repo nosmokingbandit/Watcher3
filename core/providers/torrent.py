@@ -60,7 +60,7 @@ class Torrent(NewzNabProvider):
 
         results = []
 
-        term = Url.normalize('{}+{}'.format(title, year))
+        term = Url.normalize('{} {}'.format(title, year))
 
         for indexer in torz_indexers:
             if indexer[2] is False:
