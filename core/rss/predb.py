@@ -49,7 +49,7 @@ class PreDB(object):
         '''
 
         title = data['title']
-        year = data['year']
+        year = str(data['year'])
         title_year = '{} {}'.format(title, year)
         imdbid = data['imdbid']
 
@@ -60,8 +60,7 @@ class PreDB(object):
         db_update = {'predb_backlog': 1}
 
         if predb_titles:
-            test = title_year.replace(' ', '.').lower()
-            if self._fuzzy_match(predb_titles, test):
+            if self._fuzzy_match(predb_titles, title, year):
                 logging.info('{} {} found on predb.me.'.format(title, year))
                 db_update['predb'] = 'found'
                 db_update['status'] = 'Wanted'
@@ -112,11 +111,10 @@ class PreDB(object):
 
             for movie in movies:
                 title = movie['title']
-                year = movie['year']
+                year = str(movie['year'])
                 imdbid = movie['imdbid']
 
-                test = '{}.{}'.format(title, year).replace(' ', '.')
-                if self._fuzzy_match(items, test):
+                if self._fuzzy_match(items, title, year):
                     logging.info('{} {} found on predb.me RSS.'.format(title, year))
                     core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid)
                     continue
@@ -141,17 +139,21 @@ class PreDB(object):
         return items
 
     # keeps checking release titles until one matches or all are checked
-    def _fuzzy_match(self, items, test):
+    def _fuzzy_match(self, items, title, year):
         ''' Fuzzy matches title with predb titles
         items (list): titles in predb response
-        test (str): title to match to rss titles
+        title (str): title to match to rss titles
+        year (str): year of movie release
 
         Checks for any fuzzy match over 60%
 
         Returns bool
         '''
 
+        test = '{}.{}'.format(title, year).replace(' ', '.')
         for item in items:
+            if year not in item:
+                continue
             match = fuzz.partial_ratio(item, test)
             if match > 60:
                 logging.debug('{} matches {} at {}%'.format(item, test, match))
