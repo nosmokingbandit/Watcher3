@@ -79,6 +79,9 @@ function _get_settings(){
     if(settings['authrequired']){
         required_fields.push("authuser", "authpass")
     }
+    if($("input#ssl_cert").val() || $("input#ssl_key").val()){
+        required_fields.push("ssl_cert", "ssl_key")
+    }
 
     $("form[data-category='server'] :input:not(button)").each(function(){
         var $this = $(this);

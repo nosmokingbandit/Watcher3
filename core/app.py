@@ -28,6 +28,20 @@ class App(object):
         if core.CONFIG['Server']['checkupdates']:
             scheduler.AutoUpdateCheck.update_check(install=False)
 
+    def https_redirect(self=None):
+        ''' Cherrypy tool to redirect http:// to https://
+
+        Use a before_handler when https is enabled for the server.
+
+        Enable in config as {'tools.https_redirect.on': True}
+
+        '''
+        print(cherrypy.request.scheme)
+        if cherrypy.request.scheme == 'http':
+            raise cherrypy.HTTPRedirect(cherrypy.url().replace('http:', 'https:'), status=302)
+
+    cherrypy.tools.https_redirect = cherrypy.Tool('before_handler', https_redirect)
+
     # All dispatching methods from here down
 
     status_template = Template(filename='templates/library/status.html', module_directory=core.MAKO_CACHE)

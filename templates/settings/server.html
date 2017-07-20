@@ -6,7 +6,7 @@
         <link href="${url_base}/static/css/settings/server.css?v=06.02" rel="stylesheet">
 
         <script src="${url_base}/static/js/settings/shared.js?v=07.15"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/server.js?v=07.15"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/server.js?v=07.19"  type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -53,8 +53,43 @@
                     <input type="number" id="keeplog" class="form-control" min="0" placeholder="3" value="${config['keeplog']}">
                 </div>
 
+
+            </form>
+
+            <h1>Security</h1>
+            <form class="form-horizontal well" data-category="server">
                 <div class="col-md-6">
-                    <label>Verify SSL Certificates</label>
+                    <label>Password-protect Web-UI</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="authrequired" class="mdi mdi-checkbox-blank-outline c_box" value="${config['authrequired']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                                Require login to access Web-UI.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label>User</label>
+                    <input type="text" id="authuser" class="form-control" value="${config['authuser']}">
+                </div>
+                <div class="col-md-3">
+                    <label>Password</label>
+                    <input type="text" id="authpass" class="form-control" value="${config['authpass']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>SSL Cert</label>
+                    <input type="text" id="ssl_cert" class="form-control" placeholder="/path/to/cert.crt" value="${config['ssl_cert']}">
+                </div>
+                <div class="col-md-6">
+                    <label>SSL Key</label>
+                    <input type="text" id="ssl_key" class="form-control" placeholder="/path/to/privatekey.key" value="${config['ssl_key']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Verify Remote SSL Certificates</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="verifyssl" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyssl']}"></i>
@@ -64,6 +99,8 @@
                         </span>
                     </div>
                 </div>
+
+
             </form>
 
             <h1>Interface</h1>
@@ -89,28 +126,6 @@
                         </span>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    <label>Password-protect Web-UI</label>
-                    <div class="input-group">
-                        <span class="input-group-addon box_box">
-                            <i id="authrequired" class="mdi mdi-checkbox-blank-outline c_box" value="${config['authrequired']}"></i>
-                        </span>
-                        <span class="input-group-item form-control">
-                                Require login to access Web-UI.
-                        </span>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <label>User</label>
-                    <input type="text" id="authuser" class="form-control" value="${config['authuser']}">
-                </div>
-                <div class="col-md-3">
-                    <label>Password</label>
-                    <input type="text" id="authpass" class="form-control" value="${config['authpass']}">
-                </div>
-
             </form>
 
             <h1>Updates</h1>

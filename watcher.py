@@ -151,6 +151,17 @@ if __name__ == '__main__':
     if passed_args.daemon and core.PLATFORM == '*nix':
         Daemonizer(cherrypy.engine).subscribe()
 
+    # SSL certs
+    if core.CONFIG['Server']['ssl_cert'] and core.CONFIG['Server']['ssl_key']:
+        logging.info('SSL Certs are enabled. Server will only be accessible via https.')
+        print('SSL Certs are enabled. Server will only be accessible via https.')
+        ssl_conf = {'server.ssl_certificate': core.CONFIG['Server']['ssl_cert'],
+                    'server.ssl_private_key': core.CONFIG['Server']['ssl_key'],
+                    'tools.https_redirect.on': True
+                    }
+        cherrypy.config.update(ssl_conf)
+
+
     # start engine
     cherrypy.config.update('core/conf_global.ini')
     cherrypy.engine.signals.subscribe()
