@@ -135,24 +135,23 @@
 
                                 <div id="movie_settings" class="col-md-8 btn-group">
                                   <div>
-                                  <label>Quality</label>
-                                        <select id="movie_quality" class="btn btn-default">
-                                            %for i in profiles:
-                                            <option value="${i}">${i}</option>
-                                            %endfor
-                                        </select>
-                                  </div><div>
+                                    <label>Quality</label>
+                                      <select id="movie_quality" class="col-md-5 col-sm-12 btn btn-default">
+                                        %for i in profiles:
+                                        <option value="${i}">${i}</option>
+                                        %endfor
+                                      </select>
+                                  </div>
+                                  <div>
                                     <label>Status</label>
-                                        <select id="movie_status" class="btn btn-default">
-                                            <option value="Automatic">Automatic</option>
-                                            <option value="Disabled">Finished</option>
+                                      <select id="movie_status" class="col-md-5 col-sm-12 btn btn-default">
+                                        <option value="Automatic">Automatic</option>
+                                          <option value="Disabled">Finished</option>
                                         </select>
-                                      </div>
-                                        <a id="update_movie_options" class="btn btn-success col-md-2 col-sm-2" onclick="update_movie_options(event, this, '{imdbid}')">
-                                            <i class="mdi mdi-content-save"></i>
-                                        </a>
+                                  </div>
+                                    <a id="update_movie_options" class="btn btn-success col-md-2 col-sm-2" onclick="update_movie_options(event, this, '{imdbid}')">
+                                    <i class="mdi mdi-content-save"></i></a>
                                 </div>
-
 
                                 <div class="well col-md-12">
                                     <p class="plot">{plot}</p>
