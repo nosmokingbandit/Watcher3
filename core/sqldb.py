@@ -285,7 +285,7 @@ class SQL(object):
         if sort_key != 'title':
             command += ', title ASC'
 
-        if int(offset) > 0:
+        if int(limit) > 0:
             command += ' LIMIT {} OFFSET {}'.format(limit, offset)
 
         result = self.execute([command])
