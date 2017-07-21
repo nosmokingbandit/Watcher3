@@ -234,6 +234,7 @@ class ImportPlexLibrary(object):
         '''
 
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
+        library_tmdb = [i['tmdbid'] for i in core.sql.get_user_movies()]
         try:
             movies = []
             reader = csv.DictReader(csv_text.splitlines())
@@ -258,7 +259,10 @@ class ImportPlexLibrary(object):
                     else:
                         parsed['imdbid'] = db_id
                 elif db_id.isdigit():
-                    parsed['tmdbid'] = db_id
+                    if db_id in library_tmdb:
+                        continue
+                    else:
+                        parsed['tmdbid'] = db_id
                 else:
                     parsed['imdbid'] = ''
                     complete = False
