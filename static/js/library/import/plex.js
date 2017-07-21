@@ -69,7 +69,7 @@ function read_csv(event, elem){
                                 ${movie["title"]}
                             </td>
                             <td>
-                                ${movie["imdbid"]}
+                                ${movie["imdbid"] || movie["tmdbid"]}
                             </td>
                             <td class="resolution">
                                 ${select[0].outerHTML}
@@ -206,6 +206,7 @@ function import_library(event, elem){
             onprogress: function(e){
                 var response_update;
                 var response = e.currentTarget.response;
+
                 if(last_response_len === false){
                     response_update = response;
                     last_response_len = response.length;
@@ -215,7 +216,7 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['title']}.`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
 
@@ -225,17 +226,21 @@ function import_library(event, elem){
                 if(r['response'] == true){
                     $success.slideDown()
                     var row = `<tr>
-                                    <td>${r['movie']['title']}</td>
-                                    <td>${r['movie']['imdbid']}</td>
+                                    <td>${r['title']}</td>
+                                    <td>${r['imdbid']}</td>
                                 </tr>`
                     $success_table.append(row)
                 } else {
                     $error.slideDown()
                     var row = `<tr>
-                                    <td>${r['movie']['title']}</td>
+                                    <td>${r['title']}</td>
                                     <td>${r['error']}</td>
                                 </tr>`
                     $error_table.append(row)
+                }
+
+                if(progress_percent == 100){
+                    $progress_text.text("Finishing up...");
                 }
             }
         }

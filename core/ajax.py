@@ -968,11 +968,24 @@ class Ajax(object):
                     movie.update(tmdbdata)
                     movie_data.append(movie)
                 else:
-                    logging.error('Unable to find {} on TMDB.'.format(movie['imdbid']))
-                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(movie['imdbid'])})
+                    logging.error('Unable to find {} on TheMovieDB.'.format(movie['imdbid']))
+                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
                     progress += 1
 
         for movie in movie_data:
+            logging.info('Importing Plex movie {} {}'.format(movie.get('title', ''), movie.get('year', '')))
+
+            fm = False
+            if not movie.get('imdbid') and movie.get('tmdbid'):
+                tmdb_data = self.tmdb._search_tmdbid(movie['tmdbid'])
+                if tmdb_data:
+                    movie.update(tmdb_data[0])
+                    fm = True
+                else:
+                    yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['title'])})
+                    progress += 1
+                    continue
+
             if movie.get('imdbid'):
                 movie['status'] = 'Disabled'
                 movie['predb'] = 'found'
@@ -983,26 +996,28 @@ class Ajax(object):
                     if tmdb_data:
                         movie.update(tmdb_data[0])
                     else:
-                        yield json.dumps({'response': False, 'progress': [progress, length], 'movie': movie, 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
-
-                response = core.manage.add_movie(movie)
+                        yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
+                        progress += 1
+                        continue
+                response = core.manage.add_movie(movie, full_metadata=fm)
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))
-                    yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                    yield json.dumps({'response': True, 'progress': [progress, length], 'title': movie['title'], 'imdbid': movie['imdbid']})
                     progress += 1
                     success.append(movie)
                     continue
                 else:
-                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': response['error']})
+                    yield json.dumps({'response': False, 'progress': [progress, length], 'error': response['error'], 'title': movie['title']})
                     progress += 1
                     continue
             else:
-                logging.error('Unable to find {} on TMDB.'.format(movie['title']))
-                logging.debug(movie)
-                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'IMDB ID invalid or missing.'})
+                logging.error('Unable to find IMDB ID for {} on TheMovieDB.'.format(movie['title']))
+                yield json.dumps({'response': False, 'progress': [progress, length], 'error': 'Unable to find IMDB ID for {} on TheMovieDB.'.format(movie['title']), 'title': movie['title']})
                 progress += 1
+                continue
 
-        fake_results = self.score.score(fake_results, imported=True)
+        if fake_results:
+            fake_results = self.score.score(fake_results, imported=True)
 
         for i in success:
             score = None
@@ -1014,7 +1029,8 @@ class Ajax(object):
             if score:
                 core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
-        core.sql.write_search_results(fake_results)
+        if fake_results:
+            core.sql.write_search_results(fake_results)
 
     import_plex_csv._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
