@@ -346,7 +346,7 @@ function open_info_modal(event, elem){
             movie["table"] = _results_table(response["results"]);
         } else {
             movie["table"] = `<div class="search_result">
-                                  <span class="col-md-12">Nothing found yet. Next search sheduled for ${response["next"]}.</span>
+                                  <span>Nothing found yet. Next search sheduled for ${response["next"]}.</span>
                               </div>`;
         }
 
@@ -387,7 +387,7 @@ function _results_table(results){
         }
 
         rows += `<div class="search_result">
-                    <div class="col-md-12">
+                    <div>
                         <span class="title" title="${result['title']}">
                             ${result["title"]}
                         </span>
