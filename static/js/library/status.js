@@ -387,7 +387,7 @@ function _results_table(results){
         }
 
         rows += `<div class="search_result">
-                    <div>
+                    <div class="col-md-12">
                         <span class="title" title="${result['title']}">
                             ${result["title"]}
                         </span>

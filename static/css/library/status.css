@@ -162,7 +162,7 @@ img.poster{
 }
 
 div.modal-body {
-  padding: 1.25em 0;
+    padding: 1.25em 0;
 }
 
 div.modal-body div.search_result{
@@ -185,6 +185,7 @@ div.modal-body div#movie_actions i{
 
 div.modal-body div#movie_actions{
     margin: 1.25em 0 1em 0;
+    padding: 0 0.25em;
 }
 
 div.modal-body div#movie_actions > .btn{
@@ -194,21 +195,25 @@ div.modal-body div#movie_actions > .btn{
 
 div.modal-body div#movie_settings{
     margin: 0 0 1em 0;
+    padding: 0 0.5em;
+    overflow: auto;
 }
 
-div.modal-body div#movie_settings select{
-  display: block;
-  width: 100%
+div.modal-body div#movie_settings select,
+div.modal-body div#movie_settings a {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5em;
 }
 
-div .modal-body div#movie_settings div{
-  float: left;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+div .modal-body div#movie_settings div,
+div.modal-body div#movie_settings a {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 div.modal-body div#movie_settings a#update_movie_options {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 div.modal-body p.plot{
@@ -234,8 +239,9 @@ div.modal-body div#search_results_table div.search_result span.title{
     word-break: break-all;
 }
 
-div.modal-body div#search_results_table div.search_result span {
-  padding-left: 0.5em;
+div.modal-body div#search_results_table div.search_result > span {
+    margin: 0 0.5em;
+    display: block;
 }
 
 div.modal-body div#search_results_table div.search_result i.mdi{
