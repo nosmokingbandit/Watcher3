@@ -20,7 +20,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
     Class Vars:
     task_list (dict): {name (str): class instance (obj)} of ScheduledTask instances.
-    record (dict): {name (str): {'last_execution': "2017-01-01 23:28:00"}}
+    record (dict): {name (str): {'lastexecution': "2017-01-01 23:28:00"}}
 
     Requires that each ScheduledTask instance be appended to task_list
 
@@ -164,6 +164,10 @@ class ScheduledTask(object):
             next += timedelta(seconds=interval)
 
         delay = (next - now).seconds
+
+        while delay > interval:
+            delay -= interval
+
         # this prevents infinite loops if the task restarts the plugin
         if delay == 0:
             delay = interval
@@ -171,13 +175,24 @@ class ScheduledTask(object):
         return delay
 
     def _task(self):
+        ''' Executes the task fn
+
+        Starts new timer based on self.interval
+        Gets current time as 'le'
+        Sets self.running to True, runs task, sets as False
+
+        After task is finished, le is written to record. This way tasks can have
+            access to the last execution time while running.
+
+        '''
         logging.info('== Executing Scheduled Task: {} =='.format(self.name))
         self.timer = Timer(self.interval, self._task)
         self.timer.start()
-        self.write_record()
+        le = datetime.today().replace(microsecond=0)
         self.running = True
         self.task()
         self.running = False
+        self.write_record(le)
         logging.info('== Finished Scheduled Task: {} =='.format(self.name))
 
     def start(self):
@@ -239,13 +254,13 @@ class ScheduledTask(object):
 
         self.__init__(*self._init_args)
 
-    def write_record(self):
+    def write_record(self, le):
         ''' Writes last execution to persistence record
+        time (obj): datetime.datetime object of time to write in record
 
         Stores last execution in persistence file and SchedulerPlugin.record
 
         '''
-        le = datetime.today().replace(second=0, microsecond=0)
         with self.lock:
             with open(self.persistence_file, 'r+') as f:
                 p = json.load(f)
