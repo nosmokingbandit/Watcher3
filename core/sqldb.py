@@ -539,14 +539,15 @@ class SQL(object):
 
         logging.debug('Retrieving search result details for {}.'.format(idval.split('&')[0]))
 
-        command = ['SELECT * FROM SEARCHRESULTS WHERE {}="{}"'.format(idcol, idval)]
+        command = ['SELECT * FROM SEARCHRESULTS WHERE {}="{}" ORDER BY score DESC, size DESC'.format(idcol, idval)]
 
         result = self.execute(command)
 
         if result:
-            return result.fetchone()
-        else:
-            return {}
+            data = result.fetchone()
+            if data:
+                return dict(data)
+        return {}
 
     def _get_existing_schema(self):
         ''' Gets existing database schema
