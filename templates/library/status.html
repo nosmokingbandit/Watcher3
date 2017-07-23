@@ -5,7 +5,7 @@
     ${head}
     <link href="${url_base}/static/css/library/status.css?v=07.21" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=07.21" type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=07.23" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
@@ -83,30 +83,30 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title">
-                                <span class="title">{title}</span>
-                                <span class="year">{year}</span>
-                            </h3>
-                        <span class="label label-default">
-                                Source: {origin}
-                            </span>
-                        <span class="label label-default">
-                                Theatrical Release: {release_date}
-                            </span>
-                        <span class="label label-default">
-                                Home Release: {media_release_date}
-                            </span>
-                        <span class="label label-default">
-                                Score: {score}
-                            </span>
-                        <span class="label label-default">
-                                Date Added: {added_date}
-                            </span>
+                            <span class="title">{title}</span>
+                            <span class="year">{year}</span>
+                        </h3>
                         <a class="label label-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank" rel="noopener">
-                                TheMovieDB <i class="mdi mdi-earth"></i>
-                            </a>
+                            TheMovieDB <i class="mdi mdi-earth"></i>
+                        </a>
                         <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank" rel="noopener">
-                                IMDB <i class="mdi mdi-earth"></i>
-                            </a>
+                            IMDB <i class="mdi mdi-earth"></i>
+                        </a>
+                        <span class="label label-default">
+                            Theatrical Release: {release_date}
+                        </span>
+                        <span class="label label-default">
+                            Home Release: {media_release_date}
+                        </span>
+                        <span class="label label-default">
+                            Score: {score}
+                        </span>
+                        <span class="label label-default">
+                            Source: {origin}
+                        </span>
+                        <span class="label label-default">
+                            Date Added: {added_date}
+                        </span>
                     </div>
 
                     <div class="modal-body">

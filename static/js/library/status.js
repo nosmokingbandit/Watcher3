@@ -363,6 +363,13 @@ function open_info_modal(event, elem){
             $status_select.find("option[value='Automatic']").attr("selected", true)
         }
 
+        if(movie["status"] == "Finished" || movie["status"] == "Disabled"){
+            var label = `<span class="label label-success">
+                            File: ${movie["finished_file"]}
+                         </span>`
+            $movie_status.find("div.modal-header").append($(label));
+        }
+
         $movie_status.modal("show");
     })
     .fail(function(data){
