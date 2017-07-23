@@ -173,7 +173,7 @@ class Postprocessing(object):
         result = core.sql.get_single_search_result('guid', data['guid'])
         if not result:
             logging.info('Guid not found.')
-            if 'downloadid' in data.keys():
+            if data.get('downloadid'):
                 logging.info('Searching local database for downloadid.')
                 result = core.sql.get_single_search_result('downloadid', str(data['downloadid']))
                 if result:
@@ -315,7 +315,12 @@ class Postprocessing(object):
         ''' Post-processes a complete, successful download
         data (dict): all gathered file information and metadata
 
-        All params can be blank strings ie ""
+        data must include the following keys:
+            path (str): path to downloaded item. Can be file or directory
+            guid (str): nzb guid or torrent hash
+            downloadid (str): download id from download client
+
+        All params can be empty strings if unknown
 
         In SEARCHRESULTS marks guid as Finished
         In MARKEDRESULTS:
@@ -359,7 +364,7 @@ class Postprocessing(object):
             result['tasks'][data['guid']] = guid_result
 
         # if we have a guid2, do it all again
-        if 'guid2' in data.keys() and data.get('imdbid'):
+        if data.get('guid2') and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
             if core.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
