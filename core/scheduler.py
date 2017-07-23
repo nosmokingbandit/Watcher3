@@ -6,8 +6,10 @@ import core
 import glob
 import hashlib
 import os
+import time
+from base64 import b16encode
 
-from core import searcher, version, notification
+from core import searcher, version, notification, postprocessing
 from core.rss import imdb, popularmovies
 from core.cp_plugins import taskscheduler
 from core import trakt
@@ -17,6 +19,7 @@ logging = logging.getLogger(__name__)
 
 ver = version.Version()
 md = Metadata()
+pp = postprocessing.Postprocessing()
 search = searcher.Searcher()
 
 
@@ -31,6 +34,7 @@ def create_plugin():
     ImdbRssSync.create()
     MetadataUpdate.create()
     PopularMoviesSync.create()
+    PostProcessingScan.create()
     TraktSync.create()
     core.scheduler_plugin.subscribe()
 
@@ -45,6 +49,7 @@ def restart_scheduler(diff):
     '''
 
     now = datetime.datetime.today()
+
     if 'Server' in diff:
         d = diff['Server'].keys()
 
@@ -86,8 +91,78 @@ def restart_scheduler(diff):
                 interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
                 auto_start = core.CONFIG['Search']['Watchlists']['traktsync']
                 taskscheduler.SchedulerPlugin.task_list['Trakt Sync'].reload(hr, min, interval, auto_start=auto_start)
-        else:
+
+    if 'Postprocessing' in diff:
+        d = diff['Postprocessing'].get('Scanner', {})
+        if any(i in d for i in ('interval', 'enabled')):
+            hr = now.hour
+            min = now.minute + core.CONFIG['Postprocessing']['Scanner']['interval']
+            interval = core.CONFIG['Postprocessing']['Scanner']['interval'] * 60
+            auto_start = core.CONFIG['Postprocessing']['Scanner']['enabled']
+            taskscheduler.SchedulerPlugin.task_list['PostProcessing Scan'].reload(hr, min, interval, auto_start=auto_start)
+
+
+class PostProcessingScan(object):
+    ''' Scheduled task to automatically scan directory for movie to process '''
+    @staticmethod
+    def create():
+        conf = core.CONFIG['Postprocessing']['Scanner']
+        interval = conf['interval'] * 60
+
+        now = datetime.datetime.today()
+        hr = now.hour
+        minute = now.minute + interval
+
+        taskscheduler.ScheduledTask(hr, minute, interval, PostProcessingScan.scan_directory, auto_start=conf['enabled'], name='PostProcessing Scan')
+        return
+
+    @staticmethod
+    def scan_directory():
+        ''' Method to scan directory for movies to process '''
+        conf = core.CONFIG['Postprocessing']['Scanner']
+        d = conf['directory']
+
+        t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('lastexecution')
+        if not t:
+            logging.warning('Unable to scan directory, last scan timestamp unknown.')
             return
+
+        le = datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S')
+        threshold = time.mktime(le.timetuple())
+
+        if conf['newfilesonly']:
+            logging.info('Scanning {} for new files to process (last scan: {}).'.format(d, le))
+            files = [os.path.join(d, i) for i in os.listdir(d) if os.path.join(d, i).getmtime() > threshold]
+        else:
+            logging.info('Scanning {} for movies to process.'.format(d))
+            files = [os.path.join(d, i) for i in os.listdir(d)]
+
+        if not files:
+            logging.info('No new files found in directory scan.')
+            return
+
+        for i in files:
+            while i[-1] in ('\\', '/'):
+                i = i[:-1]
+            fname = os.path.basename(i)
+
+            logging.info('Processing {}.'.format(i))
+
+            r = core.sql.get_single_search_result('title', fname)
+            if r:
+                logging.info('Found match for {} in releases: {}.'.format(fname, r['title']))
+            else:
+                r['guid'] = 'POSTPROCESSING{}'.format(b16encode(fname.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+                logging.warning('Unable to find match in database for {}.'.format(fname))
+
+            d = {'apikey': core.CONFIG['Server']['apikey'],
+                 'mode': 'complete',
+                 'path': i,
+                 'guid': r.get('guid', ''),
+                 'downloadid': ''
+                 }
+
+            pp.POST(**d)
 
 
 class AutoSearch(object):

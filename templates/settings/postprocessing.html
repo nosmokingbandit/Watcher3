@@ -22,7 +22,7 @@
         <link href="${url_base}/static/css/settings/postprocessing.css?v=06.02" rel="stylesheet">
 
         <script src="${url_base}/static/js/settings/shared.js?v=07.15"  type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/postprocessing.js?v=06.25"  type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/postprocessing.js?v=07.23"  type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -145,6 +145,49 @@
                     <input type="text" id="recyclebindirectory" class="form-control" value="${config['recyclebindirectory']}">
                 </div>
 
+            </form>
+
+            <h1>Directory Scanner</h1>
+            <form class="form-horizontal well" data-category="scanner">
+
+                <div class="col-md-6">
+                    <label>Enable Scanner</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="enabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Scanner']['enabled']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Scan directory for movies to process.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Scan Directory</label>
+                    <input type="text" id="directory" class="form-control" value="${config['Scanner']['directory']}">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Scan Frequency</label>
+                    <div class="input-group">
+                        <input type="number" id="interval" class="form-control" min="15" placeholder="240" value="${config['Scanner']['interval']}">
+                        <span class="input-group-addon">
+                            Minutes
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Only Process New Files</label>
+                    <div class="input-group">
+                        <span class="input-group-addon box_box">
+                            <i id="newfilesonly" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Scanner']['newfilesonly']}"></i>
+                        </span>
+                        <span class="input-group-item form-control">
+                            Only process files added since last scan.
+                        </span>
+                    </div>
+                </div>
             </form>
 
             <h1>Remote Mapping</h1>

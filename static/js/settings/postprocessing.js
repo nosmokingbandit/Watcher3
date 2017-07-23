@@ -16,12 +16,13 @@ function remove_mapping(event, elem){
 function _get_settings(){
     var settings = {};
     settings["RemoteMapping"] = {};
+    settings["Scanner"] = {};
     var blanks = false;
 
 // POSTPROCESSING
     var required_fields = [];
 
-    $("form[data-category='postprocessing'] i").each(function(){
+    $("form[data-category='postprocessing'] i.c_box").each(function(){
         var $this = $(this);
         settings[$this.attr("id")] = is_checked($this);
     });
@@ -50,12 +51,40 @@ function _get_settings(){
                 blanks = true;
                 return;
             }
-
             settings[$this.attr("id")] = $this.val();
         }
     });
 
-// POSTPROCESSING['REMOTEMAPPING']
+// POSTPROCESSING["SCANNER"]
+    $("form[data-category='scanner'] i.c_box").each(function(){
+        var $this = $(this);
+        settings["Scanner"][$this.attr("id")] = is_checked($this);
+    });
+
+    if(settings["Scanner"]["enabled"] == true){
+        required_fields.push("directory", "interval");
+    }
+
+    $("form[data-category='scanner'] :input:not(button)").each(function(){
+        var $this = $(this);
+
+        if($this.val() == "" && required_fields.includes($this.attr("id"))){
+            $this.addClass("empty");
+            blanks = true;
+            return;
+        }
+
+        if($this.attr("type") == "number"){
+            var min = parseInt($this.attr("min"));
+            var val = Math.max(parseInt($this.val()), min);
+            settings["Scanner"][$this.attr("id")] = val || min;
+        }
+        else{
+            settings["Scanner"][$this.attr("id")] = $this.val();
+        }
+    });
+
+// POSTPROCESSING["REMOTEMAPPING"]
     $("form[data-category='remote_mapping'] tbody > tr").each(function(){
         $this = $(this);
 
