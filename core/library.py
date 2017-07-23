@@ -521,12 +521,14 @@ class Metadata(object):
         if len(titledata) < 3:
             logging.info('Parsing filename does not look accurate. Parsing parent folder name.')
 
-            path_list = os.path.split(filepath)[0].split(os.sep)
-            titledata = PTN.parse(path_list[-1])
+            fname = os.path.split(filepath)[0].split(os.sep)[-1]
+            titledata = PTN.parse(fname)
+            titledata['release_title'] = fname
             logging.info('Found {} in parent folder.'.format(titledata))
             if len(titledata) < 2:
                 logging.warning('Little information found in parent folder name. Movie may be incomplete.')
         else:
+            titledata['release_name'] = os.path.basename(filepath)
             logging.info('Found {} in filename.'.format(titledata))
 
         title = titledata.get('title')
@@ -817,7 +819,8 @@ class Manage(object):
                 return False
             search_result = searchresults.generate_simulacrum(movie_info)
             search_result['indexer'] = 'Post-Processing Import'
-            search_result['title'] = movie_info['title']
+            if not search_result.get('title'):
+                search_result['title'] = movie_info['title']
             search_result['size'] = os.path.getsize(movie_info.get('orig_filename', '.'))
             if not search_result['resolution']:
                 search_result['resolution'] = 'Unknown'

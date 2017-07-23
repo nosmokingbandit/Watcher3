@@ -358,6 +358,8 @@ def generate_simulacrum(movie):
     ''' Generates phony search result for imported movies
     movie (dict): movie info
 
+    movie will use 'release_title' key if found, else 'title' to generate results
+
     Resturns dict to match SEARCHRESULTS table
     '''
 
@@ -379,7 +381,9 @@ def generate_simulacrum(movie):
               'freeleech': 0
               }
 
-    title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
+    t = movie.get('release_title', movie['title'])
+
+    title = '{}.{}.{}.{}.{}.{}'.format(t,
                                        movie['year'],
                                        movie.get('resolution') or '.',  # Kind of a hacky way to make sure it doesn't print None in the title
                                        movie.get('audiocodec') or '.',
