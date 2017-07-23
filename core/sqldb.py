@@ -359,9 +359,8 @@ class SQL(object):
             sort = 'DESC'
 
         logging.debug('Retrieving Search Results for {}.'.format(imdbid))
-        TABLE = 'SEARCHRESULTS'
 
-        command = ['SELECT * FROM {} WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(TABLE, imdbid, sort)]
+        command = ['SELECT * FROM SEARCHRESULTS WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(imdbid, sort)]
 
         results = self.execute(command)
 
@@ -452,12 +451,10 @@ class SQL(object):
         Returns Bool
         '''
 
-        TABLE = 'SEARCHRESULTS'
-
         if imdbid:
-            command = ['DELETE FROM {} WHERE imdbid="{}"'.format(TABLE, imdbid)]
+            command = ['DELETE FROM SEARCHRESULTS WHERE imdbid="{}"'.format(imdbid)]
         else:
-            command = ['DELETE FROM {}'.format(TABLE)]
+            command = ['DELETE FROM SEARCHRESULTS']
 
         if self.execute(command):
             return True
