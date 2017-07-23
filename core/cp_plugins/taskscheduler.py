@@ -122,6 +122,7 @@ class ScheduledTask(object):
             le = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
             hour, minute = le.hour, le.minute
         else:
+            le = datetime.today().replace(mirosecond=0)
             self.write_record()
 
         self.delay = self._calc_delay(hour, minute, interval)
