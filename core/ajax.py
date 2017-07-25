@@ -1236,7 +1236,9 @@ class Ajax(object):
                         'finished_date': None,
                         'finished_score': None,
                         'backlog': 0,
-                        'finished_file': None
+                        'finished_file': None,
+                        'predb': None,
+                        'predb_backlog': None
                         }
 
             if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
