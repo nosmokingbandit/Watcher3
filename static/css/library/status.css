@@ -247,3 +247,7 @@ div.modal-body div#search_results_table div.search_result > span {
 div.modal-body div#search_results_table div.search_result i.mdi{
     font-size: 1.5em;
 }
+
+div#delete_file{
+    margin-top: 1em;
+}

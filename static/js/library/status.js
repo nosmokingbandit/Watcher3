@@ -27,7 +27,8 @@ $(document).ready(function(){
     $movie_list = $("ul#movie_list");
 
     movie_template = $("textarea#template_movie")[0].innerText
-    modal_template = $("textarea#template_movie_info")[0].innerText;
+    info_template = $("textarea#template_movie_info")[0].innerText;
+    delete_template = $("textarea#template_delete")[0].innerText;
 
     var cookie = read_cookie();
     echo.init({offsetVertical: 100,
@@ -102,6 +103,20 @@ $(document).ready(function(){
             $movie_list.removeClass().addClass(movie_layout);
             set_cookie('movie_layout', movie_layout)
             echo.render();
+        }
+    });
+
+    // toggle checkbox status on click
+    $("body").on("click", "i.c_box", function(){
+        $this = $(this);
+        // turn on
+        if( $this.attr("value") == "False" ){
+            $this.attr("value", "True");
+            $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+        // turn off
+        } else if ($this.attr("value") == "True" ){
+            $this.attr("value", "False");
+            $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
         }
     });
 
@@ -350,10 +365,10 @@ function open_info_modal(event, elem){
                               </div>`;
         }
 
-        var modal = format_template(modal_template, movie);
+        var modal = format_template(info_template, movie);
         $movie_status = $(modal);
 
-        $movie_status.data("title", movie["title"]);
+        $movie_status.data("movie", movie);
         $movie_status.find("select#movie_quality > option[value='"+movie["quality"]+"']").attr("selected", true)
         $status_select = $movie_status.find("select#movie_status");
 
@@ -493,37 +508,88 @@ function update_metadata(event, elem, imdbid, tmdbid){
 }
 
 function remove_movie(event, elem, imdbid){
+    event.preventDefault();
+
+    var movie = $movie_status.data("movie");
+
+    var modal = format_template(delete_template, movie);
+    $delete = $(modal);
+
+    if(!movie["finished_file"]){
+        $delete.find("div#delete_file").hide();
+    }
+
+    $delete.modal("show");
+    $movie_status.css("opacity", 0);
+    $delete.on('hide.bs.modal', function(){
+        $movie_status.css("opacity", 1);
+    });
+
+}
+
+
+function _remove_movie(event, elem, imdbid){
     /* Removes movie from library
     imdbid: str imdb id# of movie to remove
     */
 
-    event.preventDefault();
     var $this = $(elem);
-    var title = $movie_status.data("title");
+    var movie = $movie_status.data("movie");
 
-    if($this.data("confirm") !== true){
-        $this.removeClass("btn-default").addClass("btn-danger").data("confirm", true).find("i.mdi").removeClass("mdi-delete").addClass("mdi-delete-forever");
-        $.notify({message: `Click once more to remove <b>${title}</b> from library. <br/> This will not delete movie files.`}, {type: "warning"});
-    } else if($this.data("confirm") === true){
+    if($("div#delete_file > i.c_box").attr("value") == "True"){
+        var delete_file = true;
+    } else {
+        var delete_file = false;
+    }
+
+    console.log(delete_file)
+
+    function __remove_from_library(imdbid){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
         .done(function(response){
             if(response["response"] == true){
-                $.notify({message: `<b>${title}</b> removed from library.`})
+                $.notify({message: `<b>${movie['title']}</b> removed from library.`})
                 $movie_list.find(`li[data-imdbid="${imdbid}"]`).remove();
                 $movie_status.modal("hide");
             } else {
                 var message = `${title} could not be removed. Check logs for more information.`;
-                $.notify({message: "Unable to read plugin config."}, {type: "danger"})
+                $.notify({message: message}, {type: "danger"})
             }
 
             var index = cached_movies.map(function(e){ return e.imdbid; }).indexOf(imdbid);
             cached_movies.splice(index, 1);
+
+            $movie_status.modal("hide");
 
         })
         .fail(function(data){
             var err = data.status + " " + data.statusText
             $.notify({message: err}, {type: "danger", delay: 0});
         });
+    };
+
+    if(delete_file){
+        $.post(url_base + "/ajax/delete_movie_file", {"imdbid": imdbid})
+        .done(function(response){
+            if(response["response"] == true){
+                var message = `Deleted movie file ${response["file"]}.`;
+                $.notify({message: message}, {type: "success"});
+            } else {
+                $.notify({message: response["error"]}, {type: "danger"});
+            }
+        })
+        .fail(function(data){
+            var err = data.status + " " + data.statusText;
+            $.notify({message: err}, {type: "danger", delay: 0});
+        })
+        .always(function(){
+            $delete.modal("hide");
+            // Makes sure the file removal is done after file removal
+            __remove_from_library(imdbid);
+        });
+    } else {
+        $delete.modal("hide");
+        __remove_from_library(imdbid);
     }
 }
 

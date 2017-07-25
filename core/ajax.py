@@ -168,6 +168,27 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
+    def delete_movie_file(self, imdbid):
+        ''' Deletes movie file for imdbid
+        imdbid (str): imdb id #
+
+        Returns dict ajax-style response
+        '''
+
+        f = core.sql.get_movie_details('imdbid', imdbid).get('finished_file')
+
+        if not f:
+            return {'response': False, 'error': 'Unable to find movie file for {}.'.format(imdbid)}
+
+        try:
+            os.unlink(f)
+            return {'response': True, 'file': f}
+        except Exception as e:
+            logging.error('Unable to delete file {}'.format(f), exc_info=True)
+            return {'response': False, 'error': str(e)}
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
     def search(self, imdbid):
         ''' Search indexers for specific movie.
         imdbid (str): imdb id #

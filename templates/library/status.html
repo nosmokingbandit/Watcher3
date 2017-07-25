@@ -3,9 +3,9 @@
 
 <head>
     ${head}
-    <link href="${url_base}/static/css/library/status.css?v=07.21" rel="stylesheet">
+    <link href="${url_base}/static/css/library/status.css?v=07.24" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=07.23" type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=07.24" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
@@ -164,6 +164,36 @@
                     <div class="modal-footer">
 
                         <a class="btn btn-default" data-dismiss="modal">Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </textarea>
+    <textarea id="template_delete" class="hidden">
+        <div class="modal fade" id="modal_delete">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">
+                            Remove from Library
+                        </h3>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="col-md-12">
+                            Are your sure you want to remove <b>{title}</b> from your library?
+
+                            <div id="delete_file">
+                                <i class="c_box mdi mdi-checkbox-blank-outline" value="False"></i> Delete movie file
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-warning pull-right" onclick="_remove_movie(event, this, '{imdbid}')">Remove</a>
                     </div>
                 </div>
             </div>
