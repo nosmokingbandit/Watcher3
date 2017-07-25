@@ -606,7 +606,9 @@ class Ajax(object):
                     response['response'] = 'complete'
 
                 if response['response'] == 'complete':
+                    p = metadata.get('poster_path')
                     metadata = self.metadata.convert_to_db(metadata)
+                    metadata['poster_path'] = p
 
                 metadata['size'] = os.path.getsize(path)
                 metadata['human_size'] = Conversions.human_file_size(metadata['size'])
@@ -674,6 +676,7 @@ class Ajax(object):
                 movie['predb'] = 'found'
                 movie['origin'] = 'Directory Import'
                 movie['finished_date'] = today
+                movie['id'] = movie['tmdbid']
                 response = core.manage.add_movie(movie, full_metadata=True)
                 if response['response'] is True:
                     fake_results.append(searchresults.generate_simulacrum(movie))

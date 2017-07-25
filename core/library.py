@@ -446,12 +446,23 @@ class Metadata(object):
             if not tmdbdata:
                 logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
                 return data
-            else:
+
+            tmdbdata = tmdbdata[0]
+            tmdbid = tmdbdata.get('id')
+
+            if not tmdbid:
+                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
+                return data
+
+            tmdbdata = tmdbdata = self.tmdb._search_tmdbid(tmdbid)
+            if tmdbdata:
                 tmdbdata = tmdbdata[0]
-                data['year'] = tmdbdata['release_date'][:4]
-                data.update(tmdbdata)
-                imdbid = self.tmdb.get_imdbid(data['id'])
-                data['imdbid'] = imdbid if imdbid else None
+            else:
+                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
+                return data
+
+            data['year'] = tmdbdata['release_date'][:4]
+            data.update(tmdbdata)
 
         return data
 
@@ -571,21 +582,23 @@ class Metadata(object):
             movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
         else:
             movie['poster'] = None
-        movie['plot'] = movie['overview']
+
+        movie['plot'] = movie['overview'] if not movie.get('plot') else movie.get('plot')
         movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie['id'])
-        movie['score'] = movie['vote_average']
+        movie['score'] = movie['vote_average'] if not movie.get('score') else movie.get('score')
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
         movie['backlog'] = 0
         movie['tmdbid'] = movie['id']
 
-        a_t = []
-        for i in movie.get('alternative_titles', {}).get('titles', []):
-            if i['iso_3166_1'] == 'US':
-                a_t.append(i['title'])
+        if not isinstance(movie.get('alternative_titles'), str):
+            a_t = []
+            for i in movie.get('alternative_titles', {}).get('titles', []):
+                if i['iso_3166_1'] == 'US':
+                    a_t.append(i['title'])
 
-        movie['alternative_titles'] = ','.join(a_t)
+            movie['alternative_titles'] = ','.join(a_t)
 
         dates = []
         for i in movie.get('release_dates', {}).get('results', []):
