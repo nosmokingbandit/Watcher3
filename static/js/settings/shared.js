@@ -69,7 +69,7 @@ function save_settings(event, elem){
         if(response["response"] == true){
             $.notify({message: `Settings saved.`})
         } else {
-            $.notify({message: `${response['error']}`}, {type: "danger"})
+            $.notify({message: `${response['error']}`}, {type: "danger", delay: 0})
         }
     })
     .fail(function(data){
