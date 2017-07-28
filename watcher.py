@@ -72,6 +72,8 @@ if __name__ == '__main__':
     # set up config file on first launch
     if passed_args.conf:
         core.CONF_FILE = passed_args.conf
+    else:
+        core.CONF_FILE = os.path.join(core.PROG_PATH, core.CONF_FILE)
     from core import config
     conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
