@@ -82,11 +82,14 @@ class ScheduledTask(object):
         stop()      Stops countdown. Allows any in-process tasks to finish
         reload()    Cancels timer then calls __init__() and start(), takes same args as
                         __init__ and just passes them along to __init__
+        now()       Bypasses timer and executes function now. Starts a new timer
+                        based off the current time
 
     Class Vars: (there are more, but interact with them at your own risk)
         name (str): passed arg 'name' or name of 'task' function if not passed
-        delay (int): seconds to next execution
+        interval (int): interval between executions
         running (bool): if assigned task is currently being executed
+        last_execution (str): timestamp of last execution formatted as '%Y-%m-%d %H:%M:%S' ('2017-07-23 17:31:40')
 
     Does not return
     '''
@@ -119,11 +122,12 @@ class ScheduledTask(object):
         record = SchedulerPlugin.record.get(self.name, {}).get('lastexecution', None)
 
         if record:
+            self.last_execution = record
             le = datetime.strptime(record, '%Y-%m-%d %H:%M:%S')
             hour, minute = le.hour, le.minute
         else:
             le = datetime.today().replace(microsecond=0)
-            self.write_record(le)
+            self._write_record(le)
 
         self.delay = self._calc_delay(hour, minute, interval)
 
@@ -175,26 +179,39 @@ class ScheduledTask(object):
 
         return delay
 
-    def _task(self):
+    def _task(self, manual=False):
         ''' Executes the task fn
+        manual (bool): if task is being ran by user command     <optional - default False>
+
+        manual flag only affects logging
 
         Starts new timer based on self.interval
         Gets current time as 'le'
         Sets self.running to True, runs task, sets as False
 
         After task is finished, le is written to record. This way tasks can have
-            access to the last execution time while running.
+            access to their last execution time while running.
 
         '''
-        logging.info('== Executing Scheduled Task: {} =='.format(self.name))
+        self.running = True
+
+        if manual:
+            logging.info('== Executing Task: {} Per User Command =='.format(self.name))
+        else:
+            logging.info('== Executing Scheduled Task: {} =='.format(self.name))
+
         self.timer = Timer(self.interval, self._task)
         self.timer.start()
         le = datetime.today().replace(microsecond=0)
-        self.running = True
+
         self.task()
         self.running = False
-        self.write_record(le)
-        logging.info('== Finished Scheduled Task: {} =='.format(self.name))
+        self._write_record(le)
+
+        if manual:
+            logging.info('== Finished Task: {} =='.format(self.name))
+        else:
+            logging.info('== Finished Scheduled Task: {} =='.format(self.name))
 
     def start(self):
         self.timer.start()
@@ -255,13 +272,14 @@ class ScheduledTask(object):
 
         self.__init__(*self._init_args)
 
-    def write_record(self, le):
+    def _write_record(self, le):
         ''' Writes last execution to persistence record
         time (obj): datetime.datetime object of time to write in record
 
         Stores last execution in persistence file and SchedulerPlugin.record
 
         '''
+        self.last_execution = str(le)
         with self.lock:
             with open(self.persistence_file, 'r+') as f:
                 p = json.load(f)
@@ -270,3 +288,26 @@ class ScheduledTask(object):
                 json.dump(p, f, indent=4, sort_keys=True)
                 SchedulerPlugin.record = p
                 f.seek(0)
+
+    def now(self):
+        ''' Stops timer and executes task now
+
+        If _task isn't being executed currently, stops timer and runs task.
+
+        Raises TimerConflictError if task is alread running
+
+        Returns str last execution timestamp
+        '''
+
+        if self.running:
+            raise TimerConflictError('The task {} is currently being executed.'.format(self.name))
+        else:
+            self.timer.cancel()
+            self._task()
+            return self.last_execution
+
+
+class TimerConflictError(Exception):
+    ''' Raised when a timed task is in conflict with itself '''
+    def __init__(self, msg=None):
+        self.msg = msg if msg else 'An error occured with the timer for a scheduled task.'
