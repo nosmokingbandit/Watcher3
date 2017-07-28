@@ -5738,6 +5738,7 @@ a.thumbnail.active {
 	border: 1px solid transparent;
 	border-radius: 0;
 	border: none;
+	word-break: break-word;
 	h4 {
 		margin-top: 0;
 
@@ -6292,7 +6293,7 @@ button.list-group-item-danger.active {
 	margin-bottom: 1.25em;
 	background-color: @bg-color-main;
 	border: 1px solid transparent;
-	border-radius: 0;
+	border-radius: @border-radius;
 	>.list-group {
 		margin-bottom: 0;
 		.list-group-item {
@@ -7115,18 +7116,18 @@ button.list-group-item-danger.active {
 	margin-bottom: 1.25em;
 	background-color: @bg-color-accent;
 	border: 1px solid @border-color-main;
-	border-radius: 0;
+	border-radius: @border-radius;
 	blockquote {
 		border-color: @border-color-main;
 	}
 }
 .well-lg {
 	padding: 1em;
-	border-radius: 0;
+	border-radius: @border-radius;
 }
 .well-sm {
 	padding: 0.5em;
-	border-radius: 0;
+	border-radius: @border-radius;
 }
 .close {
 	float: right;
@@ -7214,7 +7215,7 @@ button.close {
 	background-color: @bg-color-main;
 	border: 1px solid #9e9e9e;
 	border: 1px solid transparent;
-	border-radius: 0;
+	border-radius: @border-radius;
 	-webkit-background-clip: padding-box;
 	background-clip: padding-box;
 	outline: none;
