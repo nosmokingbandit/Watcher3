@@ -73,9 +73,9 @@ def backup(require_confirm=True):
     return
 
 
-def restore(require_confirm=True):
+def restore(require_confirm=True, file='watcher.zip'):
     cwd = os.getcwd()
-    if not os.path.isfile('watcher.zip'):
+    if not os.path.isfile(file):
         print('watcher.zip not found. Place watcher.zip in same directory as backup script.')
         return
 
@@ -93,7 +93,7 @@ def restore(require_confirm=True):
     os.mkdir('backup_tmp')
 
     print('Extracting zip.')
-    zipf = zipfile.ZipFile('watcher.zip')
+    zipf = zipfile.ZipFile(file)
     zipf.extractall(tmpdir)
 
     files = os.listdir(tmpdir)
