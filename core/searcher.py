@@ -125,7 +125,6 @@ class Searcher():
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        logging.info('############# Running automatic search #############')
         if core.CONFIG['Search']['keepsearching']:
             logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = core.sql.get_user_movies()

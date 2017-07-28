@@ -37,7 +37,7 @@ class Snatcher():
         keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
         keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
 
-        logging.info('############ Running automatic snatcher for all movies ############')
+        logging.info('Running automatic snatcher for all movies.')
         movies = core.sql.get_user_movies()
         if not movies:
             return False
