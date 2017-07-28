@@ -1,14 +1,24 @@
-$(document).ready(function () {
-    $thinker = $("div#thinker");
+/* Automatically restarts server when loaded.
+
+If url has query string ?e=false, does not instruct server to restart, only checks for server to come back online
+
+*/
+
+$(document).ready(function(){
+    var qstring = new URLSearchParams(window.location.search);
+
+    var $thinker = $("div#thinker");
     $thinker.show();
 
-    $.post(url_base + "/ajax/server_status", {
-        mode: 'restart'
-    })
-    .fail(function(data){
-        var err = data.status + ' ' + data.statusText
-        $.notify({message: err}, {type: "danger", delay: 0});
-    });
+    if(qstring.get("e") !== "false"){
+        $.post(url_base + "/ajax/server_status", {
+            mode: 'restart'
+        })
+        .fail(function(data){
+            var err = data.status + ' ' + data.statusText
+            $.notify({message: err}, {type: "danger", delay: 0});
+        });
+    }
 
     /*
     This repeats every 3 seconds to check. Times out after 10 attempts and
