@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import sys
 import threading
 import time
 import cherrypy
@@ -13,6 +12,7 @@ from core.providers import torrent, newznab
 from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent, blackhole
 from core.helpers import Conversions
 from core.rss import predb
+import backup
 logging = logging.getLogger(__name__)
 
 
@@ -129,7 +129,7 @@ class Ajax(object):
 
         All dicts must contain the full tree or data will be lost.
 
-        Fires off additional methods if neccesary.
+        Fires off additional methods if neccesary, ie scheduler restart/reloads
 
         Returns dict ajax-style response
         '''
@@ -1279,3 +1279,66 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
         return core.manage.get_stats()
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def create_backup(self):
+        ''' Creates backup zip file ./watcher.zip
+
+        Returns dict ajax-style response
+        '''
+
+        try:
+            backup.backup(require_confirm=False)
+        except Exception as e:
+            logging.error('Unable to create backup.', exc_info=True)
+            return {'response': False, 'error': str(e)}
+
+        return {'response': True, 'zipfile': os.path.join(core.PROG_PATH, 'watcher.zip')}
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def restore_backup(self, fileUpload):
+        logging.info('Restoring backup from uploaded zip.')
+        n = datetime.datetime.today().microsecond
+
+        tmp_zip = os.path.join(core.PROG_PATH, 'restore_{}.zip'.format(n))
+
+        try:
+            with open(tmp_zip, 'wb') as f:
+                f.seek(0)
+                f.write(fileUpload.file.read())
+
+            logging.info('Restore zip temporarily stored as {}.'.format(tmp_zip))
+
+            backup.restore(require_confirm=False, file=tmp_zip)
+
+            logging.info('Removing temporary zip {}'.format(tmp_zip))
+            os.unlink(tmp_zip)
+
+        except Exception as e:
+            logging.error('Unable to restore backup.', exc_info=True)
+            return {'response': False}
+
+        threading.Timer(3, core.restart).start()
+        return {'response': True}
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def manual_task_execute(self, name):
+        ''' Calls task's now() function to execute task now
+        name (str): name of scheduled task to run
+
+        Returns dict ajax-style response
+        '''
+
+        try:
+            logging.info('Manually executing task {}.'.format(name))
+            task = core.scheduler_plugin.task_list[name]
+            task.now()
+
+            le = task.last_execution
+
+            return {'response': True, 'last_execution': le}
+        except Exception as e:
+            return {'response': False, 'error': str(e)}

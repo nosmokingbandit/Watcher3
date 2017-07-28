@@ -1,0 +1,169 @@
+<!DOCTYPE HTML5>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/system.css?v=06.02" rel="stylesheet">
+        <script src="${url_base}/static/js/system.js?v=07.15" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=07.15" type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/liteuploader.min.js?v=07.27" type="text/javascript"></script>
+
+        <meta name="tasks" content='${tasks}'>
+        <meta name="server_time" content="${server_time[1]}">
+    </head>
+    <body>
+        ${navbar}
+        <div class="container-fluid">
+
+            <h2>System Information</h2>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <i class="mdi mdi-clock"></i> Server Time
+                        </div>
+                        <div id="server_time" class="panel-footer">
+                            ${server_time[0]}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <i class="mdi mdi-language-python"></i> Watcher Directory
+                        </div>
+                        <div class="panel-footer">
+                            ${system['system']['path']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <i class="mdi mdi-database"></i> Database
+                            <span class="pull-right">[${system['database']['size']} KB]</span>
+                        </div>
+                        <div class="panel-footer">
+                            ${system['database']['file']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <i class="mdi mdi-settings"></i> Config
+                        </div>
+                        <div class="panel-footer">
+                            ${system['config']['file']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <i class="mdi mdi-console"></i> Launch Arugments
+                        </div>
+                        <div class="panel-footer">
+                            [Python ${system['system']['version']}]
+                            ${' '.join(system['system']['arguments'])}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Backup</h2>
+            <div class="col-md-12">
+                <a class="btn btn-default" data-toggle="modal" data-target="#modal_create_backup">
+                    <i class="mdi mdi-package-variant-closed"></i>
+                    Create Backup
+                </a>
+                <a class="btn btn-default" data-toggle="modal" data-target="#modal_restore_backup">
+                    <i class="mdi mdi-backup-restore"></i>
+                    Restore Backup
+                </a>
+            </div>
+            <br/>
+            <br/>
+
+            <h2>Task Scheduler</h2>
+            <table id="tasks" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Enabled</th>
+                        <th>Name</th>
+                        <th>Frequency</th>
+                        <th>Last Execution</th>
+                        <th>Next Execution</th>
+                        <th class="center">Execute Now</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="modal_create_backup">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Backup of Watcher?</h4>
+                    </div>
+                    <div class="modal-body">
+                        A backup will be made of your <b>database</b>, <b>posters</b>, and <b>config</b>.
+                        <div class="thinker_small">
+                            <i class="mdi mdi-circle-outline animated"></i>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                            <a class="btn btn-success" onclick="create_backup(event, this)">Create Backup</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal_restore_backup">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Restore Backup of Watcher?</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text_content">
+                            Restoring a backup will overwrite your <b>database</b>, <b>posters</b>, and <b>config</b>.
+                            <br/>
+                            This cannot be undone.
+                            <br/>
+                            <br/>
+                            Watcher will automatically restart after backup has been restored.
+                            <br/>
+                            <br/>
+                            <div class="input-group">
+                                <label class="btn btn-default input-group-btn" for="zip_file">
+                                    <input id="zip_file" type="file" name="fileUpload" class="fileUpload" style="display:none;" onchange="_restore_zip_selected(this)"></input>
+                                    <i class="mdi mdi-zip-box"></i>
+                                    Select Backup Zip
+                                </label>
+                                <input id="zip_file_input" class="form-control input-group-item" disabled></input>
+                            </div>
+                        </div>
+                        <div class="thinker_small">
+                            <i class="mdi mdi-circle-outline animated"></i>
+                        </div>
+                        <div class="progress hidden">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                            <a id="submit_restore_zip" class="btn btn-success disabled" onclick="upload_restore_zip(event, this)">Restore Backup</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

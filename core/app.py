@@ -5,6 +5,8 @@ from core.auth import AuthController
 import os
 import json
 from mako.template import Template
+import sys
+import time
 
 
 class App(object):
@@ -64,6 +66,7 @@ class App(object):
     plugins_template = Template(filename='templates/settings/plugins.html', module_directory=core.MAKO_CACHE)
     logs_template = Template(filename='templates/settings/logs.html', module_directory=core.MAKO_CACHE)
 
+    system_template = Template(filename='templates/system.html', module_directory=core.MAKO_CACHE)
     shutdown_template = Template(filename='templates/system/shutdown.html', module_directory=core.MAKO_CACHE)
     restart_template = Template(filename='templates/system/restart.html', module_directory=core.MAKO_CACHE)
     update_template = Template(filename='templates/system/update.html', module_directory=core.MAKO_CACHE)
@@ -148,11 +151,31 @@ class App(object):
             logdir = os.path.join(core.PROG_PATH, core.LOG_DIR)
             logfiles = [i for i in os.listdir(logdir) if os.path.isfile(os.path.join(logdir, i))]
             return App.logs_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), logdir=logdir, logfiles=logfiles)
+        elif page == 'system':
+            tasks = {}
+            for name, obj in core.scheduler_plugin.task_list.items():
+                tasks[name] = {'name': name,
+                               'interval': obj.interval,
+                               'last_execution': obj.last_execution,
+                               'enabled': obj.timer.is_alive()}
+
+            system = {'database': {'file': core.DB_FILE,
+                                   'size': os.path.getsize(core.DB_FILE) / 1024
+                                   },
+                      'config': {'file': core.CONF_FILE},
+                      'system': {'path': core.PROG_PATH,
+                                 'arguments': sys.argv,
+                                 'version': sys.version[:5]}
+                      }
+            t = int(time.time())
+            dt = time.strftime('%a, %B %d, %Y %H:%M:%S %z', time.localtime(t))
+
+            return App.system_template.render(url_base=core.URL_BASE, head=self.head(), navbar=self.nav_bar(current='settings'), tasks=json.dumps(tasks), system=system, server_time=[dt, t])
         else:
             return self.error_page_404()
 
     @cherrypy.expose
-    def system(self, *path):
+    def system(self, *path, **kwargs):
         if len(path) == 0:
             return self.error_page_404()
 
