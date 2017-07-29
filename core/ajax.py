@@ -324,8 +324,7 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
-        response = self.version.manager.update_check()
-        return response
+        return self.version.manager.update_check()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

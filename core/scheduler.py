@@ -287,10 +287,12 @@ class AutoUpdateCheck(object):
 
         Creates notification if updates are available.
 
-        Returns dict from core.version.Version.manager.update_check():
-            {'status': 'error', 'error': <error> }
-            {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
-            {'status': 'current'}
+        Returns tuple:
+            [0] dict from core.version.Version.manager.update_check()
+                {'status': 'error', 'error': <error> }
+                {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
+                {'status': 'current'}
+            [1] dict notification for $.notify()
         '''
 
         data = ver.manager.update_check()
@@ -332,7 +334,9 @@ class AutoUpdateCheck(object):
                 core.restart()
             else:
                 logging.info('Currently {} commits behind. Automatic install disabled'.format(core.UPDATE_STATUS['behind_count']))
-        return data
+        else:
+            notif = {}
+        return (data, notif)
 
 
 class ImdbRssSync(object):
