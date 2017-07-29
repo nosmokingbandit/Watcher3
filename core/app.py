@@ -111,7 +111,7 @@ class App(object):
                 try:
                     start_dir = os.path.expanduser("~")
                     file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
-                except PermissionError as e:
+                except Exception as e:
                     start_dir = core.PROG_PATH
                     file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
                 file_list.append('..')
