@@ -78,6 +78,7 @@ class Score():
             self.fuzzy_title(titles)
         self.score_preferred(preferred)
         logging.info('Finished scoring search results.')
+
         return self.results
 
     def reset(self):
@@ -299,6 +300,7 @@ class Score():
         lst = []
         for result in self.results:
             result_res = result['resolution']
+            logging.debug('Scoring and filtering {} based on resolution {}.'.format(result['title'], result_res))
             size = result['size'] / 1000000
             if result['type'] == 'import' and result['resolution'] == 'Unknown':
                 lst.append(result)
