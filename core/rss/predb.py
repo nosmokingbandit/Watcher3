@@ -154,7 +154,8 @@ class PreDB(object):
         for item in items:
             if year not in item:
                 continue
-            match = fuzz.partial_ratio(item, test)
+            item = item.split(year)[0] + year
+            match = fuzz.token_set_ratio(item, test)
             if match > 60:
                 logging.debug('{} matches {} at {}%'.format(item, test, match))
                 return True
