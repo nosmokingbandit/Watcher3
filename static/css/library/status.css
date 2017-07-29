@@ -52,7 +52,8 @@ ul#movie_list.posters li{
 ul#movie_list.posters li img{
     height: 15em;
     cursor: pointer;
-    margin: 0 0 0.5em 0;
+    margin: 0 auto 0.5em auto;
+    width: 100%;
 }
 
 ul#movie_list.posters span.score,
@@ -91,6 +92,7 @@ ul#movie_list.list li img{
     box-shadow: none;
     margin: 0 1em 0 0;
     float: left;
+    max-width: 4em;
 }
 
 ul#movie_list.list li span.title{
