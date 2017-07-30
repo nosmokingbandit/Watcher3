@@ -23,7 +23,7 @@ pp = postprocessing.Postprocessing()
 search = searcher.Searcher()
 imdb = imdb.ImdbRss()
 popular_feed = popularmovies.PopularMoviesFeed()
-
+trakt = trakt.Trakt()
 
 def create_plugin():
     ''' Creates plugin instance, adds tasks, and subscribes to cherrypy.engine
@@ -382,7 +382,6 @@ class PopularMoviesSync(object):
 
 class TraktSync(object):
     ''' Scheduled task to automatically sync selected Trakt lists '''
-    trakt = trakt.Trakt()
 
     @staticmethod
     def create():
@@ -402,5 +401,5 @@ class TraktSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, TraktSync.trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
+        taskscheduler.ScheduledTask(hr, min, interval, trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
         return

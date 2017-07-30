@@ -20,59 +20,61 @@ def create():
     Does not return
     '''
     global on
-    if core.CONFIG['Server']['Proxy']['enabled']:
-        host = core.CONFIG['Server']['Proxy']['host']
-        port = core.CONFIG['Server']['Proxy']['port']
-        user = core.CONFIG['Server']['Proxy']['user'] or None
-        password = core.CONFIG['Server']['Proxy']['pass'] or None
+    if not core.CONFIG['Server']['Proxy']['enabled']:
+        return
 
-        if core.CONFIG['Server']['Proxy']['type'] == 'socks5':
-            logging.info('Creating socket for SOCKS5 proxy at {}:{}'.format(host, port))
-            if user and password:
-                addr = 'socks5://{}:{}@{}:{}'.format(user, password, host, port)
-            else:
-                addr = 'socks5://{}:{}'.format(host, port)
+    logging.info('Creating proxy connection.')
 
-            proxies = {'http': addr, 'https': addr}
-            Url.proxies = proxies
+    host = core.CONFIG['Server']['Proxy']['host']
+    port = core.CONFIG['Server']['Proxy']['port']
+    user = core.CONFIG['Server']['Proxy']['user'] or None
+    password = core.CONFIG['Server']['Proxy']['pass'] or None
 
-            on = True
-        elif core.CONFIG['Server']['Proxy']['type'] == 'socks4':
-            logging.info('Creating socket for SOCKS4 proxy at {}:{}'.format(host, port))
-            if user and password:
-                addr = 'socks4://{}:{}@{}:{}'.format(user, password, host, port)
-            else:
-                addr = 'socks4://{}:{}'.format(host, port)
-
-            proxies = {'http': addr, 'https': addr}
-            Url.proxies = proxies
-
-            on = True
-        elif core.CONFIG['Server']['Proxy']['type'] == 'http(s)':
-            logging.info('Creating HTTP(S) proxy at {}:{}'.format(host, port))
-            protocol = host.split(':')[0]
-
-            proxies = {}
-
-            if user and password:
-                url = '{}:{}@{}:{}'.format(user, password, host, port)
-            else:
-                url = '{}:{}'.format(host, port)
-
-            proxies['http'] = url
-
-            if protocol == 'https':
-                proxies['https'] = url
-            else:
-                logging.warning('HTTP-only proxy. HTTPS traffic will not be tunneled through proxy.')
-
-            Url.proxies = proxies
-
-            on = True
+    if core.CONFIG['Server']['Proxy']['type'] == 'socks5':
+        logging.info('Creating socket for SOCKS5 proxy at {}:{}'.format(host, port))
+        if user and password:
+            addr = 'socks5://{}:{}@{}:{}'.format(user, password, host, port)
         else:
-            logging.warning('Invalid proxy type {}'.format(core.CONFIG['Server']['Proxy']['type']))
-            return
+            addr = 'socks5://{}:{}'.format(host, port)
+
+        proxies = {'http': addr, 'https': addr}
+        Url.proxies = proxies
+
+        on = True
+    elif core.CONFIG['Server']['Proxy']['type'] == 'socks4':
+        logging.info('Creating socket for SOCKS4 proxy at {}:{}'.format(host, port))
+        if user and password:
+            addr = 'socks4://{}:{}@{}:{}'.format(user, password, host, port)
+        else:
+            addr = 'socks4://{}:{}'.format(host, port)
+
+        proxies = {'http': addr, 'https': addr}
+        Url.proxies = proxies
+
+        on = True
+    elif core.CONFIG['Server']['Proxy']['type'] == 'http(s)':
+        logging.info('Creating HTTP(S) proxy at {}:{}'.format(host, port))
+        protocol = host.split(':')[0]
+
+        proxies = {}
+
+        if user and password:
+            url = '{}:{}@{}:{}'.format(user, password, host, port)
+        else:
+            url = '{}:{}'.format(host, port)
+
+        proxies['http'] = url
+
+        if protocol == 'https':
+            proxies['https'] = url
+        else:
+            logging.warning('HTTP-only proxy. HTTPS traffic will not be tunneled through proxy.')
+
+        Url.proxies = proxies
+
+        on = True
     else:
+        logging.warning('Invalid proxy type {}'.format(core.CONFIG['Server']['Proxy']['type']))
         return
 
 
@@ -82,6 +84,7 @@ def destroy():
 
     Does not return
     '''
+    logging.info('Closing proxy connection.')
     global on
     if on:
         Url.proxies = None
@@ -104,7 +107,7 @@ def whitelist(url):
 
     for i in whitelist:
         if url.startswith(i.strip()):
-            logging.info('Bypassing proxy for whitelist url {}'.format(url))
+            logging.info('{} in proxy whitelist, will bypass proxy connection.'.format(url))
             return True
         else:
             continue

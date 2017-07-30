@@ -17,6 +17,8 @@ def add(data, type_='success'):
     Does not return
     '''
 
+    logging.info('Adding notification to queue.')
+
     options = {'title': '',
                'message': '',
                'type': None
@@ -28,7 +30,6 @@ def add(data, type_='success'):
 
     options.update(data)
 
-    logging.debug('Creating new notification:')
     logging.debug(options)
 
     # if it already exists, ignore it
@@ -72,7 +73,7 @@ def remove(index):
     Does not return
     '''
 
-    logging.debug('Remove notification #{}.'.format(index))
+    logging.info('Remove notification #{}.'.format(index))
     try:
         core.NOTIFICATIONS[int(index)] = None
     except Exception as e:

@@ -70,7 +70,7 @@ def render_config(config):
     return html
 
 
-''' The next group of methods all generate the actual html for a V2 config file
+''' The next group of private methods all generate the actual html for a V2 config file
 All take one argument, config (dict), which is a dictionary of the config for that datatype
 
 All return a string of html

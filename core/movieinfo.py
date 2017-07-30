@@ -56,6 +56,8 @@ class TMDB(object):
         Returns list of dicts of individual movies from the find_x function.
         '''
 
+        logging.info('Searching TheMovieDB for {}'.format(search_term))
+
         if search_term[:2] == 'tt' and search_term[2:].isdigit():
             movies = self._search_imdbid(search_term)
         elif search_term.isdigit():
@@ -64,6 +66,7 @@ class TMDB(object):
             movies = self._search_title(search_term)
 
         if not movies:
+            logging.info('Nothing found on TheMovieDatabase for {}'.format(search_term))
             return []
         if single:
             return movies[0:1]
@@ -78,6 +81,8 @@ class TMDB(object):
 
         Returns list of results
         '''
+
+        logging.info('Searching TheMovieDB for title: {}.'.format(title))
 
         title = Url.normalize(title)
 
@@ -112,6 +117,8 @@ class TMDB(object):
         Returns list of results
         '''
 
+        logging.info('Searching TheMovieDB for IMDB ID: {}.'.format(imdbid))
+
         url = 'https://api.themoviedb.org/3/find/{}?language=en-US&external_source=imdb_id&append_to_response=alternative_titles,external_ids,release_dates'.format(imdbid)
 
         logging.info('Searching TMDB {}'.format(url))
@@ -139,6 +146,8 @@ class TMDB(object):
 
         Returns list of results
         '''
+
+        logging.info('Searching TheMovieDB for TMDB ID: {}.'.format(tmdbid))
 
         url = 'https://api.themoviedb.org/3/movie/{}?language=en-US&append_to_response=alternative_titles,external_ids,release_dates'.format(tmdbid)
 
@@ -203,8 +212,6 @@ class TMDB(object):
 
         url = 'https://api.themoviedb.org/3/movie/{}?api_key={}'.format(tmdbid, _k(b'tmdb'))
 
-        while self.get_tokens() < 3:
-            sleep(0.3)
         self.use_token()
 
         try:
@@ -224,6 +231,8 @@ def trailer(title_date):
 
     Returns str
     '''
+
+    logging.info('Getting trailer url from YouTube for {}'.format(title_date))
 
     search_term = Url.normalize((title_date + '+trailer'))
 
