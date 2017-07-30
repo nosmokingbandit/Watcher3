@@ -23,6 +23,7 @@ class Trakt(object):
 
         Returns bool for success/failure
         '''
+        logging.info('Syncing Trakt lists.')
 
         success = True
 
@@ -35,11 +36,11 @@ class Trakt(object):
                 continue
             movies += [i for i in self.get_list(k, min_score=min_score, length=length) if i not in movies]
 
-        logging.info('Found {} movies from Trakt lists.'.format(len(movies)))
-
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
 
         movies = [i for i in movies if i['ids']['imdb'] not in library]
+
+        logging.info('Found {} new movies from Trakt lists.'.format(len(movies)))
 
         for i in movies:
             imdbid = i['ids']['imdb']
@@ -62,6 +63,8 @@ class Trakt(object):
         Returns list of dicts of movie info
         '''
 
+        logging.info('Getting Trakt list {}'.format(list_name))
+
         headers = {'Content-Type': 'application/json',
                    'trakt-api-version': '2',
                    'trakt-api-key': Comparisons._k(b'trakt')
@@ -71,7 +74,6 @@ class Trakt(object):
             logging.error('Invalid list_name {}'.format(list_name))
             return []
 
-        logging.info('Getting Trakt list {}'.format(list_name))
         url = 'https://api.trakt.tv/movies/{}/?extended=full'.format(list_name)
 
         try:

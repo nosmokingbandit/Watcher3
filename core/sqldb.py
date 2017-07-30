@@ -106,9 +106,11 @@ class SQL(object):
 
         Does not return. DO NOT supress exceptions, this MUST succeed for Watcer to start.
         '''
+        logging.info('Creating Database tables.')
         print('Creating tables.')
         self.metadata.create_all(self.engine)
         self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+        logging.info('Connected to database {}'.format(DB_NAME))
         print('Connected to database {}'.format(DB_NAME))
         return
 
@@ -128,6 +130,8 @@ class SQL(object):
 
         Returns object sqlalchemy ResultProxy of command, or None if unable to execute
         '''
+
+        logging.debug('Executing SQL command: {}'.format(command))
 
         tries = 0
         while tries < 5:
@@ -207,7 +211,7 @@ class SQL(object):
         Returns Bool.
         '''
 
-        logging.debug('Updating {} to {} for col {}:{} in {}.'.format(COLUMN, VALUE, idcol, idval.split('&')[0], TABLE))
+        logging.debug('Updating {} to {} for rows that match {}:{} in {}.'.format(COLUMN, VALUE, idcol, idval.split('&')[0], TABLE))
 
         sql = 'UPDATE {} SET {}=? WHERE {}=?'.format(TABLE, COLUMN, idcol)
         vals = (VALUE, idval)
@@ -239,7 +243,7 @@ class SQL(object):
         else:
             return False
 
-        logging.debug('Updating {} to {} in {}.'.format(idval.split('&')[0], data, TABLE))
+        logging.debug('Updating {}:{} to {} in {}.'.format(idcol, idval.split('&')[0], data, TABLE))
 
         columns = '{}=?'.format('=?,'.join(data.keys()))
 
@@ -325,7 +329,7 @@ class SQL(object):
         Returns dict of first match
         '''
 
-        logging.debug('Retrieving details for {}.'.format(idval))
+        logging.debug('Retrieving details for movie {}.'.format(idval))
 
         command = ['SELECT * FROM MOVIES WHERE {}="{}"'.format(idcol, idval)]
 
@@ -353,12 +357,12 @@ class SQL(object):
         Returns list of dicts for all SEARCHRESULTS that match imdbid
         '''
 
+        logging.debug('Retrieving Search Results for {}.'.format(imdbid))
+
         if quality in core.CONFIG['Quality']['Profiles'] and core.CONFIG['Quality']['Profiles'][quality]['prefersmaller']:
             sort = 'ASC'
         else:
             sort = 'DESC'
-
-        logging.debug('Retrieving Search Results for {}.'.format(imdbid))
 
         command = ['SELECT * FROM SEARCHRESULTS WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(imdbid, sort)]
 
@@ -404,7 +408,7 @@ class SQL(object):
         Returns bool (True/False on success or None if movie not found)
         '''
 
-        logging.debug('Removing {} from {}.'.format(imdbid, 'MOVIES'))
+        logging.debug('Removing {} from database.'.format(imdbid))
 
         if not self.row_exists('MOVIES', imdbid=imdbid):
             return None
@@ -412,9 +416,7 @@ class SQL(object):
         if not self.delete('MOVIES', 'imdbid', imdbid):
             return False
 
-        logging.debug('Removing any stored search results for {}.'.format(imdbid))
-
-        if self.row_exists('SEARCHRESULTS', imdbid):
+        if self.row_exists('SEARCHRESULTS', imdbid=imdbid):
             if not self.purge_search_results(imdbid=imdbid):
                 return False
 
@@ -452,8 +454,10 @@ class SQL(object):
         '''
 
         if imdbid:
+            logging.debug('Purging search results for {}'.format(imdbid))
             command = ['DELETE FROM SEARCHRESULTS WHERE imdbid="{}"'.format(imdbid)]
         else:
+            logging.debug('Purging search results for all movies.')
             command = ['DELETE FROM SEARCHRESULTS']
 
         if self.execute(command):
@@ -514,9 +518,10 @@ class SQL(object):
         elif downloadid:
             idcol = 'downloadid'
             idval = downloadid
-
         else:
             return 'ID ERROR'
+
+        logging.debug('Checking if {}:{} exists in database table {}'.format(idcol, idval, TABLE))
 
         command = ['SELECT 1 FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)]
 
@@ -556,6 +561,7 @@ class SQL(object):
 
         Returns dict
         '''
+        logging.debug('Getting existing database schema.')
         table_dict = {}
 
         # get list of tables in db:
@@ -587,6 +593,7 @@ class SQL(object):
 
         Returns dict
         '''
+        logging.debug('Getting intended database schema.')
 
         d = {}
         for table in self.metadata.tables.keys():
@@ -607,6 +614,8 @@ class SQL(object):
         Returns Bool
         '''
 
+        logging.info('Checking if database needs to be updated.')
+
         for i in self.get_user_movies():
             p = i['poster']
             if p and 'poster/' in p:
@@ -621,6 +630,7 @@ class SQL(object):
             return True
 
         print('Database update required. This may take some time.')
+        logging.info('Updating database schema.')
 
         backup_dir = os.path.join(core.PROG_PATH, 'db')
         logging.debug('Backing up database to {}.'.format(backup_dir))

@@ -35,6 +35,8 @@ class Score():
         Returns list of result dicts
         '''
 
+        logging.info('Scoring {} search results.'.format(len(results)))
+
         if imdbid is None and imported is False:
             logging.warning('Imdbid required if result is not library import.')
             return results
@@ -44,6 +46,7 @@ class Score():
         if imported is False:
             movie_details = core.sql.get_movie_details('imdbid', imdbid)
             quality_profile = movie_details['quality']
+            logging.debug('Scoring based on quality profile {}'.format(quality_profile))
 
             titles = (movie_details['alternative_titles'] or '').split(',') + [movie_details['title']]
             check_size = True
@@ -52,6 +55,7 @@ class Score():
             else:
                 quality = core.CONFIG['Quality']['Profiles']['Default']
         else:
+            logging.debug('Search results are Imports, using custom Default quality profile.')
             titles = []
             check_size = False
             quality = self.import_quality()
@@ -63,8 +67,6 @@ class Score():
         required = [i.split('&') for i in quality['requiredwords'].lower().replace(' ', '').split(',') if i != '']
         preferred = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
         ignored = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
-
-        logging.info('Scoring {} results.'.format(len(self.results)))
 
         # These all just modify self.results
         self.reset()
@@ -83,6 +85,7 @@ class Score():
 
     def reset(self):
         ''' Sets all result's scores to 0 '''
+        logging.debug('Resetting release scores to 0.')
         for i, d in enumerate(self.results):
             self.results[i]['score'] = 0
 
@@ -214,8 +217,10 @@ class Score():
 
         Does not return
         '''
+        logging.info('Adding Freeleech points.')
         for res in self.results:
             if res['freeleech'] == 1:
+                logging.debug('Adding {} points to {}.'.format(points, res['title']))
                 res['score'] += points
 
     def score_preferred(self, group_list):
@@ -261,18 +266,22 @@ class Score():
 
         lst = []
         if titles == []:
+            logging.debug('No titles available to compare, scoring all as perfect match.')
             for result in self.results:
                 result['score'] += 20
                 lst.append(result)
         else:
             for result in self.results:
                 if result['type'] == 'import' and result not in lst:
+                    logging.debug('{} is an Import, soring as a perfect match.'.format(result['title']))
                     result['score'] += 20
                     lst.append(result)
                     continue
                 test = Url.normalize(result['title'])
+
+                logging.debug('Comparing release {} with titles {}.'.format(result['title'], titles))
                 matches = [fuzz.partial_ratio(Url.normalize(title), test) for title in titles]
-                if any([match > 70 for match in matches]):
+                if any(match > 70 for match in matches):
                     result['score'] += int(max(matches) / 5)
                     lst.append(result)
                 else:
@@ -364,6 +373,8 @@ def generate_simulacrum(movie):
 
     Resturns dict to match SEARCHRESULTS table
     '''
+
+    logging.info('Creating "fake" search result for imported movie {}'.format(movie['title']))
 
     result = {'status': 'Finished',
               'info_link': '#',

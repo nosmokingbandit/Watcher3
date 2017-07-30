@@ -195,8 +195,6 @@ function upload_restore_zip(event, elem){
 function execute_task(event, elem, name){
     event.preventDefault();
 
-    console.log('*')
-
     var $this = $(elem);
     var $tr = $this.closest("tr");
     var $btns = $("i.task_execute");

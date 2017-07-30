@@ -34,14 +34,18 @@ class Searcher():
 
         Returns Bool
         '''
+        logging.info('Checking for vereified releases for {}'.format(movie['title']))
+
         now = datetime.datetime.today()
 
         if core.CONFIG['Search']['verifyreleases'] == '':
             verified = True
         elif not movie.get('release_date'):
+            logging.info('{} does not have a theatrical release date, skipping verification check as Unverified.'.format(movie['title']))
             verified = False
 
         elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < now:
+            logging.info('{} is older than {}, skipping verification check as Verified.'.format(movie['title'], core.CONFIG['Search']['verifyreleasesskipweeks']))
             verified = True
 
         elif core.CONFIG['Search']['verifyreleases'] == 'predb':
@@ -55,6 +59,7 @@ class Searcher():
                 logging.debug('Resetting predb backlog status for unfound movie {} {}'.format(movie['title'], movie['year']))
                 core.sql.update('MOVIES', 'predb_backlog', None, 'imdbid', movie['imdbid'])
             if not movie.get('media_release_date'):
+                logging.info('{} does not yet have a home media release date.')
                 verified = False
             else:
                 media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
@@ -83,6 +88,7 @@ class Searcher():
 
         Does not return
         '''
+        logging.info('Executing automatic search/grab for {}.'.format(movie['title']))
 
         imdbid = movie['imdbid']
         title = movie['title']
@@ -120,13 +126,12 @@ class Searcher():
 
         Does not return
         '''
+        logging.info('Executing search/grab for all movies.')
 
         interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
         now = datetime.datetime.today().replace(second=0, microsecond=0)
         core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
 
-        if core.CONFIG['Search']['keepsearching']:
-            logging.info('Search for Finished movies enabled. Will search again for any movie that has finished in the last {} days.'.format(core.CONFIG['Search']['keepsearchingdays']))
         movies = core.sql.get_user_movies()
         if not movies:
             return
@@ -178,6 +183,8 @@ class Searcher():
 
         Returns Bool if movie is found.
         '''
+
+        logging.info('Performing backlog search for {} {}.'.format(title, year))
         proxy.create()
 
         results = []
@@ -247,6 +254,8 @@ class Searcher():
 
         Returns bool
         '''
+        logging.info('Syncing indexer RSS feeds.')
+
         newznab_results = []
         torrent_results = []
 
@@ -264,6 +273,8 @@ class Searcher():
             title = movie['title']
             year = movie['year']
 
+            logging.info('Parsing RSS for {} {}'.format(title, year))
+
             nn_found = [i for i in newznab_results if i['imdbid'] == imdbid]
 
             tor_found = [i for i in torrent_results if self._match_torrent_name(title, year, i['title'])]
@@ -274,6 +285,7 @@ class Searcher():
             results = nn_found + tor_found
 
             if not results:
+                logging.info('Nothing found in RSS for {} {}'.format(title, year))
                 continue
 
             # Ignore results we've already stored
@@ -321,6 +333,8 @@ class Searcher():
         Returns list of search results to keep
         '''
 
+        logging.info('Filtering releases based on enabled newznab indexers.')
+
         active = []
         for i in core.CONFIG['Indexers']['NewzNab'].values():
             if i[2] is True:
@@ -364,6 +378,7 @@ class Searcher():
             BATCH_DB_STRING.append(DB_STRING)
 
         if backlog:
+            logging.info('Storing backlog search results -- purging existing results before writing to database.')
             core.sql.purge_search_results(imdbid=imdbid)
 
         if BATCH_DB_STRING:
@@ -381,6 +396,8 @@ class Searcher():
         Returns str source based on core.SOURCES
         '''
 
+        logging.info('Determining source media for {}'.format(result['title']))
+
         title = result['title']
         if any(i in title for i in ('4K', 'UHD', '2160P')):
             resolution = '4K'
@@ -392,17 +409,17 @@ class Searcher():
             resolution = 'SD'
 
         delimiters = ('.', '_', ' ', '-', '+')
-        brk = False
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
             for a in aliases:
                 aliases_delimited = ['{}{}'.format(d, a) for d in delimiters]
                 if any(i in title.lower() for i in aliases_delimited):
-                    return '{}-{}'.format(source, resolution)
-                    brk = True
-                    break
-            if brk is True:
-                break
-        return 'Unknown-{}'.format(resolution)
+                    src = '{}-{}'.format(source, resolution)
+                    logging.info('Source media determined as {}'.format(src))
+                    return src
+
+        src = 'Unknown-{}'.format(source, resolution)
+        logging.info('Source media determined as {}'.format(src))
+        return src
 
     def _get_rss_movies(self, movies):
         ''' Gets list of movies that we'll look in the rss feed for
@@ -414,6 +431,8 @@ class Searcher():
 
         Returns list of dicts of movies that require backlog search
         '''
+        logging.info('Picking movies to look for in RSS feed.')
+
         today = datetime.datetime.today()
         keepsearching = core.CONFIG['Search']['keepsearching']
         keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
@@ -432,7 +451,7 @@ class Searcher():
             if status in ('Wanted', 'Found', 'Snatched'):
                 rss_movies.append(i)
                 logging.info('{} {} is {}. Will look for new releases in RSS feed.'.format(title, year, status))
-            if status == 'Finished' and keepsearching is True:
+            elif status == 'Finished' and keepsearching is True:
                 if not i['finished_date']:
                     continue
                 finished_date_obj = datetime.datetime.strptime(i['finished_date'], '%Y-%m-%d')

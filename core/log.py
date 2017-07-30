@@ -4,6 +4,13 @@ import os
 
 import core
 
+'''
+Logging rules:
+
+Every function/method call should start with a log entry unless it simply calls another function that enters its own log
+
+'''
+
 
 def start(path):
     ''' Starts logging service

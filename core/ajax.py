@@ -1329,6 +1329,9 @@ class Ajax(object):
         ''' Calls task's now() function to execute task now
         name (str): name of scheduled task to run
 
+        Response includes core.NOTIFICATIONS so the browser can display any
+            notifications generated during the task.
+
         Returns dict ajax-style response
         '''
 
@@ -1339,6 +1342,6 @@ class Ajax(object):
 
             le = task.last_execution
 
-            return {'response': True, 'last_execution': le}
+            return {'response': True, 'last_execution': le, 'notifications': core.NOTIFICATIONS}
         except Exception as e:
             return {'response': False, 'error': str(e)}

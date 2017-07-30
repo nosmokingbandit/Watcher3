@@ -21,6 +21,8 @@ ver = version.Version()
 md = Metadata()
 pp = postprocessing.Postprocessing()
 search = searcher.Searcher()
+imdb = imdb.ImdbRss()
+popular_feed = popularmovies.PopularMoviesFeed()
 
 
 def create_plugin():
@@ -28,6 +30,7 @@ def create_plugin():
 
     Does not return
     '''
+    logging.info('Initializing scheduler plugin.')
     core.scheduler_plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
     AutoSearch.create()
     AutoUpdateCheck.create()
@@ -119,22 +122,23 @@ class PostProcessingScan(object):
     @staticmethod
     def scan_directory():
         ''' Method to scan directory for movies to process '''
+
         conf = core.CONFIG['Postprocessing']['Scanner']
         d = conf['directory']
 
-        t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('lastexecution')
-        if not t:
-            logging.warning('Unable to scan directory, last scan timestamp unknown.')
-            return
-
-        le = datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S')
-        threshold = time.mktime(le.timetuple())
+        logging.info('Scanning {} for movies to process.'.format(d))
 
         if conf['newfilesonly']:
-            logging.info('Scanning {} for new files to process (last scan: {}).'.format(d, le))
+            t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('lastexecution')
+            if not t:
+                logging.warning('Unable to scan directory, last scan timestamp unknown.')
+                return
+            le = datetime.datetime.strptime(t, '%Y-%m-%d %H:%M:%S')
+            threshold = time.mktime(le.timetuple())
+
+            logging.info('Scanning for new files only (last scan: {}).'.format(d, le))
             files = [os.path.join(d, i) for i in os.listdir(d) if os.path.join(d, i).getmtime() > threshold]
         else:
-            logging.info('Scanning {} for movies to process.'.format(d))
             files = [os.path.join(d, i) for i in os.listdir(d)]
 
         if not files:
@@ -153,7 +157,7 @@ class PostProcessingScan(object):
                 logging.info('Found match for {} in releases: {}.'.format(fname, r['title']))
             else:
                 r['guid'] = 'POSTPROCESSING{}'.format(b16encode(fname.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
-                logging.warning('Unable to find match in database for {}.'.format(fname))
+                logging.info('Unable to find match in database for {}, release cannot be marked as Finished.'.format(fname))
 
             d = {'apikey': core.CONFIG['Server']['apikey'],
                  'mode': 'complete',
@@ -208,6 +212,7 @@ class MetadataUpdate(object):
             this field is filled all other fields should be populated.
 
         '''
+        logging.info('Updating library metadata.')
 
         movies = core.sql.get_user_movies()
 
@@ -236,6 +241,7 @@ class MetadataUpdate(object):
 
             with open(clean_file, 'a+'):
                 pass
+        ''' end removable block '''
 
         u = []
         for i in movies:
@@ -292,6 +298,8 @@ class AutoUpdateCheck(object):
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
             {'status': 'current'}
         '''
+
+        logging.info('Checking for updates.')
 
         data = ver.manager.update_check()
         # if data['status'] == 'current', nothing to do.
@@ -350,13 +358,7 @@ class ImdbRssSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, ImdbRssSync.imdb_sync, auto_start=auto_start, name='IMDB Sync')
-        return
-
-    @staticmethod
-    def imdb_sync():
-        imdb_rss = imdb.ImdbRss()
-        imdb_rss.get_rss()
+        taskscheduler.ScheduledTask(hr, min, interval, imdb.get_rss, auto_start=auto_start, name='IMDB Sync')
         return
 
 
@@ -374,13 +376,7 @@ class PopularMoviesSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, PopularMoviesSync.popularmovies_sync, auto_start=auto_start, name='PopularMovies Sync')
-        return
-
-    @staticmethod
-    def popularmovies_sync():
-        popular_feed = popularmovies.PopularMoviesFeed()
-        popular_feed.get_feed()
+        taskscheduler.ScheduledTask(hr, min, interval, popular_feed.get_feed, auto_start=auto_start, name='PopularMovies Sync')
         return
 
 

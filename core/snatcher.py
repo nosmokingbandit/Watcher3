@@ -30,6 +30,7 @@ class Snatcher():
 
         Returns bool (False is no movies to grab, True if any movies were attempted)
         '''
+        logging.info('Running automatic snatcher for all movies.')
 
         today = datetime.datetime.today()
         keepsearching = core.CONFIG['Search']['keepsearching']
@@ -37,13 +38,13 @@ class Snatcher():
         keepsearchingdays = core.CONFIG['Search']['keepsearchingdays']
         keepsearchingdelta = datetime.timedelta(days=keepsearchingdays)
 
-        logging.info('Running automatic snatcher for all movies.')
         movies = core.sql.get_user_movies()
         if not movies:
             return False
         for movie in movies:
             status = movie['status']
             if status == 'Disabled':
+                logging.debug('{} is Disabled, skipping.'.format(movie['title']))
                 continue
             title = movie['title']
             year = movie['year']
@@ -83,6 +84,8 @@ class Snatcher():
         Returns dict of search result from local database
         '''
 
+        logging.info('Selecting best release for {}'.format(movie['title']))
+
         try:
             imdbid = movie['imdbid']
             quality = movie['quality']
@@ -117,21 +120,21 @@ class Snatcher():
         earliest_found = min([x['date_found'] for x in search_results])
         date_found = datetime.datetime.strptime(earliest_found, '%Y-%m-%d')
         if (today - date_found).days < wait_days:
-            logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
             if core.CONFIG['Search']['skipwait'] and release_weeks_old > core.CONFIG['Search']['skipwaitweeks']:
                     logging.info('{} released {} weeks ago, skipping wait and grabbing immediately.'.format(title, release_weeks_old))
             else:
+                logging.info('Earliest found result for {} is {}, waiting {} days to grab best result.'.format(imdbid, date_found, wait_days))
                 return {}
 
         # Since seach_results comes back in order of score we can go through in
         # order until we find the first Available result and grab it.
-        logging.info('Selecting best result for {}'.format(imdbid))
         for result in search_results:
             result = dict(result)  # TODO why?
             status = result['status']
             result['year'] = year
 
             if status == 'Available' and result['score'] > minscore:
+                logging.info('{} is best available result for {}'.format(result['title'], title))
                 return result
             # if doing a re-search, if top ranked result is Snatched we have nothing to do.
             elif status in ('Snatched', 'Finished'):
@@ -153,6 +156,7 @@ class Snatcher():
 
         Returns dict from helper method snatch_nzb or snatch_torrent
         '''
+        logging.info('Sending {} to download client.'.format(data['title']))
 
         if data['type'] == 'import':
             return {'response': False, 'error': 'Cannot download imports.'}
@@ -416,6 +420,7 @@ class Snatcher():
 
         Returns bool
         '''
+        logging.info('Updating {} to Snatched.'.format(imdbid))
 
         if not core.manage.searchresults(guid, 'Snatched'):
             logging.error('Unable to update search result status to Snatched.')

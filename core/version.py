@@ -44,6 +44,9 @@ class Git(object):
         command = ['git']
         for i in args.split(' '):
             command.append(i)
+
+        logging.debug('Executing Git command: {}'.format(command))
+
         try:
             if core.PLATFORM == 'windows':
                 p = subprocess.Popen(command,
@@ -68,7 +71,7 @@ class Git(object):
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logging.error('Subprocess:', exc_info=True)
+            logging.error('Subprocess error.', exc_info=True)
             err = str(e)
             return (err, 'Subprocess error.', 1)
 
@@ -77,6 +80,7 @@ class Git(object):
 
         Returns tuple: (str hash, str error, int exit_code)
         '''
+        logging.debug('Retreiving local commit hash.')
         command = 'rev-parse HEAD'
         output, error, status = self.runner(command)
         return (output, error, status)
@@ -86,6 +90,7 @@ class Git(object):
 
         Returns tuple: (list hash history, str error, int exit_status)
         '''
+        logging.debug('Retreiving commit hash history.')
         command = 'rev-list @{u}'
         output, error, status = self.runner(command)
         output = output.splitlines()
@@ -96,6 +101,8 @@ class Git(object):
 
         Returns: tuple (str git version, str error, int exit_status)
         '''
+        logging.debug('Checking Git execution permission.')
+
         command = 'version'
         output, error, status = self.runner(command)
         output = output.splitlines()
@@ -106,6 +113,7 @@ class Git(object):
 
         Returns: tuple (str b'', str error, int exit_status)
         '''
+        logging.debug('Fetching latest Git info.')
         command = 'fetch'
         output, error, status = self.runner(command)
         return (output, error, status)
@@ -115,6 +123,7 @@ class Git(object):
 
         Returns: tuple (str merge result, str error, int exit_status)
         '''
+        logging.debug('Pulling latest commit.')
         command = 'pull'
         output, error, status = self.runner(command)
         return (output, error, status)
@@ -123,6 +132,7 @@ class Git(object):
 class GitUpdater(object):
 
     def __init__(self, branch):
+        logging.debug('Setting updater to Git.')
         self.git = Git()
 
         if self._git_available:
@@ -151,7 +161,6 @@ class GitUpdater(object):
         '''
         logging.info('Updating from Git.')
 
-        logging.info('Executing git fetch.')
         fetch = self.git.fetch()
         if fetch[2] == 1:
             logging.error('Error fetching data from git: {}'.format(fetch[1]))
@@ -160,7 +169,6 @@ class GitUpdater(object):
         # reset update status so it doesn't ask us to update again
         core.UPDATE_STATUS = None
 
-        logging.info('Executing git pull.')
         pull = self.git.pull()
 
         if pull[2] == 1:
@@ -225,11 +233,14 @@ class GitUpdater(object):
             behind_count = commit_list.index(local_hash)
             # if it is the first result we are up to date
             if behind_count == 0:
+                logging.debug('Watcher is up to date.')
                 result['status'] = 'current'
                 core.UPDATE_STATUS = result
                 return result
             # if not, find out how far behind we are
             else:
+                logging.debug('{} updates are available -- latest commit: {}.'.format(behind_count, commit_list[0]))
+
                 result['status'] = 'behind'
                 result['behind_count'] = behind_count
                 result['local_hash'] = local_hash
@@ -254,6 +265,7 @@ class ZipUpdater(object):
     '''
 
     def __init__(self, branch):
+        logging.debug('Setting updater to Zip.')
         self.branch = branch
         self.version_file = os.path.join('core', 'version')
         self.current_hash = self.get_current_hash()
@@ -270,6 +282,7 @@ class ZipUpdater(object):
 
         Returns str current hash version
         '''
+        logging.debug('Retreiving local commit hash.')
 
         if os.path.isfile(self.version_file):
             with open(self.version_file, 'r') as f:
@@ -308,22 +321,21 @@ class ZipUpdater(object):
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
             {'status': 'current'}
         '''
+        logging.info('Checking git for a new Zip.')
 
         os.chdir(core.PROG_PATH)
-        logging.info('Checking git for a new Zip.')
         core.UPDATE_LAST_CHECKED = datetime.datetime.now()
 
         result = {}
 
-        logging.info('Getting local version hash.')
         local_hash = self.current_hash
         if not local_hash:
+            logging.warning('Unable to check for updates, current hash is unknown.')
             result['status'] = 'error'
             result['error'] = 'Could not get local hash. Check logs for details.'
             core.UPDATE_STATUS = result
             return result
 
-        logging.info('Getting newest version hash.')
         newest_hash = self.get_newest_hash()
         if not newest_hash:
             result['status'] = 'error'
@@ -346,10 +358,13 @@ class ZipUpdater(object):
             return result
 
         if behind_count == 0:
+            logging.debug('Watcher is up to date.')
             result['status'] = 'current'
             core.UPDATE_STATUS = result
             return result
         else:
+            logging.debug('{} updates are available -- latest commit: {}.'.format(behind_count, commit_list[0]))
+
             result['status'] = 'behind'
             result['behind_count'] = behind_count
             result['local_hash'] = local_hash
@@ -366,6 +381,7 @@ class ZipUpdater(object):
 
         Returns object current log handler object (prior to running this method)
         '''
+        logging.debug('Switching to temporary log handler while updating.')
 
         import logging.handlers
 
@@ -392,13 +408,12 @@ class ZipUpdater(object):
 
         Returns bool
         '''
+        logging.info('Updating from Zip file.')
 
         os.chdir(core.PROG_PATH)
         update_zip = 'update.zip'
         update_path = 'update'
         new_hash = self.get_newest_hash()
-
-        logging.info('Updating from Zip file.')
 
         logging.info('Cleaning up old update files.')
         try:
@@ -436,7 +451,7 @@ class ZipUpdater(object):
             logging.error('Could not extract Zip.', exc_info=True)
             return False
 
-        logging.info('Backing up user files.')
+        logging.info('Backing up user\'s files.')
         backup.backup(require_confirm=False)
 
         # reset update status so it doesn't ask us to update again

@@ -61,8 +61,8 @@ class PopularMoviesFeed(object):
 
         # do quick-add procedure
         for movie in movies_to_add:
-            imdbid = movie['imdbid']
-            movie = self.tmdb._search_imdbid(imdbid)[0]
+            imdbid = movie['imdb_id']
+            movie = self.tmdb._search_imdbid(imdbid)
             if not movie:
                 logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
                 continue
