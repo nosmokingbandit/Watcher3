@@ -24,7 +24,7 @@ class PopularMoviesFeed(object):
 
         movies = None
 
-        logging.info('Syncing popular movie feed.')
+        logging.info('Syncing Steven Lu\'s popular movie feed.')
 
         try:
             movies = json.loads(Url.open('https://s3.amazonaws.com/popular-movies/movies.json').text)

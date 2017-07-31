@@ -20,6 +20,8 @@ class QBittorrent(object):
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to QBittorrent.')
+
         host = data['host']
         port = data['port']
         user = data['user']
@@ -40,6 +42,8 @@ class QBittorrent(object):
                      {'response': False, 'error': 'exception'}
 
         '''
+
+        logging.info('Sending torrent {} to QBittorrent.'.format(data['title']))
 
         conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
 
@@ -81,6 +85,7 @@ class QBittorrent(object):
 
     @staticmethod
     def _get_download_dir(base_url):
+        logging.debug('Getting default download dir for QBittorrent.')
         try:
             url = '{}query/preferences'.format(base_url)
             headers = {'cookie': QBittorrent.cookie}
@@ -98,6 +103,8 @@ class QBittorrent(object):
 
     @staticmethod
     def _login(url, username, password):
+
+        logging.info('Attempting to log in to QBittorrent.')
 
         post_data = {'username': username, 'password': password}
 
@@ -126,7 +133,7 @@ class QBittorrent(object):
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in QBittorrent.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
 

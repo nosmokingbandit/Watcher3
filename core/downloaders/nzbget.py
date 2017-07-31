@@ -18,6 +18,8 @@ class Nzbget():
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to NZBGet.')
+
         host = data['host']
         port = data['port']
         user = data['user']
@@ -46,6 +48,8 @@ class Nzbget():
 
         Returns str response from server
         '''
+
+        logging.info('Sending NZB {} to NZBGet.'.format(nzb['title']))
 
         conf = core.CONFIG['Downloader']['Usenet']['NzbGet']
 
@@ -96,7 +100,7 @@ class Nzbget():
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in NZBGet.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Usenet']['NzbGet']
 

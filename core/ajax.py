@@ -175,12 +175,15 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
+        logging.info('Deleting file for {}.'.format(imdbid))
+
         f = core.sql.get_movie_details('imdbid', imdbid).get('finished_file')
 
         if not f:
             return {'response': False, 'error': 'Unable to find movie file for {}.'.format(imdbid)}
 
         try:
+            logging.debug('Finished file for {} is {}'.format(imdbid, f))
             os.unlink(f)
             return {'response': True, 'file': f}
         except Exception as e:
@@ -387,12 +390,10 @@ class Ajax(object):
         '''
 
         if mode == 'restart':
-            logging.info('Restarting Server...')
             threading.Timer(1, core.restart).start()
             return
 
         elif mode == 'shutdown':
-            logging.info('Shutting Down Server...')
             threading.Timer(1, core.shutdown).start()
             return
 
@@ -459,7 +460,6 @@ class Ajax(object):
 
     update_server._cp_config = {'response.stream': True, 'tools.gzip.on': False}
 
-
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def update_movie_options(self, quality, status, imdbid):
@@ -502,6 +502,8 @@ class Ajax(object):
         Returns str
         '''
 
+        logging.info('Dumping log file {} to text.'.format(logfile))
+
         with open(os.path.join(core.LOG_DIR, logfile), 'r') as f:
             log_text = ''.join(reversed(f.readlines()))
 
@@ -534,9 +536,12 @@ class Ajax(object):
 
         Returns string
         '''
+        c = os.path.join(core.PLUGIN_DIR, folder, conf)
+
+        logging.info('Reading plugin config {}'.format(c))
 
         try:
-            with open(os.path.join(core.PLUGIN_DIR, folder, conf)) as f:
+            with open(c) as f:
                 config = json.load(f)
         except Exception as e:
             logging.error("Unable to read config file.", exc_info=True)
@@ -555,9 +560,11 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
-        config = json.loads(config)
-
         conf_file = os.path.join(core.PROG_PATH, core.PLUGIN_DIR, folder, filename)
+
+        logging.info('Saving plugin config as {}'.format(conf_file))
+
+        config = json.loads(config)
 
         response = {'response': True, 'message': 'Plugin settings saved'}
 
@@ -606,7 +613,9 @@ class Ajax(object):
             yield json.dumps({'response': None})
             raise StopIteration()
 
+        logging.info('Parsing {} directory scan results.'.format(length))
         for index, path in enumerate(files):
+            logging.info('Gathering metatadata for {}'.format(path))
             metadata = {}
             response = {'progress': [index + 1, length]}
             try:
@@ -666,6 +675,8 @@ class Ajax(object):
         Yeilds dict ajax-style response
         '''
 
+        logging.info('Adding directory scan movies to library.')
+
         today = str(datetime.date.today())
 
         movie_data = json.loads(movies)
@@ -679,6 +690,7 @@ class Ajax(object):
         progress = 1
 
         if corrected_movies:
+            logging.info('{} corrected movies, gathering metadata.'.format(len(corrected_movies)))
             for data in corrected_movies:
                 tmdbdata = self.tmdb._search_tmdbid(data['tmdbid'])
                 if tmdbdata:
@@ -691,6 +703,7 @@ class Ajax(object):
                     yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(data['tmdbid'])})
                     progress += 1
 
+        logging.info('Adding {} directory scan movies to library.'.format(len(movie_data)))
         for movie in movie_data:
             if movie.get('imdbid'):
                 movie['status'] = 'Disabled'
@@ -806,6 +819,8 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
+        logging.info('Updating quality profiles (from:to): {}'.format(', '.join('{}:{}'.format(k, v) for k, v in profiles.items())))
+
         profiles = json.loads(profiles)
 
         if imdbid:
@@ -868,6 +883,8 @@ class Ajax(object):
 
         length = len(movies)
         progress = 1
+
+        logging.info('Adding {} Kodi movies to library.'.format(length))
 
         for movie in movies:
 
@@ -945,6 +962,7 @@ class Ajax(object):
 
         Returns dict ajax-style response
         '''
+
         try:
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
@@ -984,6 +1002,7 @@ class Ajax(object):
         progress = 1
 
         if corrected_movies:
+            logging.info('Adding {} Plex movies to library.'.format(len(corrected_movies)))
             for movie in corrected_movies:
                 tmdbdata = self.tmdb._search_imdbid(movie['imdbid'])
                 if tmdbdata:
@@ -996,6 +1015,7 @@ class Ajax(object):
                     yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
                     progress += 1
 
+        logging.info('Adding {} Plex movies to library.'.format(length))
         for movie in movie_data:
             logging.info('Importing Plex movie {} {}'.format(movie.get('title', ''), movie.get('year', '')))
 
@@ -1095,6 +1115,7 @@ class Ajax(object):
         length = len(wanted) + len(finished)
         progress = 1
 
+        logging.info('Adding {} Wanted CouchPotato movies to library.'.format(len(wanted)))
         for movie in wanted:
             response = core.manage.add_movie(movie, full_metadata=True)
             if response['response'] is True:
@@ -1106,6 +1127,7 @@ class Ajax(object):
                 progress += 1
                 continue
 
+        logging.info('Adding {} Wanted CouchPotato movies to library.'.format(len(finished)))
         for movie in finished:
             movie['predb'] = 'found'
             movie['status'] = 'Disabled'
@@ -1147,6 +1169,9 @@ class Ajax(object):
         '''
 
         movies = json.loads(movies)
+
+        logging.info('Performing bulk backlog search for {} movies.'.format(len(movies)))
+
         ids = [i['imdbid'] for i in movies]
 
         movies = [i for i in core.sql.get_user_movies() if i['imdbid'] in ids]
@@ -1178,6 +1203,9 @@ class Ajax(object):
         '''
 
         movies = json.loads(movies)
+
+        logging.info('Performing bulk metadata update for {} movies.'.format(len(movies)))
+
         for i, movie in enumerate(movies):
             r = self.metadata.update(movie.get('imdbid'), movie.get('tmdbid'))
 
@@ -1200,6 +1228,9 @@ class Ajax(object):
         '''
 
         movies = json.loads(movies)
+
+        logging.info('Setting quality to {} for: {}'.format(', '.join(i['title'] for i in movies)))
+
         for i, movie in enumerate(movies):
             r = self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid'])
             if r['response'] is False:
@@ -1225,7 +1256,10 @@ class Ajax(object):
 
         movies = json.loads(movies)
 
+        logging.info('Resetting status for {} movies.'.format(len(movies)))
+
         for i, movie in enumerate(movies):
+            logging.debug('Resetting {}'.format(movie['title']))
             imdbid = movie['imdbid']
             if not core.sql.purge_search_results(imdbid):
                 yield json.dumps({'response': False, 'error': 'Unable to purge search results.', 'imdbid': imdbid, "index": i + 1})
@@ -1259,6 +1293,8 @@ class Ajax(object):
 
         movies = json.loads(movies)
 
+        logging.info('Removing {} movies from library.'.format(len(movies)))
+
         for i, movie in enumerate(movies):
             r = self.remove_movie(movie['imdbid'])
 
@@ -1287,6 +1323,8 @@ class Ajax(object):
 
         Returns dict ajax-style response
         '''
+
+        logging.info('Creating backup of Watcher as {}'.format(os.path.join(core.PROG_PATH, 'watcher.zip')))
 
         try:
             backup.backup(require_confirm=False)

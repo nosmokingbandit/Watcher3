@@ -53,6 +53,8 @@ class ImdbRss(object):
 
             last_sync = datetime.strptime(last_sync, self.date_format)
 
+            logging.debug('Last IMDB syn time: {}'.format(last_sync))
+
             for i in self.parse_xml(response):
                 pub_date = datetime.strptime(i['pubDate'], self.date_format)
 

@@ -25,6 +25,8 @@ class DelugeRPC(object):
         Returns Bool True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to DelugeRPC')
+
         host = config['host']
         port = config['port']
         user = config['user']
@@ -50,6 +52,8 @@ class DelugeRPC(object):
                      {'response': False, 'error': 'exception'}
 
         '''
+
+        logging.info('Sending torrent {} to DelugeRPC.'.format(torrent['title']))
 
         conf = core.CONFIG['Downloader']['Torrent']['DelugeRPC']
 
@@ -112,7 +116,7 @@ class DelugeRPC(object):
         downloadid: int download id
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling DelugeRPC download # {}'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['DelugeRPC']
 
@@ -142,7 +146,7 @@ class DelugeRPC(object):
 
         label = label_fix.sub('', label.lower()).encode('utf-8')
 
-        logging.info('Applying label {} to torrent {}.'.format(label, torrent))
+        logging.info('Applying label {} to torrent {} in DelugeRPC.'.format(label, torrent))
 
         if b' ' in label:
             logging.error('Deluge label cannot contain spaces.')
@@ -190,6 +194,8 @@ class DelugeWeb(object):
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to Deluge Web UI.')
+
         host = data['host']
         port = data['port']
         password = data['pass']
@@ -207,6 +213,8 @@ class DelugeWeb(object):
 
         Returns dict ajax-style response
         '''
+
+        logging.info('Sending torrent {} to Deluge Web UI.'.format(data['title']))
 
         conf = core.CONFIG['Downloader']['Torrent']['DelugeWeb']
 
@@ -284,6 +292,8 @@ class DelugeWeb(object):
         '''
         label = label_fix.sub('', label.lower())
 
+        logging.info('Applying label {} to torrent {} in Deluge Web UI.'.format(label, torrent))
+
         command = {'method': 'label.get_labels',
                    'params': [],
                    'id': DelugeWeb.command_id
@@ -352,6 +362,8 @@ class DelugeWeb(object):
     @staticmethod
     def _get_download_dir(url):
 
+        logging.debug('Getting default download dir from Deluge Web UI.')
+
         command = {'method': 'core.get_config_value',
                    'params': ['download_location'],
                    'id': DelugeWeb.command_id
@@ -373,6 +385,8 @@ class DelugeWeb(object):
 
     @staticmethod
     def _login(url, password):
+
+        logging.info('Logging in to Deluge Web UI.')
 
         command = {'method': 'auth.login',
                    'params': [password],
@@ -403,6 +417,8 @@ class DelugeWeb(object):
 
     @staticmethod
     def cancel_download(downloadid):
+
+        logging.info('Cancelling download {} in Deluge Web UI'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['DelugeWeb']
 

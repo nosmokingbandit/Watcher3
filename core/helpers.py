@@ -45,10 +45,12 @@ class Url(object):
 
         Returns str
         '''
-
+        o = s
         s = s.translate(Url.trans)
         s = ''.join(i for i in s if i not in punctuation)
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
+
+        logging.debug('String {} "normalized" to {}'.format(o, s))
 
         return s.lower()
 
@@ -81,6 +83,9 @@ class Url(object):
             r = requests.post(url, **kwargs)
         else:
             r = requests.get(url, **kwargs)
+
+        if r.status_code != 200:
+            logging.warning('Error code {} in response from {}'.format(r.status_code, r.request.url.split('?')[0]))
 
         return r
 
@@ -140,6 +145,8 @@ class Torrent(object):
 
         Returns str of upper-case torrent hash or None if exception
         '''
+
+        logging.debug('Finding hash for torrent {}'.format(torrent))
         if not file_bytes and torrent.startswith('magnet'):
             return torrent.split('&')[0].split(':')[-1].upper()
         else:

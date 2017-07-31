@@ -20,6 +20,8 @@ class Sabnzbd():
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to SABnzbd.')
+
         host = data['host']
         port = data['port']
         api = data['api']
@@ -46,6 +48,8 @@ class Sabnzbd():
                      {'response': False, 'error': 'exception'}
 
         '''
+
+        logging.info('Sending NZB {} to SABnzbd.'.format(data['title']))
 
         conf = core.CONFIG['Downloader']['Usenet']['Sabnzbd']
 
@@ -94,7 +98,7 @@ class Sabnzbd():
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in SABnzbd.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Usenet']['Sabnzbd']
 

@@ -23,6 +23,8 @@ class Base(object):
         Returns True on success or str error message on failure
         '''
 
+        logging.info('Testing ability to write to blackhole directory {}'.format(data['directory']))
+
         directory = data['directory']
 
         if core.PLATFORM == '*nix':

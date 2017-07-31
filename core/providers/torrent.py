@@ -46,7 +46,7 @@ class Torrent(NewzNabProvider):
         return
 
     def search_all(self, imdbid, title, year):
-        ''' Search all indexers.
+        ''' Performs backlog search for all indexers.
         imdbid (str): imdb id #
         title (str): movie title
         year (str/int): year of movie release
@@ -66,6 +66,7 @@ class Torrent(NewzNabProvider):
             if indexer[2] is False:
                 continue
             url_base = indexer[0]
+            logging.info('Searching TorzNab indexer {}'.format(url_base))
             if url_base[-1] != '/':
                 url_base = url_base + '/'
             apikey = indexer[1]
@@ -131,6 +132,8 @@ class Torrent(NewzNabProvider):
         Returns list of dicts of latest movies
         '''
 
+        logging.info('Syncing Torrent indexer RSS feeds.')
+
         results = []
 
         results = self._get_rss()
@@ -173,6 +176,8 @@ class Torrent(NewzNabProvider):
         Returns list of caps
         '''
 
+        logging.info('Getting caps for {}'.format(url))
+
         url = '{}?t=caps'.format(url)
 
         xml = Url.open(url).text
@@ -202,7 +207,7 @@ class Rarbg(object):
 
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching Rarbg for {}.'.format(imdbid))
+        logging.info('Performing backlog search on Rarbg for {}.'.format(imdbid))
         if Rarbg.timeout:
             now = datetime.datetime.now()
             while Rarbg.timeout > now:
@@ -212,7 +217,6 @@ class Rarbg(object):
         if not Rarbg.token:
             Rarbg.token = Rarbg.get_token()
             if Rarbg.token is None:
-                logging.error('Unable to get Rarbg token.')
                 return []
 
         url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=search&search_imdb={}&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token, imdbid)
@@ -254,7 +258,6 @@ class Rarbg(object):
         if not Rarbg.token:
             Rarbg.token = Rarbg.get_token()
             if Rarbg.token is None:
-                logging.error('Unable to get Rarbg token.')
                 return []
 
         url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=list&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token)
@@ -284,6 +287,7 @@ class Rarbg(object):
 
         Returns str or None
         '''
+        logging.info('Getting RarBG access token.')
         url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token'
 
         try:
@@ -304,7 +308,7 @@ class Rarbg(object):
         Returns list of dicts
         '''
 
-        logging.info('Parsing Rarbg results.')
+        logging.info('Parsing {} Rarbg results.'.format(len(results)))
         item_keep = ('size', 'pubdate', 'title', 'indexer', 'info_link', 'guid', 'torrentfile', 'resolution', 'type', 'seeders')
 
         parsed_results = []
@@ -335,7 +339,7 @@ class LimeTorrents(object):
     def search(imdbid, term):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching LimeTorrents for {}.'.format(term))
+        logging.info('Performing backlog search on LimeTorrents for {}.'.format(imdbid))
 
         url = 'https://www.limetorrents.cc/searchrss/{}'.format(term)
 
@@ -429,7 +433,7 @@ class YTS(object):
     def search(imdbid, term):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching YTS for {}.'.format(term))
+        logging.info('Performing backlog search on YTS for {}.'.format(imdbid))
 
         url = 'https://yts.ag/api/v2/list_movies.json?limit=1&query_term={}'.format(imdbid)
 
@@ -479,7 +483,7 @@ class YTS(object):
 
     @staticmethod
     def parse(movie, imdbid, title):
-        logging.info('Parsing YTS results.')
+        logging.info('Parsing {} YTS results.'.format(len(movie['torrents'])))
 
         results = []
         for i in movie['torrents']:
@@ -517,7 +521,7 @@ class YTS(object):
         Since xml doesn't supply seeds I hard-coded in 5. Not ideal, but it is
             probably safe to assume that new YTS releases will have 5 seeds.
         '''
-        logging.info('Parsing YTS rss.')
+        logging.info('Parsing YTS RSS.')
 
         tree = ET.fromstring(xml)
 
@@ -565,7 +569,7 @@ class SkyTorrents(object):
     def search(imdbid, term):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching SkyTorrents for {}.'.format(term))
+        logging.info('Performing backlog search on SkyTorrents for {}.'.format(imdbid))
 
         url = 'https://www.skytorrents.in/rss/all/ed/1/{}'.format(term)
 
@@ -634,7 +638,7 @@ class Torrentz2(object):
     def search(imdbid, term):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching Torrentz2 for {}.'.format(term))
+        logging.info('Performing backlog search on Torrentz2 for {}.'.format(imdbid))
 
         url = 'https://www.torrentz2.eu/feed?f={}'.format(term)
 
@@ -726,7 +730,7 @@ class ThePirateBay(object):
     def search(imdbid):
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
-        logging.info('Searching ThePirateBay for {}.'.format(imdbid))
+        logging.info('Performing backlog search on ThePirateBay for {}.'.format(imdbid))
 
         url = 'https://www.thepiratebay.org/search/{}/0/99/200'.format(imdbid)
 

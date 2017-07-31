@@ -17,6 +17,8 @@ class Transmission(object):
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to Transmission.')
+
         host = data['host']
         port = data['port']
         user = data['user']
@@ -46,6 +48,8 @@ class Transmission(object):
                      {'response': False', 'error': 'exception'}
 
         '''
+
+        logging.info('Sending torrent {} to Transmission.'.format(data['title']))
 
         conf = core.CONFIG['Downloader']['Torrent']['Transmission']
 
@@ -95,7 +99,7 @@ class Transmission(object):
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in Transmission.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['Transmission']
 

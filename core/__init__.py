@@ -78,5 +78,6 @@ def restart():
 def shutdown():
     ''' Exits server and script
     '''
+    logging.info('Shutting Down Server...')
     cherrypy.engine.exit()
     sys.exit(0)

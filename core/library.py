@@ -65,10 +65,10 @@ class ImportDirectory(object):
         for i in dir_contents:
             full_path = os.path.join(directory, i)
             if os.path.isdir(full_path):
-                logging.info('Scanning {}{}{}'.format(directory, os.sep, i))
+                logging.debug('Scanning {}{}{}'.format(directory, os.sep, i))
                 files = files + ImportDirectory._walk(full_path)
             else:
-                logging.info('Found file {}'.format(full_path))
+                logging.debug('Found file {}'.format(full_path))
                 files.append(full_path)
         return files
 
@@ -139,6 +139,8 @@ class ImportKodiLibrary(object):
             if i['imdbnumber'] in library:
                 logging.info('{} in library, skipping.'.format(i['imdbnumber']))
                 continue
+
+            logging.info('Found Kodi movie {}.'.format(i['title']))
 
             movie = {}
             movie['title'] = i['title']
@@ -232,6 +234,7 @@ class ImportPlexLibrary(object):
 
         Returns dict ajax-style response
         '''
+        logging.info('Parsing Plex library CSV.')
 
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
         library_tmdb = [i['tmdbid'] for i in core.sql.get_user_movies()]
@@ -249,6 +252,7 @@ class ImportPlexLibrary(object):
 
         for movie in movies:
             try:
+                logging.info('Parsing Plex movie {}'.format(movie['Title']))
                 complete = True
                 parsed = {}
 
@@ -326,6 +330,8 @@ class ImportCPLibrary(object):
         Returns dict ajax-style response
         '''
 
+        logging.info('Reading CouchPotato library.')
+
         try:
             r = Url.open(url)
         except Exception as e:
@@ -344,7 +350,9 @@ class ImportCPLibrary(object):
         movies = []
         for m in cp['movies']:
             if m['info']['imdb'] in library:
+                logging.debug('{} in library, skipping.'.format(m['info']['original_title']))
                 continue
+            logging.debug('Parsing CouchPotato movie {}'.format(m['info']['original_title']))
             movie = {}
             if m['status'] == 'done':
                 movie['status'] = 'Disabled'
@@ -444,14 +452,14 @@ class Metadata(object):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
             tmdbdata = self.tmdb.search(title_date, single=True)
             if not tmdbdata:
-                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
+                logging.warning('Unable to get data from TheMovieDB for {}'.format(data['imdbid']))
                 return data
 
             tmdbdata = tmdbdata[0]
             tmdbid = tmdbdata.get('id')
 
             if not tmdbid:
-                logging.warning('Unable to get data from TMDB for {}'.format(data['imdbid']))
+                logging.warning('Unable to get data from TheMovieDB for {}'.format(data['imdbid']))
                 return data
 
             tmdbdata = tmdbdata = self.tmdb._search_tmdbid(tmdbid)
@@ -475,6 +483,7 @@ class Metadata(object):
         Returns dict of metadata
         '''
 
+        logging.info('Parsing codec data from file {}.'.format(filepath))
         metadata = {}
         try:
             with createParser(filepath) as parser:
@@ -522,7 +531,7 @@ class Metadata(object):
 
         Returns dict of metadata
         '''
-        logging.info('Parsing {} for movie information.'.format(filepath))
+        logging.info('Parsing filename for movie information: {}.'.format(filepath))
 
         titledata = PTN.parse(os.path.basename(filepath))
         #remove usless keys before measuring length
@@ -530,7 +539,7 @@ class Metadata(object):
             titledata.pop(i, None)
 
         if len(titledata) < 3:
-            logging.info('Parsing filename does not look accurate. Parsing parent folder name.')
+            logging.debug('Parsing filename does not look accurate. Parsing parent folder name.')
 
             fname = os.path.split(filepath)[0].split(os.sep)[-1]
             titledata = PTN.parse(fname)
@@ -567,6 +576,8 @@ class Metadata(object):
 
         Returns dict ready to sql.write into MOVIES
         '''
+
+        logging.info('Converting movie metadata to database structure for {}.'.format(movie['title']))
 
         if not movie.get('imdbid'):
             movie['imdbid'] = 'N/A'
@@ -650,16 +661,18 @@ class Metadata(object):
         elif not os.path.isfile(os.path.join(core.PROG_PATH, movie['poster'])):
             get_poster = True
         else:
+            logging.debug('Poster will not be redownloaded.')
             get_poster = False
 
         if tmdbid is None:
             tmdbid = movie.get('tmdbid')
 
             if not tmdbid:
-                logging.warning('TMDB id not found in local database, searching TMDB for {}'.format(imdbid))
+                logging.debug('TMDB id not found in local database, searching TMDB for {}'.format(imdbid))
                 tmdb_data = self.tmdb._search_imdbid(imdbid)
                 tmdbid = tmdb_data[0].get('id') if tmdb_data else None
             if not tmdbid:
+                logging.debug('Unable to find {} on TMDB.'.format(imdbid))
                 return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
 
         new_data = self.tmdb._search_tmdbid(tmdbid)
@@ -731,11 +744,14 @@ class Manage(object):
         Returns dict ajax-style response
         '''
 
+        logging.info('Adding {} to library.'.format(movie.get('title')))
+
         response = {}
         tmdbid = movie['id']
         poster_path = movie.get('poster_path')
 
         if not full_metadata:
+            logging.debug('More information needed, searching TheMovieDB for {}'.format(tmdbid))
             tmdb_data = self.tmdb._search_tmdbid(tmdbid)
             if not tmdb_data:
                 response['error'] = 'Unable to find {} on TMDB.'.format(tmdbid)
@@ -785,6 +801,8 @@ class Manage(object):
 
         Returns dict ajax-style response
         '''
+
+        logging.info('Removing {} for library.'.format(imdbid))
 
         removed = core.sql.remove_movie(imdbid)
 
@@ -899,6 +917,8 @@ class Manage(object):
         Returns str new movie status
         '''
 
+        logging.info('Determining appropriate status for movie {}.'.format(imdbid))
+
         local_details = core.sql.get_movie_details('imdbid', imdbid)
         if local_details:
             current_status = local_details.get('status')
@@ -933,6 +953,8 @@ class Manage(object):
 
         Returns dict
         '''
+
+        logging.info('Generating library stats.')
 
         stats = {}
 
@@ -1014,7 +1036,7 @@ class Poster(object):
         Does not return
         '''
 
-        logging.info('Grabbing poster for {}.'.format(imdbid))
+        logging.info('Downloading poster for {}.'.format(imdbid))
 
         new_poster_path = '{}{}.jpg'.format(self.poster_folder, imdbid)
 

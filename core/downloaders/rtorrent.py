@@ -21,6 +21,8 @@ class rTorrentSCGI(object):
         Return True on success or str error message on failure
         '''
 
+        logging.info('Testing connection to rTorrent SGCI.')
+
         host = data['host']
         port = data['port']
 
@@ -49,6 +51,8 @@ class rTorrentSCGI(object):
                      {'response': False, 'error': 'exception'}
 
         '''
+
+        logging.info('Sending torrent {} to rTorrent SCGI.'.format(data['title']))
 
         conf = core.CONFIG['Downloader']['Torrent']['rTorrentSCGI']
 
@@ -89,7 +93,7 @@ class rTorrentSCGI(object):
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in rTorrent SCGI.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['rTorrentSCGI']
 
@@ -121,6 +125,8 @@ class rTorrentHTTP(object):
 
         Return True on success or str error message on failure
         '''
+
+        logging.info('Testing connection to rTorrent HTTP RPC plugin.')
 
         address = data['address']
         user = data['user']
@@ -162,6 +168,8 @@ class rTorrentHTTP(object):
 
         '''
 
+        logging.info('Sending torrent {} to rTorrent HTTP RPC Plugin.'.format(data['title']))
+
         conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']
 
         if rTorrentHTTP.client is None:
@@ -201,7 +209,7 @@ class rTorrentHTTP(object):
 
         Returns bool
         '''
-        logging.info('Cancelling download # {}'.format(downloadid))
+        logging.info('Cancelling download # {} in rTorrent HTTP RPC Plugin.'.format(downloadid))
 
         conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']
 

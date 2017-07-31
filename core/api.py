@@ -124,6 +124,8 @@ class API(object):
             mode. Then dispatches to correct method to handle request.
         '''
 
+        logging.info('API request from {}'.format(cherrypy.request.headers['Remote-Addr']))
+
         serverkey = core.CONFIG['Server']['apikey']
 
         if 'apikey' not in params:

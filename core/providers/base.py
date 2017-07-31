@@ -18,7 +18,7 @@ class NewzNabProvider(object):
     '''
 
     def search_newznab(self, url_base, apikey, **params):
-        ''' Searches Newznab for imdbid
+        ''' Searches Newznab/Torznab for movie
         url_base (str): base url for all requests (https://indexer.com/)
         apikey (str): api key for indexer
         params (dict): parameters to url encode and append to url
@@ -68,6 +68,7 @@ class NewzNabProvider(object):
             if indexer[2] is False:
                 continue
             url_base = indexer[0]
+            logging.info('Fetching latest RSS from {}.'.format(url_base))
             if url_base[-1] != '/':
                 url_base = url_base + '/'
             apikey = indexer[1]

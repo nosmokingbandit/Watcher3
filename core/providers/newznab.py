@@ -20,6 +20,8 @@ class NewzNab(NewzNabProvider):
         Returns list of dicts with sorted nzb information.
         '''
 
+        logging.info()
+
         indexers = core.CONFIG['Indexers']['NewzNab'].values()
 
         self.imdbid = imdbid
@@ -31,6 +33,7 @@ class NewzNab(NewzNabProvider):
             if indexer[2] is False:
                 continue
             url_base = indexer[0]
+            logging.info('Searching NewzNab indexer {}'.format(url_base))
             if url_base[-1] != '/':
                 url_base = url_base + '/'
             apikey = indexer[1]
