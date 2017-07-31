@@ -196,6 +196,9 @@ function execute_task(event, elem, name){
     event.preventDefault();
 
     var $this = $(elem);
+    if($this.hasClass("disabled")){
+        return
+    }
     var $tr = $this.closest("tr");
     var $btns = $("i.task_execute");
 
@@ -213,6 +216,11 @@ function execute_task(event, elem, name){
 
         if(response["response"] == true){
             $.notify({message: `Finished task ${name}.`})
+            $.each(response["notifications"], function(i, notif){
+                notif[1]["onClose"] = remove_notif;
+                var n = $.notify(notif[0], notif[1]);
+                n["$ele"].attr("data-index", notif[1]["index"]);
+            });
         } else {
             $.notify({message: response["error"]}, {type: "danger", delay: 0})
         }
