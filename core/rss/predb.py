@@ -139,9 +139,9 @@ class PreDB(object):
         return items
 
     # keeps checking release titles until one matches or all are checked
-    def _fuzzy_match(self, items, title, year):
+    def _fuzzy_match(self, predb_titles, title, year):
         ''' Fuzzy matches title with predb titles
-        items (list): titles in predb response
+        predb_titles (list): titles in predb response
         title (str): title to match to rss titles
         year (str): year of movie release
 
@@ -151,12 +151,13 @@ class PreDB(object):
         '''
 
         movie = '{}.{}'.format(title, year).replace(' ', '.')
-        for rss_item in items:
-            if year not in rss_item:
+        for pdb in predb_titles:
+            if year not in pdb:
                 continue
-            rss_item = rss_item.split(year)[0] + year
-            match = lm.score(rss_item, movie) * 100
+            pdb = pdb.split(year)[0] + year
+            match = lm.score(pdb, movie) * 100
+            print(match, title, ' : ', pdb)
             if match > 60:
-                logging.debug('{} matches {} at {}%'.format(rss_item, movie, int(match)))
+                logging.debug('{} matches {} at {}%'.format(pdb, movie, int(match)))
                 return True
         return False
