@@ -122,6 +122,11 @@ class Torrent(NewzNabProvider):
             for i in yts_results:
                 if i not in results:
                     results.append(i)
+        if torrent_indexers['zooqle']:
+            zooqle_results = Zooqle.search(imdbid, term)
+            for i in zooqle_results:
+                if i not in results:
+                    results.append(i)
 
         self.imdbid = None
         return results
@@ -822,4 +827,80 @@ class ThePirateBay(object):
                 continue
 
         logging.info('Found {} results from ThePirateBay.'.format(len(results)))
+        return results
+
+
+class Zooqle(object):
+    ''' Does not supply rss feed -- backlog searches only. '''
+
+    @staticmethod
+    def search(imdbid, term):
+        proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
+
+        logging.info('Searching Zooqle for {}.'.format(term))
+
+        url = 'https://zooqle.com/search?q={}&fmt=rss'.format(term)
+
+        try:
+            if proxy_enabled and proxy.whitelist('https://www.zooqle.com') is True:
+                response = Url.open(url, proxy_bypass=True).text
+            else:
+                response = Url.open(url).text
+
+            if response:
+                return Zooqle.parse(response, imdbid)
+            else:
+                return []
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e:
+            logging.error('ThePirateBay search failed.', exc_info=True)
+            return []
+
+    @staticmethod
+    def get_rss():
+        # This does nothing. Does Zooqle have a new releases feed?
+        return []
+
+    @staticmethod
+    def parse(xml, imdbid):
+        logging.info('Parsing Zooqle results.')
+
+        tree = ET.fromstring(xml)
+
+        items = tree[0].findall('item')
+
+        results = []
+        for i in items:
+            result = {}
+            try:
+                result['score'] = 0
+
+                size, suffix = i.find('description').text.strip().split(', ')[1].split(' ')
+                m = (1024 ** 2) if suffix == 'MB' else (1024 ** 3)
+                result['size'] = int(float(size) * m)
+
+                result['status'] = 'Available'
+
+                pd = i.find('pubDate').text
+                result['pubdate'] = datetime.datetime.strftime(datetime.datetime.strptime(pd, '%a, %d %b %Y %H:%M:%S %z'), '%d %b %Y')
+
+                result['title'] = i.find('title').text
+                result['imdbid'] = imdbid
+                result['indexer'] = 'Zooqle'
+                result['info_link'] = i.find('guid').text
+                result['torrentfile'] = i[8].text
+                result['guid'] = i[7].text.lower()
+                result['type'] = 'magnet'
+                result['downloadid'] = None
+                result['freeleech'] = 0
+                result['download_client'] = None
+                result['seeders'] = int(i[9].text)
+
+                results.append(result)
+            except Exception as e:
+                logging.error('Error parsing Zooqle XML.', exc_info=True)
+                continue
+
+        logging.info('Found {} results from Zooqle.'.format(len(results)))
         return results
