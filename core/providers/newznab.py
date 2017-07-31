@@ -20,7 +20,7 @@ class NewzNab(NewzNabProvider):
         Returns list of dicts with sorted nzb information.
         '''
 
-        logging.info()
+        logging.info('Performing backlog search for all NewzNab indexers.')
 
         indexers = core.CONFIG['Indexers']['NewzNab'].values()
 
