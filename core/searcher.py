@@ -34,7 +34,7 @@ class Searcher():
 
         Returns Bool
         '''
-        logging.info('Checking for vereified releases for {}'.format(movie['title']))
+        logging.info('Checking for verified releases for {}'.format(movie['title']))
 
         now = datetime.datetime.today()
 
