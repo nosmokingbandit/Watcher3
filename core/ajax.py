@@ -1229,7 +1229,7 @@ class Ajax(object):
 
         movies = json.loads(movies)
 
-        logging.info('Setting quality to {} for: {}'.format(', '.join(i['title'] for i in movies)))
+        logging.info('Setting quality to {} for: {}'.format(', '.join(i['imdbid'] for i in movies)))
 
         for i, movie in enumerate(movies):
             r = self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid'])
@@ -1259,7 +1259,7 @@ class Ajax(object):
         logging.info('Resetting status for {} movies.'.format(len(movies)))
 
         for i, movie in enumerate(movies):
-            logging.debug('Resetting {}'.format(movie['title']))
+            logging.debug('Resetting {}'.format(movie['imdbid']))
             imdbid = movie['imdbid']
             if not core.sql.purge_search_results(imdbid):
                 yield json.dumps({'response': False, 'error': 'Unable to purge search results.', 'imdbid': imdbid, "index": i + 1})
