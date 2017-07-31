@@ -5,7 +5,7 @@ import core
 from core import searchresults, snatcher, proxy
 from core.providers import torrent, newznab
 from core.rss import predb
-from fuzzywuzzy import fuzz
+from stringscore import liquidmetal as lm
 
 logging = logging.getLogger(__name__)
 
@@ -475,7 +475,9 @@ class Searcher():
             search uses name and year to find releases.
 
         Checks if the year is in the title, promptly ignores it if the year is not found.
-        Then does a fuzzy title match looking for 80+ token set ratio.
+        Then does a fuzzy title match looking for 70+ token set ratio. Fuzzy match is done
+            with movie title vs torrent name split on the year. This removes release
+            information and matches just on the movie title in the torrent title.
 
         Returns bool on match success
         '''
@@ -483,10 +485,10 @@ class Searcher():
         if movie_year not in torrent_title:
             return False
         else:
-            title = movie_title.replace(':', '.').replace(' ', '.').lower()
-            torrent = torrent_title.replace(' ', '.').replace(':', '.').lower()
-            match = fuzz.token_set_ratio(title, torrent)
-            if match > 80:
+            movie = movie_title.replace(':', '.').replace(' ', '.').lower()
+            torrent = torrent_title.replace(' ', '.').replace(':', '.').split(movie_year)[0].lower()
+            match = lm.score(torrent, movie) * 100
+            if match > 70:
                 return True
             else:
                 return False

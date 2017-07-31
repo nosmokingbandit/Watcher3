@@ -3,7 +3,7 @@ import xml.etree.cElementTree as ET
 
 import core
 from core.helpers import Url
-from fuzzywuzzy import fuzz
+from stringscore import liquidmetal as lm
 
 logging = logging.getLogger(__name__)
 
@@ -150,13 +150,13 @@ class PreDB(object):
         Returns bool
         '''
 
-        test = '{}.{}'.format(title, year).replace(' ', '.')
-        for item in items:
-            if year not in item:
+        movie = '{}.{}'.format(title, year).replace(' ', '.')
+        for rss_item in items:
+            if year not in rss_item:
                 continue
-            item = item.split(year)[0] + year
-            match = fuzz.token_set_ratio(item, test)
+            rss_item = rss_item.split(year)[0] + year
+            match = lm.score(rss_item, movie) * 100
             if match > 60:
-                logging.debug('{} matches {} at {}%'.format(item, test, match))
+                logging.debug('{} matches {} at {}%'.format(rss_item, movie, int(match)))
                 return True
         return False

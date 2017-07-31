@@ -50,8 +50,6 @@ class Url(object):
         s = ''.join(i for i in s if i not in punctuation)
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
 
-        logging.debug('String {} "normalized" to {}'.format(o, s))
-
         return s.lower()
 
     @staticmethod

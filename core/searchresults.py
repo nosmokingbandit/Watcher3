@@ -5,7 +5,7 @@ from base64 import b16encode
 import json
 import core
 from core.helpers import Url
-from fuzzywuzzy import fuzz
+from stringscore import liquidmetal as lm
 
 logging = logging.getLogger(__name__)
 
@@ -277,15 +277,15 @@ class Score():
                     result['score'] += 20
                     lst.append(result)
                     continue
-                test = Url.normalize(result['title'])
+                release = Url.normalize(result['title'])
 
                 logging.debug('Comparing release {} with titles {}.'.format(result['title'], titles))
-                matches = [fuzz.partial_ratio(Url.normalize(title), test) for title in titles]
+                matches = [lm.score(release, Url.normalize(title)) * 100 for title in titles]
                 if any(match > 70 for match in matches):
                     result['score'] += int(max(matches) / 5)
                     lst.append(result)
                 else:
-                    logging.debug('{} best title match was {}%, removing search result.'.format(test, max(matches)))
+                    logging.debug('{} best title match was {}%, removing search result.'.format(release, max(matches)))
         self.results = lst
         logging.info('Keeping {} results.'.format(len(self.results)))
 
