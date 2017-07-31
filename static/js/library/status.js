@@ -458,7 +458,7 @@ function manual_search(event, elem, imdbid){
 
         } else if(response["response"] == true && response["results"].length == 0){
             table = `<div class="search_result">
-                         <span class="col-md-12">Nothing found yet. Next search sheduled for ${response["next"]}.</span>
+                         <span>Nothing found yet. Next search sheduled for ${response["next"]}.</span>
                      </div>`;
             $search_results_table.html(table);
             $search_results_table.slideDown();
