@@ -117,30 +117,30 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
             <form class="form-horizontal well" data-category="sources">
                 <span><b>Specify acceptable size ranges (in MegaBytes) for source media.</b></span>
                 <table class="table table-hover">
-                   <thead>
-                       <tr>
-                           <th></th>
-                           <th>Min Size</th>
-                           <th>Max Size</th>
-                       </tr>
-                   </thead>
-                   <tbody>
-                       %for src in sources:
-                       <%
-                           v = config['Sources'][src]
-                       %>
-                       <tr id="${src}">
-                           <td>${src}</td>
-                           <td>
-                               <input type="number" class="input-sm form-control" data-range="min" min="0" value=${v['min']}>
-                           </td>
-                           <td>
-                               <input type="number" class="input-sm form-control" data-range="max" min="0" value=${v['max']}>
-                           </td>
-                       </tr>
-                       %endfor
-                   </tbody>
-               </table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Min Size</th>
+                            <th>Max Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        %for src in sources:
+                        <%
+                            v = config['Sources'][src]
+                        %>
+                        <tr id="${src}">
+                            <td>${src}</td>
+                            <td>
+                                <input type="number" class="input-sm form-control" data-range="min" min="0" value=${v['min']}>
+                            </td>
+                            <td>
+                                <input type="number" class="input-sm form-control" data-range="max" min="0" value=${v['max']}>
+                            </td>
+                        </tr>
+                        %endfor
+                    </tbody>
+                </table>
             </form>
 
             <h2>Aliases</h2>
