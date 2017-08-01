@@ -20,24 +20,7 @@ function update_check(event, elem){
 
     $.post(url_base + "/ajax/update_check", {})
     .done(function(response){
-        if(response["status"] == "current"){
-            $.notify({message: 'No Updates Available.'}, {type: 'primary'})
-        } else if(response["status"] == "error"){
-            $.notify({message: response["error"]}, {type: "danger"});
-        } else if(response["status"] == "behind"){
-
-            if(response["behind_count"] == 1){
-                title = response["behind_count"] + " Update Available:<br/>";
-            } else {
-                title = response["behind_count"] + " Updates Available:<br/>";
-            };
-
-            compare = git_url + "/compare/" + response["local_hash"] + "..." + response["new_hash"]
-
-            body = "Click <a onclick='_start_update(event)'><u>here</u></a> to update now. <br/> Click <a href=" + compare + " target=_blank><u>here</u></a> to view changes."
-
-            $.notify({title: title, message: body}, {delay: 0})
-        }
+        show_notifications(response[1]);
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText

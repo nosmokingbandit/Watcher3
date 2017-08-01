@@ -301,46 +301,7 @@ class AutoUpdateCheck(object):
 
         logging.info('Checking for updates.')
 
-        data = ver.manager.update_check()
-        # if data['status'] == 'current', nothing to do.
-        if data['status'] == 'error':
-            notif = {'title': 'Error Checking for Updates <br/>',
-                     'message': data['error']
-                     }
-            notification.add(notif, type_='danger')
-
-        elif data['status'] == 'behind':
-            if data['behind_count'] == 1:
-                title = '1 Update Available <br/>'
-            else:
-                title = '{} Updates Available <br/>'.format(data['behind_count'])
-
-            compare = '{}/compare/{}...{}'.format(core.GIT_URL, data['local_hash'], data['new_hash'])
-
-            notif = {'type': 'update',
-                     'title': title,
-                     'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}{}" target="_blank" rel="noopener"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
-                     }
-
-            notification.add(notif, type_='success')
-
-            if install and core.CONFIG['Server']['installupdates']:
-                logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
-
-                core.UPDATING = True
-                core.scheduler_plugin.stop()
-                update = ver.manager.execute_update()
-                core.UPDATING = False
-
-                if not update:
-                    logging.error('Update failed.')
-                    core.scheduler_plugin.restart()
-
-                logging.info('Update successful, restarting.')
-                core.restart()
-            else:
-                logging.info('Currently {} commits behind. Automatic install disabled'.format(core.UPDATE_STATUS['behind_count']))
-        return data
+        return ver.manager.update_check()
 
 
 class ImdbRssSync(object):

@@ -5,13 +5,20 @@ $(document).ready(function(){
     if(show_notifs){
         notifs = JSON.parse($("textarea#notifications_json").text());
 
-        $.each(notifs, function(i, notif){
-            notif[1]["onClose"] = remove_notif;
-            var n = $.notify(notif[0], notif[1]);
-            n["$ele"].attr("data-index", notif[1]["index"]);
-        });
+        show_notifications(notifs);
     }
 });
+
+function show_notifications(notifs){
+    /* Shows notifications in DOM
+    notifs (list): tuples of notification options, settings
+    */
+    $.each(notifs, function(i, notif){
+        notif[1]["onClose"] = remove_notif;
+        var n = $.notify(notif[0], notif[1]);
+        n["$ele"].attr("data-index", notif[1]["index"]);
+    });
+}
 
 function logout(event){
     event.preventDefault();

@@ -8,6 +8,7 @@ import subprocess
 import zipfile
 
 import core
+from core import notification
 from core.helpers import Url
 
 # get remote hash # git rev-parse origin/master
@@ -23,6 +24,54 @@ class Version(object):
         branch = 'master'
         self.manager = GitUpdater(branch) if os.path.exists('.git') else ZipUpdater(branch)
         return
+
+
+class UpdateBase(object):
+    ''' Base class for updater instances '''
+
+    def update_check(self, add_notif=True, install=True):
+        logging.info('Checking for updates.')
+        data = self._update_check()
+        # if data['status'] == 'current', nothing to do.
+        if data['status'] == 'error':
+            notif = {'title': 'Error Checking for Updates <br/>',
+                     'message': data['error']
+                     }
+            notification.add(notif, type_='danger')
+
+        elif data['status'] == 'behind':
+            if data['behind_count'] == 1:
+                title = '1 Update Available <br/>'
+            else:
+                title = '{} Updates Available <br/>'.format(data['behind_count'])
+
+            compare = '{}/compare/{}...{}'.format(core.GIT_URL, data['local_hash'], data['new_hash'])
+
+            notif = {'type': 'update',
+                     'title': title,
+                     'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}{}" target="_blank" rel="noopener"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
+                     }
+
+            notification.add(notif, type_='success')
+
+            if install and core.CONFIG['Server']['installupdates']:
+                logging.info('Currently {} commits behind. Updating to {}.'.format(core.UPDATE_STATUS['behind_count'], core.UPDATE_STATUS['new_hash']))
+
+                core.UPDATING = True
+                core.scheduler_plugin.stop()
+                update = self.manager.execute_update()
+                core.UPDATING = False
+
+                if not update:
+                    logging.error('Update failed.')
+                    core.scheduler_plugin.restart()
+
+                logging.info('Update successful, restarting.')
+                core.restart()
+            else:
+                logging.info('Currently {} commits behind. Automatic install disabled'.format(core.UPDATE_STATUS['behind_count']))
+
+        return data
 
 
 class Git(object):
@@ -129,7 +178,7 @@ class Git(object):
         return (output, error, status)
 
 
-class GitUpdater(object):
+class GitUpdater(UpdateBase):
 
     def __init__(self, branch):
         logging.debug('Setting updater to Git.')
@@ -178,7 +227,7 @@ class GitUpdater(object):
             logging.info('Update successful.')
             return True
 
-    def update_check(self):
+    def _update_check(self):
         ''' Gets commit delta from GIT.
 
         Sets core.UPDATE_STATUS to return value.
@@ -188,7 +237,6 @@ class GitUpdater(object):
             {'status': 'current'}
         '''
 
-        logging.info('Checking git for a new version.')
         core.UPDATE_LAST_CHECKED = datetime.datetime.now()
 
         result = {}
@@ -257,7 +305,7 @@ class GitUpdater(object):
             return result
 
 
-class ZipUpdater(object):
+class ZipUpdater(UpdateBase):
     ''' Manager for updates install without git.
 
     Updates by downloading the new zip from github. Uses backup.py to
@@ -311,7 +359,7 @@ class ZipUpdater(object):
             logging.error('Could not get newest hash from git.', exc_info=True)
             return ''
 
-    def update_check(self):
+    def _update_check(self):
         ''' Gets commit delta from Github
 
         Sets core.UPDATE_STATUS to return value
@@ -321,7 +369,6 @@ class ZipUpdater(object):
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
             {'status': 'current'}
         '''
-        logging.info('Checking git for a new Zip.')
 
         os.chdir(core.PROG_PATH)
         core.UPDATE_LAST_CHECKED = datetime.datetime.now()

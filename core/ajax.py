@@ -324,11 +324,13 @@ class Ajax(object):
     def update_check(self):
         ''' Manually check for updates
 
-        Returns dict ajax-style response
+        Returns list:
+            [0] dict ajax-style response
+            [1] dict of core notifications
         '''
 
         response = self.version.manager.update_check()
-        return response
+        return [response, core.NOTIFICATIONS]
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
