@@ -363,7 +363,7 @@ class ZipUpdater(object):
             core.UPDATE_STATUS = result
             return result
         else:
-            logging.debug('{} updates are available -- latest commit: {}.'.format(behind_count, commit_list[0]))
+            logging.debug('{} updates are available -- latest commit: {}.'.format(behind_count, newest_hash))
 
             result['status'] = 'behind'
             result['behind_count'] = behind_count
