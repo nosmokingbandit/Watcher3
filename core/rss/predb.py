@@ -156,7 +156,6 @@ class PreDB(object):
                 continue
             pdb = pdb.split(year)[0] + year
             match = lm.score(pdb, movie) * 100
-            print(match, title, ' : ', pdb)
             if match > 60:
                 logging.debug('{} matches {} at {}%'.format(pdb, movie, int(match)))
                 return True
