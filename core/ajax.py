@@ -330,7 +330,11 @@ class Ajax(object):
         '''
 
         response = self.version.manager.update_check()
-        return [response, core.NOTIFICATIONS]
+        if response['status'] == 'current':
+            n = [[{'message': 'No updates available.'}, {'type': 'primary'}]]
+            return [response, n]
+        else:
+            return [response, core.NOTIFICATIONS]
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
