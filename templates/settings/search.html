@@ -12,45 +12,45 @@
         ${navbar}
         <div class="container-fluid">
 
-            <h1>Search</h1>
+            <h1>${_('Search')}</h1>
 
             <form class="form-horizontal well" data-category="search">
 
                 <div class="col-md-6">
-                    <label>Search Immediately</label>
+                    <label>${_('Search Immediately')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="searchafteradd" class="mdi mdi-checkbox-blank-outline c_box" value="${config['searchafteradd']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Search immediately after adding movie.
+                            ${_('Search immediately after adding movie')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Grab Best Release</label>
+                    <label>${_('Grab Best Release')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="autograb" class="mdi mdi-checkbox-blank-outline c_box" value="${config['autograb']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Automatically grab best release.
+                            ${_('Automatically grab best release')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Verify Availability</label>
+                    <label>${_('Verify Availability')}</label>
                     <select id="verifyreleases" class="form-control select-sm" value="${config['verifyreleases']}">
-                        <option value="">Disabled</option>
+                        <option value="">${_('Disabled')}</option>
                         <option value="predb">PreDB</option>
-                        <option value="mediareleasedate">Home Media Release Date</option>
+                        <option value="mediareleasedate">${_('Home Media Release Date')}</option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Skip verification if Movie is older than [X] weeks.</label>
+                    <label>${_('Skip verification if Movie is older than [X] weeks')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="verifyreleasesskip" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyreleasesskip']}"></i>
@@ -60,20 +60,20 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Sync RSS Every [X] Minutes</label>
+                    <label>${_('Sync RSS Every [X] Minutes')}</label>
                     <input type="number" id="rsssyncfrequency" class="form-control" min="15" placeholder="120" value="${config['rsssyncfrequency']}">
                 </div>
 
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Wait [X] Days To Grab</label>
+                    <label>${_('Wait [X] Days To Grab')}</label>
                     <input type="number" id="waitdays" class="form-control" min="0" placeholder="3" value="${config['waitdays']}">
                 </div>
 
 
                 <div class="col-md-6">
-                    <label>Skip Wait if Movie is Older than [X] Weeks</label>
+                    <label>${_('Skip Wait if Movie is Older than [X] Weeks')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="skipwait" class="mdi mdi-checkbox-blank-outline c_box" value="${config['skipwait']}"></i>
@@ -83,7 +83,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Keep Searching [X] Days for Best Release</label>
+                    <label>${_('Keep Searching [X] Days for Best Release')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="keepsearching" class="mdi mdi-checkbox-blank-outline c_box" value="${config['keepsearching']}"></i>
@@ -93,39 +93,39 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>Re-Grabbed Releases Must Score [X] Points Higher</label>
+                    <label>${_('Re-Grabbed Releases Must Score [X] Points Higher')}</label>
                     <input type="number" id="keepsearchingscore" class="form-control" min="0" placeholder="10" value="${config['keepsearchingscore']}">
                 </div>
 
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Torrents Must Have [X] Seeds</label>
+                    <label>${_('Torrents Must Have [X] Seeds')}</label>
                     <input type="number" id="mintorrentseeds" class="form-control" min="0" placeholder="1" value="${config['mintorrentseeds']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>Add [X] Points to Freeleech Torrents</label>
+                    <label>${_('Add [X] Points to Freeleech Torrents')}</label>
                     <input type="number" id="freeleechpoints" class="form-control" min="0" placeholder="10" value="${config['freeleechpoints']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>Usenet Server Retention</label>
+                    <label>${_('Usenet Server Retention')}</label>
                     <div class="input-group">
                         <input type="number" id="retention" class="form-control" min="0" placeholder="1500" value="${config['retention']}">
                         <span class="input-group-addon">
-                            Days
+                            ${_('Days')}
                         </span>
                     </div>
                 </div>
             </form>
 
-            <h1>Watchlists</h1>
+            <h1>${_('Watchlists')}</h1>
 
             <form class="form-horizontal well" data-category="watchlists">
 
                 <div class="col-md-6">
-                    <label>Sync IMDB Watchlists Every [X] Minutes</label>
+                    <label>${_('Sync IMDB Watchlists Every [X] Minutes')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="imdbsync" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Watchlists']['imdbsync']}"></i>
@@ -135,14 +135,14 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>IMDB Watchlist URLs</label>
-                    <input type="text" id="imdbrss" class="form-control" placeholder="http://rss.imdb.com/user/..." value="${', '.join(config['Watchlists']['imdbrss'])}" data-toggle="tooltip"title="Separate lists with commas.">
+                    <label>${_('IMDB Watchlist URLs')}</label>
+                    <input type="text" id="imdbrss" class="form-control" placeholder="http://rss.imdb.com/user/..." value="${', '.join(config['Watchlists']['imdbrss'])}" data-toggle="tooltip" title="${_('Separate lists with commas')}">
                 </div>
 
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Sync Popular Movies Every Day At
+                    <label>${_('Sync Popular Movies Every Day At')}
                         <a href="https://github.com/sjlu/popular-movies" target="_blank" rel="noopener">
                             &nbsp;<i class="mdi mdi-help-circle-outline"></i>
                         </a>
@@ -158,7 +158,7 @@
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Sync Trakt Lists Every [X] Minutes</label>
+                    <label>${_('Sync Trakt Lists Every [X] Minutes')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="traktsync" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Watchlists']['traktsync']}"></i>
@@ -168,23 +168,23 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label>Max Movies Per List</label>
+                    <label>${_('Max Movies Per List')}</label>
                     <input type="number" id="traktlength" class="form-control" min="1" placeholder="10" value="${config['Watchlists']['traktlength']}">
                 </div>
 
                 <div class="col-md-3">
-                    <label>Minimum Score</label>
+                    <label>${_('Minimum Score')}</label>
                     <input type="number" id="traktscore" class="form-control" min="0" placeholder="7" value="${config['Watchlists']['traktscore']}">
                 </div>
 
                 <div class="col-md-3">
-                    <label>Trakt Lists</label>
+                    <label>${_('Trakt Lists')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="collected" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['collected']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Collected
+                            ${_('Collected')}
                         </span>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                             <i id="popular" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['popular']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Popular
+                            ${_('Popular')}
                         </span>
                     </div>
                 </div>
@@ -206,7 +206,7 @@
                             <i id="anticipated" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['anticipated']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Anticipated
+                            ${_('Anticipated')}
                         </span>
                     </div>
                 </div>
@@ -217,7 +217,7 @@
                             <i id="trending" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['trending']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Trending
+                            ${_('Trending')}
                         </span>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
                             <i id="boxoffice" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['boxoffice']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Boxoffice
+                            ${_('Boxoffice')}
                         </span>
                     </div>
                 </div>
@@ -239,7 +239,7 @@
                             <i id="watched" class="mdi mdi-checkbox-blank-outline c_box" data-sub-category="traktlist" value="${config['Watchlists']['Traktlists']['watched']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Watched
+                            ${_('Watched')}
                         </span>
                     </div>
                 </div>
@@ -247,7 +247,7 @@
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                Save Settings
+                ${_('Save Settings')}
             </a>
 
         </div>

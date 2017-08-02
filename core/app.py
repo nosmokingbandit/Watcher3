@@ -1,6 +1,6 @@
 import cherrypy
 import core
-from core import ajax, scheduler, plugins
+from core import ajax, scheduler, plugins, localization
 from core.auth import AuthController
 import os
 import json
@@ -9,10 +9,7 @@ from mako.template import Template
 import sys
 import time
 
-# import gettext
-# locale_dir = os.path.join(core.PROG_PATH, 'locale')
-# translate = gettext.translation('watcher', locale_dir, fallback=True)
-# _ = translate.gettext
+locale_dir = os.path.join(core.PROG_PATH, 'locale')
 
 
 class App(object):
@@ -27,6 +24,8 @@ class App(object):
             }
 
         self.ajax = ajax.Ajax()
+        localization.get()
+        localization.install()
 
         # point server toward custom 404
         cherrypy.config.update({
@@ -53,7 +52,6 @@ class App(object):
         defaults = {'head': self.head(),
                     'navbar': self.nav_bar(current=sys._getframe().f_back.f_code.co_name),
                     'url_base': core.URL_BASE
-                    # '_': _
                     }
         return defaults
 
@@ -146,7 +144,7 @@ class App(object):
 
         if page == 'server':
             themes = [i[:-4] for i in os.listdir('static/css/themes/') if i.endswith(".css") and os.path.isfile(os.path.join(core.PROG_PATH, 'static/css/themes', i))]
-            return App.server_template.render(**self.defaults(), config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '')
+            return App.server_template.render(**self.defaults(), config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '', languages=core.LANGUAGES)
         elif page == 'search':
             return App.search_template.render(**self.defaults(), config=core.CONFIG['Search'])
         elif page == 'quality':

@@ -1338,7 +1338,7 @@ class Ajax(object):
             logging.error('Unable to create backup.', exc_info=True)
             return {'response': False, 'error': str(e)}
 
-        return {'response': True, 'zipfile': os.path.join(core.PROG_PATH, 'watcher.zip')}
+        return {'response': True, 'message': _('Backup created as {}').format(os.path.join(core.PROG_PATH, 'watcher.zip'))}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

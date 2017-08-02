@@ -1,0 +1,81 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-08-01 13:47-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ..\templates\library\status.html:32
+msgid "Title"
+msgstr ""
+
+#: ..\templates\library\status.html:33
+msgid "Year"
+msgstr ""
+
+#: ..\templates\library\status.html:34
+msgid "Status"
+msgstr ""
+
+#: ..\templates\library\status.html:96
+msgid "Theatrical Release"
+msgstr ""
+
+#: ..\templates\library\status.html:99
+msgid "Home Release"
+msgstr ""
+
+#: ..\templates\library\status.html:102
+msgid "Score"
+msgstr ""
+
+#: ..\templates\library\status.html:105
+msgid "Source"
+msgstr ""
+
+#: ..\templates\library\status.html:108
+msgid "Date Added"
+msgstr ""
+
+#: ..\templates\library\status.html:133
+msgid "Quality"
+msgstr ""
+
+#: ..\templates\library\status.html:143
+msgid "Automatic"
+msgstr ""
+
+#: ..\templates\library\status.html:144
+msgid "Finished"
+msgstr ""
+
+#: ..\templates\library\status.html:166
+msgid "Close"
+msgstr ""
+
+#: ..\templates\library\status.html:178
+msgid "Remove from Library"
+msgstr ""
+
+#: ..\templates\library\status.html:184
+msgid "Are you sure you want to remove <b>{title}</b> from your library?"
+msgstr ""
+
+#: ..\templates\library\status.html:187
+msgid "Delete movie file"
+msgstr ""
+
+#: ..\templates\library\status.html:196
+msgid "Remove"
+msgstr ""
+
