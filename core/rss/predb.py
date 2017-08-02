@@ -150,12 +150,12 @@ class PreDB(object):
         Returns bool
         '''
 
-        movie = '{}.{}'.format(title, year).replace(' ', '.')
+        movie = Url.normalize('{}.{}'.format(title, year)).replace(' ', '.')
         for pdb in predb_titles:
             if year not in pdb:
                 continue
             pdb = pdb.split(year)[0] + year
-            match = lm.score(pdb, movie) * 100
+            match = lm.score(pdb.replace(' ', '.'), movie) * 100
             if match > 60:
                 logging.debug('{} matches {} at {}%'.format(pdb, movie, int(match)))
                 return True
