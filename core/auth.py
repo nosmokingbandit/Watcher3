@@ -77,7 +77,7 @@ class AuthController(object):
 
     @cherrypy.expose
     def default(self):
-        return self.login_form.render(url_base=core.URL_BASE, theme=core.CONFIG['Server']['uitheme'])
+        return self.login_form.render(url_base=core.URL_BASE, uitheme=core.CONFIG['Server']['uitheme'])
 
     def on_login(self, username, origin_ip):
         ''' Called on successful login
