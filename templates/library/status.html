@@ -29,9 +29,9 @@
             <div class="col-md-4 col-md-push-4 col-sm-6">
                 <div class="btn-group pull-right">
                     <select id="movie_sort_key" class="btn btn-default">
-                        <option value="title">${_('Title')}</option>
-                        <option value="year">${_('Year')}</option>
-                        <option value="status">${_('Status')}</option>
+                        <option value="title">Title</option>
+                        <option value="year">Year</option>
+                        <option value="status">Status</option>
                     </select>
                     <a class="btn btn-default" id="sort_direction" onclick="switch_sort_direction(event, this)">
                         <i class="mdi"></i>
@@ -93,19 +93,19 @@
                             IMDB <i class="mdi mdi-earth"></i>
                         </a>
                         <span class="label label-default">
-                            ${_('Theatrical Release')}: {release_date}
+                            Theatrical Release: {release_date}
                         </span>
                         <span class="label label-default">
-                            ${_('Home Release')}: {media_release_date}
+                            Home Release: {media_release_date}
                         </span>
                         <span class="label label-default">
-                            ${_('Score')}: {score}
+                            Score: {score}
                         </span>
                         <span class="label label-default">
-                            ${_('Source')}: {origin}
+                            Source: {origin}
                         </span>
                         <span class="label label-default">
-                            ${_('Date Added')}: {added_date}
+                            Date Added: {added_date}
                         </span>
                     </div>
 
@@ -130,7 +130,7 @@
 
                             <div id="movie_settings" class="col-md-8">
                                 <div class="col-md-5 col-sm-12">
-                                    <label>${_('Quality')}</label>
+                                    <label>Quality</label>
                                     <select id="movie_quality" class="btn btn-default">
                                         %for i in profiles:
                                         <option value="${i}">${i}</option>
@@ -140,8 +140,8 @@
                                 <div class="col-md-5 col-sm-12">
                                     <label>Status</label>
                                     <select id="movie_status" class="btn btn-default">
-                                        <option value="Automatic">${_('Automatic')}</option>
-                                        <option value="Disabled">${_('Finished')}</option>
+                                        <option value="Automatic">Automatic</option>
+                                        <option value="Disabled">Finished</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2 col-sm-12">
@@ -163,7 +163,7 @@
 
                     <div class="modal-footer">
 
-                        <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                        <a class="btn btn-default" data-dismiss="modal">Close</a>
                     </div>
                 </div>
             </div>
@@ -175,16 +175,16 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title">
-                            ${_('Remove from Library')}
+                            Remove from Library
                         </h3>
                     </div>
 
                     <div class="modal-body">
                         <div class="col-md-12">
-                            ${_('Are you sure you want to remove <b>{title}</b> from your library?')}
+                            Are your sure you want to remove <b>{title}</b> from your library?
 
                             <div id="delete_file">
-                                <i class="c_box mdi mdi-checkbox-blank-outline" value="False"></i> ${_('Delete movie file')}
+                                <i class="c_box mdi mdi-checkbox-blank-outline" value="False"></i> Delete movie file
                             </div>
                         </div>
 
@@ -192,8 +192,8 @@
 
                     <div class="modal-footer">
 
-                        <a class="btn btn-default" data-dismiss="modal">${_('Cancel')}</a>
-                        <a class="btn btn-warning pull-right" onclick="_remove_movie(event, this, '{imdbid}')">${_('Remove')}</a>
+                        <a class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        <a class="btn btn-warning pull-right" onclick="_remove_movie(event, this, '{imdbid}')">Remove</a>
                     </div>
                 </div>
             </div>

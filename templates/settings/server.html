@@ -12,21 +12,21 @@
         ${navbar}
         <div class="container-fluid">
 
-            <h1>${_('Server')}</h1>
+            <h1>Server</h1>
             <form class="form-horizontal well" data-category="server">
 
                 <div class="col-md-6">
-                    <label>${_('Host')} *</label>
+                    <label>Host *</label>
                     <input type="text" id="serverhost" class="form-control" placeholder="0.0.0.0" value="${config['serverhost']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Port')} *</label>
+                    <label>Port *</label>
                     <input type="number" id="serverport" class="form-control" placeholder="9090" min="0" value="${config['serverport']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Custom Webroot')} *</label>
+                    <label>Custom Webroot *</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="customwebroot" class="mdi mdi-checkbox-blank-outline c_box" value="${config['customwebroot']}"></i>
@@ -36,66 +36,66 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Api Key')}</label>
+                    <label>Api Key</label>
                     <div class="input-group">
                         <input type="text" id="apikey" class="form-control" value="${config['apikey']}">
                         <span class="input-group-btn">
                             <a class="btn btn-primary" onclick="new_key(event)">
                                 <i class="mdi mdi-key-variant"></i>
-                                ${_('New Key')}
+                                New Key
                             </a>
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Keep [X] Days of Logs')} *</label>
+                    <label>Keep [X] Days of Logs *</label>
                     <input type="number" id="keeplog" class="form-control" min="0" placeholder="3" value="${config['keeplog']}">
                 </div>
 
 
             </form>
 
-            <h1>${_('Security')}</h1>
+            <h1>Security</h1>
             <form class="form-horizontal well" data-category="server">
                 <div class="col-md-6">
-                    <label>${_('Password-protect Web-UI')} *</label>
+                    <label>Password-protect Web-UI *</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="authrequired" class="mdi mdi-checkbox-blank-outline c_box" value="${config['authrequired']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                                ${_('Require login to access Web-UI.')}
+                                Require login to access Web-UI.
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <label>${_('User')}</label>
+                    <label>User</label>
                     <input type="text" id="authuser" class="form-control" value="${config['authuser']}">
                 </div>
                 <div class="col-md-3">
-                    <label>${_('Password')}</label>
+                    <label>Password</label>
                     <input type="text" id="authpass" class="form-control" value="${config['authpass']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('SSL Cert')} *</label>
+                    <label>SSL Cert *</label>
                     <input type="text" id="ssl_cert" class="form-control" placeholder="/path/to/cert.crt" value="${config['ssl_cert']}">
                 </div>
                 <div class="col-md-6">
-                    <label>${_('SSL Key')} *</label>
+                    <label>SSL Key *</label>
                     <input type="text" id="ssl_key" class="form-control" placeholder="/path/to/privatekey.key" value="${config['ssl_key']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Verify Remote SSL Certificates')}</label>
+                    <label>Verify Remote SSL Certificates</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="verifyssl" class="mdi mdi-checkbox-blank-outline c_box" value="${config['verifyssl']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            ${_('Disable for non-functional SSL installs.')}
+                            Disable for non-functional SSL installs.
                         </span>
                     </div>
                 </div>
@@ -103,11 +103,11 @@
 
             </form>
 
-            <h1>${_('Interface')}</h1>
+            <h1>Interface</h1>
             <form class="form-horizontal well" data-category="server">
 
                 <div class="col-md-6">
-                    <label>${_('Theme')}</label>
+                    <label>Theme</label>
                     <select class="form-control select-sm" id="uitheme" value="${config['uitheme'] or 'Default'}">
                         %for i in themes:
                         <option value="${i}">${i}</option>
@@ -116,64 +116,64 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Open Browser')}</label>
+                    <label>Open Browser</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="launchbrowser" class="mdi mdi-checkbox-blank-outline c_box" value="${config['launchbrowser']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            ${_('Open Browser when launching Watcher.')}
+                            Open Browser when launching Watcher.
                         </span>
                     </div>
                 </div>
             </form>
 
-            <h1>${_('Updates')}</h1>
+            <h1>Updates</h1>
             <form class="form-horizontal well" data-category="server">
 
                 <div class="col-md-6">
-                    <label>${_('Check for Updates')}</label>
+                    <label>Check for Updates</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="checkupdates" class="mdi mdi-checkbox-blank-outline c_box" value="${config['checkupdates']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            ${_('Automatically check for updates.')}
+                            Automatically check for updates.
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Update Check Frequency')}</label>
+                    <label>Update Check Frequency</label>
                     <div class="input-group">
                         <input type="number" id="checkupdatefrequency" class="form-control" min="4" placeholder="24 "value="${config['checkupdatefrequency']}">
                         <span class="input-group-addon">
-                            ${_('Hours')}
+                            Hours
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Install Updates')}</label>
+                    <label>Install Updates</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="installupdates" class="mdi mdi-checkbox-blank-outline c_box" value="${config['installupdates']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            ${_('Automatically install updates.')}
+                            Automatically install updates.
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Check for Updates')}</label>
+                    <label>Check for Updates</label>
                     <a class="btn btn-primary btn-block" onclick="update_check(event, this)">
                         <i class="mdi mdi-update"></i>
-                        ${_('Check for Updates Now')}
+                        Check for Updates Now
                     </a>
                 </div>
                 <div class="col-md-6">
-                    <label>${_('Current Version Hash')}</label>
+                    <label>Current Version Hash</label>
                     <span class="input-group-item form-control">
                         <a href="https://github.com/nosmokingbandit/Watcher3/commit/${version}">
                             ${version}
@@ -182,23 +182,23 @@
                 </div>
             </form>
 
-            <h1>${_('Proxy')}</h1>
+            <h1>Proxy</h1>
             <form class="form-horizontal well" data-category="proxy">
 
                 <div class="col-md-6">
-                    <label>${_('Enable Proxy')}</label>
+                    <label>Enable Proxy</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="enabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Proxy']['enabled']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            ${_('Use proxy when connecting to Indexers.')}
+                            Use proxy when connecting to Indexers.
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Proxy Protocol')}</label>
+                    <label>Proxy Protocol</label>
                     <select class="form-control select-sm" id="type" value="${config['Proxy']['type']}">
                         <option value="http(s)">HTTP(s)</option>
                         <option value="socks4">SOCKS4</option>
@@ -207,49 +207,49 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Address')}</label>
+                    <label>Address</label>
                     <input type="text" id="host" class="form-control" placeholder="https://1.2.3.4" value="${config['Proxy']['host']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Port')}</label>
+                    <label>Port</label>
                     <input type="number" id="port" class="form-control" min="0" placeholder="1234" value="${config['Proxy']['port']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('User Name')}</label>
+                    <label>User Name</label>
                     <input type="text" id="user" class="form-control" placeholder="Rick_Sanchez" value="${config['Proxy']['user']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>${_('Password')}</label>
+                    <label>Password</label>
                     <input type="text" id="pass" class="form-control" placeholder="rickest_rick_c-137" value="${config['Proxy']['pass']}">
                 </div>
 
                 <div class="col-md-12">
-                    <label>${_('Whitelist')}</label>
-                    <input type="text" id="whitelist" class="form-control" placeholder="http://localhost:5075, http://localhost:5060" value="${config['Proxy']['whitelist']}" data-toggle="tooltip" title="${_('Separate URLs with commas')}">
+                    <label>Whitelist</label>
+                    <input type="text" id="whitelist" class="form-control" placeholder="http://localhost:5075, http://localhost:5060" value="${config['Proxy']['whitelist']}" data-toggle="tooltip"title="Separate URLs with commas.">
                 </div>
 
             </form>
             <p>
-                * ${_('Requires Restart')}
+                * Requires Restart
                 <br/><br/>
             </p>
 
             <div class="btn-group">
                 <a class="btn btn-warning" data-toggle="modal" data-target="#modal_restart">
                     <i class="mdi mdi-restart"></i>
-                    ${_('Restart')}
+                    Restart
                 </a>
                 <a class="btn btn-danger" data-toggle="modal" data-target="#modal_shutdown">
                     <i class="mdi mdi-power"></i>
-                    ${_('Shut Down')}
+                    Shut Down
                 </a>
             </div>
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                ${_('Save Settings')}
+                Save Settings
             </a>
         </div>
 

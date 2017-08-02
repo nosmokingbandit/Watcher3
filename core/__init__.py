@@ -46,15 +46,13 @@ SESSION_KEY = '_cp_username'                # Key to use when generating login s
 TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting
 TMDB_LAST_FILL = None   # Obj datetime.datetime.now() of last time TMDB tokens have been filled
 
-# Global Constants
+# Global Media Constants
 SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P',
            'WebDL-4K', 'WebDL-1080P', 'WebDL-720P',
            'WebRip-4K', 'WebRip-1080P', 'WebRip-720P',
            'DVD-SD',
            'Screener-1080P', 'Screener-720P',
            'Telesync-SD', 'CAM-SD')
-
-LANGUAGES = {}
 
 # Module instances
 sql = None

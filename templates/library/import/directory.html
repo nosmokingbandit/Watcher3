@@ -9,7 +9,7 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>${_('Import Directory')}</h1>
+            <h1>Import Directory</h1>
             <br/>
             <span id="progress_text"></span>
             <div class="progress hidden">
@@ -18,7 +18,7 @@
 
             <div id="select_directory" class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Select Directory')}</h3>
+                    <h3 class="panel-title">Select Directory</h3>
                 </div>
                 <div class="panel-body">
                     <div class="col-md-12">
@@ -34,24 +34,24 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label>${_('Minimum File Size')}</label>
+                        <label>Minimum File Size</label>
                         <div class="input-group">
                             <span class="input-group-item">
                                 <input type="number" id="min_file_size" class="form-control" min="0" value="500">
                             </span>
                             <span class="input-group-addon">
-                                ${_('MegaBytes')}
+                                MegaBytes
                             </span>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label>${_('Scan Recursively')}</label>
+                        <label>Scan Recursively</label>
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i id="scan_recursive" class="mdi mdi-checkbox-marked c_box" value="True"></i>
                             </span>
                             <span class="input-group-item form-control">
-                                ${_('Scan sub-folders as well.')}
+                                Scan sub-folders as well.
                             </span>
                         </div>
                     </div>
@@ -59,32 +59,32 @@
             </div>
             <a id="scan_dir" class="btn btn-primary" onclick="scan_library(event, this)">
                 <i class="mdi mdi-file-find"></i>
-                ${_('Scan Directory')}
+                Scan Directory
             </a>
 
             <div id="no_new_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('No New Movies Found')}</h3>
+                    <h3 class="panel-title">No New Movies Found</h3>
                 </div>
                 <div class="panel-body">
-                    ${_('No new movies have been found.')}
+                    No new movies have been found.
                 </div>
             </div>
 
             <div id="complete_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Found Movies')}</h3>
+                    <h3 class="panel-title">Found Movies</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">${_('Import')}</th>
-                                <th>${_('File')}</th>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('TheMovieDB&nbsp;ID')}</th>
-                                <th class="shrink">${_('Source')}</th>
-                                <th>${_('Size')}</th>
+                                <th class="shrink">Import</th>
+                                <th>File</th>
+                                <th>Title</th>
+                                <th class="shrink">TheMovieDB&nbsp;ID</th>
+                                <th class="shrink">Source</th>
+                                <th>Size</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -95,19 +95,19 @@
 
             <div id="incomplete_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Incomplete Movies')}</h3>
+                    <h3 class="panel-title">Incomplete Movies</h3>
                 </div>
                 <div class="panel-body">
-                    <p>${_('The following movies are missing key information. Review and correct as needed.')}</p>
+                    <p>The following movies are missing key information. Review and correct as needed.</p>
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">${_('Import')}</th>
-                                <th class="file_path">${_('File')}</th>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('TheMovieDB&nbsp;ID')}</th>
-                                <th class="shrink">${_('Source')}</th>
-                                <th>${_('Size')}</th>
+                                <th class="shrink">Import</th>
+                                <th class="file_path">File</th>
+                                <th>Title</th>
+                                <th class="shrink">TheMovieDB&nbsp;ID</th>
+                                <th class="shrink">Source</th>
+                                <th>Size</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -118,20 +118,20 @@
 
             <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
                 <i class="mdi mdi-archive"></i>
-                ${_('Import Library')}
+                Import Library
             </a>
 
             <div id="import_success" class="panel panel-success hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Imported Movies')}</h3>
+                    <h3 class="panel-title">Imported Movies</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
+                                <th>Title</th>
                                 <th class="shrink">
-                                    ${_('TheMovieDB&nbsp;ID')}
+                                    TheMovieDB&nbsp;ID
                                     <a href="https://www.themoviedb.org/">
                                         <i class="mdi mdi-globe"></i>
                                     </a>
@@ -146,14 +146,14 @@
 
             <div id="import_error" class="panel panel-danger hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Import Errors')}</h3>
+                    <h3 class="panel-title">Import Errors</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
-                                <th>${_('Error')}</th>
+                                <th>Title</th>
+                                <th>Error</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,7 +164,7 @@
 
             <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
                 <i class="mdi mdi-undo-variant"></i>
-                ${_('Return')}
+                Return
             </a>
 
 
@@ -192,7 +192,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">${_('Select Library Directory')}</h4>
+                        <h4 class="modal-title">Select Library Directory</h4>
                     </div>
                     <div class="modal-body">
                         <div class="well col-md-12" id="modal_current_dir">
@@ -209,8 +209,8 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <a type="button" class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                        <a type="button" class="btn btn-primary pull-right" onclick="file_browser_select(event, this)">${_('Select')}</a>
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+                        <a type="button" class="btn btn-primary pull-right" onclick="file_browser_select(event, this)">Select</a>
                     </div>
                 </div>
             </div>

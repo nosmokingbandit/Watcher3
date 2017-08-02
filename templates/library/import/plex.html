@@ -9,7 +9,7 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>${_('Import Plex Library')}</h1>
+            <h1>Import Plex Library</h1>
             <br/>
             <span id="progress_text"></span>
             <div class="progress hidden">
@@ -18,7 +18,7 @@
 
             <div id="csv_upload" class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Upload Plex CSV')}</h3>
+                    <h3 class="panel-title">Upload Plex CSV</h3>
                     <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Importing-from-other-applications#plex" target="_blank" rel="noopener">
                         <i class="mdi mdi-help-circle-outline"></i>
                     </a>
@@ -28,7 +28,7 @@
                         <label class="btn btn-default input-group-btn" for="plex_csv">
                             <input id="plex_csv" type="file" style="display:none;" onchange="$('input#plex_csv_file').val($(this).val());">
                             <i class="mdi mdi-file-document"></i>
-                            ${_('Select CSV')}
+                            Select CSV
                         </label>
                         <input id="plex_csv_file" class="form-control input-group-item" disabled></input>
                     </div>
@@ -36,47 +36,47 @@
             </div>
             <a id="read_csv" class="btn btn-primary" onclick="read_csv(event, this)">
                 <i class="mdi mdi-file-find"></i>
-                ${_('Read CSV')}
+                Read CSV
             </a>
 
             <div id="no_new_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('No New Movies Found')}</h3>
+                    <h3 class="panel-title">No New Movies Found</h3>
                 </div>
                 <div class="panel-body">
-                    ${_('No new movies have been found in Plex\'s library.')}
+                    No new movies have been found in Plex's library.
                 </div>
             </div>
 
             <div id="remote_map" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Remote Paths')}</h3>
+                    <h3 class="panel-title">Remote Paths</h3>
                 </div>
                 <div class="panel-body">
-                    <p>${_('Plex lists file locations relative to itself. If Plex is on a different device than Watcher you may need to alter file paths.')}
+                    <p>Plex lists file locations relative to itself. If Plex is on a different device than Watcher you may need to alter file paths.
                     </p>
                     <p>
-                        ${_('To alter a remote path, enter the information in the following form and click Apply. Multiple changes can be applied. Use the same principles as described in the wiki.')}
+                        To alter a remote path, enter the information in the following form and click Apply. Multiple changes can be applied. Use the same principles as described in the wiki.
                         <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Remote-Mapping" target="_blank" rel="noopener">
                             <i class="mdi mdi-help-circle-outline"></i>
                         </a>
                     </p>
                     <div class="col-md-6">
-                        <label>${_('Local Path')}</label>
+                        <label>Local Path</label>
                         <input type="text" id="local_path" class="form-control" placeholder="//Movies">
                     </div>
                     <div class="col-md-6">
-                        <label>${_('Remote Path')}</label>
+                        <label>Remote Path</label>
                         <input type="text" id="remote_path" class="form-control" placeholder="//Movies">
                     </div>
                     <div id="remote_actions" class="col-md-6 btn-group">
                         <a class="btn btn-default" onclick="apply_remote(event)">
                             <i class="mdi mdi-check"></i>
-                            ${_('Apply')}
+                            Apply
                         </a>
                         <a class="btn btn-default" onclick="reset_remote(event)">
                             <i class="mdi mdi-undo"></i>
-                            ${_('Reset')}
+                            Reset
                         </a>
                     </div>
                 </div>
@@ -84,17 +84,17 @@
 
             <div id="complete_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Plex Movies')}</h3>
+                    <h3 class="panel-title">Plex Movies</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">${_('Import')}</th>
-                                <th>${_('File')}</th>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('ID')}</th>
-                                <th class="shrink">${_('Source')}</th>
+                                <th class="shrink">Import</th>
+                                <th>File</th>
+                                <th>Title</th>
+                                <th class="shrink">ID</th>
+                                <th class="shrink">Source</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,18 +105,18 @@
 
             <div id="incomplete_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Incomplete Movies')}</h3>
+                    <h3 class="panel-title">Incomplete Movies</h3>
                 </div>
                 <div class="panel-body">
-                    <p>${_('The following movies are missing key information. Review and correct as needed.')}</p>
+                    <p>The following movies are missing key information. Review and correct as needed.</p>
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">${_('Import')}</th>
-                                <th class="file_path">${_('File')}</th>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('IMDB ID')}</th>
-                                <th class="shrink">${_('Source')}</th>
+                                <th class="shrink">Import</th>
+                                <th class="file_path">File</th>
+                                <th>Title</th>
+                                <th class="shrink">IMDB ID</th>
+                                <th class="shrink">Source</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -127,20 +127,20 @@
 
             <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
                 <i class="mdi mdi-archive"></i>
-                ${_('Import Library')}
+                Import Library
             </a>
 
 
             <div id="import_success" class="panel panel-success hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Imported Movies')}</h3>
+                    <h3 class="panel-title">Imported Movies</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('IMDB ID')}</th>
+                                <th>Title</th>
+                                <th class="shrink">IMDB ID</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -151,14 +151,14 @@
 
             <div id="import_error" class="panel panel-danger hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">${_('Import Errors')}</h3>
+                    <h3 class="panel-title">Import Errors</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
-                                <th>${_('Error')}</th>
+                                <th>Title</th>
+                                <th>Error</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -169,7 +169,7 @@
 
             <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
                 <i class="mdi mdi-undo-variant"></i>
-                ${_('Return')}
+                Return
             </a>
 
 

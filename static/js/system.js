@@ -108,7 +108,7 @@ function create_backup(event, elem){
     $.post(url_base + "/ajax/create_backup", {})
     .done(function(response){
         if(response["response"] == true){
-            $.notify({message: response["message"]}, {delay: 0})
+            $.notify({message: `Backup created as:<br/>${response["zipfile"]}`}, {delay: 0})
         } else {
             $.notify({message: `${response['error']}`}, {type: "danger", delay: 0})
         }
