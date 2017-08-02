@@ -179,10 +179,10 @@ class ScheduledTask(object):
 
         return delay
 
-    def _task(self, manual=False):
+    def _task(self, manual=False, restart=True):
         ''' Executes the task fn
         manual (bool): if task is being ran by user command     <optional - default False>
-
+        restart (bool): if the timer should be restarted        <optional - default True>
         manual flag only affects logging
 
         Starts new timer based on self.interval
@@ -200,8 +200,9 @@ class ScheduledTask(object):
         else:
             logging.info('== Executing Scheduled Task: {} =='.format(self.name))
 
-        self.timer = Timer(self.interval, self._task)
-        self.timer.start()
+        if restart:
+            self.timer = Timer(self.interval, self._task)
+            self.timer.start()
         le = datetime.today().replace(microsecond=0)
 
         self.task()
@@ -303,7 +304,7 @@ class ScheduledTask(object):
             raise TimerConflictError('The task {} is currently being executed.'.format(self.name))
         else:
             self.timer.cancel()
-            self._task()
+            self._task(restart=self.timer.is_alive())
             return self.last_execution
 
 
