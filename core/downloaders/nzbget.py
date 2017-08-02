@@ -42,9 +42,9 @@ class Nzbget():
             return '{}.'.format(e)
 
     @staticmethod
-    def add_nzb(data):
+    def add_nzb(nzb):
         ''' Adds nzb file to nzbget to download
-        :param data: dict of nzb information
+        :param nzb: dict of nzb information
 
         Returns str response from server
         '''
@@ -65,8 +65,8 @@ class Nzbget():
 
         nzbg_server = ServerProxy(url)
 
-        filename = '{}.nzb'.format(data['title'])
-        contenturl = data['guid']
+        filename = '{}.nzb'.format(nzb['title'])
+        contenturl = nzb['guid']
         category = conf['category']
         priority_keys = {
             'Very Low': -100,
@@ -81,8 +81,8 @@ class Nzbget():
             paused = True
         else:
             paused = False
-        dupekey = data['imdbid']
-        dupescore = data['score']
+        dupekey = nzb['imdbid']
+        dupescore = nzb['score']
         dupemode = 'All'
 
         try:
