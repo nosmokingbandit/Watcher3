@@ -72,17 +72,14 @@ class Config():
         Does not return.
         '''
 
-        conf = core.CONFIG
+        diff = Comparisons.compare_dict(data, core.CONFIG)
 
-        diff = Comparisons.compare_dict(data, conf)
-
-        for k, v in data.items():
-            conf[k] = v
+        core.CONFIG.update(data)
 
         with open(self.file, 'w') as f:
-            json.dump(conf, f, indent=4, sort_keys=True)
+            json.dump(core.CONFIG, f, indent=4, sort_keys=True)
 
-        self.stash(config=conf)
+        self.stash(config=core.CONFIG)
 
         if diff:
             scheduler.restart_scheduler(diff)
