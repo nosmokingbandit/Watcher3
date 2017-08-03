@@ -34,7 +34,7 @@ CURRENT_HASH = None         # Current commit hash of install
 
 # Dynamic info
 NEXT_SEARCH = None                          # Obj datetime.datetime.now() + searchfrequency
-CONFIG = None                               # Dict of config file
+CONFIG = {}                                 # Dict of config file
 NOTIFICATIONS = []                          # List of dicts of notifications and individual settings
 NO_VERIFY = ssl.create_default_context()    # Obj no verify context for requests
 NO_VERIFY.check_hostname = False
