@@ -114,6 +114,7 @@ class SQL(object):
         print('Creating tables.')
         self.metadata.create_all(self.engine)
         self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+        self.set_version(current_version)
         logging.info('Connected to database {}'.format(DB_NAME))
         print('Connected to database {}'.format(DB_NAME))
         return
