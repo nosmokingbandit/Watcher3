@@ -10,7 +10,7 @@ if sys.version_info < MIN_PYTHON:
 import core
 core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
 os.chdir(core.PROG_PATH)
-core.SCRIPT_PATH = os.path.join(core.PROG_PATH, __file__)
+core.SCRIPT_PATH = os.path.join(core.PROG_PATH, os.path.basename(__file__))
 
 import argparse
 import locale
