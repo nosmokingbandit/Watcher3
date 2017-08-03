@@ -40,9 +40,11 @@ $(document).ready(function(){
 /* Read cookie vars */
     movie_layout = cookie["movie_layout"] || "posters";
     movie_sort_direction = cookie["movie_sort_direction"] || "desc";
-    movie_sort_key = cookie["movie_sort_key"] || "title";
+    movie_sort_key = cookie["movie_sort_key"] || "sort_title";
     if(movie_sort_key == 'status_key'){
         movie_sort_key = 'status'
+    } else if(movie_sort_key == 'title') {
+        movie_sort_key = 'sort_title'
     }
 /* Set sort ui elements off cookie */
     $movie_list.removeClass().addClass(movie_layout);
