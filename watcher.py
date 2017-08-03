@@ -67,6 +67,7 @@ if __name__ == '__main__':
     else:
         core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
     core.sql = sqldb.SQL()
+    core.sql.update_database()
     core.manage = library.Manage()
 
     # set up config file on first launch

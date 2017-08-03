@@ -10,6 +10,8 @@ from sqlalchemy import *
 
 logging = logging.getLogger(__name__)
 
+current_version = 2
+
 
 class SQL(object):
     '''
@@ -57,7 +59,8 @@ class SQL(object):
                             Column('tmdbid', TEXT),
                             Column('alternative_titles', TEXT),
                             Column('media_release_date', TEXT),
-                            Column('origin', TEXT)
+                            Column('origin', TEXT),
+                            Column('sort_title', TEXT)
                             )
         self.SEARCHRESULTS = Table('SEARCHRESULTS', self.metadata,
                                    Column('score', SMALLINT),
@@ -92,8 +95,9 @@ class SQL(object):
                 print('Creating database file {}'.format(core.DB_FILE))
                 self.create_database(DB_NAME)
             else:
+                logging.info('Connected to database {}'.format(DB_NAME))
                 print('Connected to database {}'.format(DB_NAME))
-                self.update_tables()
+
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
@@ -609,17 +613,10 @@ class SQL(object):
 
         Adds new rows to table based on diff between intended and existing schema
 
-        Also includes other methods required to manipulate database on startup
-
-        Returns Bool
+        Returns Bool, but should crash program if an exception is thrown. DO NOT CATCH EXCEPTIONS
         '''
 
         logging.info('Checking if database needs to be updated.')
-
-        for i in self.get_user_movies():
-            p = i['poster']
-            if p and 'poster/' in p:
-                self.update('MOVIES', 'poster', p.replace('poster/', 'posters/'), 'imdbid', i['imdbid'])
 
         existing = self._get_existing_schema()
         intended = self._get_intended_schema()
@@ -628,23 +625,6 @@ class SQL(object):
 
         if not diff:
             return True
-
-        print('Database update required. This may take some time.')
-        logging.info('Updating database schema.')
-
-        backup_dir = os.path.join(core.PROG_PATH, 'db')
-        logging.debug('Backing up database to {}.'.format(backup_dir))
-        print('Backing up database to {}.'.format(backup_dir))
-        try:
-            if not os.path.isdir(backup_dir):
-                os.mkdir(backup_dir)
-            backup_name = 'watcher.sqlite.{}'.format(datetime.date.today())
-
-            shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup_name))
-        except Exception as e:
-            print('Error backing up database.')
-            logging.error('Copying SQL DB.', exc_info=True)
-            raise
 
         logging.debug('Modifying database tables.')
         print('Modifying tables.')
@@ -701,8 +681,7 @@ class SQL(object):
             logging.debug('Finished updating table {}.'.format(table))
             print('Finished updating table {}'.format(table))
 
-        logging.debug('Database updated')
-        print('Database updated.')
+            return True
 
     def torznab_caps(self, url):
         ''' Gets caps list for torznab providers
@@ -721,3 +700,95 @@ class SQL(object):
             return []
         else:
             return caps[0].split(',')
+
+    def version(self):
+        ''' Get user_version of sql database
+
+        Returns int of db version
+        '''
+        return self.execute(['PRAGMA user_version']).fetchone()[0]
+
+    def set_version(self, v):
+        ''' Set user_version of sql database
+        v (int): version of database to set
+
+        Does not return
+        '''
+        self.execute(['PRAGMA user_version = {}'.format(v)])
+
+    def update_database(self):
+        ''' Handles database updates
+        '''
+        v = self.version()
+        if v >= current_version:
+            return
+
+        print('Database update required. This may take some time.')
+        logging.info('Updating database to version {}.'.format(current_version))
+
+        backup_dir = os.path.join(core.PROG_PATH, 'db')
+        logging.debug('Backing up database to {}.'.format(backup_dir))
+        print('Backing up database to {}.'.format(backup_dir))
+        try:
+            if not os.path.isdir(backup_dir):
+                os.mkdir(backup_dir)
+            backup_name = 'watcher.sqlite.{}'.format(datetime.date.today())
+
+            shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup_name))
+        except Exception as e:
+            print('Error backing up database.')
+            logging.error('Copying SQL DB.', exc_info=True)
+            raise
+
+        for i in range(v, current_version + 1):
+            logging.info('Executing Database Update {}'.format(i))
+            print('Executing database update {}'.format(i))
+            m = getattr(DatabaseUpdate, 'update_{}'.format(i))
+            m()
+
+        self.set_version(current_version)
+
+
+class DatabaseUpdate(object):
+    ''' namespace for database update methods
+    There is one method for each database version. These methods are NOT
+        cumulative and MUST be executed in order.
+
+    '''
+
+    @staticmethod
+    def update_0():
+        pass
+
+    @staticmethod
+    def update_1():
+        ''' Correct posters column in MOVIES
+        Change 'poster/' to 'posters/' in file path
+        '''
+        for i in core.sql.get_user_movies():
+            p = i['poster']
+            if p and 'poster/' in p:
+                core.sql.update('MOVIES', 'poster', p.replace('poster/', 'posters/'), 'imdbid', i['imdbid'])
+
+    @staticmethod
+    def update_2():
+        ''' Add sort_titles column in MOVIES
+        sort_title is like title, but with articles placed at the end
+            ie: The Movie Name is Movie Name, The
+
+        Populates column with titles
+        '''
+        core.sql.update_tables()
+
+        for i in core.sql.get_user_movies():
+            t = i['title']
+            if t.startswith('The '):
+                t = t[4:] + ', The'
+            elif t.startswith('A '):
+                t = t[2:] + ', A'
+            elif t.startswith('An '):
+                t = t[3:] + ', An'
+
+            core.sql.update('MOVIES', 'sort_title', t, 'imdbid', i['imdbid'])
+
+    # Adding a new method? Remember to update the current_version #
