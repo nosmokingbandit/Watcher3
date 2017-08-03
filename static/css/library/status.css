@@ -149,6 +149,10 @@ ul#movie_list.compact li span.year{
     text-align: right;
 }
 
+div#hidden_count{
+    text-align: center;
+}
+
 /* Status Modal */
 div.modal-header h3{
     display: block;

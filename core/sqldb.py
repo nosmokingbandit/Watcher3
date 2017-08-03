@@ -263,12 +263,13 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=0):
+    def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=0, hide_finished=False):
         ''' Gets user's movie from database
         sort_key (str): key to sort by
         sort_direction (str): order to sort results [ASC, DESC]
         limit (int): how many results to return
         offset (int): list index to start returning results
+        hide_finished (bool): return
 
         If limit is -1 all results are returned (still honors offset)
 
@@ -277,6 +278,8 @@ class SQL(object):
         sort_direction = {'ASC': 'DESC', 'DESC': 'ASC'}[sort_direction]
 
         logging.debug('Retrieving list of user\'s movies.')
+
+        filters = 'WHERE status NOT IN ("Finished", "Disabled")' if hide_finished else ''
 
         if sort_key == 'status':
             sort_key = '''CASE WHEN status = "Waiting" THEN 1
@@ -288,7 +291,7 @@ class SQL(object):
                           END
                        '''
 
-        command = 'SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)
+        command = 'SELECT * FROM MOVIES {} ORDER BY {} {}'.format(filters, sort_key, sort_direction)
 
         command += ', sort_title ASC' if sort_key != 'sort_title' else ''
 
@@ -303,7 +306,7 @@ class SQL(object):
             logging.error('Unable to get list of user\'s movies.')
             return []
 
-    def get_library_count(self):
+    def get_library_count(self, hide_finished=False):
         ''' Gets count of rows in MOVIES
 
         Returns int
@@ -311,9 +314,11 @@ class SQL(object):
 
         logging.debug('Getting count of library.')
 
-        command = ['SELECT COUNT(1) FROM MOVIES']
+        filters = ' WHERE status NOT IN ("Finished", "Disabled")' if hide_finished else ''
 
-        result = self.execute(command)
+        command = 'SELECT COUNT(1) FROM MOVIES' + filters
+
+        result = self.execute([command])
 
         if result:
             x = result.fetchone()[0]

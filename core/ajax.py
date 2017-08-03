@@ -52,7 +52,7 @@ class Ajax(object):
         Returns list of dicts of movies
         '''
 
-        return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset)
+        return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset, hide_finished=core.CONFIG['Server']['hidefinished'])
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

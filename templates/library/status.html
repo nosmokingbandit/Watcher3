@@ -3,9 +3,9 @@
 
 <head>
     ${head}
-    <link href="${url_base}/static/css/library/status.css?v=07.28" rel="stylesheet">
+    <link href="${url_base}/static/css/library/status.css?v=08.03" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=06.07" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=07.30" type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=08.03" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
@@ -29,7 +29,7 @@
             <div class="col-md-4 col-md-push-4 col-sm-6">
                 <div class="btn-group pull-right">
                     <select id="movie_sort_key" class="btn btn-default">
-                        <option value="title">Title</option>
+                        <option value="sort_title">Title</option>
                         <option value="year">Year</option>
                         <option value="status">Status</option>
                     </select>
@@ -56,6 +56,11 @@
     <div class="container-fluid">
         <ul id="movie_list" class="hidden striped">
         </ul>
+        <div id="hidden_count" class="${'hidden' if hidden_count == 0 else ''}">
+            <div class="label label-default">
+                ${hidden_count} Finished movies not shown
+            </div>
+        </div>
     </div>
     <div id="overlay"></div>
     <textarea id="template_movie" class="hidden">
