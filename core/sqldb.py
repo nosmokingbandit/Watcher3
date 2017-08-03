@@ -290,8 +290,7 @@ class SQL(object):
 
         command = 'SELECT * FROM MOVIES ORDER BY {} {}'.format(sort_key, sort_direction)
 
-        if sort_key != 'title':
-            command += ', title ASC'
+        command += ', sort_title ASC' if sort_key != 'sort_title' else ''
 
         if int(limit) > 0:
             command += ' LIMIT {} OFFSET {}'.format(limit, offset)
