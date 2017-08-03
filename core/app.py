@@ -36,6 +36,7 @@ class App(object):
         if core.CONFIG['Server']['checkupdates']:
             scheduler.AutoUpdateCheck.update_check(install=False)
 
+
     def https_redirect(self=None):
         ''' Cherrypy tool to redirect http:// to https://
 
@@ -53,7 +54,6 @@ class App(object):
         defaults = {'head': self.head(),
                     'navbar': self.nav_bar(current=sys._getframe().f_back.f_code.co_name),
                     'url_base': core.URL_BASE
-                    # '_': _
                     }
         return defaults
 
@@ -110,21 +110,21 @@ class App(object):
             else:
                 movie_count = core.sql.get_library_count()
                 hidden_count = 0
-            return App.status_template.render(**self.defaults(), profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count, hidden_count=hidden_count)
+            return App.status_template.render(profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count, hidden_count=hidden_count, **self.defaults())
         elif page == 'manage':
             movies = core.sql.get_user_movies()
-            return App.manage_template.render(**self.defaults(), movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys())
+            return App.manage_template.render(movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
         elif page == 'import':
             subpage = path[1] if len(path) > 1 else None
 
             if not subpage:
                 return App.import_template.render(**self.defaults())
             elif subpage == "couchpotato":
-                return App.couchpotato_template.render(**self.defaults(), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys())
+                return App.couchpotato_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
             elif subpage == "kodi":
-                return App.kodi_template.render(**self.defaults(), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys())
+                return App.kodi_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
             elif subpage == "plex":
-                return App.plex_template.render(**self.defaults(), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys())
+                return App.plex_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
             elif subpage == "directory":
                 try:
                     start_dir = os.path.expanduser("~")
@@ -133,7 +133,7 @@ class App(object):
                     start_dir = core.PROG_PATH
                     file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
                 file_list.append('..')
-                return App.directory_template.render(**self.defaults(), sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=start_dir, file_list=file_list)
+                return App.directory_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), current_dir=start_dir, file_list=file_list, **self.defaults())
             else:
                 return self.error_page_404()
         elif page == 'stats':
@@ -143,7 +143,7 @@ class App(object):
 
     @cherrypy.expose
     def add_movie(self):
-        return App.add_movie_template.render(**self.defaults(), profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'])
+        return App.add_movie_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], **self.defaults())
 
     @cherrypy.expose
     def settings(self, *path):
@@ -151,24 +151,24 @@ class App(object):
 
         if page == 'server':
             themes = [i[:-4] for i in os.listdir('static/css/themes/') if i.endswith(".css") and os.path.isfile(os.path.join(core.PROG_PATH, 'static/css/themes', i))]
-            return App.server_template.render(**self.defaults(), config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '')
+            return App.server_template.render(config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '', **self.defaults())
         elif page == 'search':
-            return App.search_template.render(**self.defaults(), config=core.CONFIG['Search'])
+            return App.search_template.render(config=core.CONFIG['Search'], **self.defaults())
         elif page == 'quality':
-            return App.quality_template.render(**self.defaults(), config=core.CONFIG['Quality'], sources=core.SOURCES)
+            return App.quality_template.render(config=core.CONFIG['Quality'], sources=core.SOURCES, **self.defaults())
         elif page == 'indexers':
-            return App.indexers_template.render(**self.defaults(), config=core.CONFIG['Indexers'])
+            return App.indexers_template.render(config=core.CONFIG['Indexers'], **self.defaults())
         elif page == 'downloader':
-            return App.downloader_template.render(**self.defaults(), config=core.CONFIG['Downloader'])
+            return App.downloader_template.render(config=core.CONFIG['Downloader'], **self.defaults())
         elif page == 'postprocessing':
-            return App.postprocessing_template.render(**self.defaults(), config=core.CONFIG['Postprocessing'], os=core.PLATFORM)
+            return App.postprocessing_template.render(config=core.CONFIG['Postprocessing'], os=core.PLATFORM, **self.defaults())
         elif page == 'plugins':
             plugs = plugins.list_plugins()
-            return App.plugins_template.render(**self.defaults(), config=core.CONFIG['Plugins'], plugins=plugs)
+            return App.plugins_template.render(config=core.CONFIG['Plugins'], plugins=plugs, **self.defaults())
         elif page == 'logs':
             logdir = os.path.join(core.PROG_PATH, core.LOG_DIR)
             logfiles = [i for i in os.listdir(logdir) if os.path.isfile(os.path.join(logdir, i))]
-            return App.logs_template.render(**self.defaults(), logdir=logdir, logfiles=logfiles)
+            return App.logs_template.render(logdir=logdir, logfiles=logfiles, **self.defaults())
         elif page == 'system':
             tasks = {}
             for name, obj in core.scheduler_plugin.task_list.items():
@@ -188,7 +188,7 @@ class App(object):
             t = int(time.time())
             dt = time.strftime('%a, %B %d, %Y %H:%M:%S %z', time.localtime(t))
 
-            return App.system_template.render(**self.defaults(), tasks=json.dumps(tasks), system=system, server_time=[dt, t])
+            return App.system_template.render(tasks=json.dumps(tasks), system=system, server_time=[dt, t], **self.defaults())
         else:
             return self.error_page_404()
 
@@ -204,7 +204,7 @@ class App(object):
         if page == 'restart':
             return App.restart_template.render(**self.defaults())
         if page == 'update':
-            return App.update_template.render(**self.defaults(), updating=core.UPDATING)
+            return App.update_template.render(updating=core.UPDATING, **self.defaults())
 
     @cherrypy.expose
     def error_page_404(self, *args, **kwargs):
