@@ -25,6 +25,7 @@ imdb = imdb.ImdbRss()
 popular_feed = popularmovies.PopularMoviesFeed()
 trakt = trakt.Trakt()
 
+
 def create_plugin():
     ''' Creates plugin instance, adds tasks, and subscribes to cherrypy.engine
 
@@ -301,7 +302,7 @@ class AutoUpdateCheck(object):
 
         logging.info('Checking for updates.')
 
-        return ver.manager.update_check()
+        return ver.manager.update_check(install=install)
 
 
 class ImdbRssSync(object):
