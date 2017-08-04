@@ -14,7 +14,7 @@ from core.helpers import Url
 # get remote hash # git rev-parse origin/master
 # get local hash  # git rev-parse HEAD
 # Hash history    # git rev-list @{u}
-
+logmodule = logging
 logging = logging.getLogger(__name__)
 
 
@@ -474,8 +474,8 @@ class ZipUpdater(UpdateBase):
             return False
 
         logging.info('Creating temporary update log file.')
-        formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
-        handler = logging.FileHandler(os.path.join(update_path, 'log.txt'), 'a')
+        formatter = logmodule.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
+        handler = logmodule.FileHandler(os.path.join(update_path, 'log.txt'), 'a')
         handler.setFormatter(formatter)
         orig_log_handler = self.switch_log(handler)
 
