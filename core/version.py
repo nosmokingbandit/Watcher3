@@ -425,7 +425,6 @@ class ZipUpdater(UpdateBase):
 
         Returns object current log handler object (prior to running this method)
         '''
-        logging.debug('Switching to temporary log handler while updating.')
 
         import logging.handlers
 
@@ -474,6 +473,7 @@ class ZipUpdater(UpdateBase):
         formatter = logmodule.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
         handler = logmodule.FileHandler(os.path.join(update_path, 'log.txt'), 'a')
         handler.setFormatter(formatter)
+        logging.debug('Switching to temporary log handler while updating.')
         orig_log_handler = self.switch_log(handler)
 
         logging.info('Downloading latest Zip.')
