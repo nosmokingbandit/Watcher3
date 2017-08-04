@@ -854,7 +854,7 @@ class Zooqle(object):
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logging.error('ThePirateBay search failed.', exc_info=True)
+            logging.error('Zooqle search failed.', exc_info=True)
             return []
 
     @staticmethod
