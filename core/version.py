@@ -87,7 +87,7 @@ class Git(object):
 
         CREATE_NO_WINDOW = 0x08000000
 
-        command = ['git']
+        command = [core.CONFIG['Server']['gitpath'] or 'git']
         for i in args.split(' '):
             command.append(i)
 

@@ -43,69 +43,6 @@ def create_plugin():
     core.scheduler_plugin.subscribe()
 
 
-def restart_scheduler(diff):
-    ''' Restarts and scheduled tasks in diff
-    diff (dict): modified keys in config file
-
-    Reads diff and determines which tasks need to be restart_scheduler
-
-    Does not return
-    '''
-
-    now = datetime.datetime.today()
-
-    if 'Server' in diff:
-        d = diff['Server'].keys()
-
-        if any(i in d for i in ('checkupdates', 'checkupdatefrequency')):
-            hr = now.hour + core.CONFIG['Server']['checkupdatefrequency']
-            min = now.minute
-            interval = core.CONFIG['Server']['checkupdatefrequency'] * 3600
-            auto_start = core.CONFIG['Server']['checkupdates']
-            taskscheduler.SchedulerPlugin.task_list['Update Checker'].reload(hr, min, interval, auto_start=auto_start)
-
-    if 'Search' in diff:
-        d = diff['Search'].keys()
-        if 'rsssyncfrequency' in d:
-            hr = now.hour
-            min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
-            interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
-            auto_start = True
-            taskscheduler.SchedulerPlugin.task_list['Movie Search'].reload(hr, min, interval, auto_start=auto_start)
-
-        if 'Watchlists' in d:
-            d = diff['Search']['Watchlists'].keys()
-            if any(i in d for i in ('imdbfrequency', 'imdbsync')):
-                hr = now.hour
-                min = now.minute + core.CONFIG['Search']['Watchlists']['imdbfrequency']
-                interval = core.CONFIG['Search']['Watchlists']['imdbfrequency'] * 60
-                auto_start = core.CONFIG['Search']['Watchlists']['imdbsync']
-                taskscheduler.SchedulerPlugin.task_list['IMDB Sync'].reload(hr, min, interval, auto_start=auto_start)
-
-            if any(i in d for i in ('popularmoviessync', 'popularmovieshour', 'popularmoviesmin')):
-                hr = core.CONFIG['Search']['Watchlists']['popularmovieshour']
-                min = core.CONFIG['Search']['Watchlists']['popularmoviesmin']
-                interval = 24 * 3600
-                auto_start = core.CONFIG['Search']['Watchlists']['popularmoviessync']
-                taskscheduler.SchedulerPlugin.task_list['PopularMovies Sync'].reload(hr, min, interval, auto_start=auto_start)
-
-            if any(i in d for i in ('traktsync', 'traktfrequency')):
-                hr = now.hour
-                min = now.minute + core.CONFIG['Search']['Watchlists']['traktfrequency']
-                interval = core.CONFIG['Search']['Watchlists']['traktfrequency'] * 60
-                auto_start = core.CONFIG['Search']['Watchlists']['traktsync']
-                taskscheduler.SchedulerPlugin.task_list['Trakt Sync'].reload(hr, min, interval, auto_start=auto_start)
-
-    if 'Postprocessing' in diff:
-        d = diff['Postprocessing'].get('Scanner', {})
-        if any(i in d for i in ('interval', 'enabled')):
-            hr = now.hour
-            min = now.minute + core.CONFIG['Postprocessing']['Scanner']['interval']
-            interval = core.CONFIG['Postprocessing']['Scanner']['interval'] * 60
-            auto_start = core.CONFIG['Postprocessing']['Scanner']['enabled']
-            taskscheduler.SchedulerPlugin.task_list['PostProcessing Scan'].reload(hr, min, interval, auto_start=auto_start)
-
-
 class PostProcessingScan(object):
     ''' Scheduled task to automatically scan directory for movie to process '''
     @staticmethod
