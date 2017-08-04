@@ -760,6 +760,17 @@ class DatabaseUpdate(object):
         cumulative and MUST be executed in order.
 
     '''
+    @staticmethod
+    def dump(table):
+        ''' Helper method to get dump of table contents
+        table (str): name of table to dump
+
+        Gets table contents without sorting, fitlering, etc so it can't
+            fail by asking for a column that might not exist yet.
+
+        Returns list of dicts
+        '''
+        return [dict(i) for i in core.sql.execute(['SELECT * FROM {}'.format(table)])]
 
     @staticmethod
     def update_0():
@@ -770,7 +781,8 @@ class DatabaseUpdate(object):
         ''' Correct posters column in MOVIES
         Change 'poster/' to 'posters/' in file path
         '''
-        for i in core.sql.get_user_movies():
+
+        for i in DatabaseUpdate.dump('MOVIES'):
             p = i['poster']
             if p and 'poster/' in p:
                 core.sql.update('MOVIES', 'poster', p.replace('poster/', 'posters/'), 'imdbid', i['imdbid'])
@@ -785,7 +797,7 @@ class DatabaseUpdate(object):
         '''
         core.sql.update_tables()
 
-        for i in core.sql.get_user_movies():
+        for i in DatabaseUpdate.dump('MOVIES'):
             t = i['title']
             if t.startswith('The '):
                 t = t[4:] + ', The'
