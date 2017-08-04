@@ -11,9 +11,6 @@ import core
 from core import notification
 from core.helpers import Url
 
-# get remote hash # git rev-parse origin/master
-# get local hash  # git rev-parse HEAD
-# Hash history    # git rev-list @{u}
 logmodule = logging
 logging = logging.getLogger(__name__)
 
