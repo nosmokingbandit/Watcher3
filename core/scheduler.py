@@ -25,6 +25,7 @@ imdb = imdb.ImdbRss()
 popular_feed = popularmovies.PopularMoviesFeed()
 trakt = trakt.Trakt()
 
+
 def create_plugin():
     ''' Creates plugin instance, adds tasks, and subscribes to cherrypy.engine
 
