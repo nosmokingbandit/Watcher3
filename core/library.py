@@ -534,7 +534,7 @@ class Metadata(object):
         logging.info('Parsing filename for movie information: {}.'.format(filepath))
 
         titledata = PTN.parse(os.path.basename(filepath))
-        #remove usless keys before measuring length
+        # remove usless keys before measuring length
         for i in ('excess', 'episode', 'episodeName', 'season', 'garbage', 'website'):
             titledata.pop(i, None)
 
@@ -560,7 +560,14 @@ class Metadata(object):
             titledata['year'] = str(titledata['year'])
         titledata['videocodec'] = titledata.pop('codec', None)
         titledata['audiocodec'] = titledata.pop('audio', None)
-        titledata['source'] = titledata.pop('quality', None)
+
+        qual = titledata.pop('quality', None)
+        for source, aliases in core.CONFIG['Quality']['Aliases'].items():
+            if any(a.lower() == qual.lower() for a in aliases):
+                titledata['source'] = source
+                break
+        titledata['source'] = titledata.get('source', None)
+
         titledata['releasegroup'] = titledata.pop('group', None)
 
         return titledata
