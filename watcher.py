@@ -38,7 +38,7 @@ if __name__ == '__main__':
             locale.setlocale(locale.LC_ALL, 'English_United States.1252')
         except Exception as e:
             logging.warning('Unable to set locale. Date parsing may not work correctly.')
-            print('Unable to set locale. Date parsing may not work correctly.')
+            print('Unable to set locale. Date parsing may not work correctly.\n')
 
     # parse user-passed arguments
     parser = argparse.ArgumentParser(description="Watcher Server App")
@@ -78,10 +78,10 @@ if __name__ == '__main__':
     from core import config
     conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
-        print('Config file not found. Creating new basic config {}. Please review settings.'.format(core.CONF_FILE))
+        print('Config file not found. Creating new basic config {}. Please review settings.\n'.format(core.CONF_FILE))
         conf.new_config()
     else:
-        print('Config file found, merging any new options.')
+        print('Config file found, merging any new options.\n')
         conf.merge_new_options()
     conf.stash()
 
@@ -96,10 +96,10 @@ if __name__ == '__main__':
 
     # clean mako cache
     try:
-        print("Clearing Mako cache.")
+        print('Clearing Mako cache.\n')
         shutil.rmtree(core.MAKO_CACHE)
     except Exception as e:
-        print("Unable to clear Mako cache.")
+        print('Unable to clear Mako cache.\n')
         print(e)
 
     # Finish core application
@@ -157,13 +157,23 @@ if __name__ == '__main__':
     # SSL certs
     if core.CONFIG['Server']['ssl_cert'] and core.CONFIG['Server']['ssl_key']:
         logging.info('SSL Certs are enabled. Server will only be accessible via https.')
-        print('SSL Certs are enabled. Server will only be accessible via https.')
+        print('SSL Certs are enabled. Server will only be accessible via https. \n')
         ssl_conf = {'server.ssl_certificate': core.CONFIG['Server']['ssl_cert'],
                     'server.ssl_private_key': core.CONFIG['Server']['ssl_key'],
                     'tools.https_redirect.on': True
                     }
+        try:
+            from OpenSSL import SSL # noqa
+        except ImportError as e:
+            ssl_conf['server.ssl_module'] = 'builtin'
+            m = '''
+Using built-in SSL module. This may result in a large amount of
+logged error messages even though everything is working correctly.
+You may avoid this by installing the pyopenssl module. \n'''
+            print(m)
+            logging.info(m)
+            pass
         cherrypy.config.update(ssl_conf)
-
 
     # start engine
     cherrypy.config.update('core/conf_global.ini')
