@@ -632,6 +632,15 @@ class Metadata(object):
 
         movie['finished_file'] = movie.get('finished_file')
 
+        if movie['title'].startswith('The '):
+            movie['sort_title'] = movie['title'][4:] + ', The'
+        elif movie['title'].startswith('A '):
+            movie['sort_title'] = movie['title'][2:] + ', A'
+        elif movie['title'].startswith('An '):
+            movie['sort_title'] = movie['title'][3:] + ', An'
+        else:
+            movie['sort_title'] = movie['title']
+
         for k, v in movie.items():
             if isinstance(v, str):
                 movie[k] = v.strip()
