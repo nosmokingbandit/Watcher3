@@ -399,10 +399,11 @@ class Postprocessing(object):
         result['tasks']['update_movie_status'] = r
 
         data.update(self.metadata.convert_to_db(data))
+        result['data']['original_file'] = result['data']['movie_file']
+
         # renamer
         if config['renamerenabled']:
             result['tasks']['renamer'] = {'enabled': True}
-            result['data']['original_file'] = result['data']['movie_file']
             new_file_name = self.renamer(data)
             if new_file_name == '':
                 result['tasks']['renamer']['response'] = False
