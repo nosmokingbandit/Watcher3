@@ -398,6 +398,7 @@ class Postprocessing(object):
             r = ''
         result['tasks']['update_movie_status'] = r
 
+        data.update(self.metadata.convert_to_db(data))
         # renamer
         if config['renamerenabled']:
             result['tasks']['renamer'] = {'enabled': True}
