@@ -34,8 +34,6 @@ class Searcher():
 
         Returns Bool
         '''
-        logging.info('Checking for verified releases for {}'.format(movie['title']))
-
         now = datetime.datetime.today()
 
         if core.CONFIG['Search']['verifyreleases'] == '':
@@ -76,6 +74,11 @@ class Searcher():
         elif not verified and movie['status'] != 'Waiting':
             logging.info('Verified criteria not met for {} {}, resetting setting status to Waiting'.format(movie['title'], movie['year']))
             core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', movie['imdbid'])
+
+        if verified:
+            logging.info('{} passes verification checks, will include title in search.'.format(movie['title']))
+        else:
+            logging.info('{} does not pass verification checks, will ignore for now.'.format(movie['title']))
 
         return verified
 
