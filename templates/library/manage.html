@@ -27,28 +27,28 @@
                         </a>
                         <div class="btn-group">
                             <a class="dropdown-toggle form-control btn btn-default" data-toggle="dropdown" aria-expanded="false">
-                                Attribute
+                                ${_('Attribute')}
                             <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-cat">Status</li>
+                                <li class="dropdown-cat">${_('Status')}</li>
                                 <li>
-                                    <a data-key="status" data-value="Waiting" onclick="select_attrib(event, this)">Waiting</a>
+                                    <a data-key="status" data-value="Waiting" onclick="select_attrib(event, this)">${_('Waiting')}</a>
                                 </li>
                                 <li>
-                                    <a data-key="status" data-value="Wanted" onclick="select_attrib(event, this)">Wanted</a>
+                                    <a data-key="status" data-value="Wanted" onclick="select_attrib(event, this)">${_('Wanted')}</a>
                                 </li>
                                 <li>
-                                    <a data-key="status" data-value="Found" onclick="select_attrib(event, this)">Found</a>
+                                    <a data-key="status" data-value="Found" onclick="select_attrib(event, this)">${_('Found')}</a>
                                 </li>
                                 <li>
-                                    <a data-key="status" data-value="Snatched" onclick="select_attrib(event, this)">Snatched</a>
+                                    <a data-key="status" data-value="Snatched" onclick="select_attrib(event, this)">${_('Snatched')}</a>
                                 </li>
                                 <li>
-                                    <a data-key="status" data-value="Finished" onclick="select_attrib(event, this)">Finished</a>
+                                    <a data-key="status" data-value="Finished" onclick="select_attrib(event, this)">${_('Finished')}</a>
                                 </li>
                                 <li class="divider"></li>
-                                <li class="dropdown-cat">Quality Profile</li>
+                                <li class="dropdown-cat">${_('Quality Profile')}</li>
                                 %for i in applied_profiles:
                                 <li>
                                     <a data-key="quality" data-value="${i}" onclick="select_attrib(event, this)">${i}</a>
@@ -61,19 +61,19 @@
                 <div class="col-md-6">
                     <div class="btn-group pull-right">
                         <a class="btn btn-success" data-toggle="modal" data-target="#modal_backlog_search">
-                            <i class="mdi mdi-magnify" title="Force Backlog Search"></i>
+                            <i class="mdi mdi-magnify" title="${_('Force Backlog Search')}"></i>
                         </a>
                         <a class="btn btn-primary" data-toggle="modal" data-target="#modal_metadata">
-                            <i class="mdi mdi-tag-text-outline" title="Update Metadata"></i>
+                            <i class="mdi mdi-tag-text-outline" title="${_('Update Metadata')}"></i>
                         </a>
                         <a class="btn btn-info" data-toggle="modal" data-target="#modal_quality">
-                            <i class="mdi mdi-video" title="Change Quality&nbsp;Profile"></i>
+                            <i class="mdi mdi-video" title="${_('Change Quality&nbsp;Profile')}"></i>
                         </a>
                         <a class="btn btn-warning" data-toggle="modal" data-target="#modal_reset">
-                            <i class="mdi mdi-backup-restore" title="Reset"></i>
+                            <i class="mdi mdi-backup-restore" title="${_('Reset')}"></i>
                         </a>
                         <a class="btn btn-danger" data-toggle="modal" data-target="#modal_remove">
-                            <i class="mdi mdi-delete" title="Remove"></i>
+                            <i class="mdi mdi-delete" title="${_('Remove')}"></i>
                         </a>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
 
             <ul id="movie_list" class="striped">
                 %for movie in movies:
-                <% _status = 'Finished' if movie['status'] == 'Disabled' else movie['status'] %>
+                <% _status = _('Finished') if movie['status'] == 'Disabled' else _(movie['status']) %>
                 <% _poster = url_base + '/static/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg' %>
                  <li class="movie" imdbid="${movie['imdbid']}">
                     <img data-echo="${_poster}" src="${url_base}/static/images/missing_poster.jpg">
@@ -104,13 +104,11 @@
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Backlog Search</h4>
+                        <h4 class="modal-title">${_('Backlog Search')}</h4>
                     </div>
                     <div class="modal-body">
                         <p>
-                            A full backlog search will be performed for selected movies.
-                            <br/>
-                            Be aware that this will consume one API hit per movie and may take several minutes to complete.
+                            ${_('A full backlog search will be performed for selected movies. <br/> Be aware that this will consume one API hit per movie and may take several minutes to complete.')}
                         </p>
                         <div class="progress hidden">
                             <div class="progress-bar"></div>
@@ -119,7 +117,7 @@
                             <thead>
                                 <tr>
                                     <th>IMDB ID</th>
-                                    <th>Error</th>
+                                    <th>${_('Error')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,8 +126,8 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
-                            <a class="btn btn-success" onclick="backlog_search(event, this)">Force Backlog Search</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                            <a class="btn btn-success" onclick="backlog_search(event, this)">${_('Force Backlog Search')}</a>
                         </div>
                     </div>
                 </div>
@@ -140,13 +138,11 @@
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Update Metadata</h4>
+                        <h4 class="modal-title">${_('Update Metadata')}</h4>
                     </div>
                     <div class="modal-body">
                         <p>
-                            Metadata and posters will be re-downloaded for selected movies.
-                            <br/>
-                            This may take several minutes.
+                            ${_('Metadata and posters will be re-downloaded for selected movies. <br/> This may take several minutes.')}
                         </p>
                         <div class="progress hidden">
                             <div class="progress-bar"></div>
@@ -155,7 +151,7 @@
                             <thead>
                                 <tr>
                                     <th>IMDB ID</th>
-                                    <th>Error</th>
+                                    <th>${_('Error')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -164,8 +160,8 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
-                            <a class="btn btn-primary" onclick="refresh_metadata(event, this)">Update Metadata</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                            <a class="btn btn-primary" onclick="refresh_metadata(event, this)">${_('Update Metadata')}</a>
                         </div>
                     </div>
                 </div>
@@ -176,14 +172,14 @@
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Change Quality Profile</h4>
+                        <h4 class="modal-title">${_('Change Quality Profile')}</h4>
                     </div>
                     <div class="modal-body">
                         <p>
-                            Quality profiles will be changed for selected movies.
+                            ${_('Quality profiles will be changed for selected movies.')}
                             <br/>
                             <select class="form-control" id="quality" value="">
-                                <option value="" selected="selected" disabled>Choose a Quality Profile</option>
+                                <option value="" selected="selected" disabled>${_('Choose a Quality Profile')}</option>
                                 %for i in profiles:
                                 <option value="${i}">${i}</option>
                                 %endfor
@@ -196,7 +192,7 @@
                             <thead>
                                 <tr>
                                     <th>IMDB ID</th>
-                                    <th>Error</th>
+                                    <th>${_('Error')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -205,8 +201,8 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
-                            <a class="btn btn-info" onclick="change_quality(event, this)">Change Quality Profile</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                            <a class="btn btn-info" onclick="change_quality(event, this)">${_('Change Quality Profile')}</a>
                         </div>
                     </div>
                 </div>
@@ -217,19 +213,11 @@
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Reset Movies</h4>
+                        <h4 class="modal-title">${_('Reset Movies')}</h4>
                     </div>
                     <div class="modal-body">
                         <p>
-                            Selected movies will be reset.
-                            <br/></br/>
-                            Quality Profile will be set to Default.
-                            <br/>
-                            Status will be set to wanted.
-                            <br/>
-                            Search Results will be removed (including Imports).
-                            <br/></br/>
-                            This cannot be undone.
+                            ${_('Selected movies will be reset.<br/>Quality Profile will be set to Default.<br/>Status will be set to wanted.<br/>Search Results will be removed (including Imports).<br/>This cannot be undone.')}
                         </p>
                         <div class="progress hidden">
                             <div class="progress-bar"></div>
@@ -238,7 +226,7 @@
                             <thead>
                                 <tr>
                                     <th>IMDB ID</th>
-                                    <th>Error</th>
+                                    <th>${_('Error')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -248,8 +236,8 @@
 
                     <div class="modal-footer">
                         <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
-                            <a class="btn btn-warning" onclick="reset_movies(event, this)">Reset Movies</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                            <a class="btn btn-warning" onclick="reset_movies(event, this)">${_('Reset Movies')}</a>
                         </div>
                     </div>
                 </div>
@@ -260,15 +248,11 @@
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Remove Movies</h4>
+                        <h4 class="modal-title">${_('Remove Movies')}</h4>
                     </div>
                     <div class="modal-body">
                         <p>
-                            Selected movies will be removed from the library.
-                            <br/></br/>
-                            This will not delete movie files.
-                            <br/></br/>
-                            This cannot be undone.
+                            ${_('Selected movies will be removed from the library.<br/>This will not delete movie files.<br/>This cannot be undone.')}
                         </p>
                         <div class="progress hidden">
                             <div class="progress-bar"></div>
@@ -277,7 +261,7 @@
                             <thead>
                                 <tr>
                                     <th>IMDB ID</th>
-                                    <th>Error</th>
+                                    <th>${_('Error')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -286,15 +270,12 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
-                            <a class="btn btn-danger" onclick="remove_movies(event, this)">Remove Movies</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                            <a class="btn btn-danger" onclick="remove_movies(event, this)">${_('Remove Movies')}</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
     </body>
 </html>

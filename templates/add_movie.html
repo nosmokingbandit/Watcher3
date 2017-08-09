@@ -29,13 +29,13 @@
                 <div class="movie_actions btn-group btn-group-justified">
                     <div class="btn-group">
                         <span type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            Add
+                            ${_('Add')}
                             <i class="mdi mdi-chevron-down"></i>
                         </span>
                         <ul class="dropdown-menu dropdown-menu-left dropdown-menu-wide">
                             <li>
                                 <a onclick="add_movie(event, this, 'Default')">
-                                    Default
+                                    ${_('Default')}
                                 </a>
                             </li>
                             %if len(profiles) > 0:
@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="btn-group">
-                        <a class="btn btn-default" onclick="show_details(event, this)">Details</a>
+                        <a class="btn btn-default" onclick="show_details(event, this)">${_('Details')}</a>
                     </div>
                 </div>
                 <span class="title">{title}</span>
@@ -69,10 +69,10 @@
                                 <span class="year">{year}</span>
                             </h3>
                             <span class="label label-default">
-                                Theatrical Release: {release_date}
+                                ${_('Theatrical Release')}: {release_date}
                             </span>
                             <span class="label label-default">
-                                Score: {vote_average}
+                                ${_('Score')}: {vote_average}
                             </span>
                             <a class="label label-info" href="https://www.themoviedb.org/movie/{id}" target="_blank" rel="noopener">
                                 TheMovieDB <i class="mdi mdi-earth"></i>
@@ -97,16 +97,16 @@
                         </div>
 
                         <div class="modal-footer">
-                            <a class="btn btn-default" data-dismiss="modal">Close</a>
+                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
                             <div class="btn-group pull-right">
                                 <span type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    Add
+                                    ${_('Add')}
                                     <i class="mdi mdi-chevron-down"></i>
                                 </span>
                                 <ul class="dropdown-menu dropdown-menu-left dropdown-menu-wide">
                                     <li>
                                         <a onclick="add_movie(event, this, 'Default', modal=true)">
-                                            Default
+                                            ${_('Default')}
                                         </a>
                                     </li>
                                     %if len(profiles) > 0:

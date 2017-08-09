@@ -9,7 +9,7 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>Import CouchPotato Library</h1>
+            <h1>${_('Import CouchPotato Library')}</h1>
             <br/>
             <span id="progress_text"></span>
             <div class="progress hidden">
@@ -18,49 +18,49 @@
 
             <div id="server_info" class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">CouchPotato Server Information</h3>
+                    <h3 class="panel-title">${_('CouchPotato Server Information')}</h3>
                 </div>
                 <div class="panel-body">
                     <div class="col-md-6">
-                        <label>Address</label>
+                        <label>${_('Address')}</label>
                         <input type="text" id="address" class="form-control" placeholder="http://localhost">
                     </div>
                     <div class="col-md-6">
-                        <label>Port</label>
+                        <label>${_('Port')}</label>
                         <input type="number" id="port" class="form-control" min="0" placeholder="5050">
                     </div>
                     <div class="col-md-6">
-                        <label>API Key</label>
+                        <label>${_('API Key')}</label>
                         <input type="text" id="apikey" class="form-control" placeholder="123456789abcdef">
                     </div>
                 </div>
             </div>
             <a id="scan_library" class="btn btn-primary" onclick="scan_library(event, this)">
                 <i class="mdi mdi-file-find"></i>
-                Scan Library
+                ${_('Scan Library')}
             </a>
 
             <div id="no_new_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">No New Movies Found</h3>
+                    <h3 class="panel-title">${_('No New Movies Found')}</h3>
                 </div>
                 <div class="panel-body">
-                    No new movies have been found in CouchPotato's library.
+                    ${_('No new movies have been found in CouchPotato\'s library.')}
                 </div>
             </div>
 
             <div id="wanted_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Wanted Movies</h3>
+                    <h3 class="panel-title">${_('Wanted Movies')}</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">Import</th>
-                                <th>Title</th>
-                                <th class="shrink">IMDB ID</th>
-                                <th class="shrink">Quality&nbsp;Profile</th>
+                                <th class="shrink">${_('Import')}</th>
+                                <th>${_('Title')}</th>
+                                <th class="shrink">${_('IMDB ID')}</th>
+                                <th class="shrink">${_('Quality&nbsp;Profile')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,16 +71,16 @@
 
             <div id="finished_movies" class="panel panel-default hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Finished Movies</h3>
+                    <h3 class="panel-title">${_('Finished Movies')}</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th class="shrink">Import</th>
-                                <th>Title</th>
-                                <th class="shrink">IMDB ID</th>
-                                <th class="shrink">Source</th>
+                                <th class="shrink">${_('Import')}</th>
+                                <th>${_('Title')}</th>
+                                <th class="shrink">${_('IMDB ID')}</th>
+                                <th class="shrink">${_('Source')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,20 +91,20 @@
 
             <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
                 <i class="mdi mdi-archive"></i>
-                Import Library
+                ${_('Import Library')}
             </a>
 
 
             <div id="import_success" class="panel panel-success hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Imported Movies</h3>
+                    <h3 class="panel-title">${_('Imported Movies')}</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th class="shrink">IMDB ID</th>
+                                <th>${_('Title')}</th>
+                                <th class="shrink">${_('IMDB ID')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -115,14 +115,14 @@
 
             <div id="import_error" class="panel panel-danger hidden">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Import Errors</h3>
+                    <h3 class="panel-title">${_('Import Errors')}</h3>
                 </div>
                 <div class="panel-body">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Error</th>
+                                <th>${_('Title')}</th>
+                                <th>${_('Error')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,7 +133,7 @@
 
             <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
                 <i class="mdi mdi-undo-variant"></i>
-                Return
+                ${_('Return')}
             </a>
 
 

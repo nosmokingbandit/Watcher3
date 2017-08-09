@@ -7,7 +7,7 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
 
         %if name == 'Default':
         <div class="col-md-12">
-            <h2>Default</h2>
+            <h2>${_('Default')}</h2>
             <input type="hidden" id="name" value="Default">
         </div>
         %else:
@@ -25,7 +25,7 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Sources
+                    ${_('Sources')}
                 </div>
                 <div class="panel-body">
                     <ul class="sources sortable">
@@ -44,16 +44,16 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Filters
+                    ${_('Filters')}
                 </div>
-                <div class="panel-body" data-sub-category="filters" data-toggle="tooltip" title="Group words with ampersands and split groups with commas.">
-                    <label>Required Words</label>
+                <div class="panel-body" data-sub-category="filters" data-toggle="tooltip" title="${_('Group words with ampersands and split groups with commas')}">
+                    <label>${_('Required Words')}</label>
                     <input type="text" id="requiredwords" class="form-control" value="${profile['requiredwords']}">
 
-                    <label>Preferred Words</label>
+                    <label>${_('Preferred Words')}</label>
                     <input type="text" id="preferredwords" class="form-control" placeholder='this&is&a&group, one, two, three' value="${profile['preferredwords']}">
 
-                    <label>Ignored Words</label>
+                    <label>${_('Ignored Words')}</label>
                     <input type="text" id="ignoredwords" class="form-control" value="${profile['ignoredwords']}">
 
                 </div>
@@ -63,17 +63,17 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Misc.
+                    ${_('Misc.')}
                 </div>
                 <div class="panel-body" data-sub-category="misc">
                     <ul>
                         <li>
                             <i id="scoretitle" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['scoretitle']}"></i>
-                            Score and filter release titles
+                            ${_('Score and filter release titles')}
                         </li>
                         <li>
                             <i id="prefersmaller" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['prefersmaller']}"></i>
-                            Prefer smaller file sizes
+                            ${_('Prefer smaller file sizes')}
                         </li>
                     </ul>
                 </div>
@@ -97,7 +97,7 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>Quality Profiles</h1>
+            <h1>${_('Quality Profiles')}</h1>
             <form id='profiles'>
                 ${generate_profile("Default", config['Profiles']['Default'])}
 
@@ -109,19 +109,19 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
             <div class='col-md-12' id="add_profile">
                 <a class="btn btn-primary" onclick="add_profile(event)">
                     <i class="mdi mdi-plus"></i>
-                    Add Profile
+                    ${_('Add Profile')}
                 </a>
             </div>
 
-            <h1>Sources</h1>
+            <h1>${_('Sources')}</h1>
             <form class="form-horizontal well" data-category="sources">
-                <span><b>Specify acceptable size ranges (in MegaBytes) for source media.</b></span>
+                <span><b>${_('Specify acceptable size ranges (in MegaBytes) for source media.')}</b></span>
                 <table class="table table-hover">
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Min Size</th>
-                            <th>Max Size</th>
+                            <th>${_('Min Size')}</th>
+                            <th>${_('Max Size')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,12 +143,12 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
                 </table>
             </form>
 
-            <h2>Aliases</h2>
+            <h2>${_('Aliases')}</h2>
             <form class="form-horizontal well" data-category="aliases">
-                <span><b>Keywords used to determine source media</b></span>
+                <span><b>${_('Keywords used to determine source media')}</b></span>
                 <br/>
                 <br/>
-                <table id="aliases" class="table table-hover" data-toggle="tooltip"title="Separate Keywords with commas.">
+                <table id="aliases" class="table table-hover" data-toggle="tooltip"title="${_('Separate Keywords with commas')}">
                     <tbody>
                         %for name, alias in config['Aliases'].items():
                         <tr>
@@ -164,7 +164,7 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                Save Settings
+                ${_('Save Settings')}
             </a>
         </div>
 

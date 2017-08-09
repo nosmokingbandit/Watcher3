@@ -41,6 +41,8 @@ NO_VERIFY.check_hostname = False
 NO_VERIFY.verify_mode = ssl.CERT_NONE
 PLATFORM = None                             # Host OS ['windows', '*nix']
 SESSION_KEY = '_cp_username'                # Key to use when generating login session
+LANGUAGES = {}                              # Dict of language name: gettext object, ie {'es': <gettext_obj>}
+LANGUAGE = 'en'                             # Str first two letters of language code
 
 # Rate limiting
 TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting

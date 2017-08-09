@@ -11,59 +11,59 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>Download Clients</h1>
+            <h1>${_('Download Clients')}</h1>
 
-            <h2>Usenet</h2>
+            <h2>${_('Usenet')}</h2>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <select id="usenet_client" class="form-control select-sm">
-                        <option value="" selected="false">Disabled</option>
-                        <option value="NzbGet">NzbGet</option>
-                        <option value="Sabnzbd">Sabnzbd</option>
-                        <option value="BlackHole">Black Hole</option>
+                        <option value="" selected="false">${_('Disabled')}</option>
+                        <option value="NzbGet">NzbGet')}</option>
+                        <option value="Sabnzbd">Sabnzbd')}</option>
+                        <option value="BlackHole">${_('Black Hole')}</option>
                     </select>
                 </div>
                 <div id="usenet_client_settings" class="panel-body">
                     <!-- NZBGET -->
                     <div id="NzbGet" class="hidden" data-enabled="${config['Usenet']['NzbGet']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Usenet']['NzbGet']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="6789" value="${config['Usenet']['NzbGet']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>User</label>
+                            <label>${_('User')}</label>
                             <input type="text" data-id="user" class="form-control" placeholder="" value="${config['Usenet']['NzbGet']['user']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Usenet']['NzbGet']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
+                            <label>${_('Category')}</label>
                             <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Usenet']['NzbGet']['category']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Priority</label>
+                            <label>${_('Priority')}</label>
                             <select data-id="priority" class="form-control" value="${config['Usenet']['NzbGet']['priority']}">
-                                <option value="Very Low">Very Low</option>
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
-                                <option value="Forced">Forced</option>
+                                <option value="Very Low">${_('Very Low')}</option>
+                                <option value="Low">${_('Low')}</option>
+                                <option value="Normal">${_('Normal')}</option>
+                                <option value="High">${_('High')}</option>
+                                <option value="Forced">${_('Forced')}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Usenet']['NzbGet']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add NZBs in Paused state.
+                                    ${_('Add NZBs in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -71,118 +71,118 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'nzbget')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- SABNZBD -->
                     <div id="Sabnzbd" class="hidden" data-enabled="${config['Usenet']['Sabnzbd']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input data-id="host" type="text" class="form-control" placeholder="localhost" value="${config['Usenet']['Sabnzbd']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="8080" value="${config['Usenet']['Sabnzbd']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>API Key</label>
+                            <label>${_('API Key')}</label>
                             <input type="text" data-id="api" class="form-control" placeholder="" value="${config['Usenet']['Sabnzbd']['api']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
+                            <label>${_('Category')}</label>
                             <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Usenet']['Sabnzbd']['category']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Priority</label>
+                            <label>${_('Priority')}</label>
                             <select data-id="priority" class="form-control" value="${config['Usenet']['Sabnzbd']['priority']}">
-                                <option value="Paused">Paused</option>
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
-                                <option value="Forced">Forced</option>
+                                <option value="Paused">${_('Paused')}</option>
+                                <option value="Low">${_('Low')}</option>
+                                <option value="Normal">${_('Normal')}</option>
+                                <option value="High">${_('High')}</option>
+                                <option value="Forced">${_('Forced')}</option>
                             </select>
                         </div>
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'sabnzbd')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- BLACKHOLE -->
                     <div id="BlackHole" class="hidden" data-enabled="${config['Usenet']['BlackHole']['enabled']}">
                         <div class="col-md-6">
-                            <label>Directory</label>
+                            <label>${_('Directory')}</label>
                             <input data-id="directory" type="text" class="form-control" placeholder="/user/downloads/nzb" value="${config['Usenet']['BlackHole']['directory']}">
                         </div>
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <h2>Torrent</h2>
+            <h2>${_('Torrent')}</h2>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <select id="torrent_client" class="form-control select-sm">
-                        <option value="" selected="false">Disabled</option>
+                        <option value="" selected="false">${_('Disabled')}</option>
                         <option value="DelugeRPC">Deluge Daemon</option>
                         <option value="DelugeWeb">Deluge WebUI</option>
                         <option value="rTorrentSCGI">rTorrent SCGI</option>
                         <option value="rTorrentHTTP">rTorrent HTTP</option>
                         <option value="Transmission">Transmission</option>
                         <option value="QBittorrent">QBittorrent</option>
-                        <option value="BlackHole">Black Hole</option>
+                        <option value="BlackHole">${_('Black Hole')}</option>
                     </select>
                 </div>
                 <div id="torrent_client_settings" class="panel-body">
                     <!-- DELUGE RPC -->
                     <div id="DelugeRPC" class="hidden" data-enabled="${config['Torrent']['DelugeRPC']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['DelugeRPC']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="58846" value="${config['Torrent']['DelugeRPC']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>User</label>
+                            <label>${_('User')}</label>
                             <input type="text" data-id="user" class="form-control" placeholder="" value="${config['Torrent']['DelugeRPC']['user']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Torrent']['DelugeRPC']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
+                            <label>${_('Category')}</label>
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeRPC']['category']}" data-toggle="tooltip" title="${_('Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_')}">
                         </div>
                         <div class="col-md-6">
-                            <label>Priority</label>
+                            <label>${_('Priority')}</label>
                             <select data-id="priority" class="form-control" value="${config['Torrent']['DelugeRPC']['priority']}">
-                                <option value="Very Low">Very Low</option>
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
-                                <option value="Forced">Forced</option>
+                                <option value="Very Low">${_('Very Low')}</option>
+                                <option value="Low">${_('Low')}</option>
+                                <option value="Normal">${_('Normal')}</option>
+                                <option value="High">${_('High')}</option>
+                                <option value="Forced">${_('Forced')}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['DelugeRPC']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add Torrents in Paused state.
+                                    ${_('Add Torrents in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -190,46 +190,46 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'delugerpc')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- DELUGE WEB -->
                     <div id="DelugeWeb" class="hidden" data-enabled="${config['Torrent']['DelugeWeb']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['DelugeWeb']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="8112" value="${config['Torrent']['DelugeWeb']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Torrent']['DelugeWeb']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
-                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}" data-toggle="tooltip" title="Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_">
+                            <label>${_('Category')}</label>
+                            <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['DelugeWeb']['category']}" data-toggle="tooltip" title="${_('Must&nbsp;include&nbsp;only a&#8209;z&nbsp;0&#8209;9&nbsp;&#8209;&nbsp;_')}">
                         </div>
                         <div class="col-md-6">
-                            <label>Priority</label>
+                            <label>${_('Priority')}</label>
                             <select data-id="priority" class="form-control" value="${config['Torrent']['DelugeWeb']['priority']}">
-                                <option value="Very Low">Very Low</option>
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
-                                <option value="Forced">Forced</option>
+                                <option value="Very Low">${_('Very Low')}</option>
+                                <option value="Low">${_('Low')}</option>
+                                <option value="Normal">${_('Normal')}</option>
+                                <option value="High">${_('High')}</option>
+                                <option value="Forced">${_('Forced')}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['DelugeWeb']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add Torrents in Paused state.
+                                    ${_('Add Torrents in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -237,32 +237,32 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'delugeweb')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- RTORRENT SCGI -->
                     <div id="rTorrentSCGI" class="hidden" data-enabled="${config['Torrent']['rTorrentSCGI']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['rTorrentSCGI']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="5000" value="${config['Torrent']['rTorrentSCGI']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Label</label>
+                            <label>${_('Label')}</label>
                             <input type="text" data-id="label" class="form-control" placeholder="Watcher" value="${config['Torrent']['rTorrentSCGI']['label']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['rTorrentSCGI']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add Torrents in Paused state.
+                                    ${_('Add Torrents in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -270,36 +270,36 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'rtorrentscgi')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- RTORRENT HTTP -->
                     <div id="rTorrentHTTP" class="hidden" data-enabled="${config['Torrent']['rTorrentHTTP']['enabled']}">
                         <div class="col-md-6">
-                            <label>HTTP RPC Address</label>
+                            <label>${_('HTTP RPC Address')}</label>
                             <input type="text" data-id="address" class="form-control" placeholder="localhost" value="${config['Torrent']['rTorrentHTTP']['address']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Label</label>
+                            <label>${_('Label')}</label>
                             <input type="text" data-id="label" class="form-control" placeholder="Watcher" value="${config['Torrent']['rTorrentHTTP']['label']}">
                         </div>
                         <div class="col-md-6">
-                            <label>User</label>
+                            <label>${_('User')}</label>
                             <input type="text" data-id="user" class="form-control" placeholder="tegbzn6789" value="${config['Torrent']['rTorrentHTTP']['user']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="tegbzn6789" value="${config['Torrent']['rTorrentHTTP']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['rTorrentHTTP']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add Torrents in Paused state.
+                                    ${_('Add Torrents in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -307,48 +307,48 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'rtorrenthttp')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- TRANSMISSION -->
                     <div id="Transmission" class="hidden" data-enabled="${config['Torrent']['Transmission']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['Transmission']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="9091" value="${config['Torrent']['Transmission']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>User</label>
+                            <label>${_('User')}</label>
                             <input type="text" data-id="user" class="form-control" placeholder="" value="${config['Torrent']['Transmission']['user']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Torrent']['Transmission']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
+                            <label>${_('Category')}</label>
                             <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['Transmission']['category']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Priority</label>
+                            <label>${_('Priority')}</label>
                             <select data-id="priority" class="form-control" value="${config['Torrent']['Transmission']['priority']}">
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
+                                <option value="Low">${_('Low')}</option>
+                                <option value="Normal">${_('Normal')}</option>
+                                <option value="High">${_('High')}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label>Add Paused</label>
+                            <label>${_('Add Paused')}</label>
                             <div class="input-group">
                                 <span class="input-group-addon box_box">
                                     <i data-id="addpaused" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['Transmission']['addpaused']}"></i>
                                 </span>
                                 <span class="input-group-item form-control">
-                                    Add Torrents in Paused state.
+                                    ${_('Add Torrents in Paused state.')}
                                 </span>
                             </div>
                         </div>
@@ -356,51 +356,51 @@
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'transmission')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- QBITTORRENT -->
                     <div id="QBittorrent" class="hidden" data-enabled="${config['Torrent']['QBittorrent']['enabled']}">
                         <div class="col-md-6">
-                            <label>Host</label>
+                            <label>${_('Host')}</label>
                             <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['QBittorrent']['host']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Port</label>
+                            <label>${_('Port')}</label>
                             <input type="number" data-id="port" class="form-control" placeholder="8080" value="${config['Torrent']['QBittorrent']['port']}">
                         </div>
                         <div class="col-md-6">
-                            <label>User</label>
+                            <label>${_('User')}</label>
                             <input type="text" data-id="user" class="form-control" placeholder="" value="${config['Torrent']['QBittorrent']['user']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Password</label>
+                            <label>${_('Password')}</label>
                             <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Torrent']['QBittorrent']['pass']}">
                         </div>
                         <div class="col-md-6">
-                            <label>Category</label>
+                            <label>${_('Category')}</label>
                             <input type="text" data-id="category" class="form-control" placeholder="Watcher" value="${config['Torrent']['QBittorrent']['category']}">
                         </div>
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'qbittorrent')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
                     <!-- BLACKHOLE -->
                     <div id="BlackHole" class="hidden" data-enabled="${config['Torrent']['BlackHole']['enabled']}">
                         <div class="col-md-6">
-                            <label>Directory</label>
+                            <label>${_('Directory')}</label>
                             <input type="text" data-id="directory" class="form-control" placeholder="/user/downloads/torrents" value="${config['Torrent']['BlackHole']['directory']}">
                         </div>
                         <div class='col-md-12'>
                             <label>&nbsp;</label>
                             <a class="btn btn-primary form-control" onclick="test_connection(event, this, 'blackhole')">
                                 <i class="mdi mdi-lan-pending"></i>
-                                Test Connection
+                                ${_('Test Connection')}
                             </a>
                         </div>
                     </div>
@@ -409,7 +409,7 @@
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                Save Settings
+                ${_('Save Settings')}
             </a>
 
         </div>

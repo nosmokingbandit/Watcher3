@@ -14,6 +14,10 @@
     </tr>
 </%def>
 
+<%
+    tags = '{title} {year} {resolution} {rated} {imdbid} {videocodec} {audiocodec} {releasegroup} {source} {quality}'
+%>
+
 <!DOCTYPE HTML5>
 <html>
     <head>
@@ -28,22 +32,25 @@
         ${navbar}
         <div class="container-fluid">
 
-            <h1>Postprocessing</h1>
+            <h1>${_('Postprocessing')}</h1>
 
             <div class="col-md-12 well">
-                See the <a href="https://github.com/nosmokingbandit/watcher3/wiki", target="_blank" rel="noopener">Wiki</a> for help configuring your download client.
+                ${_('See the Wiki for help configuring your download client.')}
+                <a href="https://github.com/nosmokingbandit/watcher3/wiki", target="_blank" rel="noopener">
+                    <i class="mdi mdi-help-circle-outline"></i>
+                </a>
             </div>
 
             <form class="form-horizontal well" data-category="postprocessing">
 
                 <div class="col-md-6">
-                    <label>Delete Failed Downloads</label>
+                    <label>${_('Delete Failed Downloads')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="cleanupfailed" class="mdi mdi-checkbox-blank-outline c_box" value="${config['cleanupfailed']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Delete incomplete or failed downloads.
+                            ${_('Delete incomplete or failed downloads')}
                         </span>
                     </div>
                 </div>
@@ -51,22 +58,22 @@
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Rename Movies</label>
+                    <label>${_('Rename Movies')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="renamerenabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['renamerenabled']}"></i>
                         </span>
-                        <input type="text" id="renamerstring" class="form-control" placeholder="{title} ({year})" value="${config['renamerstring']}" data-toggle="tooltip" title="{title} {sort_title} {year} {resolution} {rated} {imdbid} {videocodec} {audiocodec} {releasegroup} {source} {quality}">
+                        <input type="text" id="renamerstring" class="form-control" placeholder="{title} ({year})" value="${config['renamerstring']}" data-toggle="tooltip" title="${tags}">
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label>Use Periods For Spaces</label>
+                    <label>${_('Use Periods For Spaces')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="replacespaces" class="mdi mdi-checkbox-blank-outline c_box" value="${config['replacespaces']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Replace all spaces with periods.
+                            ${_('Replace all spaces with periods')}
                         </span>
                     </div>
                 </div>
@@ -74,54 +81,54 @@
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Move Movies</label>
+                    <label>${_('Move Movies')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="moverenabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['moverenabled']}"></i>
                         </span>
-                        <input type="text" id="moverpath" class="form-control" placeholder="/users/ricksanchez/movies/{title} ({year})/" value="${config['moverpath']}" data-toggle="tooltip" title="{title} {sort_title} {year} {resolution} {rated} {imdbid} {videocodec} {audiocodec} {releasegroup} {source} {quality}">
+                        <input type="text" id="moverpath" class="form-control" placeholder="/users/ricksanchez/movies/{title} ({year})/" value="${config['moverpath']}" data-toggle="tooltip" title="${tags}">
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Move Method</label>
+                    <label>${_('Move Method')}</label>
                     <select class="form-control select-sm" id="movermethod" value="${config['movermethod']}">
-                        <option value="move">Move</option>
-                        <option value="hardlink">Hardlink</option>
-                        <option value="symboliclink" ${'disabled=true' if os == 'windows' else ''}>Symbolic Link</option>
+                        <option value="move">${_('Move')}</option>
+                        <option value="hardlink">${_('Hardlink')}</option>
+                        <option value="symboliclink" ${'disabled=true' if os == 'windows' else ''}>${_('Symbolic Link')}</option>
                     </select>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Move Additional File Types</label>
-                    <input type="text" id="moveextensions" class="form-control" placeholder="srt, nfo" value="${config['moveextensions']}" data-toggle="tooltip" title="Separate file extensions with commas.">
+                    <label>${_('Move Additional File Types')}</label>
+                    <input type="text" id="moveextensions" class="form-control" placeholder="srt, nfo" value="${config['moveextensions']}" data-toggle="tooltip" title="${_('Separate file extensions with commas')}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>Clean Up Download Dir</label>
+                    <label>${_('Clean Up Download Dir')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="cleanupenabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['cleanupenabled']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Remove leftover files after move.
+                            ${_('Remove leftover files after move')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Replace Illegal Characters With [X]</label>
-                    <input type="text" id="replaceillegal" class="form-control" value="${config['replaceillegal']}" data-toggle="tooltip" title="Cannot contain *&nbsp;?&nbsp;&quot;&nbsp;;&nbsp;&lt;&nbsp;&gt;&nbsp;|">
+                    <label>${_('Replace Illegal Characters With [X]')}</label>
+                    <input type="text" id="replaceillegal" class="form-control" value="${config['replaceillegal']}" data-toggle="tooltip" title="${_('Cannot contain *&nbsp;?&nbsp;&quot;&nbsp;;&nbsp;&lt;&nbsp;&gt;&nbsp;|')}'">
                 </div>
 
                 <div class="col-md-6">
-                    <label>Clean Up Target Dir</label>
+                    <label>${_('Clean Up Target Dir')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="removeadditionalfiles" class="mdi mdi-checkbox-blank-outline c_box" value="${config['removeadditionalfiles']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Remove associated files before moving.
+                            ${_('Remove associated files before moving.')}
                         </span>
                     </div>
                 </div>
@@ -129,76 +136,76 @@
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
-                    <label>Use Recycle Bin Folder</label>
+                    <label>${_('Use Recycle Bin Folder')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="recyclebinenabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['recyclebinenabled']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Keep old movies when re-downloading.
+                            ${_('Keep old movies when re-downloading.')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Recycle Bin Directory</label>
+                    <label>${_('Recycle Bin Directory')}</label>
                     <input type="text" id="recyclebindirectory" class="form-control" value="${config['recyclebindirectory']}">
                 </div>
 
             </form>
 
-            <h1>Directory Scanner</h1>
+            <h1>${_('Directory Scanner')}</h1>
             <form class="form-horizontal well" data-category="scanner">
 
                 <div class="col-md-6">
-                    <label>Enable Scanner</label>
+                    <label>${_('Enable Scanner')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="enabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Scanner']['enabled']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Scan directory for movies to process.
+                            ${_('Scan directory for movies to process.')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Scan Directory</label>
+                    <label>${_('Scan Directory')}</label>
                     <input type="text" id="directory" class="form-control" value="${config['Scanner']['directory']}">
                 </div>
 
                 <div class="col-md-6">
-                    <label>Scan Frequency</label>
+                    <label>${_('Scan Frequency')}</label>
                     <div class="input-group">
                         <input type="number" id="interval" class="form-control" min="15" placeholder="240" value="${config['Scanner']['interval']}">
                         <span class="input-group-addon">
-                            Minutes
+                            ${_('Minutes')}
                         </span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label>Only Process New Files</label>
+                    <label>${_('Only Process New Files')}</label>
                     <div class="input-group">
                         <span class="input-group-addon box_box">
                             <i id="newfilesonly" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Scanner']['newfilesonly']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Only process files added since last scan.
+                            ${_('Only process files added since last scan.')}
                         </span>
                     </div>
                 </div>
             </form>
 
-            <h1>Remote Mapping</h1>
+            <h1>${_('Remote Mapping')}</h1>
             <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Remote-Mapping" target="_blank" rel="noopener">
                 <i class="mdi mdi-help-circle-outline"></i>
             </a>
             <form class="form-horizontal well" data-category="remote_mapping">
                 <table class="table table-hover">
                     <thead>
-                        <th>Remote Path</th>
-                        <th>Local Path</th>
+                        <th>${_('Remote Path')}</th>
+                        <th>${_('Local Path')}</th>
                         <th></th>
                     </thead>
                     <tbody>
@@ -210,14 +217,14 @@
                 <div class='col-md-12'>
                     <a class="btn btn-primary" onclick="add_mapping(event, this)">
                         <i class="mdi mdi-plus"></i>
-                        Add Mapping
+                        ${_('Add Mapping')}
                     </a>
                 </div>
             </form>
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                Save Settings
+                ${_('Save Settings')}
             </a>
         </div>
         <textarea id="template_mapping" class="hidden">

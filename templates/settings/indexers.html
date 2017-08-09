@@ -46,13 +46,13 @@
         ${navbar}
         <div class="container-fluid">
 
-            <h1>NewzNab Indexers</h1>
+            <h1>${_('NewzNab Indexers')}</h1>
             <form class="form-horizontal well" data-category="newznab">
                 <table class="table table-hover">
                     <thead>
                         <th></th>
-                        <th>URL</th>
-                        <th>API Key</th>
+                        <th>${_('URL')}</th>
+                        <th>${_('API Key')}</th>
                         <th></th>
                     </thead>
                     <tbody>
@@ -64,18 +64,18 @@
                 <div class='col-md-12'>
                     <button class="btn btn-primary" onclick="add_indexer(event, 'newznab')">
                         <i class="mdi mdi-plus"></i>
-                        Add Indexer
+                        ${_('Add Indexer')}
                     </button>
                 </div>
             </form>
 
-            <h1>TorzNab Indexers</h1>
+            <h1>${_('TorzNab Indexers')}</h1>
             <form class="form-horizontal well" data-category="torznab">
                 <table class="table table-hover">
                     <thead>
                         <th></th>
-                        <th>URL</th>
-                        <th>API Key</th>
+                        <th>${_('URL')}</th>
+                        <th>${_('API Key')}</th>
                         <th></th>
                     </thead>
                     <tbody>
@@ -87,13 +87,13 @@
                 <div class='col-md-12'>
                     <button class="btn btn-primary" onclick="add_indexer(event, 'torznab')">
                         <i class="mdi mdi-plus"></i>
-                        Add Indexer
+                        ${_('Add Indexer')}
                     </button>
                 </div>
             </form>
 
 
-            <h1>Torrent Indexers</h1>
+            <h1>${_('Torrent Indexers')}</h1>
             <form class="form-horizontal well" data-category="torrent">
                 <div class="col-md-6">
                     <div class="input-group">
@@ -121,7 +121,7 @@
                             <i class="mdi mdi-checkbox-blank-outline c_box" id="skytorrents" value="${config['Torrent']['skytorrents']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            SkyTorrents (backlog only)
+                            SkyTorrents (${_('backlog only')})
                         </span>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                             <i class="mdi mdi-checkbox-blank-outline c_box" id="zooqle" value="${config['Torrent']['zooqle']}"></i>
                         </span>
                         <span class="input-group-item form-control">
-                            Zooqle (backlog only)
+                            Zooqle (${_('backlog only')})
                         </span>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
 
             <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                Save Settings
+                ${_('Save Settings')}
             </a>
         </div>
 

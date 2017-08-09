@@ -11,16 +11,16 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-            <h1>Logs</h1>
+            <h1>${_('Logs')}</h1>
 
             <div class="well">
                 <div class="col-md-12 ">
-                        <label>Log Directory</label>
+                        <label>${_('Log Directory')}</label>
                         <span class="list-group-item">${logdir}</span>
                 </div>
 
                 <div class="col-md-12">
-                    <label>Log Files</label>
+                    <label>${_('Log Files')}</label>
                     <div class="input-group">
                         <select id="log_file" class="form-control">
                             %for log in logfiles:
@@ -30,13 +30,13 @@
                         <span class="input-group-btn">
                             <a id="view" class="btn btn-info" onclick="view_log()">
                                 <i class="mdi mdi-clipboard-text"></i>
-                                View
+                                ${_('View')}
                             </a>
                         </span>
                         <span class="input-group-btn">
                             <a class="btn btn-primary" onclick="download_log()">
                                 <i class="mdi mdi-download"></i>
-                                Download
+                                ${_('Download')}
                             </a>
                         </span>
                     </div>
