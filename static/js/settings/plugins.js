@@ -33,8 +33,8 @@ function edit_plugin_conf(event, elem, folder, filename){
 
     })
     .fail(function(response){
-        $.notify({message: "Unable to read plugin config."}, {type: "danger"})
-        return
+        var err = data.status + ' ' + data.statusText
+        $.notify({message: err}, {type: "danger", delay: 0});
     });
 
     return

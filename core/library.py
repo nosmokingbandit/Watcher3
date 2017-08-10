@@ -820,13 +820,15 @@ class Manage(object):
 
         logging.info('Removing {} for library.'.format(imdbid))
 
+        m = core.sql.get_movie_details('imdbid', imdbid)
+
         removed = core.sql.remove_movie(imdbid)
 
         if removed is True:
-            response = {'response': True, 'removed': imdbid}
+            response = {'response': True, 'message': '{} removed from library.'.format(m.get('title'))}
             threading.Thread(target=self.poster.remove_poster, args=(imdbid,)).start()
         elif removed is False:
-            response = {'response': False, 'error': 'unable to remove {}'.format(imdbid)}
+            response = {'response': False, 'error': 'unable to remove {}'.format(m.get('title'))}
         elif removed is None:
             response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
 

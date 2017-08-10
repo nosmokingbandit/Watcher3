@@ -108,7 +108,7 @@ function create_backup(event, elem){
     $.post(url_base + "/ajax/create_backup", {})
     .done(function(response){
         if(response["response"] == true){
-            $.notify({message: `Backup created as:<br/>${response["zipfile"]}`}, {delay: 0})
+            $.notify({message: response["message"]}, {delay: 0})
         } else {
             $.notify({message: `${response['error']}`}, {type: "danger", delay: 0})
         }
@@ -215,7 +215,7 @@ function execute_task(event, elem, name){
         $tr[0].innerHTML = row;
 
         if(response["response"] == true){
-            $.notify({message: `Finished task ${name}.`})
+            $.notify({message: response["message"]})
             $.each(response["notifications"], function(i, notif){
                 notif[1]["onClose"] = remove_notif;
                 var n = $.notify(notif[0], notif[1]);

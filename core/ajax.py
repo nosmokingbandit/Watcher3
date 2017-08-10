@@ -15,6 +15,10 @@ from core.rss import predb
 import backup
 logging = logging.getLogger(__name__)
 
+# Common error messages to return to browser
+errors = {'database_write': {'response': False, 'error': 'Unable to write to database.'}
+          }
+
 
 class Ajax(object):
     ''' These are all the methods that handle ajax post/get requests from the browser.
@@ -143,7 +147,7 @@ class Ajax(object):
                 save_data[key] = data[key]
 
         if not save_data:
-            return {'response': True}
+            return {'response': True, 'message': 'Settings saved.'}
 
         try:
             self.config.write(save_data)
@@ -153,7 +157,7 @@ class Ajax(object):
             logging.error('Writing config.', exc_info=True)
             return {'response': False, 'error': 'Unable to write to config file.'}
 
-        return {'response': True}
+        return {'response': True, 'message': 'Settings saved.'}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -260,13 +264,13 @@ class Ajax(object):
         core.manage.markedresults(guid, 'Bad', imdbid=imdbid)
 
         if sr:
-            response = {'response': True, 'message': 'Marked as Bad.'}
+            response = {'response': True, 'message': 'Marked release as Bad.'}
         else:
-            response = {'response': False, 'error': 'Could not mark release as bad.'}
+            response = errors['database_write']
 
         response['movie_status'] = core.manage.movie_status(imdbid)
         if not response['movie_status']:
-            response['error'] = response.get('error', '') + ' Could not set movie\'s status.'
+            response.update(errors['database_write'])
 
         if cancel_download:
             cancelled = False
@@ -477,26 +481,30 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
+        success = {'response': True, 'message': 'Movie settings updated.'}
+
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
 
         if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
-            return {'response': False}
+            return errors['database_write']
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
             if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
-                return {'response': False}
+                return errors['database_write']
             new_status = core.manage.movie_status(imdbid)
             if not new_status:
-                return {'response': False}
+                return errors['database_write']
             else:
-                return {'response': True, 'status': new_status}
+                success['status'] = new_status
+                return success
         elif status == 'Disabled':
             if not core.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
-                return {'response': False}
+                return errors['database_write']
             else:
-                return {'response': True, 'status': 'Disabled'}
+                success['status'] = 'Disabled'
+                return success
 
     @cherrypy.expose
     def get_log_text(self, logfile):
@@ -1282,7 +1290,9 @@ class Ajax(object):
                         }
 
             if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
-                yield json.dumps({'response': False, 'error': 'Unable to update database.', 'imdbid': imdbid, "index": i + 1})
+                r = errors['database_write']
+                r.update({'imdbid': imdbid, "index": i + 1})
+                yield json.dumps(r)
                 continue
 
             yield json.dumps({'response': True, "index": i + 1})
@@ -1338,7 +1348,7 @@ class Ajax(object):
             logging.error('Unable to create backup.', exc_info=True)
             return {'response': False, 'error': str(e)}
 
-        return {'response': True, 'zipfile': os.path.join(core.PROG_PATH, 'watcher.zip')}
+        return {'response': True, 'message': 'Backup created as {}'.format(os.path.join(core.PROG_PATH, 'watcher.zip'))}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -1386,6 +1396,6 @@ class Ajax(object):
 
             le = task.last_execution
 
-            return {'response': True, 'last_execution': le, 'notifications': core.NOTIFICATIONS}
+            return {'response': True, 'message': 'Finished task {}.'.format(name), 'last_execution': le, 'notifications': core.NOTIFICATIONS}
         except Exception as e:
             return {'response': False, 'error': str(e)}

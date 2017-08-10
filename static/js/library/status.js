@@ -550,7 +550,7 @@ function _remove_movie(event, elem, imdbid){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
         .done(function(response){
             if(response["response"] == true){
-                $.notify({message: `<b>${movie['title']}</b> removed from library.`})
+                $.notify({message: response["message"]});
                 $movie_list.find(`li[data-imdbid="${imdbid}"]`).remove();
                 $movie_status.modal("hide");
             } else {
@@ -609,10 +609,10 @@ function update_movie_options(event, elem, imdbid){
     })
     .done(function(response){
         if(response["response"]){
-            $.notify({message: `${imdbid} updated.`})
+            $.notify({message: response["message"]})
             update_movie_status(imdbid, response["status"]);
         } else {
-            $.notify({message: `Unable to update ${imdbid}.`}, {type: "danger"})
+            $.notify({message: response["error"]}, {type: "danger"})
         }
     })
     .fail(function(data){
@@ -680,7 +680,7 @@ function mark_bad(event, elem, guid, imdbid){
         }
 
         if (response["response"] == true){
-            $.notify({message: `Marked release as Bad.`})
+            $.notify({message: response["message"]})
             var $label = $this.closest("div.search_result").find("span.status");
             $label.removeClass($label.text()).addClass("Bad").text("Bad");
         } else {
