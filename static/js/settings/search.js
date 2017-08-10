@@ -105,12 +105,3 @@ function _get_settings(){
 
     return {"Search": settings}
 }
-
-function _generate_key(length){
-    var text = "";
-    var possible = "abcdef0123456789";
-    for(var i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    };
-    return text;
-};
