@@ -149,7 +149,7 @@ class App(object):
 
         if page == 'server':
             themes = [i[:-4] for i in os.listdir('static/css/themes/') if i.endswith(".css") and os.path.isfile(os.path.join(core.PROG_PATH, 'static/css/themes', i))]
-            return App.server_template.render(config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '', **self.defaults())
+            return App.server_template.render(config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '', languages=core.LANGUAGES.keys(), **self.defaults())
         elif page == 'search':
             return App.search_template.render(config=core.CONFIG['Search'], **self.defaults())
         elif page == 'quality':

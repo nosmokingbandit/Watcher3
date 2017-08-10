@@ -135,8 +135,16 @@
                         </span>
                     </div>
                 </div>
-            </form>
 
+                <div class="col-md-6">
+                    <label>${_('Language')}</label>
+                    <select class="form-control select-sm" id="language" value="${config['language'] or 'en'}">
+                        %for i in languages:
+                        <option value="${i}">${i}</option>
+                        %endfor
+                    </select>
+                </div>
+            </form>
             <h1>${_('Updates')}</h1>
             <form class="form-horizontal well" data-category="server">
 

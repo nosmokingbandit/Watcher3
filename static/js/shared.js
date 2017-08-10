@@ -1,6 +1,7 @@
 $(document).ready(function(){
     url_base = $("meta[name='url_base']").attr("content");
     show_notifs = JSON.parse($("meta[name='enable_notifs']").attr("content") || "true");
+    language = $("meta[name='language']").attr("content") || "en";
 
     if(show_notifs){
         notifs = JSON.parse($("textarea#notifications_json").text());
@@ -79,4 +80,22 @@ function _start_update(event){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger", delay: 0});
     });
+}
+
+function _(s){
+    /* Localization method
+    s (str): string to look for in translation file
+
+    returns string
+    */
+    if(language == "en"){
+        return s
+    } else {
+        console.log(languages)
+        console.log(language)
+        console.log(s)
+        return languages[language][s] || s;
+    }
+
+
 }

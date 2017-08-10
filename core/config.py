@@ -3,6 +3,7 @@ import random
 import datetime
 import core
 import collections
+from core import localization
 from core.helpers import Comparisons
 
 
@@ -83,6 +84,9 @@ class Config():
 
         if diff:
             self.restart_scheduler(diff)
+            l = diff.get('Server', {}).get('language')
+            if l:
+                localization.install(l)
 
         return
 

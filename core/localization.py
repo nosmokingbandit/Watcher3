@@ -19,14 +19,14 @@ def get():
     core.LANGUAGES['en'] = gettext.translation('watcher', localedir=locale_dir, languages=[''], fallback=True)
 
 
-def install(**kwargs):
+def install(lang=None):
     ''' Set/install language of choice
-    kwargs:
-        language (str): language code of language to apply  <optional - default read from config>
+    lang (str): language code of language to apply  <optional - default read from config>
 
     Does not return
     '''
-    lang = kwargs.get('language', core.CONFIG['Server']['language'])
+
+    lang = core.CONFIG['Server']['language'] if not lang else lang
 
     core.LANGUAGES.get(lang, core.LANGUAGES['en']).install()
     core.LANGUAGE = lang

@@ -1,0 +1,1327 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-08-10 13:38-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ..\templates\404.html:13
+msgid "Page Not Found"
+msgstr ""
+
+#: ..\templates\add_movie.html:32 ..\templates\add_movie.html:103
+msgid "Add"
+msgstr ""
+
+#: ..\templates\add_movie.html:38 ..\templates\add_movie.html:109
+#: ..\templates\settings\quality.html:10
+msgid "Default"
+msgstr ""
+
+#: ..\templates\add_movie.html:55
+msgid "Details"
+msgstr ""
+
+#: ..\templates\add_movie.html:72 ..\templates\library\status.html:101
+msgid "Theatrical Release"
+msgstr ""
+
+#: ..\templates\add_movie.html:75 ..\templates\library\status.html:107
+msgid "Score"
+msgstr ""
+
+#: ..\templates\add_movie.html:100
+#: ..\templates\library\import\directory.html:212
+#: ..\templates\library\manage.html:129 ..\templates\library\manage.html:163
+#: ..\templates\library\manage.html:204 ..\templates\library\manage.html:239
+#: ..\templates\library\manage.html:273 ..\templates\library\status.html:171
+#: ..\templates\settings\plugins.html:86 ..\templates\system.html:119
+#: ..\templates\system.html:158
+msgid "Close"
+msgstr ""
+
+#: ..\templates\library\import.html:11
+#: ..\templates\library\import\couchpotato.html:94
+#: ..\templates\library\import\directory.html:121
+#: ..\templates\library\import\kodi.html:113
+#: ..\templates\library\import\plex.html:130
+msgid "Import Library"
+msgstr ""
+
+#: ..\templates\library\import.html:32
+#: ..\templates\settings\downloader.html:117
+#: ..\templates\settings\downloader.html:396
+msgid "Directory"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:12
+msgid "Import CouchPotato Library"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:21
+msgid "CouchPotato Server Information"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:25
+#: ..\templates\library\import\kodi.html:25
+#: ..\templates\settings\server.html:232
+msgid "Address"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:29
+#: ..\templates\library\import\kodi.html:29
+#: ..\templates\settings\downloader.html:34
+#: ..\templates\settings\downloader.html:85
+#: ..\templates\settings\downloader.html:153
+#: ..\templates\settings\downloader.html:204
+#: ..\templates\settings\downloader.html:251
+#: ..\templates\settings\downloader.html:321
+#: ..\templates\settings\downloader.html:370
+#: ..\templates\settings\server.html:24 ..\templates\settings\server.html:237
+msgid "Port"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:33
+#: ..\templates\settings\downloader.html:89
+#: ..\templates\settings\indexers.html:55
+#: ..\templates\settings\indexers.html:78
+msgid "API Key"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:40
+#: ..\templates\library\import\kodi.html:44
+msgid "Scan Library"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:45
+#: ..\templates\library\import\directory.html:67
+#: ..\templates\library\import\kodi.html:49
+#: ..\templates\library\import\plex.html:44
+msgid "No New Movies Found"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:48
+msgid "No new movies have been found in CouchPotato's library."
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:54
+msgid "Wanted Movies"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:60
+#: ..\templates\library\import\couchpotato.html:80
+#: ..\templates\library\import\directory.html:82
+#: ..\templates\library\import\directory.html:105
+#: ..\templates\library\import\kodi.html:98
+#: ..\templates\library\import\plex.html:93
+#: ..\templates\library\import\plex.html:115 ..\templates\navbar.html:33
+msgid "Import"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:61
+#: ..\templates\library\import\couchpotato.html:81
+#: ..\templates\library\import\couchpotato.html:106
+#: ..\templates\library\import\couchpotato.html:124
+#: ..\templates\library\import\directory.html:84
+#: ..\templates\library\import\directory.html:107
+#: ..\templates\library\import\directory.html:132
+#: ..\templates\library\import\directory.html:155
+#: ..\templates\library\import\kodi.html:100
+#: ..\templates\library\import\kodi.html:125
+#: ..\templates\library\import\kodi.html:143
+#: ..\templates\library\import\plex.html:95
+#: ..\templates\library\import\plex.html:117
+#: ..\templates\library\import\plex.html:142
+#: ..\templates\library\import\plex.html:160
+#: ..\templates\library\status.html:32
+msgid "Title"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:62
+#: ..\templates\library\import\couchpotato.html:82
+#: ..\templates\library\import\couchpotato.html:107
+#: ..\templates\library\import\kodi.html:101
+#: ..\templates\library\import\kodi.html:126
+#: ..\templates\library\import\plex.html:118
+#: ..\templates\library\import\plex.html:143
+msgid "IMDB ID"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:63
+msgid "Quality&nbsp;Profile"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:74
+msgid "Finished Movies"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:83
+#: ..\templates\library\import\directory.html:86
+#: ..\templates\library\import\directory.html:109
+#: ..\templates\library\import\kodi.html:102
+#: ..\templates\library\import\plex.html:97
+#: ..\templates\library\import\plex.html:119
+#: ..\templates\library\status.html:110
+msgid "Source"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:100
+#: ..\templates\library\import\directory.html:126
+#: ..\templates\library\import\kodi.html:119
+#: ..\templates\library\import\plex.html:136
+msgid "Imported Movies"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:118
+#: ..\templates\library\import\directory.html:149
+#: ..\templates\library\import\kodi.html:137
+#: ..\templates\library\import\plex.html:154
+msgid "Import Errors"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:125
+#: ..\templates\library\import\directory.html:156
+#: ..\templates\library\import\kodi.html:144
+#: ..\templates\library\import\plex.html:161
+#: ..\templates\library\manage.html:120 ..\templates\library\manage.html:154
+#: ..\templates\library\manage.html:195 ..\templates\library\manage.html:229
+#: ..\templates\library\manage.html:264
+msgid "Error"
+msgstr ""
+
+#: ..\templates\library\import\couchpotato.html:136
+#: ..\templates\library\import\directory.html:167
+#: ..\templates\library\import\kodi.html:155
+#: ..\templates\library\import\plex.html:172
+msgid "Return"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:12
+msgid "Import Directory"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:21
+msgid "Select Directory"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:37
+msgid "Minimum File Size"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:43
+msgid "MegaBytes"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:48
+msgid "Scan Recursively"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:54
+msgid "Scan sub-folders as well."
+msgstr ""
+
+#: ..\templates\library\import\directory.html:62
+#: ..\templates\settings\postprocessing.html:173
+msgid "Scan Directory"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:70
+msgid "No new movies have been found."
+msgstr ""
+
+#: ..\templates\library\import\directory.html:76
+msgid "Found Movies"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:83
+#: ..\templates\library\import\directory.html:106
+#: ..\templates\library\import\plex.html:94
+#: ..\templates\library\import\plex.html:116
+msgid "File"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:85
+#: ..\templates\library\import\directory.html:108
+#: ..\templates\library\import\directory.html:134
+msgid "TheMovieDB&nbsp;ID"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:87
+#: ..\templates\library\import\directory.html:110
+msgid "Size"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:98
+#: ..\templates\library\import\plex.html:108
+msgid "Incomplete Movies"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:101
+#: ..\templates\library\import\plex.html:111
+msgid "The following movies are missing key information. Review and correct as needed."
+msgstr ""
+
+#: ..\templates\library\import\directory.html:195
+msgid "Select Library Directory"
+msgstr ""
+
+#: ..\templates\library\import\directory.html:213
+msgid "Select"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:12
+msgid "Import Kodi Library"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:21
+msgid "Kodi Server Information"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:33
+#: ..\templates\settings\downloader.html:38
+#: ..\templates\settings\downloader.html:157
+#: ..\templates\settings\downloader.html:288
+#: ..\templates\settings\downloader.html:325
+#: ..\templates\settings\downloader.html:374
+#: ..\templates\settings\server.html:74
+msgid "User"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:37
+#: ..\templates\settings\downloader.html:42
+#: ..\templates\settings\downloader.html:161
+#: ..\templates\settings\downloader.html:208
+#: ..\templates\settings\downloader.html:292
+#: ..\templates\settings\downloader.html:329
+#: ..\templates\settings\downloader.html:378
+#: ..\templates\settings\server.html:78 ..\templates\settings\server.html:247
+msgid "Password"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:52
+msgid "No new movies have been found in Kodi's library."
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:58
+#: ..\templates\library\import\plex.html:53
+msgid "Remote Paths"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:61
+msgid "Kodi lists file locations relative to itself. If Kodi is on a different device than Watcher you may need to alter file paths."
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:64
+#: ..\templates\library\import\plex.html:59
+msgid "To alter a remote path, enter the information in the following form and click Apply. Multiple changes can be applied. Use the same principles as described in the wiki."
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:70
+#: ..\templates\library\import\plex.html:65
+#: ..\templates\settings\postprocessing.html:208
+msgid "Local Path"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:74
+#: ..\templates\library\import\plex.html:69
+#: ..\templates\settings\postprocessing.html:207
+msgid "Remote Path"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:80
+#: ..\templates\library\import\plex.html:75
+msgid "Apply"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:84
+#: ..\templates\library\import\plex.html:79
+msgid "Reset"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:92
+msgid "Kodi Movies"
+msgstr ""
+
+#: ..\templates\library\import\kodi.html:99
+msgid "File Location"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:12
+msgid "Import Plex Library"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:21
+msgid "Upload Plex CSV"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:31
+msgid "Select CSV"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:39
+msgid "Read CSV"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:47
+msgid "No new movies have been found in Plex's library."
+msgstr ""
+
+#: ..\templates\library\import\plex.html:56
+msgid "Plex lists file locations relative to itself. If Plex is on a different device than Watcher you may need to alter file paths."
+msgstr ""
+
+#: ..\templates\library\import\plex.html:87
+msgid "Plex Movies"
+msgstr ""
+
+#: ..\templates\library\import\plex.html:96
+msgid "ID"
+msgstr ""
+
+#: ..\templates\library\manage.html:30
+msgid "Attribute"
+msgstr ""
+
+#: ..\templates\library\manage.html:34 ..\templates\library\stats.html:17
+#: ..\templates\library\status.html:34 ..\templates\navbar.html:23
+msgid "Status"
+msgstr ""
+
+#: ..\templates\library\manage.html:36
+msgid "Waiting"
+msgstr ""
+
+#: ..\templates\library\manage.html:39
+msgid "Wanted"
+msgstr ""
+
+#: ..\templates\library\manage.html:42
+msgid "Found"
+msgstr ""
+
+#: ..\templates\library\manage.html:45 ..\templates\settings\plugins.html:45
+msgid "Snatched"
+msgstr ""
+
+#: ..\templates\library\manage.html:48 ..\templates\library\manage.html:84
+#: ..\templates\library\status.html:149 ..\templates\settings\plugins.html:52
+msgid "Finished"
+msgstr ""
+
+#: ..\templates\library\manage.html:51
+msgid "Quality Profile"
+msgstr ""
+
+#: ..\templates\library\manage.html:107
+msgid "Backlog Search"
+msgstr ""
+
+#: ..\templates\library\manage.html:111
+msgid "A full backlog search will be performed for selected movies. <br/> Be aware that this will consume one API hit per movie and may take several minutes to complete."
+msgstr ""
+
+#: ..\templates\library\manage.html:130
+msgid "Force Backlog Search"
+msgstr ""
+
+#: ..\templates\library\manage.html:141 ..\templates\library\manage.html:164
+msgid "Update Metadata"
+msgstr ""
+
+#: ..\templates\library\manage.html:145
+msgid "Metadata and posters will be re-downloaded for selected movies. <br/> This may take several minutes."
+msgstr ""
+
+#: ..\templates\library\manage.html:175 ..\templates\library\manage.html:205
+msgid "Change Quality Profile"
+msgstr ""
+
+#: ..\templates\library\manage.html:179
+msgid "Quality profiles will be changed for selected movies."
+msgstr ""
+
+#: ..\templates\library\manage.html:182
+msgid "Choose a Quality Profile"
+msgstr ""
+
+#: ..\templates\library\manage.html:216 ..\templates\library\manage.html:240
+msgid "Reset Movies"
+msgstr ""
+
+#: ..\templates\library\manage.html:220
+msgid "Selected movies will be reset.<br/>Quality Profile will be set to Default.<br/>Status will be set to wanted.<br/>Search Results will be removed (including Imports).<br/>This cannot be undone."
+msgstr ""
+
+#: ..\templates\library\manage.html:251 ..\templates\library\manage.html:274
+msgid "Remove Movies"
+msgstr ""
+
+#: ..\templates\library\manage.html:255
+msgid "Selected movies will be removed from the library.<br/>This will not delete movie files.<br/>This cannot be undone."
+msgstr ""
+
+#: ..\templates\library\stats.html:26 ..\templates\settings\quality.html:100
+msgid "Quality Profiles"
+msgstr ""
+
+#: ..\templates\library\stats.html:35
+msgid "Movies By Year"
+msgstr ""
+
+#: ..\templates\library\stats.html:44
+msgid "Library Growth"
+msgstr ""
+
+#: ..\templates\library\stats.html:53
+msgid "Scores"
+msgstr ""
+
+#: ..\templates\library\status.html:33
+msgid "Year"
+msgstr ""
+
+#: ..\templates\library\status.html:104
+msgid "Home Release"
+msgstr ""
+
+#: ..\templates\library\status.html:113
+msgid "Date Added"
+msgstr ""
+
+#: ..\templates\library\status.html:138 ..\templates\navbar.html:64
+msgid "Quality"
+msgstr ""
+
+#: ..\templates\library\status.html:148
+msgid "Automatic"
+msgstr ""
+
+#: ..\templates\library\status.html:183
+msgid "Remove from Library"
+msgstr ""
+
+#: ..\templates\library\status.html:189
+msgid "Are you sure you want to remove <b>{title}</b> from your library?"
+msgstr ""
+
+#: ..\templates\library\status.html:192
+msgid "Delete movie file"
+msgstr ""
+
+#: ..\templates\library\status.html:200 ..\templates\navbar.html:141
+#: ..\templates\navbar.html:157 ..\templates\navbar.html:173
+msgid "Cancel"
+msgstr ""
+
+#: ..\templates\library\status.html:201
+msgid "Remove"
+msgstr ""
+
+#: ..\templates\navbar.html:17
+msgid "Library"
+msgstr ""
+
+#: ..\templates\navbar.html:28
+msgid "Manage"
+msgstr ""
+
+#: ..\templates\navbar.html:38
+msgid "Stats"
+msgstr ""
+
+#: ..\templates\navbar.html:44
+msgid "Add Movie"
+msgstr ""
+
+#: ..\templates\navbar.html:48
+msgid "Settings"
+msgstr ""
+
+#: ..\templates\navbar.html:54 ..\templates\settings\server.html:15
+msgid "Server"
+msgstr ""
+
+#: ..\templates\navbar.html:59 ..\templates\settings\search.html:15
+msgid "Search"
+msgstr ""
+
+#: ..\templates\navbar.html:69
+msgid "Indexers"
+msgstr ""
+
+#: ..\templates\navbar.html:74
+msgid "Downloader"
+msgstr ""
+
+#: ..\templates\navbar.html:79 ..\templates\settings\postprocessing.html:35
+msgid "Postprocessing"
+msgstr ""
+
+#: ..\templates\navbar.html:84 ..\templates\settings\plugins.html:36
+msgid "Plugins"
+msgstr ""
+
+#: ..\templates\navbar.html:89 ..\templates\settings\logs.html:14
+msgid "Logs"
+msgstr ""
+
+#: ..\templates\navbar.html:94
+msgid "System"
+msgstr ""
+
+#: ..\templates\navbar.html:101 ..\templates\navbar.html:142
+msgid "Log Out"
+msgstr ""
+
+#: ..\templates\navbar.html:107 ..\templates\navbar.html:174
+#: ..\templates\settings\server.html:265
+msgid "Restart"
+msgstr ""
+
+#: ..\templates\navbar.html:112 ..\templates\navbar.html:158
+#: ..\templates\settings\server.html:269
+msgid "Shut Down"
+msgstr ""
+
+#: ..\templates\navbar.html:137
+msgid "Log Out?"
+msgstr ""
+
+#: ..\templates\navbar.html:153
+msgid "Shut Down Watcher?"
+msgstr ""
+
+#: ..\templates\navbar.html:169
+msgid "Restart Watcher?"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:14
+msgid "Download Clients"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:16
+msgid "Usenet"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:20
+#: ..\templates\settings\downloader.html:135
+#: ..\templates\settings\search.html:46
+msgid "Disabled"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:23
+#: ..\templates\settings\downloader.html:142
+msgid "Black Hole"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:30
+#: ..\templates\settings\downloader.html:81
+#: ..\templates\settings\downloader.html:149
+#: ..\templates\settings\downloader.html:200
+#: ..\templates\settings\downloader.html:247
+#: ..\templates\settings\downloader.html:317
+#: ..\templates\settings\downloader.html:366
+#: ..\templates\settings\server.html:19
+msgid "Host"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:46
+#: ..\templates\settings\downloader.html:93
+#: ..\templates\settings\downloader.html:165
+#: ..\templates\settings\downloader.html:212
+#: ..\templates\settings\downloader.html:333
+#: ..\templates\settings\downloader.html:382
+msgid "Category"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:50
+#: ..\templates\settings\downloader.html:97
+#: ..\templates\settings\downloader.html:169
+#: ..\templates\settings\downloader.html:216
+#: ..\templates\settings\downloader.html:337
+msgid "Priority"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:52
+#: ..\templates\settings\downloader.html:171
+#: ..\templates\settings\downloader.html:218
+msgid "Very Low"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:53
+#: ..\templates\settings\downloader.html:100
+#: ..\templates\settings\downloader.html:172
+#: ..\templates\settings\downloader.html:219
+#: ..\templates\settings\downloader.html:339
+msgid "Low"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:54
+#: ..\templates\settings\downloader.html:101
+#: ..\templates\settings\downloader.html:173
+#: ..\templates\settings\downloader.html:220
+#: ..\templates\settings\downloader.html:340
+msgid "Normal"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:55
+#: ..\templates\settings\downloader.html:102
+#: ..\templates\settings\downloader.html:174
+#: ..\templates\settings\downloader.html:221
+#: ..\templates\settings\downloader.html:341
+msgid "High"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:56
+#: ..\templates\settings\downloader.html:103
+#: ..\templates\settings\downloader.html:175
+#: ..\templates\settings\downloader.html:222
+msgid "Forced"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:60
+#: ..\templates\settings\downloader.html:179
+#: ..\templates\settings\downloader.html:226
+#: ..\templates\settings\downloader.html:259
+#: ..\templates\settings\downloader.html:296
+#: ..\templates\settings\downloader.html:345
+msgid "Add Paused"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:66
+msgid "Add NZBs in Paused state."
+msgstr ""
+
+#: ..\templates\settings\downloader.html:74
+#: ..\templates\settings\downloader.html:110
+#: ..\templates\settings\downloader.html:124
+#: ..\templates\settings\downloader.html:193
+#: ..\templates\settings\downloader.html:240
+#: ..\templates\settings\downloader.html:273
+#: ..\templates\settings\downloader.html:310
+#: ..\templates\settings\downloader.html:359
+#: ..\templates\settings\downloader.html:389
+#: ..\templates\settings\downloader.html:403
+msgid "Test Connection"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:99
+msgid "Paused"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:131
+msgid "Torrent"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:185
+#: ..\templates\settings\downloader.html:232
+#: ..\templates\settings\downloader.html:265
+#: ..\templates\settings\downloader.html:302
+#: ..\templates\settings\downloader.html:351
+msgid "Add Torrents in Paused state."
+msgstr ""
+
+#: ..\templates\settings\downloader.html:255
+#: ..\templates\settings\downloader.html:284
+msgid "Label"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:280
+msgid "HTTP RPC Address"
+msgstr ""
+
+#: ..\templates\settings\downloader.html:412
+#: ..\templates\settings\indexers.html:172
+#: ..\templates\settings\plugins.html:69
+#: ..\templates\settings\postprocessing.html:227
+#: ..\templates\settings\quality.html:167
+#: ..\templates\settings\search.html:250 ..\templates\settings\server.html:274
+msgid "Save Settings"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:49
+msgid "NewzNab Indexers"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:54
+#: ..\templates\settings\indexers.html:77
+msgid "URL"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:67
+#: ..\templates\settings\indexers.html:90
+msgid "Add Indexer"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:72
+msgid "TorzNab Indexers"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:96
+msgid "Torrent Indexers"
+msgstr ""
+
+#: ..\templates\settings\indexers.html:124
+#: ..\templates\settings\indexers.html:164
+msgid "backlog only"
+msgstr ""
+
+#: ..\templates\settings\logs.html:18
+msgid "Log Directory"
+msgstr ""
+
+#: ..\templates\settings\logs.html:23
+msgid "Log Files"
+msgstr ""
+
+#: ..\templates\settings\logs.html:33
+msgid "View"
+msgstr ""
+
+#: ..\templates\settings\logs.html:39
+msgid "Download"
+msgstr ""
+
+#: ..\templates\settings\plugins.html:38
+msgid "Added"
+msgstr ""
+
+#: ..\templates\settings\plugins.html:60
+msgid "See the Wiki for plugin instruction."
+msgstr ""
+
+#: ..\templates\settings\plugins.html:87
+msgid "Save Config"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:38
+msgid "See the Wiki for help configuring your download client."
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:47
+msgid "Delete Failed Downloads"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:53
+msgid "Delete incomplete or failed downloads"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:61
+msgid "Rename Movies"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:70
+msgid "Use Periods For Spaces"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:76
+msgid "Replace all spaces with periods"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:84
+msgid "Move Movies"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:94
+msgid "Move Method"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:96
+msgid "Move"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:97
+msgid "Hardlink"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:98
+msgid "Symbolic Link"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:103
+msgid "Move Additional File Types"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:108
+msgid "Clean Up Download Dir"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:114
+msgid "Remove leftover files after move"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:120
+msgid "Replace Illegal Characters With [X]"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:125
+msgid "Clean Up Target Dir"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:131
+msgid "Remove associated files before moving."
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:139
+msgid "Use Recycle Bin Folder"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:145
+msgid "Keep old movies when re-downloading."
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:151
+msgid "Recycle Bin Directory"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:157
+msgid "Directory Scanner"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:161
+msgid "Enable Scanner"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:167
+msgid "Scan directory for movies to process."
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:178
+msgid "Scan Frequency"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:182
+msgid "Minutes"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:188
+msgid "Only Process New Files"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:194
+msgid "Only process files added since last scan."
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:200
+msgid "Remote Mapping"
+msgstr ""
+
+#: ..\templates\settings\postprocessing.html:220
+msgid "Add Mapping"
+msgstr ""
+
+#: ..\templates\settings\quality.html:28
+#: ..\templates\settings\quality.html:116
+msgid "Sources"
+msgstr ""
+
+#: ..\templates\settings\quality.html:47
+msgid "Filters"
+msgstr ""
+
+#: ..\templates\settings\quality.html:50
+msgid "Required Words"
+msgstr ""
+
+#: ..\templates\settings\quality.html:53
+msgid "Preferred Words"
+msgstr ""
+
+#: ..\templates\settings\quality.html:56
+msgid "Ignored Words"
+msgstr ""
+
+#: ..\templates\settings\quality.html:66
+msgid "Misc."
+msgstr ""
+
+#: ..\templates\settings\quality.html:72
+msgid "Score and filter release titles"
+msgstr ""
+
+#: ..\templates\settings\quality.html:76
+msgid "Prefer smaller file sizes"
+msgstr ""
+
+#: ..\templates\settings\quality.html:112
+msgid "Add Profile"
+msgstr ""
+
+#: ..\templates\settings\quality.html:118
+msgid "Specify acceptable size ranges (in MegaBytes) for source media."
+msgstr ""
+
+#: ..\templates\settings\quality.html:123
+msgid "Min Size"
+msgstr ""
+
+#: ..\templates\settings\quality.html:124
+msgid "Max Size"
+msgstr ""
+
+#: ..\templates\settings\quality.html:146
+msgid "Aliases"
+msgstr ""
+
+#: ..\templates\settings\quality.html:148
+msgid "Keywords used to determine source media"
+msgstr ""
+
+#: ..\templates\settings\search.html:20
+msgid "Search Immediately"
+msgstr ""
+
+#: ..\templates\settings\search.html:26
+msgid "Search immediately after adding movie"
+msgstr ""
+
+#: ..\templates\settings\search.html:32
+msgid "Grab Best Release"
+msgstr ""
+
+#: ..\templates\settings\search.html:38
+msgid "Automatically grab best release"
+msgstr ""
+
+#: ..\templates\settings\search.html:44
+msgid "Verify Availability"
+msgstr ""
+
+#: ..\templates\settings\search.html:48
+msgid "Home Media Release Date"
+msgstr ""
+
+#: ..\templates\settings\search.html:53
+msgid "Skip verification if Movie is older than [X] weeks"
+msgstr ""
+
+#: ..\templates\settings\search.html:63
+msgid "Sync RSS Every [X] Minutes"
+msgstr ""
+
+#: ..\templates\settings\search.html:70
+msgid "Wait [X] Days To Grab"
+msgstr ""
+
+#: ..\templates\settings\search.html:76
+msgid "Skip Wait if Movie is Older than [X] Weeks"
+msgstr ""
+
+#: ..\templates\settings\search.html:86
+msgid "Keep Searching [X] Days for Best Release"
+msgstr ""
+
+#: ..\templates\settings\search.html:96
+msgid "Re-Grabbed Releases Must Score [X] Points Higher"
+msgstr ""
+
+#: ..\templates\settings\search.html:103
+msgid "Torrents Must Have [X] Seeds"
+msgstr ""
+
+#: ..\templates\settings\search.html:108
+msgid "Add [X] Points to Freeleech Torrents"
+msgstr ""
+
+#: ..\templates\settings\search.html:113
+msgid "Usenet Server Retention"
+msgstr ""
+
+#: ..\templates\settings\search.html:117
+msgid "Days"
+msgstr ""
+
+#: ..\templates\settings\search.html:123
+msgid "Watchlists"
+msgstr ""
+
+#: ..\templates\settings\search.html:128
+msgid "Sync IMDB Watchlists Every [X] Minutes"
+msgstr ""
+
+#: ..\templates\settings\search.html:138
+msgid "IMDB Watchlist URLs"
+msgstr ""
+
+#: ..\templates\settings\search.html:145
+msgid "Sync Popular Movies Every Day At"
+msgstr ""
+
+#: ..\templates\settings\search.html:161
+msgid "Sync Trakt Lists Every [X] Minutes"
+msgstr ""
+
+#: ..\templates\settings\search.html:171
+msgid "Max Movies Per List"
+msgstr ""
+
+#: ..\templates\settings\search.html:176
+msgid "Minimum Score"
+msgstr ""
+
+#: ..\templates\settings\search.html:181
+msgid "Trakt Lists"
+msgstr ""
+
+#: ..\templates\settings\search.html:187
+msgid "Collected"
+msgstr ""
+
+#: ..\templates\settings\search.html:198
+msgid "Popular"
+msgstr ""
+
+#: ..\templates\settings\search.html:209
+msgid "Anticipated"
+msgstr ""
+
+#: ..\templates\settings\search.html:220
+msgid "Trending"
+msgstr ""
+
+#: ..\templates\settings\search.html:231
+msgid "Boxoffice"
+msgstr ""
+
+#: ..\templates\settings\search.html:242
+msgid "Watched"
+msgstr ""
+
+#: ..\templates\settings\server.html:29
+msgid "Custom Webroot"
+msgstr ""
+
+#: ..\templates\settings\server.html:39
+msgid "Api Key"
+msgstr ""
+
+#: ..\templates\settings\server.html:45
+msgid "New Key"
+msgstr ""
+
+#: ..\templates\settings\server.html:52
+msgid "Keep [X] Days of Logs"
+msgstr ""
+
+#: ..\templates\settings\server.html:59
+msgid "Security"
+msgstr ""
+
+#: ..\templates\settings\server.html:62
+msgid "Password-protect Web-UI"
+msgstr ""
+
+#: ..\templates\settings\server.html:68
+msgid "Require login to access Web-UI."
+msgstr ""
+
+#: ..\templates\settings\server.html:83
+msgid "SSL Cert"
+msgstr ""
+
+#: ..\templates\settings\server.html:87
+msgid "SSL Key"
+msgstr ""
+
+#: ..\templates\settings\server.html:92
+msgid "Verify Remote SSL Certificates"
+msgstr ""
+
+#: ..\templates\settings\server.html:98
+msgid "Disable for non-functional SSL installs."
+msgstr ""
+
+#: ..\templates\settings\server.html:104
+msgid "Interface"
+msgstr ""
+
+#: ..\templates\settings\server.html:108
+msgid "Theme"
+msgstr ""
+
+#: ..\templates\settings\server.html:117
+msgid "Open Browser"
+msgstr ""
+
+#: ..\templates\settings\server.html:123
+msgid "Open Browser when launching Watcher."
+msgstr ""
+
+#: ..\templates\settings\server.html:140
+msgid "Language"
+msgstr ""
+
+#: ..\templates\settings\server.html:149
+msgid "Updates"
+msgstr ""
+
+#: ..\templates\settings\server.html:153 ..\templates\settings\server.html:187
+msgid "Check for Updates"
+msgstr ""
+
+#: ..\templates\settings\server.html:159
+msgid "Automatically check for updates."
+msgstr ""
+
+#: ..\templates\settings\server.html:165
+msgid "Update Check Frequency"
+msgstr ""
+
+#: ..\templates\settings\server.html:169
+msgid "Hours"
+msgstr ""
+
+#: ..\templates\settings\server.html:175
+msgid "Install Updates"
+msgstr ""
+
+#: ..\templates\settings\server.html:181
+msgid "Automatically install updates."
+msgstr ""
+
+#: ..\templates\settings\server.html:190
+msgid "Check for Updates Now"
+msgstr ""
+
+#: ..\templates\settings\server.html:194
+msgid "Current Version Hash"
+msgstr ""
+
+#: ..\templates\settings\server.html:207
+msgid "Proxy"
+msgstr ""
+
+#: ..\templates\settings\server.html:211
+msgid "Enable Proxy"
+msgstr ""
+
+#: ..\templates\settings\server.html:217
+msgid "Use proxy when connecting to Indexers."
+msgstr ""
+
+#: ..\templates\settings\server.html:223
+msgid "Proxy Protocol"
+msgstr ""
+
+#: ..\templates\settings\server.html:242
+msgid "User Name"
+msgstr ""
+
+#: ..\templates\settings\server.html:252
+msgid "Whitelist"
+msgstr ""
+
+#: ..\templates\settings\server.html:258
+msgid "Requires Restart"
+msgstr ""
+
+#: ..\templates\system.html:17
+msgid "System Information"
+msgstr ""
+
+#: ..\templates\system.html:22
+msgid "Server Time"
+msgstr ""
+
+#: ..\templates\system.html:32
+msgid "Watcher Directory"
+msgstr ""
+
+#: ..\templates\system.html:42
+msgid "Database"
+msgstr ""
+
+#: ..\templates\system.html:53
+msgid "Config"
+msgstr ""
+
+#: ..\templates\system.html:63
+msgid "Launch Arugments"
+msgstr ""
+
+#: ..\templates\system.html:73
+msgid "Backup"
+msgstr ""
+
+#: ..\templates\system.html:77 ..\templates\system.html:120
+msgid "Create Backup"
+msgstr ""
+
+#: ..\templates\system.html:81 ..\templates\system.html:159
+msgid "Restore Backup"
+msgstr ""
+
+#: ..\templates\system.html:87
+msgid "Task Scheduler"
+msgstr ""
+
+#: ..\templates\system.html:91
+msgid "Enabled"
+msgstr ""
+
+#: ..\templates\system.html:92
+msgid "Name"
+msgstr ""
+
+#: ..\templates\system.html:93
+msgid "Frequency"
+msgstr ""
+
+#: ..\templates\system.html:94
+msgid "Last Execution"
+msgstr ""
+
+#: ..\templates\system.html:95
+msgid "Next Execution"
+msgstr ""
+
+#: ..\templates\system.html:96
+msgid "Execute Now"
+msgstr ""
+
+#: ..\templates\system.html:109
+msgid "Create Backup of Watcher?"
+msgstr ""
+
+#: ..\templates\system.html:112
+msgid "A backup will be made of your <b>database</b>, <b>posters</b>, and <b>config</b>."
+msgstr ""
+
+#: ..\templates\system.html:130
+msgid "Restore Backup of Watcher?"
+msgstr ""
+
+#: ..\templates\system.html:134
+msgid "Restoring a backup will overwrite your <b>database</b>, <b>posters</b>, and <b>config</b>"
+msgstr ""
+
+#: ..\templates\system.html:144
+msgid "Select Backup Zip"
+msgstr ""
+
+#: ..\templates\system\restart.html:11
+msgid "Restarting"
+msgstr ""
+
+#: ..\templates\system\shutdown.html:11
+msgid "Shutting Down"
+msgstr ""
+
+#: ..\templates\system\update.html:14
+msgid "Waiting for tasks to finish..."
+msgstr ""
+
+#: ..\templates\system\update.html:19
+msgid "Updating"
+msgstr ""
+
