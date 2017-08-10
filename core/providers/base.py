@@ -213,7 +213,7 @@ class NewzNabProvider(object):
         try:
             r = Url.open(url)
             if r.status_code != 200:
-                return {'response': False, 'error': 'Error Code {}'.format(r.status_code)}
+                return {'response': False, 'error': 'Error {} {}'.format(r.status_code, r.reason.title())}
             else:
                 response = r.text
         except (SystemExit, KeyboardInterrupt):
