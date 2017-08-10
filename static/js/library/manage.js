@@ -71,6 +71,7 @@ function backlog_search(event, elem){
     var movies = _selected_movies();
 
     if(movies.length == 0){
+        // TODO: Localize strings
         $.notify({message: "No movies are selected."}, {type: "warning"})
         return
     }
@@ -83,6 +84,7 @@ function refresh_metadata(event, elem){
     var movies = _selected_movies();
 
     if(movies.length == 0){
+        // TODO: Localize strings
         $.notify({message: "No movies are selected."}, {type: "warning"})
         return
     }
@@ -95,6 +97,7 @@ function change_quality(event, elem){
     var movies = _selected_movies();
 
     if(movies.length == 0){
+        // TODO: Localize strings
         $.notify({message: "No movies are selected."}, {type: "warning"})
         return
     }
@@ -102,6 +105,7 @@ function change_quality(event, elem){
     var quality = $("div#modal_quality select#quality").val();
 
     if(!quality){
+        // TODO: Localize strings
         $.notify({message: "Select a new Quality Profile."}, {type: "warning"})
         return
     }
@@ -114,6 +118,7 @@ function reset_movies(event, elem){
     var movies = _selected_movies();
 
     if(movies.length == 0){
+        // TODO: Localize strings
         $.notify({message: "No movies are selected."}, {type: "warning"})
         return
     }
@@ -128,6 +133,7 @@ function remove_movies(event, elem){
     var movies = _selected_movies();
 
     if(movies.length == 0){
+        // TODO: Localize strings
         $.notify({message: "No movies are selected."}, {type: "warning"})
         return
     }

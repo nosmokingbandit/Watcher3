@@ -38,6 +38,7 @@ $(document).ready(function(){
             });
         } else {
             clearInterval(check);
+            // TODO: Localize string
             $.notify({title: "<u>Timout Exceeded</u><br/>", message: "Watcher is taking too long to restart. Please check your logs and restart manually."}, {type: "warning", delay: 0})
             $thinker.css("opacity", 0);
         }

@@ -180,6 +180,7 @@ function import_library(event, elem){
     });
 
     if(blanks){
+        // TODO: Localize strings
         $.notify({message: "Please fill highlighted fields or disable movie to continue."}, {type: "warning"});
         return false;
     }

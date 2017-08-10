@@ -58,6 +58,7 @@ function save_settings(event, elem){
 
     if(settings == false){
         $.notify({message: "Please fill in all highlighted fields."}, {type: "warning"})
+        // TODO: Localize string
         $i.removeClass("mdi-circle-outline animated").addClass("mdi-content-save");
         return false
     }
