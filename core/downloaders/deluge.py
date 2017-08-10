@@ -144,13 +144,9 @@ class DelugeRPC(object):
         Returns Bool
         '''
 
-        label = label_fix.sub('', label.lower()).encode('utf-8')
+        label = label_fix.sub('', label.lower()).encode('utf-8').replace(' ', '')
 
         logging.info('Applying label {} to torrent {} in DelugeRPC.'.format(label, torrent))
-
-        if b' ' in label:
-            logging.error('Deluge label cannot contain spaces.')
-            return False
 
         try:
             deluge_labels = client.call('label.get_labels')
@@ -290,7 +286,7 @@ class DelugeWeb(object):
 
         Returns bool
         '''
-        label = label_fix.sub('', label.lower())
+        label = label_fix.sub('', label.lower()).replace(' ', '')
 
         logging.info('Applying label {} to torrent {} in Deluge Web UI.'.format(label, torrent))
 
