@@ -81,7 +81,7 @@
 
             <ul id="movie_list" class="striped">
                 %for movie in movies:
-                <% _status = _('Finished') if movie['status'] == 'Disabled' else _(movie['status']) %>
+                <% _status = 'Finished' if movie['status'] == 'Disabled' else movie['status'] %>
                 <% _poster = url_base + '/static/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg' %>
                  <li class="movie" imdbid="${movie['imdbid']}">
                     <img data-echo="${_poster}" src="${url_base}/static/images/missing_poster.jpg">
