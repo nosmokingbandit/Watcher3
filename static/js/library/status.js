@@ -274,7 +274,6 @@ function _render_library(movies){
         $movie_list.append($item)
     });
 
-    // TODO Can this be removed? Maybe try something like Layzr?
     echo.init({offsetVertical: 100,
         callback: function(element, op){
             $(element).css("opacity", 1)

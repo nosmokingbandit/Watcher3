@@ -70,9 +70,7 @@ function backlog_search(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(movies.length == 0){
-        // TODO: Localize strings
-        $.notify({message: "No movies are selected."}, {type: "warning"})
+    if(!_can_process(movies)){
         return
     }
 
@@ -83,9 +81,7 @@ function refresh_metadata(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(movies.length == 0){
-        // TODO: Localize strings
-        $.notify({message: "No movies are selected."}, {type: "warning"})
+    if(!_can_process(movies)){
         return
     }
 
@@ -96,17 +92,14 @@ function change_quality(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(movies.length == 0){
-        // TODO: Localize strings
-        $.notify({message: "No movies are selected."}, {type: "warning"})
+    if(!_can_process(movies)){
         return
     }
 
     var quality = $("div#modal_quality select#quality").val();
 
     if(!quality){
-        // TODO: Localize strings
-        $.notify({message: "Select a new Quality Profile."}, {type: "warning"})
+        $.notify({message: _("Select a new Quality Profile.")}, {type: "warning"})
         return
     }
 
@@ -117,9 +110,7 @@ function reset_movies(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(movies.length == 0){
-        // TODO: Localize strings
-        $.notify({message: "No movies are selected."}, {type: "warning"})
+    if(!_can_process(movies)){
         return
     }
 
@@ -132,15 +123,21 @@ function remove_movies(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(movies.length == 0){
-        // TODO: Localize strings
-        $.notify({message: "No movies are selected."}, {type: "warning"})
+    if(!_can_process(movies)){
         return
     }
 
     _manager_request($("div#modal_remove"), "manager_remove_movies", {"movies": movies});
 }
 
+function _can_process(movies){
+    if(movies.lenth > 0){
+        return true
+    } else {
+        $.notify({message: _("No movies are selected.")}, {type: "warning"})
+        return false
+    }
+}
 
 function _manager_request($modal, url, payload){
     /* Fires xhr ajax request for ajax/url_base with payload {movies: movies}

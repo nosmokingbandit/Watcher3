@@ -62,8 +62,7 @@ $.ajax(url_base + '/ajax/update_server', {
                     $("div.updating").fadeIn();
                 }
                 else if(r["status"] == "complete"){
-                    // TODO: Localize strings
-                    $.notify({message: "Update successful."}, {delay: 0});
+                    $.notify({message: _("Update successful.")}, {delay: 0});
                     $("div.updating").text("Restarting");
                     redirect();
                 }
