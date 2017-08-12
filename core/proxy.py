@@ -84,9 +84,9 @@ def destroy():
 
     Does not return
     '''
-    logging.info('Closing proxy connection.')
     global on
     if on:
+        logging.info('Closing proxy connection.')
         Url.proxies = None
         on = False
         return
