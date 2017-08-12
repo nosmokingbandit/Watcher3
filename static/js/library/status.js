@@ -573,8 +573,7 @@ function _remove_movie(event, elem, imdbid){
         $.post(url_base + "/ajax/delete_movie_file", {"imdbid": imdbid})
         .done(function(response){
             if(response["response"] == true){
-                var message = `Deleted movie file ${response["file"]}.`;
-                $.notify({message: message}, {type: "success"});
+                $.notify({message: response["message"]}, {type: "success"});
             } else {
                 $.notify({message: response["error"]}, {type: "danger"});
             }

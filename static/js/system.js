@@ -152,7 +152,7 @@ function upload_restore_zip(event, elem){
     })
     .on("lu:errors", function (e, errors) {
         if(errors[0]["errors"][0]["type"] == "type"){
-            $.notify({message: "Please select a ZIP file."}, {type: "warning"})
+            $.notify({message: _("Please select a ZIP file.")}, {type: "warning"})
         } else {
             $.each(errors[0]["errors"], function(i, err){
                 $.notify({message: `Error: ${err["type"]}`}, {type: "warning"})
