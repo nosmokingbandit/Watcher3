@@ -152,7 +152,7 @@ class SQL(object):
                     time.sleep(1)
                 else:
                     logging.error('SQL Databse Query: {}.'.format(command), exc_info=True)
-                    raise
+                    return None
         # all tries exhausted
         return None
 
@@ -536,7 +536,7 @@ class SQL(object):
 
         row = self.execute(command)
 
-        if row is False or row.fetchone() is None:
+        if not row or row.fetchone() is None:
             return False
         else:
             return True
