@@ -5,6 +5,7 @@ import logging
 import core
 from core.helpers import Url
 from core import proxy
+from gettext import gettext as _
 
 
 class NewzNabProvider(object):
@@ -199,7 +200,7 @@ class NewzNabProvider(object):
         '''
 
         if not indexer:
-            return {'response': False, 'error': 'Indexer field is blank.'}
+            return {'response': False, 'error': _('Indexer URL is blank.')}
 
         while indexer[-1] == '/':
             indexer = indexer[:-1]
@@ -213,26 +214,26 @@ class NewzNabProvider(object):
         try:
             r = Url.open(url)
             if r.status_code != 200:
-                return {'response': False, 'error': 'Error {} {}'.format(r.status_code, r.reason.title())}
+                return {'response': False, 'error': '{} {}'.format(r.status_code, r.reason.title())}
             else:
                 response = r.text
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
             logging.error('Newz/TorzNab connection check.', exc_info=True)
-            return {'response': False, 'error': 'No connection could be made because the target machine actively refused it.'}
+            return {'response': False, 'error': _('No connection could be made because the target machine actively refused it.')}
 
         if '<error code="' in response:
             error = ET.fromstring(response)
             if error.attrib['description'] == 'Missing parameter':
                 logging.info('Newz/TorzNab connection test successful.')
-                return {'response': True, 'message': 'Connection successful.'}
+                return {'response': True, 'message': _('Connection successful.')}
             else:
                 logging.error('Newz/TorzNab connection test failed. {}'.format(error.attrib['description']))
                 return {'response': False, 'error': error.attrib['description']}
         elif 'unauthorized' in response.lower():
             logging.error('Newz/TorzNab connection failed - Incorrect API key.')
-            return {'response': False, 'error': 'Incorrect API key.'}
+            return {'response': False, 'error': _('Incorrect API key.')}
         else:
             logging.info('Newz/TorzNab connection test successful.')
-            return {'response': True, 'message': 'Connection successful.'}
+            return {'response': True, 'message': _('Connection successful.')}

@@ -11,6 +11,7 @@ from core.helpers import Url
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 import PTN
+from gettext import gettext as _
 
 
 logging = logging.getLogger(__name__)
@@ -121,14 +122,7 @@ class ImportKodiLibrary(object):
             return {'response': False, 'error': str(e.args[0].reason).split(']')[-1]}
 
         if response.status_code != 200:
-            if response.status_code == 401:
-                return {'response': False, 'error': 'Incorrect credentials.'}
-            elif response.status_code == 403:
-                return {'response': False, 'error': 'Unauthorized credentials.'}
-            elif response.status_code == 404:
-                return {'response': False, 'error': 'Server not found.'}
-            else:
-                return {'response': False, 'error': 'Error {}'.format(response.status_code)}
+            return {'response': False, 'error': '{} {}'.format(response.status_code, response.reason.title())}
 
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
         movies = []
@@ -337,11 +331,11 @@ class ImportCPLibrary(object):
         except Exception as e:
             return {'response': False, 'error': str(e)}
         if r.status_code != 200:
-            return {'response': False, 'error': 'Error {}'.format(r.status_code)}
+            return {'response': False, 'error': '{} {}'.format(r.status_code, r.reason.title())}
         try:
             cp = json.loads(r.text)
         except Exception as e:
-            return {'response': False, 'error': 'Malformed json response from CouchPotato'}
+            return {'response': False, 'error': _('Malformed json response from CouchPotato')}
 
         if cp['total'] == 0:
             return ['']
@@ -770,7 +764,7 @@ class Manage(object):
             logging.debug('More information needed, searching TheMovieDB for {}'.format(tmdbid))
             tmdb_data = self.tmdb._search_tmdbid(tmdbid)
             if not tmdb_data:
-                response['error'] = 'Unable to find {} on TMDB.'.format(tmdbid)
+                response['error'] = _('Unable to find {} on TMDB.').format(tmdbid)
                 return response
             else:
                 tmdb_data = tmdb_data[0]
@@ -782,7 +776,7 @@ class Manage(object):
 
             response['response'] = False
 
-            response['error'] = '{} already exists in library.'.format(movie['title'])
+            response['error'] = _('{} already exists in library.').format(movie['title'])
             return response
 
         movie['quality'] = movie.get('quality', 'Default')
@@ -793,7 +787,7 @@ class Manage(object):
 
         if not core.sql.write('MOVIES', movie):
             response['response'] = False
-            response['error'] = 'Could not write to database.'
+            response['error'] = _('Could not write to database.')
             return response
         else:
             if poster_path:
@@ -804,7 +798,7 @@ class Manage(object):
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
 
             response['response'] = True
-            response['message'] = '{} {} added to library.'.format(movie['title'], movie['year'])
+            response['message'] = _('{} {} added to library.').format(movie['title'], movie['year'])
             plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
 
             return response
@@ -825,12 +819,12 @@ class Manage(object):
         removed = core.sql.remove_movie(imdbid)
 
         if removed is True:
-            response = {'response': True, 'message': '{} removed from library.'.format(m.get('title'))}
+            response = {'response': True, 'message': _('{} removed from library.').format(m.get('title'))}
             threading.Thread(target=self.poster.remove_poster, args=(imdbid,)).start()
         elif removed is False:
-            response = {'response': False, 'error': 'unable to remove {}'.format(m.get('title'))}
+            response = {'response': False, 'error': _('Unable to remove {}.').format(m.get('title'))}
         elif removed is None:
-            response = {'response': False, 'error': '{} does not exist'.format(imdbid)}
+            response = {'response': False, 'error': _('{} does not exist in library.').format(imdbid)}
 
         return response
 

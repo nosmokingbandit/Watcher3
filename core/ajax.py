@@ -13,11 +13,15 @@ from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge,
 from core.helpers import Conversions
 from core.rss import predb
 import backup
+from gettext import gettext as _
 logging = logging.getLogger(__name__)
 
-# Common error messages to return to browser
-errors = {'database_write': {'response': False, 'error': 'Unable to write to database.'}
-          }
+
+class Errors():
+    ''' Namespace for common error messages used in AJAX responses '''
+    database_write = {'response': False, 'error': 'Unable to write to database.'}
+    database_read = {'response': False, 'error': _('Unable to read {} details from database.')}
+    tmdb_not_found = {'response': False, 'error': _('Unable to find {} on TheMovieDB.')}
 
 
 class Ajax(object):
@@ -147,7 +151,7 @@ class Ajax(object):
                 save_data[key] = data[key]
 
         if not save_data:
-            return {'response': True, 'message': 'Settings saved.'}
+            return {'response': True, 'message': _('Settings saved.')}
 
         try:
             self.config.write(save_data)
@@ -155,9 +159,9 @@ class Ajax(object):
             raise
         except Exception as e:
             logging.error('Writing config.', exc_info=True)
-            return {'response': False, 'error': 'Unable to write to config file.'}
+            return {'response': False, 'error': _('Unable to write to config file.')}
 
-        return {'response': True, 'message': 'Settings saved.'}
+        return {'response': True, 'message': _('Settings saved.')}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -183,13 +187,10 @@ class Ajax(object):
 
         f = core.sql.get_movie_details('imdbid', imdbid).get('finished_file')
 
-        if not f:
-            return {'response': False, 'error': 'Unable to find movie file for {}.'.format(imdbid)}
-
         try:
             logging.debug('Finished file for {} is {}'.format(imdbid, f))
             os.unlink(f)
-            return {'response': True, 'file': f}
+            return {'response': True, 'message': _('Deleted movie file {}.').format(f)}
         except Exception as e:
             logging.error('Unable to delete file {}'.format(f), exc_info=True)
             return {'response': False, 'error': str(e)}
@@ -208,7 +209,7 @@ class Ajax(object):
         movie = core.sql.get_movie_details("imdbid", imdbid)
 
         if not movie:
-            return {'response': False, 'error': 'Unable to get info for imdb {}'.format(imdbid)}
+            return {'response': False, 'error': Errors.database_read.format(imdbid)}
         else:
             success = self.searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])
             status = core.sql.get_movie_details("imdbid", imdbid)['status']
@@ -219,7 +220,7 @@ class Ajax(object):
                     i['size'] = Conversions.human_file_size(i['size'])
                 return {'response': True, 'results': results, 'movie_status': status, 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
             else:
-                return {'response': False, 'error': 'Unable to complete search for imdb {}'.format(imdbid), 'movie_status': status}
+                return {'response': False, 'error': Errors.database_read.format(imdbid), 'movie_status': status}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -236,16 +237,16 @@ class Ajax(object):
         usenet_enabled = core.CONFIG['Downloader']['Sources']['usenetenabled']
 
         if kind == 'nzb' and not usenet_enabled:
-            return {'response': False, 'error': 'Link is NZB but no Usent client is enabled.'}
+            return {'response': False, 'error': _('Link is NZB but no Usent client is enabled.')}
         elif kind in ('torrent', 'magnet') and not torrent_enabled:
-            return {'response': False, 'error': 'Link is {} but no Torrent client is enabled.'.format(kind)}
+            return {'response': False, 'error': _('Link is Torrent/Magnet but no Torrent client is enabled.')}
 
         data = dict(core.sql.get_single_search_result('guid', guid))
         if data:
             data['year'] = year
             return self.snatcher.download(data)
         else:
-            return {'response': False, 'error': 'Unable to get download information from the database. Check logs for more information.'}
+            return {'response': False, 'error': Errors.database_read.format(kind)}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -264,18 +265,18 @@ class Ajax(object):
         core.manage.markedresults(guid, 'Bad', imdbid=imdbid)
 
         if sr:
-            response = {'response': True, 'message': 'Marked release as Bad.'}
+            response = {'response': True, 'message': _('Marked release as Bad.')}
         else:
-            response = errors['database_write']
+            response = Errors.database_write
 
         response['movie_status'] = core.manage.movie_status(imdbid)
         if not response['movie_status']:
-            response.update(errors['database_write'])
+            response.update(Errors.database_write)
 
         if cancel_download:
             cancelled = False
 
-            if sr_orig['status'] != 'Snatched':
+            if sr_orig.get('status') != 'Snatched':
                 return response
 
             client = sr_orig['download_client'] if sr_orig else None
@@ -302,7 +303,7 @@ class Ajax(object):
 
             if not cancelled:
                 response['response'] = False
-                response['error'] = response.get('error', '') + ' Could not remove download from client.'
+                response['error'] = response.get('error', '') + _(' Could not remove download from client.')
 
         return response
 
@@ -335,7 +336,7 @@ class Ajax(object):
 
         response = self.version.manager.update_check()
         if response['status'] == 'current':
-            n = [[{'message': 'No updates available.'}, {'type': 'primary'}]]
+            n = [[{'message': _('No updates available.')}, {'type': 'primary'}]]
             return [response, n]
         else:
             return [response, core.NOTIFICATIONS]
@@ -377,7 +378,7 @@ class Ajax(object):
 
         if test is True:
             response['response'] = True
-            response['message'] = 'Connection successful.'
+            response['message'] = _('Connection successful.')
         else:
             response['response'] = False
             response['error'] = test
@@ -458,7 +459,7 @@ class Ajax(object):
 
             if update_status is False:
                 logging.error('Update Failed.')
-                yield json.dumps({'response': False, 'error': 'Unable to complete update.'})
+                yield json.dumps({'response': False, 'error': _('Unable to complete update.')})
                 core.scheduler_plugin.restart()
 
             elif update_status is True:
@@ -481,27 +482,27 @@ class Ajax(object):
         Returns dict ajax-style response
         '''
 
-        success = {'response': True, 'message': 'Movie settings updated.'}
+        success = {'response': True, 'message': _('Movie settings updated.')}
 
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
 
         if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
-            return errors['database_write']
+            return Errors.database_write
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
             if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
-                return errors['database_write']
+                return Errors.database_write
             new_status = core.manage.movie_status(imdbid)
             if not new_status:
-                return errors['database_write']
+                return Errors.database_write
             else:
                 success['status'] = new_status
                 return success
         elif status == 'Disabled':
             if not core.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
-                return errors['database_write']
+                return Errors.database_write
             else:
                 success['status'] = 'Disabled'
                 return success
@@ -539,7 +540,7 @@ class Ajax(object):
         elif mode == 'torznab':
             return torrent.Torrent.test_connection(indexer, apikey)
         else:
-            return {'response': 'false', 'error': 'Invalid test mode.'}
+            return {'response': False, 'error': _('Invalid test mode.')}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -580,7 +581,7 @@ class Ajax(object):
 
         config = json.loads(config)
 
-        response = {'response': True, 'message': 'Plugin settings saved'}
+        response = {'response': True, 'message': _('Settings saved.')}
 
         try:
             with open(conf_file, 'w') as output:
@@ -713,8 +714,8 @@ class Ajax(object):
                     data.update(tmdbdata)
                     movie_data.append(data)
                 else:
-                    logging.error('Unable to find {} on TMDB.'.format(data['imdbid']))
-                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(data['tmdbid'])})
+                    logging.error('Unable to find {} on TMDB.'.format(data['tmdbid']))
+                    yield json.dumps({'response': False, 'movie': data, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(data['tmdbid'])})
                     progress += 1
 
         logging.info('Adding {} directory scan movies to library.'.format(len(movie_data)))
@@ -739,7 +740,7 @@ class Ajax(object):
             else:
                 logging.error('Unable to find {} on TMDB.'.format(movie['title']))
                 logging.debug(movie)
-                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'IMDB ID invalid or missing.'})
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(data['title'])})
                 progress += 1
 
         fake_results = self.score.score(fake_results, imported=True)
@@ -806,7 +807,7 @@ class Ajax(object):
         r = self.metadata.update(imdbid, tmdbid)
 
         if r['response'] is True:
-            return {'response': True, 'message': 'Metadata updated.'}
+            return {'response': True, 'message': _('Metadata updated.')}
         else:
             return r
 
@@ -841,25 +842,26 @@ class Ajax(object):
             q = list(profiles.values())[0]
 
             if not core.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
-                return {'response': False, 'error': 'Unable to update {} to quality {}'.format(imdbid, q)}
+                return {'response': False, 'error': Errors.database_write}
             else:
-                return {'response': True, 'Message': '{} changed to {}'.format(imdbid, q)}
+                return {'response': True, 'Message': _('{} changed to {}').format(imdbid, q)}
         else:
             tmp_qualities = {}
             for k, v in profiles.items():
                 q = b16encode(v.encode('ascii')).decode('ascii')
                 if not core.sql.update('MOVIES', 'quality', q, 'quality', k):
-                    return {'response': False, 'error': 'Unable to change {} to temporary quality {}'.format(k, q)}
+                    return {'response': False, 'error': _('Unable to change {} to temporary quality {}').format(k, q)}
                 else:
                     tmp_qualities[q] = v
 
             for k, v in tmp_qualities.items():
+                # TODO: use sql.update_multiple()
                 if not core.sql.update('MOVIES', 'quality', v, 'quality', k):
-                    return {'response': False, 'error': 'Unable to change temporary quality {} to {}'.format(k, v)}
+                    return {'response': False, 'error': _('Unable to change temporary quality {} to {}').format(k, v)}
                 if not core.sql.update('MOVIES', 'backlog', 0, 'quality', k):
-                    return {'response': False, 'error': 'Unable to set backlog flag. Manual backlog search required for affected titles.'}
+                    return {'response': False, 'error': _('Unable to set backlog flag. Manual backlog search required for affected titles.')}
 
-            return {'response': True, 'message': 'Quality profiles updated.'}
+            return {'response': True, 'message': _('Quality profiles updated.')}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -904,7 +906,7 @@ class Ajax(object):
 
             tmdb_data = self.tmdb._search_imdbid(movie['imdbid'])
             if not tmdb_data or not tmdb_data.get('id'):
-                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TMDB.'.format(movie['imdbid'])})
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(movie['imdbid'])})
                 progress += 1
                 continue
 
@@ -945,29 +947,6 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def get_plex_libraries(self, server, username, password):
-        ''' Gets list of libraries in plex server
-        server (str): plex server url
-        username (str): username for plex account
-        password (str): password for plex account
-
-        Returns dict ajax-style response
-        '''
-
-        if core.CONFIG['External']['plex_tokens'].get(server) is None:
-            token = library.ImportPlexLibrary.get_token(username, password)
-            if token is None:
-                return {'response': False, 'error': 'Unable to get Plex token.'}
-            else:
-                core.CONFIG['External']['plex_tokens'][server] = token
-                self.config.dump(core.CONFIG)
-        else:
-            token = core.CONFIG['External']['plex_tokens'][server]
-
-        return library.ImportPlexLibrary.get_libraries(server, token)
-
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
     def upload_plex_csv(self, file_input):
         ''' Recieves upload of csv from browser
         file_input (b'str): csv file fo read
@@ -981,8 +960,8 @@ class Ajax(object):
             csv_text = file_input.file.read().decode('utf-8')
             file_input.file.close()
         except Exception as e:
-            logging.error('Unable to prase Plex CSV', exc_info=True)
-            return
+            logging.error('Unable to parse Plex CSV', exc_info=True)
+            return {'response': False, 'error': str(e)}
 
         if csv_text:
             return library.ImportPlexLibrary.read_csv(csv_text)
@@ -1025,8 +1004,8 @@ class Ajax(object):
                     movie.update(tmdbdata)
                     movie_data.append(movie)
                 else:
-                    logging.error('Unable to find {} on TheMovieDB.'.format(movie['imdbid']))
-                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
+                    logging.error(Errors.tmdb_not_found.format(movie['imdbid']))
+                    yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(movie['imdbid'])})
                     progress += 1
 
         logging.info('Adding {} Plex movies to library.'.format(length))
@@ -1040,7 +1019,7 @@ class Ajax(object):
                     movie.update(tmdb_data[0])
                     fm = True
                 else:
-                    yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['title'])})
+                    yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': Errors.tmdb_not_found.format(movie['tmdbid'])})
                     progress += 1
                     continue
 
@@ -1054,7 +1033,7 @@ class Ajax(object):
                     if tmdb_data:
                         movie.update(tmdb_data[0])
                     else:
-                        yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': 'Unable to find {} on TheMovieDB.'.format(movie['imdbid'])})
+                        yield json.dumps({'response': False, 'progress': [progress, length], 'title': movie['title'], 'error': Errors.tmdb_not_found.format(movie['imdbid'])})
                         progress += 1
                         continue
                 response = core.manage.add_movie(movie, full_metadata=fm)
@@ -1069,8 +1048,8 @@ class Ajax(object):
                     progress += 1
                     continue
             else:
-                logging.error('Unable to find IMDB ID for {} on TheMovieDB.'.format(movie['title']))
-                yield json.dumps({'response': False, 'progress': [progress, length], 'error': 'Unable to find IMDB ID for {} on TheMovieDB.'.format(movie['title']), 'title': movie['title']})
+                logging.error(Errors.tmdb_not_found.format(movie['title']))
+                yield json.dumps({'response': False, 'progress': [progress, length], 'error': _('Unable to find IMDB ID for {} on TheMovieDB.').format(movie['title']), 'title': movie['title']})
                 progress += 1
                 continue
 
@@ -1200,7 +1179,7 @@ class Ajax(object):
             logging.info("Performing backlog search for {} {}.".format(title, year))
 
             if not self.searcher.search(imdbid, title, year, quality):
-                response = {'response': False, 'error': 'Unable to access database.', 'imdbid': imdbid, "index": i + 1}
+                response = {'response': False, 'error': Errors.database_write, 'imdbid': imdbid, "index": i + 1}
             else:
                 response = {'response': True, "index": i + 1}
 
@@ -1246,6 +1225,7 @@ class Ajax(object):
         logging.info('Setting quality to {} for: {}'.format(', '.join(i['imdbid'] for i in movies)))
 
         for i, movie in enumerate(movies):
+            # TODO: merge with method change_quality_profile and remove c_q_p() method
             r = self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid'])
             if r['response'] is False:
                 response = {'response': False, 'error': r['error'], 'imdbid': movie['imdbid'], "index": i + 1}
@@ -1276,7 +1256,7 @@ class Ajax(object):
             logging.debug('Resetting {}'.format(movie['imdbid']))
             imdbid = movie['imdbid']
             if not core.sql.purge_search_results(imdbid):
-                yield json.dumps({'response': False, 'error': 'Unable to purge search results.', 'imdbid': imdbid, "index": i + 1})
+                yield json.dumps({'response': False, 'error': _('Unable to purge search results.'), 'imdbid': imdbid, "index": i + 1})
                 continue
 
             db_reset = {'quality': 'Default',
@@ -1290,7 +1270,7 @@ class Ajax(object):
                         }
 
             if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
-                r = errors['database_write']
+                r = Errors.database_write
                 r.update({'imdbid': imdbid, "index": i + 1})
                 yield json.dumps(r)
                 continue
@@ -1328,7 +1308,7 @@ class Ajax(object):
     def generate_stats(self):
         ''' Gets library stats for graphing page
 
-        Returns dict ajax-style response
+        Returns dict of library stats
         '''
         return core.manage.get_stats()
 
@@ -1348,7 +1328,7 @@ class Ajax(object):
             logging.error('Unable to create backup.', exc_info=True)
             return {'response': False, 'error': str(e)}
 
-        return {'response': True, 'message': 'Backup created as {}'.format(os.path.join(core.PROG_PATH, 'watcher.zip'))}
+        return {'response': True, 'message': _('Backup created as {}').format(os.path.join(core.PROG_PATH, 'watcher.zip'))}
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -1396,6 +1376,6 @@ class Ajax(object):
 
             le = task.last_execution
 
-            return {'response': True, 'message': 'Finished task {}.'.format(name), 'last_execution': le, 'notifications': core.NOTIFICATIONS}
+            return {'response': True, 'message': _('Finished task {}.').format(name), 'last_execution': le, 'notifications': core.NOTIFICATIONS}
         except Exception as e:
             return {'response': False, 'error': str(e)}
