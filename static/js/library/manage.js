@@ -131,7 +131,7 @@ function remove_movies(event, elem){
 }
 
 function _can_process(movies){
-    if(movies.lenth > 0){
+    if(movies.length > 0){
         return true
     } else {
         $.notify({message: _("No movies are selected.")}, {type: "warning"})
