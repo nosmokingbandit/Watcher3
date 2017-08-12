@@ -813,58 +813,6 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def change_quality_profile(self, profiles, imdbid=None):
-        ''' Updates quality profile name
-        profiles (dict): profile names to change. k:v is currentname:newname
-        imdbid (str): imdb id # of movie to change                          <optional - default None>
-
-        Changes movie quality profiles from k in names to v in names
-
-        If imdbid is passed will change only one movie, otherwise changes
-            all movies where profile == k
-
-        If imdbid is passed and names contains more than one k:v pair, submits changes
-            using v from the first dict entry. This is unreliable, so just submit one.
-
-        Executes two loops.
-            First changes qualities to temporary value.
-            Then changes tmp values to target values.
-        This way you can swap two names without them all becoming one.
-
-        Returns dict ajax-style response
-        '''
-
-        logging.info('Updating quality profiles (from:to): {}'.format(', '.join('{}:{}'.format(k, v) for k, v in profiles.items())))
-
-        profiles = json.loads(profiles)
-
-        if imdbid:
-            q = list(profiles.values())[0]
-
-            if not core.sql.update('MOVIES', 'quality', q, 'imdbid', imdbid):
-                return {'response': False, 'error': Errors.database_write}
-            else:
-                return {'response': True, 'Message': _('{} changed to {}').format(imdbid, q)}
-        else:
-            tmp_qualities = {}
-            for k, v in profiles.items():
-                q = b16encode(v.encode('ascii')).decode('ascii')
-                if not core.sql.update('MOVIES', 'quality', q, 'quality', k):
-                    return {'response': False, 'error': _('Unable to change {} to temporary quality {}').format(k, q)}
-                else:
-                    tmp_qualities[q] = v
-
-            for k, v in tmp_qualities.items():
-                # TODO: use sql.update_multiple()
-                if not core.sql.update('MOVIES', 'quality', v, 'quality', k):
-                    return {'response': False, 'error': _('Unable to change temporary quality {} to {}').format(k, v)}
-                if not core.sql.update('MOVIES', 'backlog', 0, 'quality', k):
-                    return {'response': False, 'error': _('Unable to set backlog flag. Manual backlog search required for affected titles.')}
-
-            return {'response': True, 'message': _('Quality profiles updated.')}
-
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
     def get_kodi_movies(self, url):
         ''' Gets list of movies from kodi server
         url (str): url of kodi server
@@ -1222,13 +1170,11 @@ class Ajax(object):
 
         movies = json.loads(movies)
 
-        logging.info('Setting quality to {} for: {}'.format(', '.join(i['imdbid'] for i in movies)))
+        logging.info('Setting quality to {} for: {}'.format(quality, ', '.join(i['imdbid'] for i in movies)))
 
         for i, movie in enumerate(movies):
-            # TODO: merge with method change_quality_profile and remove c_q_p() method
-            r = self.change_quality_profile(json.dumps({'Default': quality}), imdbid=movie['imdbid'])
-            if r['response'] is False:
-                response = {'response': False, 'error': r['error'], 'imdbid': movie['imdbid'], "index": i + 1}
+            if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', movie['imdbid']):
+                response = {'response': False, 'error': Errors.database_write, 'imdbid': movie['imdbid'], "index": i + 1}
             else:
                 response = {'response': True, "index": i + 1}
 
