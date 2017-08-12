@@ -194,13 +194,35 @@ class Torrent(NewzNabProvider):
         return caps.split(',')
 
 
+class RarbgTokenError(Exception):
+    ''' Raised when a Rarbg token cannot be retrieved '''
+    def __init__(self, msg=None):
+        self.msg = msg if msg else 'Failed to retrieve new token from Rarbg\'s torrentapi.org.'
+
+
 class Rarbg(object):
     '''
     This api is limited to one request every 2 seconds.
     '''
 
     timeout = None
-    token = None
+    _token = None
+    _token_timeout = datetime.datetime.now()
+
+    @staticmethod
+    def token():
+        ''' Gets/sets token and monitors token timeout
+
+        Returns str rarbg token
+        '''
+        if not Rarbg._token:
+            Rarbg._token = Rarbg._get_token()
+        else:
+            now = datetime.datetime.now()
+            if (now - Rarbg._token_timeout).total_seconds() > 900:
+                Rarbg._token = Rarbg._get_token()
+                Rarbg._token_timeout = now
+        return Rarbg._token
 
     @staticmethod
     def search(imdbid):
@@ -219,15 +241,11 @@ class Rarbg(object):
                 time.sleep(1)
                 now = datetime.datetime.now()
 
-        if not Rarbg.token:
-            Rarbg.token = Rarbg.get_token()
-            if Rarbg.token is None:
-                return []
-
-        url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=search&search_imdb={}&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token, imdbid)
-
-        Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
+            url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=search&search_imdb={}&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token(), imdbid)
+
+            Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
+
             if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
@@ -260,15 +278,10 @@ class Rarbg(object):
                 time.sleep(1)
                 now = datetime.datetime.now()
 
-        if not Rarbg.token:
-            Rarbg.token = Rarbg.get_token()
-            if Rarbg.token is None:
-                return []
-
-        url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=list&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token)
-
-        Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
         try:
+            url = 'https://www.torrentapi.org/pubapi_v2.php?token={}&mode=list&category=movies&format=json_extended&app_id=Watcher'.format(Rarbg.token())
+            Rarbg.timeout = datetime.datetime.now() + datetime.timedelta(seconds=2)
+
             if proxy_enabled and proxy.whitelist('https://www.torrentapi.org') is True:
                 response = Url.open(url, proxy_bypass=True).text
             else:
@@ -287,7 +300,7 @@ class Rarbg(object):
             return []
 
     @staticmethod
-    def get_token():
+    def _get_token():
         ''' Get api access token
 
         Returns str or None
@@ -303,7 +316,7 @@ class Rarbg(object):
             raise
         except Exception as e:
             logging.error('Failed to get Rarbg token.', exc_info=True)
-            return None
+            raise RarbgTokenError(str(e))
 
     @staticmethod
     def parse(results):
