@@ -60,7 +60,7 @@ function select_attrib(event, elem, key, value){
     var i = $movie_lis.length;
     while (--i >= 0){
         var $this = $($movie_lis[i]);
-        if($this.find("span."+key).text() == value){
+        if($this.data(key) == value){
             $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked").attr("value", "True");
         }
     }
