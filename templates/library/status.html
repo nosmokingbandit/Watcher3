@@ -5,7 +5,7 @@
     ${head}
     <link href="${url_base}/static/css/library/status.css?v=001" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=001" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=002" type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=003" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
@@ -66,7 +66,7 @@
     <textarea id="template_movie" class="hidden">
         <li class="movie" data-imdbid="{imdbid}" onclick="open_info_modal(event, this)">
             <img data-echo="{url_base}/static/{poster}" src="{url_base}/static/images/missing_poster.jpg">
-            <span class="label status {status}">{status}</span>
+            <span class="label status {status}">{status_translated}</span>
             <span class="score">
                 <i class="mdi mdi-star-outline"></i>
                 <i class="mdi mdi-star-outline"></i>

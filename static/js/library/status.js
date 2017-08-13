@@ -256,6 +256,7 @@ function _render_library(movies){
 
         movie["poster"] = (movie["poster"] || "images/missing_poster.jpg")
 
+        movie["status_translated"] = _(movie["status"])
         $item = $(format_template(template, movie));
 
         var score = Math.round(movie["score"]) / 2;
@@ -409,6 +410,8 @@ function _results_table(results){
             var fl = "";
         }
 
+        result["translated_status"] = _(result["status"]);
+
         rows += `<div class="search_result">
                     <div class="col-md-12">
                         <span class="title" title="${result['title']}">
@@ -416,7 +419,7 @@ function _results_table(results){
                         </span>
                     </div>
                     <div class="result_info col-md-6">
-                        <span class="label status ${result["status"]}" title="Status">${result["status"]}</span>
+                        <span class="label status ${result["status"]}" title="Status">${result["translated_status"]}</span>
                         <span class="label label-default" title="Link Type">${result["type"]}</span>
                         <span class="label label-default" title="Indexer">${result["indexer"]}</span>
                         <span class="label label-default" title="Size">${result["size"]}</span>
@@ -525,9 +528,7 @@ function remove_movie(event, elem, imdbid){
     $delete.on('hide.bs.modal', function(){
         $movie_status.css("opacity", 1);
     });
-
 }
-
 
 function _remove_movie(event, elem, imdbid){
     /* Removes movie from library
@@ -542,8 +543,6 @@ function _remove_movie(event, elem, imdbid){
     } else {
         var delete_file = false;
     }
-
-    console.log(delete_file)
 
     function __remove_from_library(imdbid){
         $.post(url_base + "/ajax/remove_movie", {"imdbid":imdbid})
@@ -680,7 +679,7 @@ function mark_bad(event, elem, guid, imdbid){
         if (response["response"] == true){
             $.notify({message: response["message"]})
             var $label = $this.closest("div.search_result").find("span.status");
-            $label.removeClass($label.text()).addClass("Bad").text("Bad");
+            $label.removeClass("Available Snatched Finished").addClass("Bad").text(_("Bad"));
         } else {
             $.notify({message: response["error"]}, {type: "danger"})
         };
