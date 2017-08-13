@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-08-10 13:38-0400\n"
+"POT-Creation-Date: 2017-08-12 23:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,127 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
+
+#: ..\core\ajax.py:23
+msgid "Unable to read {} details from database."
+msgstr ""
+
+#: ..\core\ajax.py:24
+msgid "Unable to find {} on TheMovieDB."
+msgstr ""
+
+#: ..\core\ajax.py:154 ..\core\ajax.py:164 ..\core\ajax.py:584
+msgid "Settings saved."
+msgstr ""
+
+#: ..\core\ajax.py:162
+msgid "Unable to write to config file."
+msgstr ""
+
+#: ..\core\ajax.py:193
+msgid "Deleted movie file {}."
+msgstr ""
+
+#: ..\core\ajax.py:240
+msgid "Link is NZB but no Usent client is enabled."
+msgstr ""
+
+#: ..\core\ajax.py:242
+msgid "Link is Torrent/Magnet but no Torrent client is enabled."
+msgstr ""
+
+#: ..\core\ajax.py:268
+msgid "Marked release as Bad."
+msgstr ""
+
+#: ..\core\ajax.py:306
+msgid " Could not remove download from client."
+msgstr ""
+
+#: ..\core\ajax.py:339
+msgid "No updates available."
+msgstr ""
+
+#: ..\core\ajax.py:381 ..\core\providers\base.py:230
+#: ..\core\providers\base.py:239
+msgid "Connection successful."
+msgstr ""
+
+#: ..\core\ajax.py:462
+msgid "Unable to complete update."
+msgstr ""
+
+#: ..\core\ajax.py:485
+msgid "Movie settings updated."
+msgstr ""
+
+#: ..\core\ajax.py:543
+msgid "Invalid test mode."
+msgstr ""
+
+#: ..\core\ajax.py:810
+msgid "Metadata updated."
+msgstr ""
+
+#: ..\core\ajax.py:1000
+msgid "Unable to find IMDB ID for {} on TheMovieDB."
+msgstr ""
+
+#: ..\core\ajax.py:1205
+msgid "Unable to purge search results."
+msgstr ""
+
+#: ..\core\ajax.py:1277
+msgid "Backup created as {}"
+msgstr ""
+
+#: ..\core\ajax.py:1325
+msgid "Finished task {}."
+msgstr ""
+
+#: ..\core\library.py:338
+msgid "Malformed json response from CouchPotato"
+msgstr ""
+
+#: ..\core\library.py:767
+msgid "Unable to find {} on TMDB."
+msgstr ""
+
+#: ..\core\library.py:779
+msgid "{} already exists in library."
+msgstr ""
+
+#: ..\core\library.py:790
+msgid "Could not write to database."
+msgstr ""
+
+#: ..\core\library.py:801
+msgid "{} {} added to library."
+msgstr ""
+
+#: ..\core\library.py:822
+msgid "{} removed from library."
+msgstr ""
+
+#: ..\core\library.py:825
+msgid "Unable to remove {}."
+msgstr ""
+
+#: ..\core\library.py:827
+msgid "{} does not exist in library."
+msgstr ""
+
+#: ..\core\providers\base.py:203
+msgid "Indexer URL is blank."
+msgstr ""
+
+#: ..\core\providers\base.py:224
+msgid "No connection could be made because the target machine actively refused it."
+msgstr ""
+
+#: ..\core\providers\base.py:236
+msgid "Incorrect API key."
+msgstr ""
 
 #: ..\templates\404.html:13
 msgid "Page Not Found"
@@ -46,7 +167,7 @@ msgstr ""
 #: ..\templates\library\manage.html:204 ..\templates\library\manage.html:239
 #: ..\templates\library\manage.html:273 ..\templates\library\status.html:171
 #: ..\templates\settings\plugins.html:86 ..\templates\system.html:119
-#: ..\templates\system.html:158
+#: ..\templates\system.html:154
 msgid "Close"
 msgstr ""
 
@@ -74,7 +195,7 @@ msgstr ""
 
 #: ..\templates\library\import\couchpotato.html:25
 #: ..\templates\library\import\kodi.html:25
-#: ..\templates\settings\server.html:232
+#: ..\templates\settings\server.html:231
 msgid "Address"
 msgstr ""
 
@@ -87,7 +208,7 @@ msgstr ""
 #: ..\templates\settings\downloader.html:251
 #: ..\templates\settings\downloader.html:321
 #: ..\templates\settings\downloader.html:370
-#: ..\templates\settings\server.html:24 ..\templates\settings\server.html:237
+#: ..\templates\settings\server.html:24 ..\templates\settings\server.html:236
 msgid "Port"
 msgstr ""
 
@@ -293,8 +414,8 @@ msgstr ""
 #: ..\templates\settings\downloader.html:288
 #: ..\templates\settings\downloader.html:325
 #: ..\templates\settings\downloader.html:374
-#: ..\templates\settings\server.html:74
-msgid "User"
+#: ..\templates\settings\server.html:74 ..\templates\settings\server.html:241
+msgid "User Name"
 msgstr ""
 
 #: ..\templates\library\import\kodi.html:37
@@ -304,7 +425,7 @@ msgstr ""
 #: ..\templates\settings\downloader.html:292
 #: ..\templates\settings\downloader.html:329
 #: ..\templates\settings\downloader.html:378
-#: ..\templates\settings\server.html:78 ..\templates\settings\server.html:247
+#: ..\templates\settings\server.html:78 ..\templates\settings\server.html:246
 msgid "Password"
 msgstr ""
 
@@ -413,8 +534,8 @@ msgstr ""
 msgid "Snatched"
 msgstr ""
 
-#: ..\templates\library\manage.html:48 ..\templates\library\manage.html:84
-#: ..\templates\library\status.html:149 ..\templates\settings\plugins.html:52
+#: ..\templates\library\manage.html:48 ..\templates\library\status.html:149
+#: ..\templates\settings\plugins.html:52
 msgid "Finished"
 msgstr ""
 
@@ -584,12 +705,12 @@ msgid "Log Out"
 msgstr ""
 
 #: ..\templates\navbar.html:107 ..\templates\navbar.html:174
-#: ..\templates\settings\server.html:265
+#: ..\templates\settings\server.html:264
 msgid "Restart"
 msgstr ""
 
 #: ..\templates\navbar.html:112 ..\templates\navbar.html:158
-#: ..\templates\settings\server.html:269
+#: ..\templates\settings\server.html:268
 msgid "Shut Down"
 msgstr ""
 
@@ -745,7 +866,7 @@ msgstr ""
 #: ..\templates\settings\plugins.html:69
 #: ..\templates\settings\postprocessing.html:227
 #: ..\templates\settings\quality.html:167
-#: ..\templates\settings\search.html:250 ..\templates\settings\server.html:274
+#: ..\templates\settings\search.html:250 ..\templates\settings\server.html:273
 msgid "Save Settings"
 msgstr ""
 
@@ -1161,67 +1282,63 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: ..\templates\settings\server.html:149
+#: ..\templates\settings\server.html:148
 msgid "Updates"
 msgstr ""
 
-#: ..\templates\settings\server.html:153 ..\templates\settings\server.html:187
+#: ..\templates\settings\server.html:152 ..\templates\settings\server.html:186
 msgid "Check for Updates"
 msgstr ""
 
-#: ..\templates\settings\server.html:159
+#: ..\templates\settings\server.html:158
 msgid "Automatically check for updates."
 msgstr ""
 
-#: ..\templates\settings\server.html:165
+#: ..\templates\settings\server.html:164
 msgid "Update Check Frequency"
 msgstr ""
 
-#: ..\templates\settings\server.html:169
+#: ..\templates\settings\server.html:168
 msgid "Hours"
 msgstr ""
 
-#: ..\templates\settings\server.html:175
+#: ..\templates\settings\server.html:174
 msgid "Install Updates"
 msgstr ""
 
-#: ..\templates\settings\server.html:181
+#: ..\templates\settings\server.html:180
 msgid "Automatically install updates."
 msgstr ""
 
-#: ..\templates\settings\server.html:190
+#: ..\templates\settings\server.html:189
 msgid "Check for Updates Now"
 msgstr ""
 
-#: ..\templates\settings\server.html:194
+#: ..\templates\settings\server.html:193
 msgid "Current Version Hash"
 msgstr ""
 
-#: ..\templates\settings\server.html:207
+#: ..\templates\settings\server.html:206
 msgid "Proxy"
 msgstr ""
 
-#: ..\templates\settings\server.html:211
+#: ..\templates\settings\server.html:210
 msgid "Enable Proxy"
 msgstr ""
 
-#: ..\templates\settings\server.html:217
+#: ..\templates\settings\server.html:216
 msgid "Use proxy when connecting to Indexers."
 msgstr ""
 
-#: ..\templates\settings\server.html:223
+#: ..\templates\settings\server.html:222
 msgid "Proxy Protocol"
 msgstr ""
 
-#: ..\templates\settings\server.html:242
-msgid "User Name"
-msgstr ""
-
-#: ..\templates\settings\server.html:252
+#: ..\templates\settings\server.html:251
 msgid "Whitelist"
 msgstr ""
 
-#: ..\templates\settings\server.html:258
+#: ..\templates\settings\server.html:257
 msgid "Requires Restart"
 msgstr ""
 
@@ -1257,7 +1374,7 @@ msgstr ""
 msgid "Create Backup"
 msgstr ""
 
-#: ..\templates\system.html:81 ..\templates\system.html:159
+#: ..\templates\system.html:81 ..\templates\system.html:155
 msgid "Restore Backup"
 msgstr ""
 
@@ -1302,10 +1419,10 @@ msgid "Restore Backup of Watcher?"
 msgstr ""
 
 #: ..\templates\system.html:134
-msgid "Restoring a backup will overwrite your <b>database</b>, <b>posters</b>, and <b>config</b>"
+msgid "Restoring a backup will overwrite your <b>database</b>, <b>posters</b>, and <b>config</b>.<br/>This cannot be undone.<br/>Watcher will automatically restart after backup has been restored."
 msgstr ""
 
-#: ..\templates\system.html:144
+#: ..\templates\system.html:140
 msgid "Select Backup Zip"
 msgstr ""
 

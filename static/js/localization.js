@@ -10,9 +10,5 @@ Strings to be translated are key:val pairs in the language code object, with the
 */
 
 languages = {
-    "es": {
-        "Update successful.": "Actualización exitosa",
-        "Please fill in all highlighted fields.": "Por favor, rellene todos los campos resaltados."
 
-    }
 }
