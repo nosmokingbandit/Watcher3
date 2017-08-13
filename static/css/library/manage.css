@@ -51,6 +51,9 @@ ul#movie_list li span.label{
     margin: 0;
 }
 
+div.modal > div.modal-dialog > div.modal-content > .modal-body > p {
+    line-height: 2.5em;
+}
 
 div.modal > div.modal-dialog > div.modal-content > .modal-body > p,
 div.modal > div.modal-dialog > div.modal-content > .modal-body > div.progress,
