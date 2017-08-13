@@ -91,9 +91,6 @@ function _(s){
     if(language == "en"){
         return s
     } else {
-        console.log(languages)
-        console.log(language)
-        console.log(s)
         return languages[language][s] || s;
     }
 
