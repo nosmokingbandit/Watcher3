@@ -240,7 +240,7 @@ function import_library(event, elem){
                 }
 
                 if(progress_percent == 100){
-                    $progress_text.text("Finishing up...");
+                    $progress_text.text(_("Finishing Import."));
                 }
             }
         }

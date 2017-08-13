@@ -63,7 +63,7 @@ $.ajax(url_base + '/ajax/update_server', {
                 }
                 else if(r["status"] == "complete"){
                     $.notify({message: _("Update successful.")}, {delay: 0});
-                    $("div.updating").text("Restarting");
+                    $("div.updating").text(_("Restarting."));
                     redirect();
                 }
             }

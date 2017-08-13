@@ -552,8 +552,7 @@ function _remove_movie(event, elem, imdbid){
                 $movie_list.find(`li[data-imdbid="${imdbid}"]`).remove();
                 $movie_status.modal("hide");
             } else {
-                var message = `${title} could not be removed. Check logs for more information.`;
-                $.notify({message: message}, {type: "danger"})
+                $.notify({message: response["error"]}, {type: "danger"})
             }
 
             var index = cached_movies.map(function(e){ return e.imdbid; }).indexOf(imdbid);

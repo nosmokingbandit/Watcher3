@@ -152,7 +152,7 @@ function upload_restore_zip(event, elem){
     })
     .on("lu:errors", function (e, errors) {
         if(errors[0]["errors"][0]["type"] == "type"){
-            $.notify({message: _("Please select a ZIP file.")}, {type: "warning"})
+            $.notify({message: _("Select a ZIP file.")}, {type: "warning"})
         } else {
             $.each(errors[0]["errors"], function(i, err){
                 $.notify({message: `Error: ${err["type"]}`}, {type: "warning"})
@@ -162,13 +162,13 @@ function upload_restore_zip(event, elem){
     .on("lu:before", function(){
         $modal_tc.slideUp();
         $restore_modal.find(".modal-body > div.progress").slideDown();
-        $title_text.text("Uploading Restore Zip");
+        $title_text.text(_("Uploading Restore Zip."));
         $thinker_small.slideDown();
     })
     .on("lu:progress", function (e, state) {
         $progress_bar.width(state.percentage + "%");
         if(state.percentage == 100){
-            $title_text.text("Restoring Backup...");
+            $title_text.text(_("Restoring Backup."));
         }
     })
     .on("lu:success", function (e, response) {
