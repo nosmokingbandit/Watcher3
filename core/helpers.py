@@ -138,9 +138,9 @@ class Torrent(object):
         torrent (str): torrent/magnet url or bytestring of torrent file contents
         file_bytes (bool): if url is bytes of torrent file
 
-        If file_bytes == True, url should be a bytestring of the contents of the torrent file
+        If file_bytes == True, torrent should be a bytestring of the contents of the torrent file
 
-        Returns str of upper-case torrent hash or None if exception
+        Returns str of lower-case torrent hash or '' if exception
         '''
 
         logging.debug('Finding hash for torrent {}'.format(torrent))
@@ -151,7 +151,7 @@ class Torrent(object):
                 raw = torrent if file_bytes else Url.open(torrent, stream=True).content
                 metadata = bencodepy.decode(raw)
                 hashcontents = bencodepy.encode(metadata[b'info'])
-                return hashlib.sha1(hashcontents).hexdigest().upper()
+                return hashlib.sha1(hashcontents).hexdigest().lower()
             except Exception as e:
                 logging.error('Unable to get torrent hash', exc_info=True)
                 return ''
