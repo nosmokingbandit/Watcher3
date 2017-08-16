@@ -186,12 +186,15 @@ class Torrent(NewzNabProvider):
 
         url = '{}api?apikey={}&t=caps'.format(url, apikey)
 
-        xml = Url.open(url).text
+        try:
+            xml = Url.open(url).text
 
-        root = ET.fromstring(xml)
-        caps = root[0].find('movie-search').attrib['supportedParams']
+            root = ET.fromstring(xml)
+            caps = root[0].find('movie-search').attrib['supportedParams']
 
-        core.sql.write('CAPS', {'url': url, 'caps': caps})
+            core.sql.write('CAPS', {'url': url, 'caps': caps})
+        except Exception as e:
+            return None
 
         return caps.split(',')
 
