@@ -555,7 +555,7 @@ class Metadata(object):
         titledata['videocodec'] = titledata.pop('codec', None)
         titledata['audiocodec'] = titledata.pop('audio', None)
 
-        qual = titledata.pop('quality', None)
+        qual = titledata.pop('quality', '')
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
             if any(a.lower() == qual.lower() for a in aliases):
                 titledata['source'] = source
