@@ -18,9 +18,9 @@ logging = logging.getLogger(__name__)
 
 class Errors():
     ''' Namespace for common error messages used in AJAX responses '''
-    database_write = {'response': False, 'error': _('Unable to write to database.')}
-    database_read = {'response': False, 'error': _('Unable to read {} details from database.')}
-    tmdb_not_found = {'response': False, 'error': _('Unable to find {} on TheMovieDB.')}
+    database_write = _('Unable to write to database.')
+    database_read = _('Unable to read {} details from database.')
+    tmdb_not_found = _('Unable to find {} on TheMovieDB.')
 
 
 class Ajax(object):
@@ -266,11 +266,12 @@ class Ajax(object):
         if sr:
             response = {'response': True, 'message': _('Marked release as Bad.')}
         else:
-            response = Errors.database_write
+            response = {'response': False, 'error': Errors.database_write}
 
         response['movie_status'] = core.manage.movie_status(imdbid)
         if not response['movie_status']:
-            response.update(Errors.database_write)
+            response['error'] = (Errors.database_write)
+            response['response'] = False
 
         if cancel_download:
             cancelled = False
@@ -486,22 +487,22 @@ class Ajax(object):
         logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
 
         if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
-            return Errors.database_write
+            return {'response': False, 'error': Errors.database_write}
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))
 
         if status == 'Automatic':
             if not core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', imdbid):
-                return Errors.database_write
+                return {'response': False, 'error': Errors.database_write}
             new_status = core.manage.movie_status(imdbid)
             if not new_status:
-                return Errors.database_write
+                return {'response': False, 'error': Errors.database_write}
             else:
                 success['status'] = new_status
                 return success
         elif status == 'Disabled':
             if not core.sql.update('MOVIES', 'status', 'Disabled', 'imdbid', imdbid):
-                return Errors.database_write
+                return {'response': False, 'error': Errors.database_write}
             else:
                 success['status'] = 'Disabled'
                 return success
@@ -1215,9 +1216,7 @@ class Ajax(object):
                         }
 
             if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
-                r = Errors.database_write
-                r.update({'imdbid': imdbid, "index": i + 1})
-                yield json.dumps(r)
+                yield json.dumps({'response': False, 'error': Errors.database_write, 'imdbid': imdbid, "index": i + 1})
                 continue
 
             yield json.dumps({'response': True, "index": i + 1})
