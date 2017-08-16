@@ -19,7 +19,7 @@ logging = logging.getLogger(__name__)
 
 class Errors():
     ''' Namespace for common error messages used in AJAX responses '''
-    database_write = {'response': False, 'error': 'Unable to write to database.'}
+    database_write = {'response': False, 'error': _('Unable to write to database.')}
     database_read = {'response': False, 'error': _('Unable to read {} details from database.')}
     tmdb_not_found = {'response': False, 'error': _('Unable to find {} on TheMovieDB.')}
 

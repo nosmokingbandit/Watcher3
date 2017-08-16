@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-08-12 23:55-0400\n"
+"POT-Creation-Date: 2017-08-15 22:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,80 +15,84 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: ..\core\ajax.py:23
+#: ..\core\ajax.py:21
+msgid "Unable to write to database."
+msgstr ""
+
+#: ..\core\ajax.py:22
 msgid "Unable to read {} details from database."
 msgstr ""
 
-#: ..\core\ajax.py:24
+#: ..\core\ajax.py:23
 msgid "Unable to find {} on TheMovieDB."
 msgstr ""
 
-#: ..\core\ajax.py:154 ..\core\ajax.py:164 ..\core\ajax.py:584
+#: ..\core\ajax.py:153 ..\core\ajax.py:163 ..\core\ajax.py:583
 msgid "Settings saved."
 msgstr ""
 
-#: ..\core\ajax.py:162
+#: ..\core\ajax.py:161
 msgid "Unable to write to config file."
 msgstr ""
 
-#: ..\core\ajax.py:193
+#: ..\core\ajax.py:192
 msgid "Deleted movie file {}."
 msgstr ""
 
-#: ..\core\ajax.py:240
+#: ..\core\ajax.py:239
 msgid "Link is NZB but no Usent client is enabled."
 msgstr ""
 
-#: ..\core\ajax.py:242
+#: ..\core\ajax.py:241
 msgid "Link is Torrent/Magnet but no Torrent client is enabled."
 msgstr ""
 
-#: ..\core\ajax.py:268
+#: ..\core\ajax.py:267
 msgid "Marked release as Bad."
 msgstr ""
 
-#: ..\core\ajax.py:306
+#: ..\core\ajax.py:305
 msgid " Could not remove download from client."
 msgstr ""
 
-#: ..\core\ajax.py:339
+#: ..\core\ajax.py:338
 msgid "No updates available."
 msgstr ""
 
-#: ..\core\ajax.py:381 ..\core\providers\base.py:230
+#: ..\core\ajax.py:380 ..\core\providers\base.py:230
 #: ..\core\providers\base.py:239
 msgid "Connection successful."
 msgstr ""
 
-#: ..\core\ajax.py:462
+#: ..\core\ajax.py:461
 msgid "Unable to complete update."
 msgstr ""
 
-#: ..\core\ajax.py:485
+#: ..\core\ajax.py:484
 msgid "Movie settings updated."
 msgstr ""
 
-#: ..\core\ajax.py:543
+#: ..\core\ajax.py:542
 msgid "Invalid test mode."
 msgstr ""
 
-#: ..\core\ajax.py:810
+#: ..\core\ajax.py:809
 msgid "Metadata updated."
 msgstr ""
 
-#: ..\core\ajax.py:1000
+#: ..\core\ajax.py:999
 msgid "Unable to find IMDB ID for {} on TheMovieDB."
 msgstr ""
 
-#: ..\core\ajax.py:1205
+#: ..\core\ajax.py:1204
 msgid "Unable to purge search results."
 msgstr ""
 
-#: ..\core\ajax.py:1277
+#: ..\core\ajax.py:1276
 msgid "Backup created as {}"
 msgstr ""
 
-#: ..\core\ajax.py:1325
+#: ..\core\ajax.py:1324
 msgid "Finished task {}."
 msgstr ""
 
