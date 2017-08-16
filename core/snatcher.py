@@ -5,6 +5,7 @@ import core
 import os
 from core import plugins
 from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent, blackhole
+from core.helpers import Torrent
 logging = logging.getLogger(__name__)
 
 
@@ -270,6 +271,11 @@ class Snatcher():
         imdbid = data['imdbid']
         title = data['title']
         kind = data['type']
+
+        if guid.startswith('http'):
+            guid_ = Torrent.get_hash(data['torrentfile'])
+            core.sql.update('SEARCHRESULTS', 'guid', guid_, 'guid', guid)
+            guid = guid_
 
         # If sending to Transmission
         transmission_conf = core.CONFIG['Downloader']['Torrent']['Transmission']
