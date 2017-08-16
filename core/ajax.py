@@ -4,7 +4,6 @@ import os
 import threading
 import time
 import cherrypy
-from base64 import b16encode
 import datetime
 import core
 from core import config, library, searchresults, searcher, snatcher, version, movieinfo, notification, plugins

@@ -45,7 +45,6 @@ class Url(object):
 
         Returns str
         '''
-        o = s
         s = s.translate(Url.trans)
         s = ''.join(i for i in s if i not in punctuation)
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
