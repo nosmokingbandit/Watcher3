@@ -420,7 +420,7 @@ class Searcher():
                     logging.info('Source media determined as {}'.format(src))
                     return src
 
-        src = 'Unknown-{}'.format(source, resolution)
+        src = 'Unknown-{}'.format(resolution)
         logging.info('Source media determined as {}'.format(src))
         return src
 
