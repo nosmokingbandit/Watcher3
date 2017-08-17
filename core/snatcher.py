@@ -272,10 +272,14 @@ class Snatcher():
         title = data['title']
         kind = data['type']
 
-        if guid.startswith('http'):
+        if urllib.parse.urlparse(guid).netloc:
+            # if guid is not a url and not hash we'll have to get the hash now
             guid_ = Torrent.get_hash(data['torrentfile'])
-            core.sql.update('SEARCHRESULTS', 'guid', guid_, 'guid', guid)
-            guid = guid_
+            if guid_:
+                core.sql.update('SEARCHRESULTS', 'guid', guid_, 'guid', guid)
+                guid = guid_
+            else:
+                return {'response': False, 'error': 'Unable to get torrent hash from indexer.'}
 
         # If sending to Transmission
         transmission_conf = core.CONFIG['Downloader']['Torrent']['Transmission']
