@@ -896,7 +896,7 @@ class Zooqle(object):
 
                 size, suffix = i.find('description').text.strip().split(', ')[1].split(' ')
                 m = (1024 ** 2) if suffix == 'MB' else (1024 ** 3)
-                result['size'] = int(float(size) * m)
+                result['size'] = int(float(size.replace(',', '')) * m)
 
                 result['status'] = 'Available'
 
