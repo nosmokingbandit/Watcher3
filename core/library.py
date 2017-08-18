@@ -405,9 +405,10 @@ class Metadata(object):
         self.MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
         return
 
-    def from_file(self, filepath):
+    def from_file(self, filepath, imdbid=None):
         ''' Gets video metadata using hachoir.parser
         filepath (str): absolute path to movie file
+        imdbid (str): imdb id #             <optional - Default None>
 
         On failure can return empty dict
 
@@ -421,7 +422,7 @@ class Metadata(object):
             'year': None,
             'resolution': None,
             'rated': None,
-            'imdbid': None,
+            'imdbid': imdbid,
             'videocodec': None,
             'audiocodec': None,
             'releasegroup': None,
@@ -595,14 +596,15 @@ class Metadata(object):
         else:
             movie['poster'] = None
 
-        movie['plot'] = movie['overview'] if not movie.get('plot') else movie.get('plot')
-        movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie['id'])
+        movie['plot'] = movie.get('overview') if not movie.get('plot') else movie.get('plot')
+        movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie.get('id') or movie.get('tmdbid'))
         movie['score'] = movie['vote_average'] if not movie.get('score') else movie.get('score')
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
         movie['backlog'] = 0
-        movie['tmdbid'] = movie['id']
+        if not movie.get('tmdbid'):
+            movie['tmdbid'] = movie['id']
 
         if not isinstance(movie.get('alternative_titles'), str):
             a_t = []
