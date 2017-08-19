@@ -168,24 +168,39 @@ class Postprocessing(object):
         Returns dict of any gathered information
         '''
 
-        # try to get searchresult using guid first then downloadid
-        logging.info('Searching local database for guid.')
-        result = core.sql.get_single_search_result('guid', data['guid'])
-        if not result:
+        # try to get searchresult imdbid using guid first then downloadid
+        result = None
+        if data.get('guid'):
+            logging.info('Searching local database for guid.')
+            result = core.sql.get_single_search_result('guid', data['guid'])
+            if result:
+                logging.info('Local release info found by guid.')
+            else:
+                logging.info('Unable to find local release info by guid.')
+
+        if not result:  # not found from guid
             logging.info('Guid not found.')
             if data.get('downloadid'):
                 logging.info('Searching local database for downloadid.')
                 result = core.sql.get_single_search_result('downloadid', str(data['downloadid']))
+
                 if result:
-                    logging.info('Searchresult found by downloadid.')
+                    logging.info('Local release info found by downloadid.')
                     if result['guid'] != data['guid']:
-                        logging.info('Guid for downloadid does not match local data. '
-                                     'Adding guid2 to processing data.')
+                        logging.info('Guid for downloadid does not match local data. Adding guid2 to processing data.')
                         data['guid2'] = result['guid']
                 else:
-                    logging.info('Unable to find search result with downloadid {}'.format(data['downloadid']))
-        else:
-            logging.info('Searchresult found by guid.')
+                    logging.info('Unable to find local release info by downloadid.')
+
+        if not result:  # not found from guid or downloadid
+            fname = os.path.basename(data.get('path'))
+            if fname:
+                logging.info('Searching local database for release name {}'.format(fname))
+                result = core.sql.get_single_search_result('title', fname)
+                if result:
+                    logging.info('Found match for {} in releases.'.format(fname))
+                else:
+                    logging.info('Unable to find local release info by release name.')
 
         # if we found it, get local movie info
         if result:
@@ -194,6 +209,7 @@ class Postprocessing(object):
             if local:
                 logging.info('Movie data found locally by imdbid.')
                 data.update(local)
+                data['guid'] = result['guid']
                 data['finished_score'] = result['score']
                 data['resolution'] = result['resolution']
                 data['downloadid'] = result['downloadid']
