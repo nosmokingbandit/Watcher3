@@ -5,6 +5,7 @@ If url has query string ?e=false, does not instruct server to restart, only chec
 */
 
 $(document).ready(function(){
+    document.title = "Watcher - Restarting Server";
     var qstring = new URLSearchParams(window.location.search);
 
     var $thinker = $("div#thinker");
@@ -38,6 +39,7 @@ $(document).ready(function(){
             });
         } else {
             clearInterval(check);
+            document.title = "Watcher - Error";
             $.notify({message: _("Watcher is taking too long to restart. Please check your logs and restart manually.")}, {type: "warning", delay: 0})
             $thinker.css("opacity", 0);
         }

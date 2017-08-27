@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function(){
     var updating = $("meta[name='updating']").attr("content");
 
     if(updating.toLowerCase() == 'false'){
@@ -11,8 +11,9 @@ $(document).ready(function () {
 
     $message = $("div.message");
 
-var last_response_len = false;
-$.ajax(url_base + '/ajax/update_server', {
+    document.title = "Watcher - Updating Server";
+    var last_response_len = false;
+    $.ajax(url_base + '/ajax/update_server', {
         method: "POST",
         data: {"mode": "update_now"},
         xhrFields: {
@@ -64,7 +65,7 @@ $.ajax(url_base + '/ajax/update_server', {
                 else if(r["status"] == "complete"){
                     $.notify({message: _("Update successful.")}, {delay: 0});
                     $("div.updating").text(_("Restarting."));
-                    redirect();
+                    restart();
                 }
             }
         }
@@ -78,11 +79,12 @@ $.ajax(url_base + '/ajax/update_server', {
 });
 
 
-function redirect(){
+function restart(){
     /*
     This repeats every 3 seconds to check. Times out after 10 attempts and
         shows span.error message.
     */
+    document.title = "Watcher - Restarting Server";
     var try_count = 0
     var check = setInterval(function(){
         if(try_count < 10){

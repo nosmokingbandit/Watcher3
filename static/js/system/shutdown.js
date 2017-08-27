@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    document.title = "Watcher - Shutting Down Server";
     $thinker = $("div#thinker");
     $thinker.show();
 
@@ -23,6 +24,7 @@ $(document).ready(function () {
         })
         .fail(function(r){
             clearInterval(check);
+            document.title = "Watcher";
             $thinker.css("opacity", 0);
             $("div.message").css("opacity", 0);
             $("div#content").css("background-position", "50% 45%");
