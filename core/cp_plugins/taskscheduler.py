@@ -5,7 +5,7 @@ import os
 import json
 from cherrypy.process import plugins
 
-logging = logging.getLogger(__name__)
+logging = logging.getLogger("CPTaskScheduler")
 
 
 class SchedulerPlugin(plugins.SimplePlugin):
@@ -205,7 +205,10 @@ class ScheduledTask(object):
             self.timer.start()
         le = datetime.today().replace(microsecond=0)
 
-        self.task()
+        try:
+            self.task()
+        except Exception as e:
+            logging.warning('Scheduled Task {} Failed:'.format(self.name), exc_info=True)
         self.running = False
         self._write_record(le)
 
