@@ -597,14 +597,14 @@ class Metadata(object):
             movie['poster'] = None
 
         movie['plot'] = movie.get('overview') if not movie.get('plot') else movie.get('plot')
-        movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie.get('id') or movie.get('tmdbid'))
-        movie['score'] = movie['vote_average'] if not movie.get('score') else movie.get('score')
+        movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie.get('id', movie.get('tmdbid')))
+        movie['score'] = movie.get('score', movie.get('vote_average', 0))
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
         movie['backlog'] = 0
         if not movie.get('tmdbid'):
-            movie['tmdbid'] = movie['id']
+            movie['tmdbid'] = movie.get('id')
 
         if not isinstance(movie.get('alternative_titles'), str):
             a_t = []
@@ -623,7 +623,7 @@ class Metadata(object):
         if dates:
             movie['media_release_date'] = min(dates)[:10]
 
-        if movie.get('quality') is None:
+        if not movie.get('quality'):
             movie['quality'] = 'Default'
 
         movie['finished_file'] = movie.get('finished_file')
