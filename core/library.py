@@ -522,50 +522,53 @@ class Metadata(object):
 
     def parse_filename(self, filepath):
         ''' Uses PTN to get as much info as possible from path
-        filepath (str): absolute path to file
+        filepath (str): absolute path to movie file
+
+        Parses parent directory name first, then file name if folder name seems incomplete.
 
         Returns dict of metadata
         '''
-        logging.info('Parsing filename for movie information: {}.'.format(filepath))
 
-        titledata = PTN.parse(os.path.basename(filepath))
-        # remove usless keys before measuring length
+        dirname = os.path.split(filepath)[0].split(os.sep)[-1]
+
+        logging.info('Parsing directory name for movie information: {}.'.format(dirname))
+
+        meta_data = PTN.parse(dirname)
         for i in ('excess', 'episode', 'episodeName', 'season', 'garbage', 'website'):
-            titledata.pop(i, None)
+            meta_data.pop(i, None)
 
-        if len(titledata) < 3:
-            logging.debug('Parsing filename does not look accurate. Parsing parent folder name.')
-
-            fname = os.path.split(filepath)[0].split(os.sep)[-1]
-            titledata = PTN.parse(fname)
-            titledata['release_title'] = fname
-            logging.info('Found {} in parent folder.'.format(titledata))
-            if len(titledata) < 2:
-                logging.warning('Little information found in parent folder name. Movie may be incomplete.')
+        if len(meta_data) > 3:
+            meta_data["release_name"] = dirname
+            logging.info('Found {} in filename.'.format(meta_data))
         else:
-            titledata['release_name'] = os.path.basename(filepath)
-            logging.info('Found {} in filename.'.format(titledata))
+            logging.debug('Parsing directory name does not look accurate. Parsing file name.')
+            filename = os.path.basename(filepath)
+            meta_data = PTN.parse(filename)
+            logging.info('Found {} in file name.'.format(meta_data))
+            if len(meta_data) < 2:
+                logging.warning('Little information found in file name. Movie may be incomplete.')
+            meta_data['release_title'] = filename
 
-        title = titledata.get('title')
+        title = meta_data.get('title')
         if title and title[-1] == '.':
-            titledata['title'] = title[:-1]
+            meta_data['title'] = title[:-1]
 
         # Make sure this matches our key names
-        if 'year' in titledata:
-            titledata['year'] = str(titledata['year'])
-        titledata['videocodec'] = titledata.pop('codec', None)
-        titledata['audiocodec'] = titledata.pop('audio', None)
+        if 'year' in meta_data:
+            meta_data['year'] = str(meta_data['year'])
+        meta_data['videocodec'] = meta_data.pop('codec', None)
+        meta_data['audiocodec'] = meta_data.pop('audio', None)
 
-        qual = titledata.pop('quality', '')
+        qual = meta_data.pop('quality', '')
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
             if any(a.lower() == qual.lower() for a in aliases):
-                titledata['source'] = source
+                meta_data['source'] = source
                 break
-        titledata['source'] = titledata.get('source', None)
+        meta_data['source'] = meta_data.get('source', None)
 
-        titledata['releasegroup'] = titledata.pop('group', None)
+        meta_data['releasegroup'] = meta_data.pop('group', None)
 
-        return titledata
+        return meta_data
 
     def convert_to_db(self, movie):
         ''' Takes movie data and converts to a database-writable dict
