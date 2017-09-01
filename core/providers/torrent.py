@@ -172,9 +172,9 @@ class Torrent(NewzNabProvider):
                     results.append(i)
         return results
 
-    def _get_caps(self, url, apikey):
+    def _get_caps(self, url_base, apikey):
         ''' Gets caps for indexer url
-        url (str): url of torznab indexer
+        url_base (str): url of torznab indexer
         apikey (str): api key for indexer
 
         Gets indexer caps from CAPS table
@@ -182,9 +182,9 @@ class Torrent(NewzNabProvider):
         Returns list of caps
         '''
 
-        logging.info('Getting caps for {}'.format(url))
+        logging.info('Getting caps for {}'.format(url_base))
 
-        url = '{}api?apikey={}&t=caps'.format(url, apikey)
+        url = '{}api?apikey={}&t=caps'.format(url_base, apikey)
 
         try:
             xml = Url.open(url).text
@@ -192,7 +192,7 @@ class Torrent(NewzNabProvider):
             root = ET.fromstring(xml)
             caps = root[0].find('movie-search').attrib['supportedParams']
 
-            core.sql.write('CAPS', {'url': url, 'caps': caps})
+            core.sql.write('CAPS', {'url': url_base, 'caps': caps})
         except Exception as e:
             return None
 
