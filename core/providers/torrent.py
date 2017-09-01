@@ -190,10 +190,12 @@ class Torrent(NewzNabProvider):
             xml = Url.open(url).text
 
             root = ET.fromstring(xml)
-            caps = root[0].find('movie-search').attrib['supportedParams']
+
+            caps = root.find('searching').find('movie-search').attrib['supportedParams']
 
             core.sql.write('CAPS', {'url': url_base, 'caps': caps})
         except Exception as e:
+            logging.warning("", exc_info=True)
             return None
 
         return caps.split(',')
