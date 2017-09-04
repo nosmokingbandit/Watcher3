@@ -1,6 +1,8 @@
-import xml.etree.cElementTree as ET
+from xml.etree.cElementTree import fromstring
+from xmljson import gdata
 import urllib.parse
 import logging
+import re
 
 import core
 from core.helpers import Url
@@ -93,28 +95,69 @@ class NewzNabProvider(object):
         return results
 
     def parse_newznab_xml(self, feed):
-        ''' Parse xml from Newnzb api.
+        ''' Parse xml from Newznab api.
         feed (str): xml feed text
+        imdbid (str): imdb id #
+
+        Replaces all namespaces with 'ns', so namespaced attributes are
+            accessible with the key '{ns}attr'
+
+        Loads feed with xmljson in gdata format
+        Creates item dict for database table SEARCHRESULTS -- removes unused
+            keys and ensures required keys are present (even if blank)
 
         Returns list of dicts of parsed nzb information.
         '''
+        results = []
 
-        root = ET.fromstring(feed)
-        indexer = ''
-        # This is so ugly, but some newznab sites don't output json. I don't want to include a huge xml parsing module, so here we are. I'm not happy about it either.
-        res_list = []
-        for root_child in root:
-            if root_child.tag == 'channel':
-                for channel_child in root_child:
-                    if channel_child.tag == 'title':
-                        indexer = channel_child.text
-                    if not indexer and channel_child.tag == 'link':
-                        indexer = channel_child.text
-                    if channel_child.tag == 'item':
-                        result_item = self._make_item_dict(channel_child)
-                        result_item['indexer'] = indexer
-                        res_list.append(result_item)
-        return res_list
+        feed = re.sub(r'xmlns:([^=]*)=[^ ]*"', r'xmlns:\1="ns"', feed)
+
+        try:
+            channel = gdata.data(fromstring(feed))['rss']['channel']
+            indexer = channel['title']['$t']
+            items = channel['item']
+        except Exception as e:
+            logging.error('Unexpected XML format from NewzNab indexer.', exc_info=True)
+            return []
+
+        for item in items:
+            try:
+                item['attr'] = {}
+                for i in item['{ns}attr']:
+                    item['attr'][i['name']] = i['value']
+
+                result = {
+                    "download_client": None,
+                    "downloadid": None,
+                    "freeleech": 1 if item['attr'].get('downloadvolumefactor', 1) == 0 else 0,
+                    "guid": item.get('link', {}).get('$t'),
+                    "imdbid": self.imdbid,
+                    "indexer": indexer,
+                    "info_link": item.get('guid', {}).get('$t') if item.get('guid', {}).get('isPermaLink') else item.get('comments', {}).get('$t'),
+                    "pubdate": item.get('pubDate', {}).get('$t', '')[5:16],
+                    "score": 0,
+                    "seeders": 0,
+                    "size": item.get('size', {}).get('$t') or item.get('enclosure', {}).get('length'),
+                    "status": "Available",
+                    "title": item.get('title', {}).get('$t') or item.get('description', {}).get('$t'),
+                    "torrentfile": None,
+                    "type": self.feed_type
+                }
+
+                if result['type'] != 'nzb':
+                    result['torrentfile'] = result['guid']
+                    if result['guid'].startswith('magnet'):
+                        result['guid'] = result['guid'].split('&')[0].split(':')[-1]
+                        result['type'] = 'magnet'
+
+                    result['seeders'] = item['attr'].get('seeders')
+
+                results.append(result)
+            except Exception as e:
+                logging.warning('', exc_info=True)
+                continue
+
+        return results
 
     def _make_item_dict(self, item):
         ''' Converts parsed xml into dict.
@@ -223,14 +266,16 @@ class NewzNabProvider(object):
             logging.error('Newz/TorzNab connection check.', exc_info=True)
             return {'response': False, 'error': _('No connection could be made because the target machine actively refused it.')}
 
-        if '<error code="' in response:
-            error = ET.fromstring(response)
-            if error.attrib['description'] == 'Missing parameter':
+        error_json = gdata.data(fromstring(response))
+
+        e_code = error_json.get('error', {}).get('code')
+        if e_code:
+            if error_json['error'].get('description') == 'Missing parameter':
                 logging.info('Newz/TorzNab connection test successful.')
                 return {'response': True, 'message': _('Connection successful.')}
             else:
-                logging.error('Newz/TorzNab connection test failed. {}'.format(error.attrib['description']))
-                return {'response': False, 'error': error.attrib['description']}
+                logging.error('Newz/TorzNab connection test failed. {}'.format(error_json['error'].get('description')))
+                return {'response': False, 'error': error_json['error'].get('description')}
         elif 'unauthorized' in response.lower():
             logging.error('Newz/TorzNab connection failed - Incorrect API key.')
             return {'response': False, 'error': _('Incorrect API key.')}

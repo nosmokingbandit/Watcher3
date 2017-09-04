@@ -3,6 +3,8 @@ import logging
 import datetime
 import time
 import xml.etree.cElementTree as ET
+from xml.etree.cElementTree import fromstring
+from xmljson import gdata
 import core
 from core import proxy
 from core.helpers import Url
@@ -189,9 +191,7 @@ class Torrent(NewzNabProvider):
         try:
             xml = Url.open(url).text
 
-            root = ET.fromstring(xml)
-
-            caps = root.find('searching').find('movie-search').attrib['supportedParams']
+            caps = gdata.data(fromstring(xml))['caps']['searching']['movie-search']['supportedParams']
 
             core.sql.write('CAPS', {'url': url_base, 'caps': caps})
         except Exception as e:
@@ -412,30 +412,32 @@ class LimeTorrents(object):
     def parse(xml, imdbid):
         logging.info('Parsing LimeTorrents results.')
 
-        tree = ET.fromstring(xml)
-
-        items = tree[0].findall('item')
+        try:
+            items = gdata.data(fromstring(xml))['rss']['channel']['item']
+        except Exception as e:
+            logging.error('Unexpected XML format from LimeTorrents.', exc_info=True)
+            return []
 
         results = []
         for i in items:
             result = {}
             try:
                 result['score'] = 0
-                result['size'] = int(i.find('size').text)
+                result['size'] = i['size']['$t']
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i.find('title').text
+                result['title'] = i['title']['$t']
                 result['imdbid'] = imdbid
                 result['indexer'] = 'LimeTorrents'
-                result['info_link'] = i.find('comments').text
-                result['torrentfile'] = i.find('enclosure').attrib['url']
+                result['info_link'] = i['link']['$t']
+                result['torrentfile'] = i['enclosure']['url']
                 result['guid'] = result['torrentfile'].split('.')[1].split('/')[-1].lower()
                 result['type'] = 'torrent'
                 result['downloadid'] = None
                 result['freeleech'] = 0
                 result['download_client'] = None
 
-                s = i.find('description').text.split('Seeds: ')[1]
+                s = i['description']['$t'].split('Seeds: ')[1]
                 seed_str = ''
                 while s[0].isdigit():
                     seed_str += s[0]
@@ -711,15 +713,17 @@ class Torrentz2(object):
     def parse(xml, imdbid):
         logging.info('Parsing Torrentz2 results.')
 
-        tree = ET.fromstring(xml)
-
-        items = tree[0].findall('item')
+        try:
+            items = gdata.data(fromstring(xml))['rss']['channel']['item']
+        except Exception as e:
+            logging.error('Unexpected XML format from Torrentz2.', exc_info=True)
+            return []
 
         results = []
         for i in items:
             result = {}
             try:
-                desc = i.find('description').text.split(' ')
+                desc = i['description']['$t'].split(' ')
                 hash_ = desc[-1]
 
                 m = (1024 ** 2) if desc[2] == 'MB' else (1024 ** 3)
@@ -728,10 +732,10 @@ class Torrentz2(object):
                 result['size'] = int(desc[1]) * m
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i.find('title').text
+                result['title'] = i['title']['$t']
                 result['imdbid'] = imdbid
                 result['indexer'] = 'Torrentz2'
-                result['info_link'] = i.find('link').text
+                result['info_link'] = i['link']['$t']
                 result['torrentfile'] = magnet(hash_)
                 result['guid'] = hash_
                 result['type'] = 'magnet'
