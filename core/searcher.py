@@ -368,17 +368,16 @@ class Searcher():
 
         Returns bool
         '''
+        today = datetime.date.today()
 
         logging.info('{} results found for {}. Storing results.'.format(len(results), imdbid))
 
         BATCH_DB_STRING = []
 
         for result in results:
-            DB_STRING = result
-            DB_STRING['imdbid'] = imdbid
-            if 'date_found' not in DB_STRING:
-                DB_STRING['date_found'] = datetime.date.today()
-            BATCH_DB_STRING.append(DB_STRING)
+            if 'date_found' not in result:
+                result['date_found'] = today
+            BATCH_DB_STRING.append(result)
 
         if backlog:
             logging.info('Storing backlog search results -- purging existing results before writing to database.')

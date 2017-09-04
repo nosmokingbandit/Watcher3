@@ -112,9 +112,6 @@ class NewzNabProvider(object):
 
         feed = re.sub(r'xmlns:([^=]*)=[^ ]*"', r'xmlns:\1="ns"', feed)
 
-        with open('C:\\Users\\Steven\\Desktop\\torznab.xml', 'w') as f:
-            f.write(feed)
-
         try:
             channel = gdata.data(fromstring(feed))['rss']['channel']
             indexer = channel['title']['$t']
