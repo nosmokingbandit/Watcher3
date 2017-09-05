@@ -38,6 +38,12 @@ class Postprocessing(object):
             imdbid (str): imdb identification number (tt123456)
             downloadid (str): id number from downloader
 
+
+        While processing many variables are produced to track files through renaming, moving, etc
+        Perhaps the most important name is data['movie_file'], which is the current name/location
+            of the file being processed. This is updated when renamed, moved, etc.
+
+
         Returns dict of post-processing tasks and data
         '''
 
@@ -438,6 +444,7 @@ class Postprocessing(object):
             if not response:
                 result['tasks']['mover']['response'] = False
             else:
+                data['movie_file'] = response
                 data['finished_file'] = response
                 result['tasks']['mover']['response'] = True
         else:
@@ -726,7 +733,7 @@ class Postprocessing(object):
         if config['movermethod'] == 'hardlink':
             logging.info('Creating hardlink from {} to {}.'.format(data['original_file'], new_file_location))
             try:
-                os.link(data['original_file'], new_file_location)
+                os.link(data['movie_file'], new_file_location)
             except Exception as e:
                 logging.error('Mover failed: Unable to create hardlink.', exc_info=True)
                 return ''
