@@ -428,7 +428,8 @@ class Metadata(object):
             'releasegroup': None,
             'source': None,
             'quality': None,
-            'path': filepath
+            'path': filepath,
+            'edition': None
         }
 
         titledata = self.parse_filename(filepath)
@@ -558,6 +559,9 @@ class Metadata(object):
             meta_data['year'] = str(meta_data['year'])
         meta_data['videocodec'] = meta_data.pop('codec', None)
         meta_data['audiocodec'] = meta_data.pop('audio', None)
+
+        if 'edition' in meta_data:
+            meta_data['edition'] = ' '.join(meta_data['edition'].sort())
 
         qual = meta_data.pop('quality', '')
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
