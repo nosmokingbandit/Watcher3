@@ -79,6 +79,9 @@ class PTN(object):
                 clean = match[index['clean']]
                 if key in types.keys() and types[key] == 'integer':
                     clean = int(clean)
+
+            if key == 'edition':
+                clean = [re.sub('\.', ' ', i)for i in match]
             if key == 'group':
                 if re.search(patterns[5][1], clean, re.I) \
                         or re.search(patterns[4][1], clean):

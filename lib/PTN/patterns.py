@@ -26,7 +26,8 @@ patterns = [
     ('sbs', '(?:Half-)?SBS'),
     ('unrated', 'UNRATED'),
     ('size', '(\d+(?:\.\d+)?(?:GB|MB))'),
-    ('3d', '3D')
+    ('3d', '3D'),
+    ('edition', '(\d(?:nd|th).anniversary|(?:collector\'?s?|criterion|deluxe|limited|theatrical|special).edition|(?:director\'?s?|extended|theatrical).cut|extended.version|remastered|uncensored|uncut|unrated)')
 ]
 
 types = {

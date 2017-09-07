@@ -13,3 +13,10 @@ of recording.
 # cheroot
 ## workers/threadpool.py
 + 247   Close socket after shutting down
+
+
+# PTN
+## patterns.py
++ 30	Add pattern for special edition tags
+## parse.py
++ 83-84	Clean punctuation in edition list 
