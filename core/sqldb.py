@@ -10,7 +10,7 @@ from sqlalchemy import *
 
 logging = logging.getLogger(__name__)
 
-current_version = 2
+current_version = 3
 
 
 class SQL(object):
@@ -807,5 +807,12 @@ class DatabaseUpdate(object):
                 t = t[3:] + ', An'
 
             core.sql.update('MOVIES', 'sort_title', t, 'imdbid', i['imdbid'])
+
+    @staticmethod
+    def update_3():
+        ''' Clean up search results missing imdbid field '''
+        for i in DatabaseUpdate.dump('SEARCHRESULTS'):
+            if not i.get('imdbid') and i.get('guid'):
+                core.sql.delete('SEARCHRESULTS', 'guid', i['guid'])
 
     # Adding a new method? Remember to update the current_version #
