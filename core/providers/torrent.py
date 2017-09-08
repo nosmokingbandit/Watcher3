@@ -260,7 +260,7 @@ class Rarbg(object):
 
             results = json.loads(response).get('torrent_results')
             if results:
-                return Rarbg.parse(results)
+                return Rarbg.parse(results, imdbid=imdbid)
             else:
                 logging.info('Nothing found on Rarbg.')
                 return []
@@ -326,7 +326,7 @@ class Rarbg(object):
             raise RarbgTokenError(str(e))
 
     @staticmethod
-    def parse(results):
+    def parse(results, imdbid=None):
         ''' Parse api response
         results (list): dicts of releases
 
@@ -348,6 +348,7 @@ class Rarbg(object):
 
             result = {k: v for k, v in result.items() if k in item_keep}
 
+            result['imdbid'] = imdbid or result.get('episode_info', {}).get('imdb')
             result['status'] = 'Available'
             result['score'] = 0
             result['downloadid'] = None
