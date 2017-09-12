@@ -759,6 +759,21 @@ class DatabaseUpdate(object):
     There is one method for each database version. These methods are NOT
         cumulative and MUST be executed in order.
 
+    Methods should be formatted as such:
+
+    @staticmethod
+    def update_<i>():
+
+        d = DatabaseUpdate.dump(<TABLE>)
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
+
+            <do something>
+
+        print()
+
     '''
     @staticmethod
     def dump(table):
@@ -782,10 +797,15 @@ class DatabaseUpdate(object):
         Change 'poster/' to 'posters/' in file path
         '''
 
-        for i in DatabaseUpdate.dump('MOVIES'):
+        d = DatabaseUpdate.dump('MOVIES')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
             p = i['poster']
             if p and 'poster/' in p:
                 core.sql.update('MOVIES', 'poster', p.replace('poster/', 'posters/'), 'imdbid', i['imdbid'])
+        print()
 
     @staticmethod
     def update_2():
@@ -797,7 +817,11 @@ class DatabaseUpdate(object):
         '''
         core.sql.update_tables()
 
-        for i in DatabaseUpdate.dump('MOVIES'):
+        d = DatabaseUpdate.dump('MOVIES')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
             t = i['title']
             if t.startswith('The '):
                 t = t[4:] + ', The'
@@ -807,12 +831,19 @@ class DatabaseUpdate(object):
                 t = t[3:] + ', An'
 
             core.sql.update('MOVIES', 'sort_title', t, 'imdbid', i['imdbid'])
+        print()
 
     @staticmethod
     def update_3():
         ''' Clean up search results missing imdbid field '''
-        for i in DatabaseUpdate.dump('SEARCHRESULTS'):
+
+        d = DatabaseUpdate.dump('SEARCHRESULTS')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
             if not i.get('imdbid') and i.get('guid'):
                 core.sql.delete('SEARCHRESULTS', 'guid', i['guid'])
+        print()
 
     # Adding a new method? Remember to update the current_version #
