@@ -1215,7 +1215,7 @@ class Ajax(object):
                         'predb_backlog': None
                         }
 
-            if not core.sql.update_multiple('MOVIES', db_reset, imdbid=imdbid):
+            if not core.sql.update_multiple_values('MOVIES', db_reset, imdbid=imdbid):
                 yield json.dumps({'response': False, 'error': Errors.database_write, 'imdbid': imdbid, "index": i + 1})
                 continue
 

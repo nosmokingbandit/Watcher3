@@ -715,7 +715,7 @@ class Metadata(object):
         movie.update(new_data)
         movie = self.convert_to_db(movie)
 
-        core.sql.update_multiple('MOVIES', movie, imdbid=imdbid)
+        core.sql.update_multiple_values('MOVIES', movie, imdbid=imdbid)
 
         if poster_path and get_poster:
             if os.path.isfile(target_poster):

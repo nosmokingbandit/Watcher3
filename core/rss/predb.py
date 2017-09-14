@@ -65,7 +65,7 @@ class PreDB(object):
                 db_update['predb'] = 'found'
                 db_update['status'] = 'Wanted'
 
-        if core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid):
+        if core.sql.update_multiple_values('MOVIES', db_update, imdbid=imdbid):
             return True
         else:
             return False
@@ -116,7 +116,7 @@ class PreDB(object):
 
                 if self._fuzzy_match(items, title, year):
                     logging.info('{} {} found on predb.me RSS.'.format(title, year))
-                    core.sql.update_multiple('MOVIES', db_update, imdbid=imdbid)
+                    core.sql.update_multiple_values('MOVIES', db_update, imdbid=imdbid)
                     continue
         except Exception as e:
             logging.error('Unable to read predb rss.', exc_info=True)

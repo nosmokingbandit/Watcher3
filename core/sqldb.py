@@ -229,8 +229,8 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def update_multiple(self, TABLE, data, imdbid='', guid=''):
-        ''' Updates mulitple values in sql row
+    def update_multiple_values(self, TABLE, data, imdbid='', guid=''):
+        ''' Updates mulitple values in a single sql row
         TABLE (str): database table to access
         data (dict): key/value pairs to update in table
         imdbid (str): imdbid # of movie to update

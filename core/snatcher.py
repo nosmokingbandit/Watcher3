@@ -211,7 +211,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to Sabnzbd.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'SABnzbd'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to SABnzbd.', 'download_client': 'SABnzbd', 'downloadid': response['downloadid']}
@@ -231,7 +231,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to NZBGet.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'NZBGet'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to NZBGet.', 'download_client': 'NZBGet', 'downloadid': response['downloadid']}
@@ -252,7 +252,7 @@ class Snatcher():
                 logging.info('Successfully saved {} in BlackHole.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
@@ -291,7 +291,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to Transmission.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'Transmission'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Transmission.', 'download_client': 'Transmission', 'downloadid': response['downloadid']}
@@ -310,7 +310,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to QBittorrent.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'QBittorrent'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to QBittorrent.', 'download_client': 'QBittorrent', 'downloadid': response['downloadid']}
@@ -329,7 +329,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to DelugeRPC.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'DelugeRPC'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'DelugeRPC', 'downloadid': response['downloadid']}
@@ -348,7 +348,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to DelugeWeb.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'DelugeWeb'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'DelugeWeb', 'downloadid': response['downloadid']}
@@ -367,7 +367,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to rTorrent.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentSCGI'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to rTorrent.', 'download_client': 'rTorrentSCGI', 'downloadid': response['downloadid']}
@@ -387,7 +387,7 @@ class Snatcher():
                 logging.info('Successfully sent {} to rTorrent.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentHTTP'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Sent to rTorrent.', 'download_client': 'rTorrentHTTP', 'downloadid': response['downloadid']}
@@ -407,10 +407,10 @@ class Snatcher():
                 logging.info('Successfully saved {} in BlackHole.'.format(title))
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple('SEARCHRESULTS', db_update, guid=guid)
+                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
 
                 if self.update_status_snatched(guid, imdbid):
                     return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
