@@ -264,6 +264,45 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
+    def update_multiple_rows(self, TABLE, values, id_col):
+        ''' Update multiple rows in a single table
+        TABLE (str): database table to access
+        values (list): of dicts of identifier and update values
+        id_col (str): name of column in values used to identify row
+
+        Values must be a list of dictionaries with k:v pairs reprenting columns names and
+            data to write to that column. It must also contain an indentifying k:v that
+            matches the column passed in id_col.
+
+            For example:
+
+            update_multiple_rows('MOVIES', [{'year': 2000, 'rated': 'R'}, {'year': 1990, 'rated': 'PG-13'}], 'year')
+
+            This call will update all MOVIES rows where 'year' == 2000 and set 'rated' to 'R', and update all MOVIES
+                rows where 'year' == 1990 and set 'rated' to 'PG-13'
+
+        id_col and corresponding 'values' keys will be changed to '{}_'.format(id_col) to make it compatible with sqlalchemy
+
+        Returns Bool
+        '''
+
+        if id_col not in values[0].keys():
+            logging.error('id_col not in values.')
+            return False
+
+        id_col_ = '{}_'.format(id_col)
+
+        for d in values:
+            d[id_col_] = d[id_col]
+
+        write = {k: sqla.bindparam(k) for k in values[0].keys() if k != id_col_}
+
+        TABLE = getattr(core.sql, TABLE)
+
+        core.sql.engine.execute(TABLE.update().where(getattr(TABLE.c, id_col) == sqla.bindparam(id_col_)).values(write), values)
+
+        return
+
     def get_user_movies(self, sort_key='title', sort_direction='DESC', limit=-1, offset=0, hide_finished=False):
         ''' Gets user's movie from database
         sort_key (str): key to sort by
@@ -817,6 +856,8 @@ class DatabaseUpdate(object):
         '''
         core.sql.update_tables()
 
+        values = []
+
         d = DatabaseUpdate.dump('MOVIES')
         l = len(d)
 
@@ -830,7 +871,9 @@ class DatabaseUpdate(object):
             elif t.startswith('An '):
                 t = t[3:] + ', An'
 
-            core.sql.update('MOVIES', 'sort_title', t, 'imdbid', i['imdbid'])
+            values.append({'imdbid': i['imdbid'], 'sort_title': t})
+
+        core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
         print()
 
     @staticmethod
