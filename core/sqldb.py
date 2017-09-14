@@ -6,7 +6,7 @@ import os
 import shutil
 
 from core.helpers import Comparisons
-from sqlalchemy import *
+import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
@@ -33,64 +33,64 @@ class SQL(object):
                      }
 
     def __init__(self):
-        self.metadata = MetaData()
+        self.metadata = sqla.MetaData()
         DB_NAME = 'sqlite:///{}'.format(core.DB_FILE)
 
         # These definitions only exist to CREATE tables.
-        self.MOVIES = Table('MOVIES', self.metadata,
-                            Column('added_date', TEXT),
-                            Column('imdbid', TEXT),
-                            Column('title', TEXT),
-                            Column('year', TEXT),
-                            Column('poster', TEXT),
-                            Column('plot', TEXT),
-                            Column('url', TEXT),
-                            Column('score', TEXT),
-                            Column('release_date', TEXT),
-                            Column('rated', TEXT),
-                            Column('status', TEXT),
-                            Column('predb_backlog', TEXT),
-                            Column('predb', TEXT),
-                            Column('quality', TEXT),
-                            Column('finished_date', TEXT),
-                            Column('finished_score', SMALLINT),
-                            Column('finished_file', TEXT),
-                            Column('backlog', SMALLINT),
-                            Column('tmdbid', TEXT),
-                            Column('alternative_titles', TEXT),
-                            Column('media_release_date', TEXT),
-                            Column('origin', TEXT),
-                            Column('sort_title', TEXT)
-                            )
-        self.SEARCHRESULTS = Table('SEARCHRESULTS', self.metadata,
-                                   Column('score', SMALLINT),
-                                   Column('size', SMALLINT),
-                                   Column('status', TEXT),
-                                   Column('pubdate', TEXT),
-                                   Column('title', TEXT),
-                                   Column('imdbid', TEXT),
-                                   Column('indexer', TEXT),
-                                   Column('date_found', TEXT),
-                                   Column('info_link', TEXT),
-                                   Column('guid', TEXT),
-                                   Column('torrentfile', TEXT),
-                                   Column('resolution', TEXT),
-                                   Column('type', TEXT),
-                                   Column('downloadid', TEXT),
-                                   Column('download_client', TEXT),
-                                   Column('freeleech', SMALLINT)
-                                   )
-        self.MARKEDRESULTS = Table('MARKEDRESULTS', self.metadata,
-                                   Column('imdbid', TEXT),
-                                   Column('guid', TEXT),
-                                   Column('status', TEXT)
-                                   )
-        self.CAPS = Table('CAPS', self.metadata,
-                          Column('url', TEXT),
-                          Column('caps', TEXT)
-                          )
+        self.MOVIES = sqla.Table('MOVIES', self.metadata,
+                                 sqla.Column('added_date', sqla.TEXT),
+                                 sqla.Column('imdbid', sqla.TEXT),
+                                 sqla.Column('title', sqla.TEXT),
+                                 sqla.Column('year', sqla.TEXT),
+                                 sqla.Column('poster', sqla.TEXT),
+                                 sqla.Column('plot', sqla.TEXT),
+                                 sqla.Column('url', sqla.TEXT),
+                                 sqla.Column('score', sqla.TEXT),
+                                 sqla.Column('release_date', sqla.TEXT),
+                                 sqla.Column('rated', sqla.TEXT),
+                                 sqla.Column('status', sqla.TEXT),
+                                 sqla.Column('predb_backlog', sqla.TEXT),
+                                 sqla.Column('predb', sqla.TEXT),
+                                 sqla.Column('quality', sqla.TEXT),
+                                 sqla.Column('finished_date', sqla.TEXT),
+                                 sqla.Column('finished_score', sqla.SMALLINT),
+                                 sqla.Column('finished_file', sqla.TEXT),
+                                 sqla.Column('backlog', sqla.SMALLINT),
+                                 sqla.Column('tmdbid', sqla.TEXT),
+                                 sqla.Column('alternative_titles', sqla.TEXT),
+                                 sqla.Column('media_release_date', sqla.TEXT),
+                                 sqla.Column('origin', sqla.TEXT),
+                                 sqla.Column('sort_title', sqla.TEXT)
+                                 )
+        self.SEARCHRESULTS = sqla.Table('SEARCHRESULTS', self.metadata,
+                                        sqla.Column('score', sqla.SMALLINT),
+                                        sqla.Column('size', sqla.SMALLINT),
+                                        sqla.Column('status', sqla.TEXT),
+                                        sqla.Column('pubdate', sqla.TEXT),
+                                        sqla.Column('title', sqla.TEXT),
+                                        sqla.Column('imdbid', sqla.TEXT),
+                                        sqla.Column('indexer', sqla.TEXT),
+                                        sqla.Column('date_found', sqla.TEXT),
+                                        sqla.Column('info_link', sqla.TEXT),
+                                        sqla.Column('guid', sqla.TEXT),
+                                        sqla.Column('torrentfile', sqla.TEXT),
+                                        sqla.Column('resolution', sqla.TEXT),
+                                        sqla.Column('type', sqla.TEXT),
+                                        sqla.Column('downloadid', sqla.TEXT),
+                                        sqla.Column('download_client', sqla.TEXT),
+                                        sqla.Column('freeleech', sqla.SMALLINT)
+                                        )
+        self.MARKEDRESULTS = sqla.Table('MARKEDRESULTS', self.metadata,
+                                        sqla.Column('imdbid', sqla.TEXT),
+                                        sqla.Column('guid', sqla.TEXT),
+                                        sqla.Column('status', sqla.TEXT)
+                                        )
+        self.CAPS = sqla.Table('CAPS', self.metadata,
+                               sqla.Column('url', sqla.TEXT),
+                               sqla.Column('caps', sqla.TEXT)
+                               )
         try:
-            self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+            self.engine = sqla.create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
             if not os.path.isfile(core.DB_FILE):
                 print('Creating database file {}'.format(core.DB_FILE))
                 self.create_database(DB_NAME)
@@ -113,7 +113,7 @@ class SQL(object):
         logging.info('Creating Database tables.')
         print('Creating tables.')
         self.metadata.create_all(self.engine)
-        self.engine = create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
+        self.engine = sqla.create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
         self.set_version(current_version)
         logging.info('Connected to database {}'.format(DB_NAME))
         print('Connected to database {}'.format(DB_NAME))
