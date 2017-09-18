@@ -49,7 +49,7 @@ class Url(object):
         s = ''.join(i for i in s if i not in punctuation)
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
 
-        return s.lower()
+        return s.lower().strip()
 
     @staticmethod
     def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):
