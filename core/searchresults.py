@@ -5,7 +5,6 @@ from base64 import b16encode
 import json
 import core
 from core.helpers import Url
-from stringscore import liquidmetal as lm
 
 logging = logging.getLogger(__name__)
 
@@ -48,7 +47,9 @@ class Score():
             quality_profile = movie_details['quality']
             logging.debug('Scoring based on quality profile {}'.format(quality_profile))
 
-            titles = (movie_details['alternative_titles'] or '').split(',') + [movie_details['title']]
+            titles = [movie_details['title']]
+            if movie_details['alternative_titles']:
+                movie_details['alternative_titles'].split(',')
             check_size = True
             if quality_profile in core.CONFIG['Quality']['Profiles']:
                 quality = core.CONFIG['Quality']['Profiles'][quality_profile]
@@ -77,7 +78,7 @@ class Score():
         self.freeleech(core.CONFIG['Search']['freeleechpoints'])
         self.score_sources(sources, check_size=check_size)
         if quality['scoretitle']:
-            self.fuzzy_title(titles)
+            self.fuzzy_title(titles, year=str(movie_details['year']))
         self.score_preferred(preferred)
         logging.info('Finished scoring search results.')
 
@@ -249,7 +250,7 @@ class Score():
                 else:
                     continue
 
-    def fuzzy_title(self, titles):
+    def fuzzy_title(self, titles, year='\n'):
         ''' Score and remove results based on title match
         titles (list): titles to match against
 
@@ -277,17 +278,45 @@ class Score():
                     result['score'] += 20
                     lst.append(result)
                     continue
-                release = Url.normalize(result['title'])
 
                 logging.debug('Comparing release {} with titles {}.'.format(result['title'], titles))
-                matches = [lm.score(release, Url.normalize(title)) * 100 for title in titles]
+                matches = [self._fuzzy_title(result['title'].split(year)[0], title) for title in titles]
                 if any(match > 70 for match in matches):
                     result['score'] += int(max(matches) / 5)
                     lst.append(result)
                 else:
-                    logging.debug('{} best title match was {}%, removing search result.'.format(release, max(matches)))
+                    logging.debug('{} best title match was {}%, removing search result.'.format(result['title'], max(matches)))
         self.results = lst
         logging.info('Keeping {} results.'.format(len(self.results)))
+
+    def _fuzzy_title(self, a, b):
+        ''' Determines how much of a is in b
+        a (str): String to match against b
+        b (str): String to match a against
+
+        Order of a and b matters.
+
+        A is broken down and words are compared against B's words.
+
+        ie:
+        _fuzzy_title('This is string a', 'This is string b and has extra words.')
+        Returns 75 since 75% of a is in b.
+
+        Returns int
+        '''
+
+        a_words = Url.normalize(a).split(' ')
+        b_words = Url.normalize(b).split(' ')
+
+        m = 0
+        a_len = len(a_words)
+
+        for i in a_words:
+            if i in b_words:
+                b_words.remove(i)
+                m += 1
+
+        return int((m / a_len) * 100)
 
     def score_sources(self, sources, check_size=True):
         ''' Score releases based on quality/source preferences
