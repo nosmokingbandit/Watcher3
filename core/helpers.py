@@ -2,8 +2,6 @@ from base64 import b32decode as bd
 from base64 import b16encode as be
 from random import choice as rc
 import hashlib
-import urllib.request
-import urllib.parse
 from lib import requests
 import random
 import unicodedata
