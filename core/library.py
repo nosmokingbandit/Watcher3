@@ -560,7 +560,7 @@ class Metadata(object):
         meta_data['videocodec'] = meta_data.pop('codec', None)
         meta_data['audiocodec'] = meta_data.pop('audio', None)
 
-        if 'edition' in meta_data:
+        if meta_data.get('edition'):
             meta_data['edition'] = ' '.join(meta_data['edition'].sort())
 
         qual = meta_data.pop('quality', '')
