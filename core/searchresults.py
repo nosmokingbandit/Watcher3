@@ -41,25 +41,29 @@ class Score():
             return results
 
         self.results = results
+        year = None
 
-        if imported is False:
+        if imported:
+            logging.debug('Search results are Imports, using custom Default quality profile.')
+            titles = []
+            check_size = False
+            movie_details = {'year': '\n'}
+            quality = self.import_quality()
+        else:
             movie_details = core.sql.get_movie_details('imdbid', imdbid)
+            year = movie_details.get('year')
             quality_profile = movie_details['quality']
             logging.debug('Scoring based on quality profile {}'.format(quality_profile))
 
             titles = [movie_details['title']]
             if movie_details['alternative_titles']:
-                movie_details['alternative_titles'].split(',')
+                titles += movie_details['alternative_titles'].split(',')
+
             check_size = True
             if quality_profile in core.CONFIG['Quality']['Profiles']:
                 quality = core.CONFIG['Quality']['Profiles'][quality_profile]
             else:
                 quality = core.CONFIG['Quality']['Profiles']['Default']
-        else:
-            logging.debug('Search results are Imports, using custom Default quality profile.')
-            titles = []
-            check_size = False
-            quality = self.import_quality()
 
         sources = quality['Sources']
         retention = core.CONFIG['Search']['retention']
@@ -78,7 +82,7 @@ class Score():
         self.freeleech(core.CONFIG['Search']['freeleechpoints'])
         self.score_sources(sources, check_size=check_size)
         if quality['scoretitle']:
-            self.fuzzy_title(titles, year=str(movie_details['year']))
+            self.fuzzy_title(titles, year=year)
         self.score_preferred(preferred)
         logging.info('Finished scoring search results.')
 
@@ -253,8 +257,11 @@ class Score():
     def fuzzy_title(self, titles, year='\n'):
         ''' Score and remove results based on title match
         titles (list): titles to match against
+        year (str): year of movie release           <optional - Default '\n'>
 
         If titles is an empty list every result is treated as a perfect match
+        Matches releases based on release_title.split(year)[0]. If year is not passed,
+            matches on '\n', which will include the entire string.
 
         Iterates through self.results and removes any entry that does not
             fuzzy match 'title' > 70.
