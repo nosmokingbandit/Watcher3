@@ -468,6 +468,9 @@ class Metadata(object):
             data['year'] = tmdbdata['release_date'][:4]
             data.update(tmdbdata)
 
+        if data.get('edition'):
+            data['edition'] = ' '.join(sorted(data['edition']))
+
         return data
 
     def parse_media(self, filepath):
@@ -559,9 +562,6 @@ class Metadata(object):
             meta_data['year'] = str(meta_data['year'])
         meta_data['videocodec'] = meta_data.pop('codec', None)
         meta_data['audiocodec'] = meta_data.pop('audio', None)
-
-        if meta_data.get('edition'):
-            meta_data['edition'] = ' '.join(meta_data['edition'].sort())
 
         qual = meta_data.pop('quality', '')
         for source, aliases in core.CONFIG['Quality']['Aliases'].items():
