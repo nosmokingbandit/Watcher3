@@ -46,7 +46,7 @@ class UpdateBase(object):
 
             notif = {'type': 'update',
                      'title': title,
-                     'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}{}" target="_blank" rel="noopener"><u>here</u></a> to view changes.'.format(core.URL_BASE, compare)
+                     'message': 'Click <a onclick="_start_update(event)"><u>here</u></a> to update now.<br/> Click <a href="{}" target="_blank" rel="noopener"><u>here</u></a> to view changes.'.format(compare)
                      }
 
             notification.add(notif, type_='success')
