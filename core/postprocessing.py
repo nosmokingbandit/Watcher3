@@ -541,12 +541,9 @@ class Postprocessing(object):
         while '  ' in new_string:
             new_string = new_string.replace('  ', ' ')
 
-        while len(new_string) > 1 and new_string[-1] == ' ':
-            new_string = new_string[:-1]
+        new_string = self.map_remote(new_string).strip()
 
-        new_string = self.map_remote(new_string)
-
-        logging.debug('Created path {} from {}'.format(new_string, string))
+        logging.debug('Created path "{}" from "{}"'.format(new_string, string))
 
         return self.sanitize(new_string)
 
