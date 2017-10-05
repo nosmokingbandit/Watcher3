@@ -156,31 +156,6 @@ class MetadataUpdate(object):
 
         cutoff = datetime.datetime.today() - datetime.timedelta(days=365)
 
-        ''' This if block can be removed later
-        Removes old 'missing_poster' images and updates database 'poster' field
-        '''
-
-        clean_file = os.path.join(core.PROG_PATH, 'static/images/posters/.clean')
-
-        if not os.path.isfile(clean_file):
-            posters = glob.glob(os.path.join(core.PROG_PATH, 'static/images/posters/*.jpg'))
-            for i in posters:
-                try:
-                    with open(i, 'rb') as f:
-                        f.seek(-512, 2)
-                        data = f.read()
-                        h = hashlib.md5(data).hexdigest()
-                        if h in ('f4e996b087b509f4507a05863f9e9970', '367c8a3a111a46efb608b481936197a7'):
-                            imdbid = 'tt{}'.format(i.split('tt')[-1][:-4])
-                            core.sql.update('MOVIES', 'poster', None, 'imdbid', imdbid)
-                            os.remove(i)
-                except Exception as e:
-                    continue
-
-            with open(clean_file, 'a+'):
-                pass
-        ''' end removable block '''
-
         u = []
         for i in movies:
             if i['release_date'] and datetime.datetime.strptime(i['release_date'], '%Y-%m-%d') < cutoff:
