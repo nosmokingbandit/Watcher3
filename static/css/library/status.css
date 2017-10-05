@@ -165,6 +165,7 @@ div.modal-header > *:not(h3){
 
 img.poster{
     margin-bottom: 1em;
+    max-height: 18em;
 }
 
 div.modal-body {
