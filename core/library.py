@@ -767,7 +767,6 @@ class Manage(object):
 
         response = {}
         tmdbid = movie['id']
-        poster_path = movie.get('poster_path')
 
         if not full_metadata:
             logging.debug('More information needed, searching TheMovieDB for {}'.format(tmdbid))
@@ -792,6 +791,8 @@ class Manage(object):
         movie['status'] = movie.get('status', 'Waiting')
         movie['origin'] = movie.get('origin', 'Search')
 
+        poster_path = movie.get('poster_path')
+
         movie = self.metadata.convert_to_db(movie)
 
         if not core.sql.write('MOVIES', movie):
@@ -800,8 +801,8 @@ class Manage(object):
             return response
         else:
             if poster_path:
-                poster_path = "http://image.tmdb.org/t/p/w300{}".format(poster_path)
-                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_path)).start()
+                poster_url = "http://image.tmdb.org/t/p/w300/{}".format(poster_path)
+                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
                 threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
