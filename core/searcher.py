@@ -19,9 +19,10 @@ class Searcher():
         self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
 
-    def verify(self, movie):
+    def verify(self, movie, today=None):
         ''' Checks for verfied releases based on config
         movie (dict): movie info
+        today (obj): datetime.datetime.today() object   <optional>
 
         Checks (in order):
             If verify releases is enabled
@@ -34,15 +35,14 @@ class Searcher():
 
         Returns Bool
         '''
-        now = datetime.datetime.today()
+        today = today or datetime.datetime.today()
 
         if core.CONFIG['Search']['verifyreleases'] == '':
             verified = True
         elif not movie.get('release_date'):
             logging.info('{} does not have a theatrical release date, skipping verification check as Unverified.'.format(movie['title']))
             verified = False
-
-        elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < now:
+        elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < today:
             logging.info('{} is older than {}, skipping verification check as Verified.'.format(movie['title'], core.CONFIG['Search']['verifyreleasesskipweeks']))
             verified = True
 
@@ -61,7 +61,7 @@ class Searcher():
                 verified = False
             else:
                 media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
-                if media_release < now:
+                if media_release < today:
                     verified = True
                 else:
                     verified = False
@@ -99,7 +99,7 @@ class Searcher():
         quality = movie['quality']
 
         if core.CONFIG['Search']['verifyreleases'] == 'predb':
-            self.predb.backlog_search(movie)
+            movie = self.predb.backlog_search(movie)
 
         if not self.verify(movie):
             return
@@ -132,18 +132,17 @@ class Searcher():
         logging.info('Executing search/grab for all movies.')
 
         interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
-        now = datetime.datetime.today().replace(second=0, microsecond=0)
-        core.NEXT_SEARCH = now + datetime.timedelta(0, interval)
+        today = datetime.datetime.today().replace(second=0, microsecond=0)
+        core.NEXT_SEARCH = today + datetime.timedelta(0, interval)
 
         movies = core.sql.get_user_movies()
         if not movies:
             return
-        else:
-            if core.CONFIG['Search']['verifyreleases'] == 'predb':
-                self.predb.check_all()
-            movies = [i for i in movies if self.verify(i)]
 
-        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished')]
+        if core.CONFIG['Search']['verifyreleases'] == 'predb':
+            self.predb.check_all()
+
+        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished') and self.verify(i, today=today)]
         if backlog_movies:
             logging.debug('Backlog movies: {}'.format(', '.join(i['title'] for i in backlog_movies)))
             for movie in backlog_movies:
@@ -156,7 +155,7 @@ class Searcher():
                 self.search(imdbid, title, year, quality)
                 continue
 
-        rss_movies = self._get_rss_movies(movies)
+        rss_movies = [i for i in self._get_rss_movies(movies) if self.verify(i, today=today)]
         if rss_movies:
             logging.info('Checking RSS feeds for {} movies.'.format(len(rss_movies)))
             self.rss_sync(rss_movies)
