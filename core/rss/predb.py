@@ -36,7 +36,7 @@ class PreDB(object):
         if rss_movies:
             self._search_rss(rss_movies)
 
-    def backlog_search(self, data):
+    def backlog_search(self, movie):
         ''' Searches predb for releases and marks row in MOVIES
         data (dict): data from row in MOVIES
 
@@ -45,13 +45,13 @@ class PreDB(object):
         Searches predb backlog for releases. Marks row predb:'found' and status:'Wanted'
             if found. Marks predb_backlog:1 as long as predb url request doesn't fail.
 
-        Returns bool
+        Returns dict movie info after updating with predb results
         '''
 
-        title = data['title']
-        year = str(data['year'])
+        title = movie['title']
+        year = str(movie['year'])
         title_year = '{} {}'.format(title, year)
-        imdbid = data['imdbid']
+        imdbid = movie['imdbid']
 
         logging.info('Checking predb.me for verified releases for {}.'.format(title))
 
@@ -65,10 +65,10 @@ class PreDB(object):
                 db_update['predb'] = 'found'
                 db_update['status'] = 'Wanted'
 
-        if core.sql.update_multiple_values('MOVIES', db_update, imdbid=imdbid):
-            return True
-        else:
-            return False
+        movie.update(db_update)
+        core.sql.update_multiple_values('MOVIES', db_update, imdbid=imdbid)
+
+        return movie
 
     def _search_db(self, title_year):
         ''' Helper for backlog_search
