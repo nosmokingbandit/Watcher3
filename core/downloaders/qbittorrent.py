@@ -10,7 +10,48 @@ logging = logging.getLogger(__name__)
 class QBittorrent(object):
 
     cookie = None
-    retry = False
+
+    @staticmethod
+    def _send(method, post_data=None):
+        ''' Sends API request to QBittorrent
+        method (str): name of method to call. *must* include category (ie 'query/preferences')
+        post_data (dict): post data to send with request    <optional>
+
+        Returns str text response from QBit
+        '''
+        conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
+
+        if not QBittorrent.cookie:
+            r = QBittorrent._login('{}:{}/'.format(conf['host'], conf['port']), conf['user'], conf['pass'])
+            if r is not True:
+                logging.error('Unable to connect to QBittorrent: {}'.format(r))
+                return False
+
+        url = '{}:{}/{}'.format(conf['host'], conf['port'], method)
+
+        try:
+            response = Url.open(url, post_data=post_data, headers={'cookie': QBittorrent.cookie})
+        except Exception as e:
+            logging.error('Unable to contact QBittorrent API.', exc_info=True)
+            raise APIConnectionError(response.status_code, response.reason)
+
+        if response.status_code == 403:
+            logging.info('QBittorrent request unauthorized.')
+            QBittorrent.cookie = None
+            u = '{}:{}/'.format(conf['host'], conf['port'])
+            if QBittorrent._login(u, conf['user'], conf['pass']) is not True:
+                raise APIConnectionError('403', 'Unable to log in to QBittorrent.')
+            else:
+                try:
+                    response = Url.open(url, post_data=post_data, headers={'cookie': QBittorrent.cookie})
+                except Exception as e:
+                    logging.error('Unable to contact QBittorrent API.', exc_info=True)
+                    raise APIConnectionError(response.status_code, response.reason)
+        elif response.status_code != 200:
+            logging.error('QBittorrent API call failed: {}'.format(response.reason))
+            raise APIConnectionError(response.status_code, response.reason)
+
+        return response.text
 
     @staticmethod
     def test_connection(data):
@@ -22,14 +63,9 @@ class QBittorrent(object):
 
         logging.info('Testing connection to QBittorrent.')
 
-        host = data['host']
-        port = data['port']
-        user = data['user']
-        password = data['pass']
+        url = '{}:{}/'.format(data['host'], data['port'])
 
-        url = '{}:{}/'.format(host, port)
-
-        return QBittorrent._login(url, user, password)
+        return QBittorrent._login(url, data['user'], data['pass'])
 
     @staticmethod
     def add_torrent(data):
@@ -51,55 +87,39 @@ class QBittorrent(object):
         port = conf['port']
         base_url = '{}:{}/'.format(host, port)
 
-        user = conf['user']
-        password = conf['pass']
-
-        if QBittorrent.cookie is None:
-            QBittorrent._login(base_url, user, password)
-
         download_dir = QBittorrent._get_download_dir(base_url)
 
-        if not download_dir:
+        if download_dir is None:
             return {'response': False, 'error': 'Unable to get path information.'}
         # if we got download_dir we can connect.
 
-        post_data = {}
+        post_data = {'urls': data['torrentfile'],
+                     'savepath': '{}{}'.format(download_dir, conf['category']),
+                     'category': conf['category']
+                     }
 
-        post_data['urls'] = data['torrentfile']
-
-        post_data['savepath'] = '{}{}'.format(download_dir, conf['category'])
-
-        post_data['category'] = conf['category']
-
-        url = '{}command/download'.format(base_url)
-        headers = {'cookie': QBittorrent.cookie}
         try:
-            Url.open(url, post_data=post_data, headers=headers)  # QBit returns an empty string
+            QBittorrent._send('command/download', post_data=post_data)
             downloadid = Torrent.get_hash(data['torrentfile'])
             return {'response': True, 'downloadid': downloadid}
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logging.error('QBittorrent connection test failed.', exc_info=True)
+            logging.error('QBittorrent command/download failed.', exc_info=True)
             return {'response': False, 'error': str(e)}
 
     @staticmethod
     def _get_download_dir(base_url):
         logging.debug('Getting default download dir for QBittorrent.')
-        try:
-            url = '{}query/preferences'.format(base_url)
-            headers = {'cookie': QBittorrent.cookie}
-            response = json.loads(Url.open(url, headers=headers).text)
-            return response['save_path']
-        except Exception as e:
-            logging.error('QBittorrent unable to get download dir.', exc_info=True)
-            return None
 
-    @staticmethod
-    def get_torrents(base_url):
-        url = '{}query/torrents'.format(base_url)
-        headers = {'cookie': QBittorrent.cookie}
-        return Url.open(url, headers=headers)
+        try:
+            response = QBittorrent._send('query/preferences')
+            return json.loads(response)['save_path']
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e:
+            logging.error('QBittorrent query/preferences failed.', exc_info=True)
+            return None
 
     @staticmethod
     def _login(url, username, password):
@@ -114,12 +134,14 @@ class QBittorrent(object):
             QBittorrent.cookie = response.headers.get('Set-Cookie')
 
             if response.text == 'Ok.':
+                logging.info('Successfully connected to QBittorrent.')
                 return True
             elif response.text == 'Fails.':
+                logging.warning('Incorrect usename or password QBittorrent.')
                 return 'Incorrect usename or password'
             else:
+                logging.warning(response.text)
                 return response.text
-
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
@@ -135,29 +157,17 @@ class QBittorrent(object):
         '''
         logging.info('Cancelling download # {} in QBittorrent.'.format(downloadid))
 
-        conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
-
-        host = conf['host']
-        port = conf['port']
-        base_url = '{}:{}/'.format(host, port)
-
-        user = conf['user']
-        password = conf['pass']
-
-        if QBittorrent.cookie is None:
-            if QBittorrent._login(base_url, user, password) is not True:
-                return False
-
-        post_data = {}
-
-        post_data['hashes'] = downloadid.lower()
-
-        url = '{}command/deletePerm'.format(base_url)
-        headers = {'cookie': QBittorrent.cookie}
-
         try:
-            Url.open(url, post_data=post_data, headers=headers)  # QBit returns an empty string
+            QBittorrent._send('command/deletePerm', post_data={'hashes': downloadid.lower()})
             return True
+        except (SystemExit, KeyboardInterrupt):
+            raise
         except Exception as e:
-            logging.error('Unable to cancel download.', exc_info=True)
-            return False
+            logging.error('QBittorrent query/preferences failed.', exc_info=True)
+            return None
+
+
+class APIConnectionError(Exception):
+    ''' Raised when a timed task is in conflict with itself '''
+    def __init__(self, status_code, reason):
+        self.msg = 'QBittorrent API request error {}: {}'.format(status_code, reason)
