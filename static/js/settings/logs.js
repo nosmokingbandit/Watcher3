@@ -20,5 +20,5 @@ function view_log(){
 
 function download_log(){
     logfile = $("select#log_file").val();
-    window.open(url_base + "/logs/" + logfile)
+    window.open(url_base + "/settings/download_log/" + logfile, "_blank")
 };

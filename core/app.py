@@ -167,6 +167,12 @@ class App(object):
             logdir = os.path.join(core.PROG_PATH, core.LOG_DIR)
             logfiles = [i for i in os.listdir(logdir) if os.path.isfile(os.path.join(logdir, i))]
             return App.logs_template.render(logdir=logdir, logfiles=logfiles, **self.defaults())
+        elif page == 'download_log':
+            if len(path) > 1:
+                l = os.path.join(os.path.abspath(core.LOG_DIR), path[1])
+                return cherrypy.lib.static.serve_file(l, "application/x-download", "attachment")
+            else:
+                raise cherrypy.HTTPError(400)
         elif page == 'system':
             tasks = {}
             for name, obj in core.scheduler_plugin.task_list.items():
