@@ -56,7 +56,7 @@ class UpdateBase(object):
 
                 core.UPDATING = True
                 core.scheduler_plugin.stop()
-                update = self.manager.execute_update()
+                update = self.execute_update()
                 core.UPDATING = False
 
                 if not update:
