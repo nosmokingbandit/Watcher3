@@ -12,9 +12,10 @@ Every function/method call should start with a log entry unless it simply calls 
 '''
 
 
-def start(path):
+def start(path, stdout=False):
     ''' Starts logging service
     path (str): absolute path to log directory
+    stdout (bool): enable writing of all log entries to stdout as well as the log file <default False>
 
     Does not return
     '''
@@ -31,6 +32,8 @@ def start(path):
     handler.setFormatter(formatter)
     logger = logging.getLogger()
     logger.addHandler(handler)
+    if stdout:
+        logger.addHandler(logging.StreamHandler())
     logger.setLevel(logging_level)
 
     return

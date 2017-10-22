@@ -58,6 +58,8 @@ if __name__ == '__main__':
                         help='Directory in which plugins are stored.', type=str)
     parser.add_argument('--pid',
                         help='Directory in which to store pid file.', type=str)
+    parser.add_argument('--debug', help='Start in Debug mode.',
+                        action='store_true')
     passed_args = parser.parse_args()
 
     # set up db connection
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     from core import log
     if passed_args.log:
         core.LOG_DIR = passed_args.log
-    log.start(core.LOG_DIR)
+    log.start(core.LOG_DIR, passed_args.debug or False)
     logging = logging.getLogger(__name__)
     cherrypy.log.error_log.propagate = True
     cherrypy.log.access_log.propagate = False
