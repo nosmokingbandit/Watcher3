@@ -15,12 +15,13 @@ logmodule = logging
 logging = logging.getLogger(__name__)
 
 
-class Version(object):
+def manager():
+    ''' Gets instance of update manager
 
-    def __init__(self):
-        branch = 'master'
-        self.manager = GitUpdater(branch) if os.path.exists('.git') else ZipUpdater(branch)
-        return
+    Returns obj class instance of manager (Git or Zip)
+    '''
+
+    return GitUpdater('master') if os.path.exists('.git') else ZipUpdater('master')
 
 
 class UpdateBase(object):

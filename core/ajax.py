@@ -42,7 +42,6 @@ class Ajax(object):
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
         self.snatcher = snatcher.Snatcher()
-        self.version = version.Version()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -334,7 +333,7 @@ class Ajax(object):
             [1] dict of core notifications
         '''
 
-        response = self.version.manager.update_check()
+        response = core.updater.update_check()
         if response['status'] == 'current':
             n = [[{'message': _('No updates available.')}, {'type': 'primary'}]]
             return [response, n]
@@ -454,7 +453,7 @@ class Ajax(object):
 
             yield json.dumps({'response': True, 'status': 'updating'})
 
-            update_status = version.Version().manager.execute_update()
+            update_status = core.updater.execute_update()
             core.UPDATING = False
 
             if update_status is False:

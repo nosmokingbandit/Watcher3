@@ -105,8 +105,9 @@ if __name__ == '__main__':
         print(e)
 
     # Finish core application
-    from core import api, config, postprocessing, scheduler
+    from core import api, config, postprocessing, scheduler, version
     from core.app import App
+    core.updater = version.manager()
 
     if passed_args.plugins:
         core.PLUGIN_DIR = passed_args.plugins

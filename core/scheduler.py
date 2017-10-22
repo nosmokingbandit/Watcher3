@@ -9,7 +9,7 @@ import os
 import time
 from base64 import b16encode
 
-from core import searcher, version, notification, postprocessing
+from core import searcher, postprocessing
 from core.rss import imdb, popularmovies
 from core.cp_plugins import taskscheduler
 from core import trakt
@@ -17,7 +17,6 @@ from core.library import Metadata
 
 logging = logging.getLogger(__name__)
 
-ver = version.Version()
 md = Metadata()
 pp = postprocessing.Postprocessing()
 search = searcher.Searcher()
@@ -206,15 +205,13 @@ class AutoUpdateCheck(object):
 
         Creates notification if updates are available.
 
-        Returns dict from core.version.Version.manager.update_check():
+        Returns dict from core.updater.update_check():
             {'status': 'error', 'error': <error> }
             {'status': 'behind', 'behind_count': #, 'local_hash': 'abcdefg', 'new_hash': 'bcdefgh'}
             {'status': 'current'}
         '''
 
-        logging.info('Checking for updates.')
-
-        return ver.manager.update_check(install=install)
+        return core.updater.update_check(install=install)
 
 
 class ImdbRssSync(object):
