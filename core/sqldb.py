@@ -131,8 +131,6 @@ class SQL(object):
             the get_user_movies request may be able to jump in between them to
             get the user's movies to the browser. Maybe.
 
-        Return type will
-
         Returns object sqlalchemy ResultProxy of command, or None if unable to execute
         '''
 

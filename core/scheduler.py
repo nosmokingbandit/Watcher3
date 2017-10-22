@@ -3,8 +3,6 @@ import logging
 
 import cherrypy
 import core
-import glob
-import hashlib
 import os
 import time
 from base64 import b16encode
