@@ -30,9 +30,17 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
     task_list = {}
     record = None
+    record_file = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'tasks.json')
 
-    def __init__(self, bus):
+    def __init__(self, bus, tasks_file=None):
+        '''
+        bus (obj): instance of cherrypy.engine
+        tasks_file (str): absolute path to write json persistence file  <optional>
+
+        If tasks_file is not specified writes to this script's directory
+        '''
         plugins.SimplePlugin.__init__(self, bus)
+        SchedulerPlugin.record_file = tasks_file or SchedulerPlugin.record_file
 
     def start(self):
         ''' Does nothing, but neccesary for plugin subscription '''
@@ -94,8 +102,6 @@ class ScheduledTask(object):
     Does not return
     '''
 
-    persistence_file = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'tasks.json')
-
     lock = None
 
     def __init__(self, hour, minute, interval, task, auto_start=True, name=None):
@@ -110,7 +116,7 @@ class ScheduledTask(object):
 
         if SchedulerPlugin.record is None:
             with self.lock:
-                with open(self.persistence_file, 'a+') as f:
+                with open(SchedulerPlugin.record_file, 'a+') as f:
                     try:
                         f.seek(0)
                         SchedulerPlugin.record = json.load(f)
@@ -280,12 +286,12 @@ class ScheduledTask(object):
         ''' Writes last execution to persistence record
         time (obj): datetime.datetime object of time to write in record
 
-        Stores last execution in persistence file and SchedulerPlugin.record
+        Stores last execution in persistence record file and SchedulerPlugin.record
 
         '''
         self.last_execution = str(le)
         with self.lock:
-            with open(self.persistence_file, 'r+') as f:
+            with open(SchedulerPlugin.record_file, 'r+') as f:
                 p = json.load(f)
                 p[self.name] = {'lastexecution': str(le)}
                 f.seek(0)
