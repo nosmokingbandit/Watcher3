@@ -127,7 +127,9 @@ class AuthController(object):
             logging.warning('Failed login attempt {}:{} from {}'.format(username, password, origin_ip))
             return False
         else:
+            cherrypy.session.acquire_lock()
             cherrypy.session[core.SESSION_KEY] = cherrypy.request.login = username
+            cherrypy.session.release_lock()
             self.on_login(username, origin_ip)
             return True
 
@@ -146,7 +148,9 @@ class AuthController(object):
         '''
 
         username = cherrypy.session.get(core.SESSION_KEY, None)
+        cherrypy.session.acquire_lock()
         cherrypy.session[core.SESSION_KEY] = None
+        cherrypy.session.release_lock()
         if username:
             cherrypy.request.login = None
             if 'X-Forwarded-For' in cherrypy.request.headers:
