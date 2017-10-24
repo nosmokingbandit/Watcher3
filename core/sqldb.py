@@ -790,6 +790,17 @@ class SQL(object):
 
         self.set_version(current_version)
 
+    def dump(self, table):
+        ''' Dump entire table as dict
+        table (str): name of table to dump
+
+        Gets table contents without sorting, fitlering, etc so it can't
+            fail by asking for a column that might not exist yet.
+
+        Returns list of dicts
+        '''
+        return [dict(i) for i in self.execute(['SELECT * FROM {}'.format(table)])]
+
 
 class DatabaseUpdate(object):
     ''' namespace for database update methods
@@ -801,7 +812,7 @@ class DatabaseUpdate(object):
     @staticmethod
     def update_<i>():
 
-        d = DatabaseUpdate.dump(<TABLE>)
+        d = core.sql.dump(<TABLE>)
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -812,17 +823,6 @@ class DatabaseUpdate(object):
         print()
 
     '''
-    @staticmethod
-    def dump(table):
-        ''' Helper method to get dump of table contents
-        table (str): name of table to dump
-
-        Gets table contents without sorting, fitlering, etc so it can't
-            fail by asking for a column that might not exist yet.
-
-        Returns list of dicts
-        '''
-        return [dict(i) for i in core.sql.execute(['SELECT * FROM {}'.format(table)])]
 
     @staticmethod
     def update_0():
@@ -834,7 +834,7 @@ class DatabaseUpdate(object):
         Change 'poster/' to 'posters/' in file path
         '''
 
-        d = DatabaseUpdate.dump('MOVIES')
+        d = core.sql.dump('MOVIES')
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -856,7 +856,7 @@ class DatabaseUpdate(object):
 
         values = []
 
-        d = DatabaseUpdate.dump('MOVIES')
+        d = core.sql.dump('MOVIES')
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -878,7 +878,7 @@ class DatabaseUpdate(object):
     def update_3():
         ''' Clean up search results missing imdbid field '''
 
-        d = DatabaseUpdate.dump('SEARCHRESULTS')
+        d = core.sql.dump('SEARCHRESULTS')
         l = len(d)
 
         for ind, i in enumerate(d):
