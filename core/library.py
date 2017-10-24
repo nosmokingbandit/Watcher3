@@ -599,7 +599,7 @@ class Metadata(object):
         movie['added_date'] = movie.get('added_date', str(datetime.date.today()))
 
         if movie.get('poster_path'):
-            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+            movie['poster'] = '{}.jpg'.format(movie['imdbid'])
         else:
             movie['poster'] = None
 
@@ -708,7 +708,7 @@ class Metadata(object):
 
         if new_data.get('poster_path'):
             poster_path = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
-            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+            movie['poster'] = '{}.jpg'.format(movie['imdbid'])
         else:
             poster_path = None
 
