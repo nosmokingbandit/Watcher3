@@ -29,7 +29,7 @@ def create_plugin():
     Does not return
     '''
     logging.info('Initializing scheduler plugin.')
-    core.scheduler_plugin = SchedulerPlugin(cherrypy.engine)
+    core.scheduler_plugin = SchedulerPlugin(cherrypy.engine, record_handler=record_handler)
     AutoSearch.create()
     AutoUpdateCheck.create()
     ImdbRssSync.create()
@@ -38,6 +38,20 @@ def create_plugin():
     PostProcessingScan.create()
     TraktSync.create()
     core.scheduler_plugin.subscribe()
+
+
+class record_handler(object):
+    @staticmethod
+    def read():
+        return {i['name']: {'last_execution': i['last_execution']} for i in core.sql.dump('TASKS')}
+
+    @staticmethod
+    def write(name, le):
+        if core.sql.row_exists('TASKS', name=name):
+            core.sql.update('TASKS', 'last_execution', le, 'name', name)
+        else:
+            core.sql.write('TASKS', {'last_execution': le, 'name': name})
+        return
 
 
 class PostProcessingScan(object):
