@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 4
+current_version = 5
 
 
 class SQL(object):
@@ -89,6 +89,11 @@ class SQL(object):
                                sqla.Column('url', sqla.TEXT),
                                sqla.Column('caps', sqla.TEXT)
                                )
+        self.TASKS = sqla.Table('TASKS', self.metadata,
+                                sqla.Column('name', sqla.TEXT),
+                                sqla.Column('last_execution', sqla.TEXT)
+                                )
+
         try:
             self.engine = sqla.create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
             if not os.path.isfile(core.DB_FILE):
@@ -890,4 +895,10 @@ class DatabaseUpdate(object):
 
         core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
         print()
+
+    @staticmethod
+    def update_5():
+        ''' Add TASKS table '''
+        core.sql.update_tables()
+
     # Adding a new method? Remember to update the current_version #
