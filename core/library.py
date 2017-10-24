@@ -1043,7 +1043,7 @@ class Manage(object):
 class Poster(object):
 
     def __init__(self):
-        self.poster_folder = 'static/images/posters/'
+        self.poster_folder = os.path.join('userdata', 'posters')
 
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)
@@ -1053,7 +1053,7 @@ class Poster(object):
         imdbid (str): imdb id #
         poster (str): url of poster image.jpg
 
-        Saves poster as watcher/static/images/posters/[imdbid].jpg
+        Saves poster as watcher/userdata/posters/[imdbid].jpg
 
         Does not return
         '''
