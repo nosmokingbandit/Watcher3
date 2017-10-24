@@ -774,7 +774,7 @@ class SQL(object):
         try:
             if not os.path.isdir(backup_dir):
                 os.mkdir(backup_dir)
-            backup_name = 'watcher.sqlite.{}'.format(datetime.date.today())
+            backup_name = '{}.backup-{}'.format(core.DB_FILE, datetime.date.today())
 
             shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup_name))
         except Exception as e:
