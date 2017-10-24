@@ -863,7 +863,8 @@ class DatabaseUpdate(object):
 
             values.append({'imdbid': i['imdbid'], 'sort_title': t})
 
-        core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        if values:
+            core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
         print()
 
     @staticmethod
@@ -893,7 +894,8 @@ class DatabaseUpdate(object):
                 p = i['poster'].split('/')[-1]
                 values.append({'imdbid': i['imdbid'], 'poster': p})
 
-        core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        if values:
+            core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
         print()
 
     @staticmethod
