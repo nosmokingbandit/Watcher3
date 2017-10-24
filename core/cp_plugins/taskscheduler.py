@@ -85,8 +85,6 @@ class SchedulerPlugin(plugins.SimplePlugin):
         SchedulerPlugin.record_handler = record_handler or SchedulerPlugin.record_handler
         SchedulerPlugin.record = record_handler.read()
 
-        print(SchedulerPlugin.record)
-
     def start(self):
         ''' Does nothing, but neccesary for plugin subscription '''
         return
