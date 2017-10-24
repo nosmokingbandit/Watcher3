@@ -540,36 +540,23 @@ class SQL(object):
             logging.error('Unable to read database.')
             return []
 
-    def row_exists(self, TABLE, imdbid='', guid='', downloadid=''):
+    def row_exists(self, TABLE, **cols):
         ''' Checks if row exists in table
         TABLE (str): name of sql table to look through
-        imdbid (str): imdb identification number    <optional - see notes>
-        guid (str): download guid                   <optional - see notes>
-        downloadid (str): downloader id             <optional - see notes>
+        cols (kwargs): idcol/idval to find in table.
 
-        Checks TABLE for imdbid, guid, or downloadid.
-        Exactly one optional variable must be supplied.
+        Checks if any row exists in table where all idcol == idval.
 
         Used to check if we need to add row or update existing row.
 
         Returns Bool
         '''
 
-        if imdbid:
-            idcol = 'imdbid'
-            idval = imdbid
-        elif guid:
-            idcol = 'guid'
-            idval = guid
-        elif downloadid:
-            idcol = 'downloadid'
-            idval = downloadid
-        else:
-            return 'ID ERROR'
+        matches = ['{}="{}"'.format(k, v) for k, v in cols.items()]
 
-        logging.debug('Checking if {}:{} exists in database table {}'.format(idcol, idval, TABLE))
+        logging.debug('Checking if {} exists in database table {}'.format(','.join(matches), TABLE))
 
-        command = ['SELECT 1 FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)]
+        command = ['SELECT 1 FROM {} WHERE {}'.format(TABLE, ' AND '.join(matches))]
 
         row = self.execute(command)
 
