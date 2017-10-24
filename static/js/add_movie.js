@@ -41,7 +41,7 @@ function search_tmdb(event, elem){
             if(movie["poster_path"] != null){
                 var poster_path = movie['poster_url'] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
             } else {
-                var poster_path = url_base + "/static/images/missing_poster.jpg"
+                var poster_path = movie['poster_url'] = url_base + "/static/images/missing_poster.jpg"
             }
 
             movie["year"] = (movie["release_date"] || "N/A").slice(0,4)
