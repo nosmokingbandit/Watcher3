@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 3
+current_version = 4
 
 
 class SQL(object):
@@ -887,4 +887,20 @@ class DatabaseUpdate(object):
                 core.sql.delete('SEARCHRESULTS', 'guid', i['guid'])
         print()
 
+    @staticmethod
+    def update_4():
+        ''' Change MOVIES field 'poster' to just [imdbid].jpg '''
+        values = []
+
+        d = core.sql.dump('MOVIES')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
+            if i['poster']:
+                p = i['poster'].split('/')[-1]
+                values.append({'imdbid': i['imdbid'], 'poster': p})
+
+        core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        print()
     # Adding a new method? Remember to update the current_version #
