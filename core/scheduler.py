@@ -9,7 +9,7 @@ from base64 import b16encode
 
 from core import searcher, postprocessing
 from core.rss import imdb, popularmovies
-from core.cp_plugins import taskscheduler
+from core.cp_plugins.taskscheduler import SchedulerPlugin
 from core import trakt
 from core.library import Metadata
 
@@ -29,7 +29,7 @@ def create_plugin():
     Does not return
     '''
     logging.info('Initializing scheduler plugin.')
-    core.scheduler_plugin = taskscheduler.SchedulerPlugin(cherrypy.engine)
+    core.scheduler_plugin = SchedulerPlugin(cherrypy.engine)
     AutoSearch.create()
     AutoUpdateCheck.create()
     ImdbRssSync.create()
@@ -51,7 +51,7 @@ class PostProcessingScan(object):
         hr = now.hour
         minute = now.minute + interval
 
-        taskscheduler.ScheduledTask(hr, minute, interval, PostProcessingScan.scan_directory, auto_start=conf['enabled'], name='PostProcessing Scan')
+        SchedulerPlugin.ScheduledTask(hr, minute, interval, PostProcessingScan.scan_directory, auto_start=conf['enabled'], name='PostProcessing Scan')
         return
 
     @staticmethod
@@ -64,7 +64,7 @@ class PostProcessingScan(object):
         logging.info('Scanning {} for movies to process.'.format(d))
 
         if conf['newfilesonly']:
-            t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('lastexecution')
+            t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('last_execution')
             if not t:
                 logging.warning('Unable to scan directory, last scan timestamp unknown.')
                 return
@@ -114,7 +114,7 @@ class AutoSearch(object):
         hr = now.hour
         min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
 
-        task_search = taskscheduler.ScheduledTask(hr, min, interval, search.search_all, auto_start=True, name='Movie Search')
+        task_search = SchedulerPlugin.ScheduledTask(hr, min, interval, search.search_all, auto_start=True, name='Movie Search')
 
         # update core.NEXT_SEARCH
         delay = task_search.delay
@@ -134,7 +134,7 @@ class MetadataUpdate(object):
         hr = now.hour
         min = now.minute
 
-        taskscheduler.ScheduledTask(hr, min, interval, MetadataUpdate.metadata_update, auto_start=True, name='Metadata Update')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, MetadataUpdate.metadata_update, auto_start=True, name='Metadata Update')
         return
 
     @staticmethod
@@ -190,7 +190,7 @@ class AutoUpdateCheck(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, AutoUpdateCheck.update_check, auto_start=auto_start, name='Update Checker')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, AutoUpdateCheck.update_check, auto_start=auto_start, name='Update Checker')
         return
 
     @staticmethod
@@ -227,7 +227,7 @@ class ImdbRssSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, imdb.get_rss, auto_start=auto_start, name='IMDB Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, imdb.get_rss, auto_start=auto_start, name='IMDB Sync')
         return
 
 
@@ -245,7 +245,7 @@ class PopularMoviesSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, popular_feed.get_feed, auto_start=auto_start, name='PopularMovies Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, popular_feed.get_feed, auto_start=auto_start, name='PopularMovies Sync')
         return
 
 
@@ -270,5 +270,5 @@ class TraktSync(object):
         else:
             auto_start = False
 
-        taskscheduler.ScheduledTask(hr, min, interval, trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
         return
