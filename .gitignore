@@ -1,8 +1,6 @@
 #  User's Files   #
-*.sqlite
-*.sqlite.*
-config.cfg
-static/images/posters/*
+userdata/*
+!userdata/gitkeep
 logs/*
 watcher.zip
 core/version

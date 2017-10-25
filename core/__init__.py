@@ -9,10 +9,10 @@ logging = logging.getLogger(__name__)
 # Paths to local things
 PROG_PATH = None            # Absolute path to watcher.py parent dir
 SCRIPT_PATH = None          # Absolute path to watcher.py file
-CONF_FILE = 'config.cfg'
+CONF_FILE = os.path.join('userdata', 'config.cfg')
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
-DB_FILE = 'watcher.sqlite'
+DB_FILE = os.path.join('userdata', 'watcher.sqlite')
 THEME = 'Default'
 MAKO_CACHE = 'templates/cache'
 

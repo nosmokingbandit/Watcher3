@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 3
+current_version = 5
 
 
 class SQL(object):
@@ -89,6 +89,11 @@ class SQL(object):
                                sqla.Column('url', sqla.TEXT),
                                sqla.Column('caps', sqla.TEXT)
                                )
+        self.TASKS = sqla.Table('TASKS', self.metadata,
+                                sqla.Column('name', sqla.TEXT),
+                                sqla.Column('last_execution', sqla.TEXT)
+                                )
+
         try:
             self.engine = sqla.create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
             if not os.path.isfile(core.DB_FILE):
@@ -540,36 +545,23 @@ class SQL(object):
             logging.error('Unable to read database.')
             return []
 
-    def row_exists(self, TABLE, imdbid='', guid='', downloadid=''):
+    def row_exists(self, TABLE, **cols):
         ''' Checks if row exists in table
         TABLE (str): name of sql table to look through
-        imdbid (str): imdb identification number    <optional - see notes>
-        guid (str): download guid                   <optional - see notes>
-        downloadid (str): downloader id             <optional - see notes>
+        cols (kwargs): idcol/idval to find in table.
 
-        Checks TABLE for imdbid, guid, or downloadid.
-        Exactly one optional variable must be supplied.
+        Checks if any row exists in table where all idcol == idval.
 
         Used to check if we need to add row or update existing row.
 
         Returns Bool
         '''
 
-        if imdbid:
-            idcol = 'imdbid'
-            idval = imdbid
-        elif guid:
-            idcol = 'guid'
-            idval = guid
-        elif downloadid:
-            idcol = 'downloadid'
-            idval = downloadid
-        else:
-            return 'ID ERROR'
+        matches = ['{}="{}"'.format(k, v) for k, v in cols.items()]
 
-        logging.debug('Checking if {}:{} exists in database table {}'.format(idcol, idval, TABLE))
+        logging.debug('Checking if {} exists in database table {}'.format(','.join(matches), TABLE))
 
-        command = ['SELECT 1 FROM {} WHERE {}="{}"'.format(TABLE, idcol, idval)]
+        command = ['SELECT 1 FROM {} WHERE {}'.format(TABLE, ' AND '.join(matches))]
 
         row = self.execute(command)
 
@@ -774,7 +766,7 @@ class SQL(object):
         try:
             if not os.path.isdir(backup_dir):
                 os.mkdir(backup_dir)
-            backup_name = 'watcher.sqlite.{}'.format(datetime.date.today())
+            backup_name = '{}.backup-{}'.format(core.DB_FILE, datetime.date.today())
 
             shutil.copyfile(core.DB_FILE, os.path.join(backup_dir, backup_name))
         except Exception as e:
@@ -790,6 +782,17 @@ class SQL(object):
 
         self.set_version(current_version)
 
+    def dump(self, table):
+        ''' Dump entire table as dict
+        table (str): name of table to dump
+
+        Gets table contents without sorting, fitlering, etc so it can't
+            fail by asking for a column that might not exist yet.
+
+        Returns list of dicts
+        '''
+        return [dict(i) for i in self.execute(['SELECT * FROM {}'.format(table)])]
+
 
 class DatabaseUpdate(object):
     ''' namespace for database update methods
@@ -801,7 +804,7 @@ class DatabaseUpdate(object):
     @staticmethod
     def update_<i>():
 
-        d = DatabaseUpdate.dump(<TABLE>)
+        d = core.sql.dump(<TABLE>)
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -812,17 +815,6 @@ class DatabaseUpdate(object):
         print()
 
     '''
-    @staticmethod
-    def dump(table):
-        ''' Helper method to get dump of table contents
-        table (str): name of table to dump
-
-        Gets table contents without sorting, fitlering, etc so it can't
-            fail by asking for a column that might not exist yet.
-
-        Returns list of dicts
-        '''
-        return [dict(i) for i in core.sql.execute(['SELECT * FROM {}'.format(table)])]
 
     @staticmethod
     def update_0():
@@ -834,7 +826,7 @@ class DatabaseUpdate(object):
         Change 'poster/' to 'posters/' in file path
         '''
 
-        d = DatabaseUpdate.dump('MOVIES')
+        d = core.sql.dump('MOVIES')
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -856,7 +848,7 @@ class DatabaseUpdate(object):
 
         values = []
 
-        d = DatabaseUpdate.dump('MOVIES')
+        d = core.sql.dump('MOVIES')
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -871,14 +863,15 @@ class DatabaseUpdate(object):
 
             values.append({'imdbid': i['imdbid'], 'sort_title': t})
 
-        core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        if values:
+            core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
         print()
 
     @staticmethod
     def update_3():
         ''' Clean up search results missing imdbid field '''
 
-        d = DatabaseUpdate.dump('SEARCHRESULTS')
+        d = core.sql.dump('SEARCHRESULTS')
         l = len(d)
 
         for ind, i in enumerate(d):
@@ -886,5 +879,28 @@ class DatabaseUpdate(object):
             if not i.get('imdbid') and i.get('guid'):
                 core.sql.delete('SEARCHRESULTS', 'guid', i['guid'])
         print()
+
+    @staticmethod
+    def update_4():
+        ''' Change MOVIES field 'poster' to just [imdbid].jpg '''
+        values = []
+
+        d = core.sql.dump('MOVIES')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
+            if i['poster']:
+                p = i['poster'].split('/')[-1]
+                values.append({'imdbid': i['imdbid'], 'poster': p})
+
+        if values:
+            core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        print()
+
+    @staticmethod
+    def update_5():
+        ''' Add TASKS table '''
+        core.sql.update_tables()
 
     # Adding a new method? Remember to update the current_version #

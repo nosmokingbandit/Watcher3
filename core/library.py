@@ -599,7 +599,7 @@ class Metadata(object):
         movie['added_date'] = movie.get('added_date', str(datetime.date.today()))
 
         if movie.get('poster_path'):
-            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+            movie['poster'] = '{}.jpg'.format(movie['imdbid'])
         else:
             movie['poster'] = None
 
@@ -708,7 +708,7 @@ class Metadata(object):
 
         if new_data.get('poster_path'):
             poster_path = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
-            movie['poster'] = 'images/posters/{}.jpg'.format(movie['imdbid'])
+            movie['poster'] = '{}.jpg'.format(movie['imdbid'])
         else:
             poster_path = None
 
@@ -1043,7 +1043,7 @@ class Manage(object):
 class Poster(object):
 
     def __init__(self):
-        self.poster_folder = 'static/images/posters/'
+        self.poster_folder = os.path.join('userdata', 'posters')
 
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)
@@ -1053,14 +1053,14 @@ class Poster(object):
         imdbid (str): imdb id #
         poster (str): url of poster image.jpg
 
-        Saves poster as watcher/static/images/posters/[imdbid].jpg
+        Saves poster as watcher/userdata/posters/[imdbid].jpg
 
         Does not return
         '''
 
         logging.info('Downloading poster for {}.'.format(imdbid))
 
-        new_poster_path = '{}{}.jpg'.format(self.poster_folder, imdbid)
+        new_poster_path = os.path.join(self.poster_folder, '{}.jpg'.format(imdbid))
 
         if os.path.exists(new_poster_path):
             logging.warning('{} already exists.'.format(new_poster_path))
@@ -1096,7 +1096,7 @@ class Poster(object):
         '''
 
         logging.info('Removing poster for {}'.format(imdbid))
-        path = '{}{}.jpg'.format(self.poster_folder, imdbid)
+        path = os.path.join(self.poster_folder, '{}.jpg'.format(imdbid))
         if os.path.exists(path):
             os.remove(path)
         else:

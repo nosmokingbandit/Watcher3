@@ -254,7 +254,12 @@ function _render_library(movies){
 
         movie["media_release_date"] = (movie["media_release_date"] || "Unannounced")
 
-        movie["poster"] = (movie["poster"] || "images/missing_poster.jpg")
+        if (movie["poster"]){
+            movie["poster"] = "posters/" + movie["poster"]
+        } else {
+            movie["poster"] = "static/images/missing_poster.jpg"
+        }
+
 
         movie["status_translated"] = _(movie["status"])
         $item = $(format_template(template, movie));
