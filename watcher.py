@@ -38,7 +38,7 @@ if __name__ == '__main__':
             locale.setlocale(locale.LC_ALL, 'English_United States.1252')
         except Exception as e:
             logging.warning('Unable to set locale. Date parsing may not work correctly.')
-            print('Unable to set locale. Date parsing may not work correctly.\n')
+            print('\033[33m Unable to set locale. Date parsing may not work correctly.\033[0m')
 
     '''
     This next block of code can be removed some time in the future
@@ -97,10 +97,10 @@ if __name__ == '__main__':
     from core import config
     conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
-        print('Config file not found. Creating new basic config {}. Please review settings.\n'.format(core.CONF_FILE))
+        print('\033[33m Config file not found. Creating new basic config {}. Please review settings. \033[0m'.format(core.CONF_FILE))
         conf.new_config()
     else:
-        print('Config file found, merging any new options.\n')
+        print('Config file found, merging any new options.')
         conf.merge_new_options()
     conf.stash()
 
@@ -115,10 +115,10 @@ if __name__ == '__main__':
 
     # clean mako cache
     try:
-        print('Clearing Mako cache.\n')
+        print('Clearing Mako cache.')
         shutil.rmtree(core.MAKO_CACHE)
     except Exception as e:
-        print('Unable to clear Mako cache.\n')
+        print('Unable to clear Mako cache.')
         print(e)
 
     # Finish core application
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # SSL certs
     if core.CONFIG['Server']['ssl_cert'] and core.CONFIG['Server']['ssl_key']:
         logging.info('SSL Certs are enabled. Server will only be accessible via https.')
-        print('SSL Certs are enabled. Server will only be accessible via https. \n')
+        print('SSL Certs are enabled. Server will only be accessible via https.')
         ssl_conf = {'server.ssl_certificate': core.CONFIG['Server']['ssl_cert'],
                     'server.ssl_private_key': core.CONFIG['Server']['ssl_key'],
                     'tools.https_redirect.on': True
@@ -189,7 +189,7 @@ if __name__ == '__main__':
             m = '''
 Using built-in SSL module. This may result in a large amount of
 logged error messages even though everything is working correctly.
-You may avoid this by installing the pyopenssl module. \n'''
+You may avoid this by installing the pyopenssl module.'''
             print(m)
             logging.info(m)
             pass
