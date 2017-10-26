@@ -30,9 +30,15 @@ class ImdbRss(object):
         Does not return
         '''
 
-        movies = []
+        try:
+            record = json.loads(core.sql.system('imdb_sync_record'))
+        except Exception as e:
+            record = {}
+
         for url in core.CONFIG['Search']['Watchlists']['imdbrss']:
+            movies = []
             if 'rss' not in url:
+                logging.warning('Invalid IMDB RSS feed: {}'.format(url))
                 continue
 
             list_id = ''.join(filter(str.isdigit, url))
@@ -43,15 +49,10 @@ class ImdbRss(object):
                 logging.error('IMDB rss request.', exc_info=True)
                 continue
 
-            lastbuilddate = self.parse_build_date(response)
-
-            if os.path.isfile(self.data_file):
-                with open(self.data_file, 'r') as f:
-                    last_sync = json.load(f).get(list_id) or 'Sat, 01 Jan 2000 00:00:00 GMT'
-            else:
-                last_sync = 'Sat, 01 Jan 2000 00:00:00 GMT'
-
+            last_sync = record.get(list_id, 'Sat, 01 Jan 2000 00:00:00 GMT')
             last_sync = datetime.strptime(last_sync, self.date_format)
+
+            record[list_id] = self.parse_build_date(response)
 
             logging.debug('Last IMDB sync time: {}'.format(last_sync))
 
@@ -67,22 +68,12 @@ class ImdbRss(object):
                         movies.append(i)
                         logging.info('Found new watchlist movie: {} {}'.format(title, imdbid))
 
-            logging.info('Storing last synced date.')
-            if os.path.isfile(self.data_file):
-                with open(self.data_file, 'r+') as f:
-                    date_log = json.load(f)
-                    date_log[list_id] = lastbuilddate
-                    f.seek(0)
-                    json.dump(date_log, f)
-            else:
-                with open(self.data_file, 'w') as f:
-                    date_log = {list_id: lastbuilddate}
-                    json.dump(date_log, f)
-
             if movies:
-                lastbuilddate = self.parse_build_date(response)
                 logging.info('Found {} movies in watchlist {}.'.format(len(movies), list_id))
-                self.sync_new_movies(movies, list_id, lastbuilddate)
+                self.sync_new_movies(movies, list_id)
+
+        logging.info('Storing last synced date.')
+        core.sql.update('SYSTEM', 'data', json.dumps(record), 'name', 'imdb_sync_record')
 
         logging.info('IMDB sync complete.')
 
@@ -120,7 +111,7 @@ class ImdbRss(object):
         for i in root.iter('lastBuildDate'):
             return i.text
 
-    def sync_new_movies(self, new_movies, list_id, lastbuilddate):
+    def sync_new_movies(self, new_movies, list_id):
         ''' Adds new movies from rss feed
         new_movies (list): dicts of movies
         list_id (str): id # of watch list
