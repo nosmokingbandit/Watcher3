@@ -774,7 +774,7 @@ class SQL(object):
             logging.error('Copying SQL DB.', exc_info=True)
             raise
 
-        for i in range(v, current_version + 1):
+        for i in range(v + 1, current_version + 1):
             logging.info('Executing Database Update {}'.format(i))
             print('Executing database update {}'.format(i))
             m = getattr(DatabaseUpdate, 'update_{}'.format(i))
