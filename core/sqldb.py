@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 5
+current_version = 6
 
 
 class SQL(object):
@@ -93,6 +93,10 @@ class SQL(object):
                                 sqla.Column('name', sqla.TEXT),
                                 sqla.Column('last_execution', sqla.TEXT)
                                 )
+        self.SYSTEM = sqla.Table('SYSTEM', self.metadata,
+                                 sqla.Column('name', sqla.TEXT, primary_key=True),
+                                 sqla.Column('data', sqla.TEXT)
+                                 )
 
         try:
             self.engine = sqla.create_engine(DB_NAME, echo=False, connect_args={'timeout': 30})
@@ -793,6 +797,22 @@ class SQL(object):
         '''
         return [dict(i) for i in self.execute(['SELECT * FROM {}'.format(table)])]
 
+    def system(self, name):
+        ''' Gets 'data' column from SYSTEM table for name
+        name (str): identify row to return 'data' column from
+
+        Returns str
+        '''
+
+        cmd = 'SELECT data FROM SYSTEM WHERE name="{}"'.format(name)
+
+        result = self.execute([cmd])
+
+        if result:
+            return result.fetchone()[0]
+        else:
+            return None
+
 
 class DatabaseUpdate(object):
     ''' namespace for database update methods
@@ -902,5 +922,11 @@ class DatabaseUpdate(object):
     def update_5():
         ''' Add TASKS table '''
         core.sql.update_tables()
+
+    @staticmethod
+    def update_6():
+        ''' Add SYSTEM table and imdb_sync_record'''
+        core.sql.update_tables()
+        core.sql.write('SYSTEM', {'name': 'imdb_sync_record', 'data': '{}'})
 
     # Adding a new method? Remember to update the current_version #
