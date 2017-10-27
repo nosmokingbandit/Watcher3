@@ -18,6 +18,7 @@ class Postprocessing(object):
     def __init__(self):
         self.snatcher = snatcher.Snatcher()
         self.metadata = library.Metadata()
+        shutil.copystat = self.null
 
     def null(*args, **kwargs):
         return
@@ -458,8 +459,8 @@ class Postprocessing(object):
         if config['cleanupenabled']:
             result['tasks']['cleanup'] = {'enabled': True}
 
-            if config['movermethod'] in ('hardlink', 'symboliclink'):
-                logging.info('File linking enabled -- skipping Cleanup.')
+            if config['movermethod'] in ('copy', 'hardlink', 'symboliclink'):
+                logging.info('File copy or linking enabled -- skipping Cleanup.')
                 result['tasks']['cleanup']['response'] = None
                 return result
 
@@ -622,7 +623,6 @@ class Postprocessing(object):
         try:
             if os.path.isfile(os.path.join(recycle_bin, file_name)):
                 os.remove(os.path.join(recycle_bin, file_name))
-            shutil.copystat = self.null
             shutil.move(abs_filepath, recycle_bin)
             return True
         except Exception as e:
@@ -734,10 +734,16 @@ class Postprocessing(object):
             except Exception as e:
                 logging.error('Mover failed: Unable to create hardlink.', exc_info=True)
                 return ''
+        elif config['movermethod'] == 'copy':
+            logging.info('Copying {} to {}.'.format(data['movie_file'], new_file_location))
+            try:
+                shutil.copy(data['movie_file'], new_file_location)
+            except Exception as e:
+                logging.error('Mover failed: Unable to copy movie.', exc_info=True)
+                return ''
         else:
             logging.info('Moving {} to {}'.format(current_file_path, target_folder))
             try:
-                shutil.copystat = self.null
                 shutil.move(current_file_path, target_folder)
             except Exception as e:
                 logging.error('Mover failed: Could not move file.', exc_info=True)
@@ -756,7 +762,7 @@ class Postprocessing(object):
         keep_extensions = [i for i in config['moveextensions'].split(',') if i != '']
 
         if len(keep_extensions) > 0:
-            logging.info('Moving addition files with extensions {}.'.format(','.join(keep_extensions)))
+            logging.info('Moving additional files with extensions {}.'.format(','.join(keep_extensions)))
             renamer_string = config['renamerstring']
             new_name = self.compile_path(renamer_string, data)
 

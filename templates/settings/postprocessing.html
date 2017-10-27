@@ -94,6 +94,7 @@
                     <label>${_('Move Method')}</label>
                     <select class="form-control select-sm" id="movermethod" value="${config['movermethod']}">
                         <option value="move">${_('Move')}</option>
+                        <option value="copy">${_('Copy')}</option>
                         <option value="hardlink">${_('Hardlink')}</option>
                         <option value="symboliclink" ${'disabled=true' if os == 'windows' else ''}>${_('Symbolic Link')}</option>
                     </select>
