@@ -8,7 +8,12 @@ $(document).ready(function(){
 
         show_notifications(notifs);
     }
+
+    Socket = new WebSocket('ws://localhost:9090/ws');
+    Socket.onmessage = function(m){console.log('***', m)}
+    Socket.onopen = function(event, m){console.log('*', event)}
 });
+
 
 function show_notifications(notifs){
     /* Shows notifications in DOM
