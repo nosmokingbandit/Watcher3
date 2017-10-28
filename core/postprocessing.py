@@ -13,7 +13,6 @@ logging = logging.getLogger(__name__)
 
 
 class Postprocessing(object):
-    exposed = True
 
     def __init__(self):
         self.snatcher = snatcher.Snatcher()
@@ -25,7 +24,7 @@ class Postprocessing(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def POST(self, **data):
+    def default(self, **data):
         ''' Handles post-processing requests.
         **data: keyword params send through POST request payload
 

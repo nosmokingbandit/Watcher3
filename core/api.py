@@ -108,14 +108,14 @@ Major version changes can be expected to break api interactions
 
 
 class API(object):
-    exposed = True
 
     def __init__(self):
         self.tmdb = TMDB()
         return
 
+    @cherrypy.expose()
     @cherrypy.tools.json_out()
-    def GET(self, **params):
+    def default(self, **params):
         ''' Get handler for API calls
 
         params: kwargs must inlcude {'apikey': $, 'mode': $}

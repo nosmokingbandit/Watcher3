@@ -1,7 +1,8 @@
 import cherrypy
 import core
-from core import ajax, scheduler, plugins, localization
+from core import ajax, scheduler, plugins, localization, api
 from core.auth import AuthController
+from core.postprocessing import Postprocessing
 import os
 import json
 from mako.template import Template
@@ -14,10 +15,12 @@ locale_dir = os.path.join(core.PROG_PATH, 'locale')
 
 class App(object):
 
-    auth = AuthController()
-
     @cherrypy.expose
     def __init__(self):
+        self.auth = AuthController()
+        self.postprocessing = Postprocessing()
+        self.api = api.API()
+
         if core.CONFIG['Server']['authrequired']:
             self._cp_config = {
                 'auth.require': []

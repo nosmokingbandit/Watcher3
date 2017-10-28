@@ -122,7 +122,7 @@ if __name__ == '__main__':
         print(e)
 
     # Finish core application
-    from core import api, config, postprocessing, scheduler, version
+    from core import config, scheduler, version
     from core.app import App
     core.updater = version.manager()
 
@@ -149,20 +149,6 @@ if __name__ == '__main__':
                                u'{}/'.format(core.URL_BASE),
                                'core/conf_app.ini'
                                )
-    cherrypy.tree.mount(api.API(),
-                        u'{}/api'.format(core.URL_BASE),
-                        'core/conf_api.ini'
-                        )
-
-    cherrypy.tree.mount(postprocessing.Postprocessing(),
-                        u'{}/postprocessing'.format(core.URL_BASE),
-                        'core/conf_postprocessing.ini'
-                        )
-
-    cherrypy.tree.mount(App.auth,
-                        u'{}/auth'.format(core.URL_BASE),
-                        'core/conf_auth.ini'
-                        )
 
     # if everything goes well so far, open the browser
     if passed_args.browser or core.CONFIG['Server']['launchbrowser']:
