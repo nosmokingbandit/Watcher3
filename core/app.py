@@ -9,15 +9,7 @@ from mako.template import Template
 import sys
 import time
 
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from ws4py.websocket import WebSocket
-from ws4py.messaging import TextMessage
-
-WebSocketPlugin(cherrypy.engine).subscribe()
-cherrypy.tools.websocket = WebSocketTool()
-
-
-SUBSCRIBERS = set()
+locale_dir = os.path.join(core.PROG_PATH, 'locale')
 
 
 class App(object):
@@ -42,10 +34,6 @@ class App(object):
 
         if core.CONFIG['Server']['checkupdates']:
             scheduler.AutoUpdateCheck.update_check(install=False)
-
-    @cherrypy.expose
-    def ws(self):
-        return
 
     def https_redirect(self=None):
         ''' Cherrypy tool to redirect http:// to https://
@@ -232,18 +220,3 @@ class App(object):
     def nav_bar(self, current=None):
         show_logout = True if cherrypy.session.get(core.SESSION_KEY) else False
         return App.navbar_template.render(url_base=core.URL_BASE, current=current, show_logout=show_logout)
-
-
-class ChatWebSocketHandler(WebSocket):
-
-    def __init__(self, *args, **kwargs):
-        WebSocket.__init__(self, *args, **kwargs)
-        SUBSCRIBERS.add(self)
-
-    @cherrypy.tools.json_in()
-    def received_message(self, msg):
-        self.send('THIS IS A RESPONSE')
-
-    def closed(self, code, reason="A client left the room without a proper explanation."):
-        SUBSCRIBERS.remove(self)
-        cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))
