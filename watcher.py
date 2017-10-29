@@ -4,28 +4,27 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'li
 
 MIN_PYTHON = (3, 0, 0)
 if sys.version_info < MIN_PYTHON:
-    print('Python {} or newer required.'.format(MIN_PYTHON))
+    print('Python {} or newer required.'.format('.'.join(MIN_PYTHON)))
     sys.exit(1)
 
-import core
+import core         # noqa
 core.PROG_PATH = os.path.dirname(os.path.realpath(__file__))
 os.chdir(core.PROG_PATH)
 core.SCRIPT_PATH = os.path.join(core.PROG_PATH, os.path.basename(__file__))
-
-import argparse
-import locale
-import logging
-import webbrowser
-import shutil
-
-import cherrypy
-from cherrypy.process.plugins import Daemonizer, PIDFile
-
 if os.name == 'nt':
     core.PLATFORM = 'windows'
     from core.cp_plugins import systray
 else:
     core.PLATFORM = '*nix'
+
+import argparse     # noqa
+import locale       # noqa
+import logging      # noqa
+import webbrowser   # noqa
+import shutil       # noqa
+
+import cherrypy     # noqa
+from cherrypy.process.plugins import Daemonizer, PIDFile    # noqa
 
 if __name__ == '__main__':
 
@@ -59,41 +58,38 @@ if __name__ == '__main__':
 
     # parse user-passed arguments
     parser = argparse.ArgumentParser(description="Watcher Server App")
-    parser.add_argument('-d', '--daemon', help='Run the server as a daemon.',
-                        action='store_true')
+    parser.add_argument('-d', '--daemon', help='Run the server as a daemon.', action='store_true')
     parser.add_argument('-a', '--address', help='Network address to bind to.')
     parser.add_argument('-p', '--port', help='Port to bind to.', type=int)
-    parser.add_argument('-b', '--browser', help='Open browser on launch.',
-                        action='store_true')
-    parser.add_argument('-c', '--conf', help='Location of config file.',
-                        type=str)
-    parser.add_argument('-l', '--log',
-                        help='Directory in which to create log files.', type=str)
-    parser.add_argument('--db',
-                        help='Absolute path to database file.', type=str)
-    parser.add_argument('--plugins',
-                        help='Directory in which plugins are stored.', type=str)
-    parser.add_argument('--pid',
-                        help='Directory in which to store pid file.', type=str)
-    parser.add_argument('--debug', help='Start in Debug mode.',
-                        action='store_true')
+    parser.add_argument('-b', '--browser', help='Open browser on launch.', action='store_true')
+    parser.add_argument('-c', '--conf', help='Location of config file.', type=str)
+    parser.add_argument('-l', '--log', help='Directory in which to create log files.', type=str)
+    parser.add_argument('--db', help='Absolute path to database file.', type=str)
+    parser.add_argument('--plugins', help='Directory in which plugins are stored.', type=str)
+    parser.add_argument('--pid', help='Directory in which to store pid file.', type=str)
+    parser.add_argument('--debug', help='Start in Debug mode.', action='store_true')
     passed_args = parser.parse_args()
 
-    # set up db connection
-    from core import sqldb, library
     if passed_args.db:
         core.DB_FILE = passed_args.db
     else:
         core.DB_FILE = os.path.join(core.PROG_PATH, core.DB_FILE)
+    if passed_args.conf:
+        core.CONF_FILE = passed_args.conf
+    else:
+        core.CONF_FILE = os.path.join(core.PROG_PATH, core.CONF_FILE)
+    if passed_args.log:
+        core.LOG_DIR = passed_args.log
+    if passed_args.plugins:
+        core.PLUGIN_DIR = passed_args.plugins
+
+    # set up db connection
+    from core import sqldb, library
     core.sql = sqldb.SQL()
     core.sql.update_database()
     core.manage = library.Manage()
 
     # set up config file on first launch
-    if passed_args.conf:
-        core.CONF_FILE = passed_args.conf
-    else:
-        core.CONF_FILE = os.path.join(core.PROG_PATH, core.CONF_FILE)
     from core import config
     conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
@@ -106,8 +102,6 @@ if __name__ == '__main__':
 
     # Set up logging
     from core import log
-    if passed_args.log:
-        core.LOG_DIR = passed_args.log
     log.start(core.LOG_DIR, passed_args.debug or False)
     logging = logging.getLogger(__name__)
     cherrypy.log.error_log.propagate = True
@@ -117,19 +111,16 @@ if __name__ == '__main__':
     try:
         print('Clearing Mako cache.')
         shutil.rmtree(core.MAKO_CACHE)
+    except FileNotFoundError:
+        pass
     except Exception as e:
-        print('Unable to clear Mako cache.')
+        print('\033[31m Unable to clear Mako cache. \033[0m')
         print(e)
 
     # Finish core application
     from core import config, scheduler, version
     from core.app import App
     core.updater = version.manager()
-
-    if passed_args.plugins:
-        core.PLUGIN_DIR = passed_args.plugins
-    if passed_args.pid:
-        PIDFile(cherrypy.engine, passed_args.pid).subscribe()
 
     # Set up server
     if passed_args.address:
@@ -145,20 +136,21 @@ if __name__ == '__main__':
     if core.CONFIG['Server']['customwebroot']:
         core.URL_BASE = core.CONFIG['Server']['customwebrootpath']
 
-    root = cherrypy.tree.mount(App(),
-                               u'{}/'.format(core.URL_BASE),
-                               'core/conf_app.ini'
-                               )
+    root = cherrypy.tree.mount(App(), '{}/'.format(core.URL_BASE), 'core/conf_app.ini')
 
-    # if everything goes well so far, open the browser
-    if passed_args.browser or core.CONFIG['Server']['launchbrowser']:
-        webbrowser.open(u"http://{}:{}{}".format(
-            core.SERVER_ADDRESS, core.SERVER_PORT, core.URL_BASE))
-        logging.info(u'Launching web browser.')
+    # Start plugins
+    if passed_args.daemon:
+        if core.PLATFORM == '*nix':
+            Daemonizer(cherrypy.engine).subscribe()
+        elif core.PLATFORM == 'windows':
+            systrayplugin = systray.SysTrayPlugin(cherrypy.engine)
+            systrayplugin.subscribe()
+            systrayplugin.start()
 
-    # daemonize in *nix if desired
-    if passed_args.daemon and core.PLATFORM == '*nix':
-        Daemonizer(cherrypy.engine).subscribe()
+    scheduler.create_plugin()
+
+    if passed_args.pid:
+        PIDFile(cherrypy.engine, passed_args.pid).subscribe()
 
     # SSL certs
     if core.CONFIG['Server']['ssl_cert'] and core.CONFIG['Server']['ssl_key']:
@@ -181,22 +173,17 @@ You may avoid this by installing the pyopenssl module.'''
             pass
         cherrypy.config.update(ssl_conf)
 
+    # Open browser
+    if passed_args.browser or core.CONFIG['Server']['launchbrowser']:
+        logging.info('Launching web browser.')
+        a = 'localhost' if core.SERVER_ADDRESS == '0.0.0.0' else core.SERVER_ADDRESS
+        webbrowser.open('http://{}:{}{}'.format(a, core.SERVER_PORT, core.URL_BASE))
+
     # start engine
     cherrypy.config.update('core/conf_global.ini')
     cherrypy.engine.signals.subscribe()
     cherrypy.engine.start()
     os.chdir(core.PROG_PATH)  # have to do this for the daemon
-
-    # start scheduler plugin
-    scheduler.create_plugin()
-
-    # If windows os and daemon selected, start systray
-    if passed_args.daemon and core.PLATFORM == 'windows':
-        systrayplugin = systray.SysTrayPlugin(cherrypy.engine)
-        systrayplugin.subscribe()
-        systrayplugin.start()
-
-    # finish by blocking
     cherrypy.engine.block()
 
 # pylama:ignore=E402
