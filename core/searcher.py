@@ -114,8 +114,6 @@ class Searcher():
         Should never run in the main thread.
         Automatically runs as scheduled task.
 
-        Updates core.NEXT_SEARCH time.
-
         Searches only for movies that are Wanted, Found,
             or Finished -- if inside user-set date range.
 
@@ -131,9 +129,7 @@ class Searcher():
         '''
         logging.info('Executing search/grab for all movies.')
 
-        interval = core.CONFIG['Search']['rsssyncfrequency'] * 60
         today = datetime.datetime.today().replace(second=0, microsecond=0)
-        core.NEXT_SEARCH = today + datetime.timedelta(0, interval)
 
         movies = core.sql.get_user_movies()
         if not movies:

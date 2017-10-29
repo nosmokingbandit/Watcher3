@@ -128,12 +128,7 @@ class AutoSearch(object):
         hr = now.hour
         min = now.minute + core.CONFIG['Search']['rsssyncfrequency']
 
-        task_search = SchedulerPlugin.ScheduledTask(hr, min, interval, search.search_all, auto_start=True, name='Movie Search')
-
-        # update core.NEXT_SEARCH
-        delay = task_search.delay
-        now = now.replace(second=0, microsecond=0)
-        core.NEXT_SEARCH = now + datetime.timedelta(0, delay)
+        SchedulerPlugin.ScheduledTask(hr, min, interval, search.search_all, auto_start=True, name='Movie Search')
 
 
 class MetadataUpdate(object):

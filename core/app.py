@@ -179,7 +179,7 @@ class App(object):
                 tasks[name] = {'name': name,
                                'interval': obj.interval,
                                'last_execution': obj.last_execution,
-                               'enabled': obj.timer.is_alive()}
+                               'enabled': obj.timer.is_alive() if obj.timer else False}
 
             system = {'database': {'file': core.DB_FILE,
                                    'size': os.path.getsize(core.DB_FILE) / 1024

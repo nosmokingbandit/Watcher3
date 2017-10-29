@@ -95,7 +95,9 @@ class Ajax(object):
             results = [res for res in results if res.get('type') != 'torrent']
 
         if not results:
-            return {'response': False, 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
+            ne = core.scheduler_plugin.task_list['Movie Search'].next_execution
+            ne = Conversions.human_datetime(ne) if ne else '[Disabled]'
+            return {'response': False, 'next': ne}
         else:
             for i in results:
                 i['size'] = Conversions.human_file_size(i['size'])
@@ -214,9 +216,17 @@ class Ajax(object):
 
             if success:
                 results = core.sql.get_search_results(imdbid, movie['quality'])
+
                 for i in results:
                     i['size'] = Conversions.human_file_size(i['size'])
-                return {'response': True, 'results': results, 'movie_status': status, 'next': Conversions.human_datetime(core.NEXT_SEARCH)}
+
+                r = {'response': True, 'results': results, 'movie_status': status}
+
+                if len(results) == 0:
+                    ne = core.scheduler_plugin.task_list['Movie Search'].next_execution
+                    r['next'] = Conversions.human_datetime(ne) if ne else '[Disabled]'
+
+                return r
             else:
                 return {'response': False, 'error': Errors.database_read.format(imdbid), 'movie_status': status}
 

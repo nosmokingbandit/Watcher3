@@ -85,9 +85,15 @@ class SchedulerPlugin(plugins.SimplePlugin):
         SchedulerPlugin.record_handler = record_handler or SchedulerPlugin.record_handler
         SchedulerPlugin.record = record_handler.read()
 
+        print(SchedulerPlugin.record)
+        print(type(SchedulerPlugin.record))
+
     def start(self):
-        ''' Does nothing, but neccesary for plugin subscription '''
+        for t in self.task_list.values():
+            if t.auto_start:
+                t.start()
         return
+    start.priority = 75
 
     def stop(self):
         ''' Calls task.stop for all tasks in task_list '''
@@ -146,6 +152,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
             interval (int): interval between executions
             running (bool): if assigned task is currently being executed
             last_execution (str): timestamp of last execution formatted as '%Y-%m-%d %H:%M:%S' ('2017-07-23 17:31:40')
+            next_execution (obj): datetime.datetime obj of next execution
 
         Does not return
         '''
@@ -156,6 +163,9 @@ class SchedulerPlugin(plugins.SimplePlugin):
             self.name = name or task.__name__
             self.interval = interval
             self.running = False
+            self.auto_start = auto_start
+            self.timer = None
+            self.next_execution = None
 
             record = SchedulerPlugin.record.get(self.name, {}).get('last_execution', None)
 
@@ -167,13 +177,6 @@ class SchedulerPlugin(plugins.SimplePlugin):
                 le = datetime.today().replace(microsecond=0)
                 self.last_execution = str(le)
                 SchedulerPlugin.record_handler.write(self.name, le)
-
-            self.delay = self._calc_delay(hour, minute, interval)
-
-            self.timer = Timer(self.delay, self._task)
-
-            if auto_start:
-                self.start()
 
             SchedulerPlugin.task_list[self.name] = self
 
@@ -240,6 +243,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
                 logging.info('== Executing Scheduled Task: {} =='.format(self.name))
 
             if restart:
+                self.next_execution = datetime.now().replace(microsecond=0) + timedelta(seconds=self.interval)
                 self.timer = Timer(self.interval, self._task)
                 self.timer.start()
             le = str(datetime.today().replace(microsecond=0))
@@ -249,7 +253,8 @@ class SchedulerPlugin(plugins.SimplePlugin):
             except Exception as e:
                 logging.warning('Scheduled Task {} Failed:'.format(self.name), exc_info=True)
             self.running = False
-            SchedulerPlugin.record[self.name] = self.last_execution = le
+            self.last_execution = le
+            SchedulerPlugin.record[self.name] = {'last_execution': le}
             SchedulerPlugin.record_handler.write(self.name, le)
 
             if manual:
@@ -258,6 +263,10 @@ class SchedulerPlugin(plugins.SimplePlugin):
                 logging.info('== Finished Scheduled Task: {} =='.format(self.name))
 
         def start(self):
+            delay = self._calc_delay(*self._init_args[:3])
+            self.next_execution = datetime.now().replace(microsecond=0) + timedelta(seconds=delay)
+            print(self.next_execution)
+            self.timer = Timer(delay, self._task)
             self.timer.start()
 
         def stop(self):
@@ -268,7 +277,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
             Allows in-process tasks to finish, will not kill thread.
 
             '''
-            if self.timer.is_alive():
+            if self.timer and self.timer.is_alive():
                 logging.info('Stopping scheduled task {}.'.format(self.name))
                 print('Stopping scheduled task: {}'.format(self.name))
                 self.timer.cancel()
@@ -290,9 +299,11 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
             logging.info('Reloading scheduler for {}'.format(self.name))
             try:
-                if self.timer.is_alive():
+                if self.timer and self.timer.is_alive():
                     self.timer.cancel()
                 self.__init__(hr, min, interval, self.task, auto_start=auto_start, name=self.name)
+                if auto_start:
+                    self.start()
                 return True
             except Exception as e:
                 logging.error('Unable to start task', exc_info=True)
@@ -315,6 +326,8 @@ class SchedulerPlugin(plugins.SimplePlugin):
             self.stop()
 
             self.__init__(*self._init_args)
+            if self.auto_start:
+                self.start()
 
         def now(self):
             ''' Stops timer and executes task now
@@ -329,8 +342,11 @@ class SchedulerPlugin(plugins.SimplePlugin):
             if self.running:
                 raise TimerConflictError('The task {} is currently being executed.'.format(self.name))
             else:
-                self.timer.cancel()
-                self._task(restart=self.timer.is_alive())
+                restart = False
+                if self.timer:
+                    self.timer.cancel()
+                    restart = self.timer.is_alive()
+                self._task(restart=restart)
                 return self.last_execution
 
 
