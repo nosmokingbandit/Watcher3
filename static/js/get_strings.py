@@ -4,7 +4,7 @@ import argparse
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-parser = argparse.ArgumentParser(description="")
+parser = argparse.ArgumentParser(description='')
 parser.add_argument('-n', help='Language name.', type=str)
 parser.add_argument('-o', help='Output file name.', type=str)
 parser.add_argument('-v', help='Verbose output.', action='store_true')

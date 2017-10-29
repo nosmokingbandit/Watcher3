@@ -95,10 +95,7 @@ class App(object):
 
     @cherrypy.expose
     def _test(self):
-        h = ''
-        active_tasks = [k for k, v in core.scheduler_plugin.task_list.items() if v.running]
-
-        return ', '.join(active_tasks)
+        return 'This is not the page you are looking for.'
 
     @cherrypy.expose
     def library(self, *path):
@@ -120,15 +117,15 @@ class App(object):
 
             if not subpage:
                 return App.import_template.render(**self.defaults())
-            elif subpage == "couchpotato":
+            elif subpage == 'couchpotato':
                 return App.couchpotato_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
-            elif subpage == "kodi":
+            elif subpage == 'kodi':
                 return App.kodi_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
-            elif subpage == "plex":
+            elif subpage == 'plex':
                 return App.plex_template.render(sources=core.SOURCES, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())
-            elif subpage == "directory":
+            elif subpage == 'directory':
                 try:
-                    start_dir = os.path.expanduser("~")
+                    start_dir = os.path.expanduser('~')
                     file_list = [i for i in os.listdir(start_dir) if os.path.isdir(os.path.join(start_dir, i)) and not i.startswith('.')]
                 except Exception as e:
                     start_dir = core.PROG_PATH
@@ -151,7 +148,7 @@ class App(object):
         page = path[0] if len(path) > 0 else 'server'
 
         if page == 'server':
-            themes = [i[:-4] for i in os.listdir('static/css/themes/') if i.endswith(".css") and os.path.isfile(os.path.join(core.PROG_PATH, 'static/css/themes', i))]
+            themes = [i[:-4] for i in os.listdir('static/css/themes/') if i.endswith('.css') and os.path.isfile(os.path.join(core.PROG_PATH, 'static/css/themes', i))]
             return App.server_template.render(config=core.CONFIG['Server'], themes=themes, version=core.CURRENT_HASH or '', languages=core.LANGUAGES.keys(), **self.defaults())
         elif page == 'search':
             return App.search_template.render(config=core.CONFIG['Search'], **self.defaults())
@@ -173,7 +170,7 @@ class App(object):
         elif page == 'download_log':
             if len(path) > 1:
                 l = os.path.join(os.path.abspath(core.LOG_DIR), path[1])
-                return cherrypy.lib.static.serve_file(l, "application/x-download", "attachment")
+                return cherrypy.lib.static.serve_file(l, 'application/x-download', 'attachment')
             else:
                 raise cherrypy.HTTPError(400)
         elif page == 'system':

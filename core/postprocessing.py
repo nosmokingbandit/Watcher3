@@ -534,7 +534,7 @@ class Postprocessing(object):
         '''
         new_string = string
         for k, v in data.items():
-            k = "{" + k + "}"
+            k = '{' + k + '}'
             if k in new_string:
                 new_string = new_string.replace(k, (v or ''))
 

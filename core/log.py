@@ -28,7 +28,7 @@ def start(path, stdout=False):
     logging_level = logging.DEBUG
 
     formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s.%(funcName)s: %(message)s')
-    handler = logging.handlers.TimedRotatingFileHandler(logfile, when="D", interval=1, backupCount=backup_days, encoding='utf-8')
+    handler = logging.handlers.TimedRotatingFileHandler(logfile, when='D', interval=1, backupCount=backup_days, encoding='utf-8')
     handler.setFormatter(formatter)
     logger = logging.getLogger()
     logger.addHandler(handler)

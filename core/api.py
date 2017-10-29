@@ -205,7 +205,7 @@ class API(object):
         ''' Add movie with default quality settings
         imdbid (str): imdb id #
 
-        Returns str dict) {"status": "success", "message": "X added to wanted list."}
+        Returns str dict) {'status': 'success', 'message': 'X added to wanted list.'}
         '''
 
         origin = cherrypy.request.headers.get('User-Agent', 'API')

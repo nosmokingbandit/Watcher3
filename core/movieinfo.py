@@ -224,7 +224,7 @@ class TMDB(object):
 
 def trailer(title_date):
     ''' Gets trailer embed ID from Youtube.
-    title_date (str): movie title and date ("Movie Title 2016")
+    title_date (str): movie title and date ('Movie Title 2016')
 
     Attempts to connect 3 times in case Youtube is down or not responding
     Can fail if no response is received.
@@ -236,7 +236,7 @@ def trailer(title_date):
 
     search_term = Url.normalize((title_date + '+trailer'))
 
-    url = u"https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}".format(search_term, _k(b'youtube'))
+    url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&key={}'.format(search_term, _k(b'youtube'))
 
     tries = 0
     while tries < 3:

@@ -195,7 +195,7 @@ class Torrent(NewzNabProvider):
 
             core.sql.write('CAPS', {'url': url_base, 'caps': caps})
         except Exception as e:
-            logging.warning("", exc_info=True)
+            logging.warning('', exc_info=True)
             return None
 
         return caps.split(',')

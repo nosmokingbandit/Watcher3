@@ -5,7 +5,7 @@ import os
 import json
 from cherrypy.process import plugins
 
-logging = logging.getLogger("CPTaskScheduler")
+logging = logging.getLogger('CPTaskScheduler')
 
 
 class _Record(object):
@@ -62,7 +62,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
 
     Class Vars:
     task_list (dict): {name (str): class instance (obj)} of ScheduledTask instances.
-    record (dict): {name (str): {'last_execution': "2017-01-01 23:28:00"}}
+    record (dict): {name (str): {'last_execution': '2017-01-01 23:28:00'}}
 
     Requires that each ScheduledTask instance be appended to task_list
 

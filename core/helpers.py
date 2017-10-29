@@ -120,7 +120,7 @@ class Conversions(object):
         ''' Converts datetime object into human-readable format.
         dt (object): datetime object
 
-        Formats date as "Monday, Jan 1st, at 12:00" (24hr time)
+        Formats date as 'Monday, Jan 1st, at 12:00' (24hr time)
 
         Returns str
         '''

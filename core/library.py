@@ -89,27 +89,27 @@ class ImportKodiLibrary(object):
         Returns dict ajax-style response
         '''
 
-        krequest = {"jsonrpc": "2.0",
-                    "method": "VideoLibrary.GetMovies",
-                    "params": {
-                        "limits": {
-                            "start": 0,
-                            "end": 0
+        krequest = {'jsonrpc': '2.0',
+                    'method': 'VideoLibrary.GetMovies',
+                    'params': {
+                        'limits': {
+                            'start': 0,
+                            'end': 0
                         },
-                        "properties": [
-                            "title",
-                            "year",
-                            "imdbnumber",
-                            "file",
-                            "streamdetails"
+                        'properties': [
+                            'title',
+                            'year',
+                            'imdbnumber',
+                            'file',
+                            'streamdetails'
                         ],
-                        "sort": {
-                            "order": "ascending",
-                            "method": "label",
-                            "ignorearticle": True
+                        'sort': {
+                            'order': 'ascending',
+                            'method': 'label',
+                            'ignorearticle': True
                         }
                     },
-                    "id": "libMovies"
+                    'id': 'libMovies'
                     }
 
         logging.info('Retreiving movies from Kodi.')
@@ -542,7 +542,7 @@ class Metadata(object):
             meta_data.pop(i, None)
 
         if len(meta_data) > 3:
-            meta_data["release_name"] = dirname
+            meta_data['release_name'] = dirname
             logging.info('Found {} in filename.'.format(meta_data))
         else:
             logging.debug('Parsing directory name does not look accurate. Parsing file name.')
@@ -801,7 +801,7 @@ class Manage(object):
             return response
         else:
             if poster_path:
-                poster_url = "http://image.tmdb.org/t/p/w300/{}".format(poster_path)
+                poster_url = 'http://image.tmdb.org/t/p/w300/{}'.format(poster_path)
                 threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
