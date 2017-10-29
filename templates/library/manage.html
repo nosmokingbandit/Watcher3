@@ -82,7 +82,7 @@
             <ul id="movie_list" class="striped">
                 %for movie in movies:
                 <% _status = 'Finished' if movie['status'] == 'Disabled' else movie['status'] %>
-                <% _poster = url_base + '/static/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg' %>
+                <% _poster = url_base + '/posters/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg' %>
                  <li class="movie" imdbid="${movie['imdbid']}" data-status="${_status}" data-quality="${movie['quality']}">
                     <img data-echo="${_poster}" src="${url_base}/static/images/missing_poster.jpg">
                     <i class="mdi mdi-checkbox-blank-outline c_box" data-imdbid="${movie['imdbid']}" data-tmdbid="${movie['tmdbid']}" value="False"></i>
