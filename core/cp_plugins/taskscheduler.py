@@ -85,9 +85,6 @@ class SchedulerPlugin(plugins.SimplePlugin):
         SchedulerPlugin.record_handler = record_handler or SchedulerPlugin.record_handler
         SchedulerPlugin.record = record_handler.read()
 
-        print(SchedulerPlugin.record)
-        print(type(SchedulerPlugin.record))
-
     def start(self):
         for t in self.task_list.values():
             if t.auto_start:
@@ -235,12 +232,17 @@ class SchedulerPlugin(plugins.SimplePlugin):
                 access to their last execution time while running.
 
             '''
-            self.running = True
 
             if manual:
                 logging.info('== Executing Task: {} Per User Command =='.format(self.name))
             else:
                 logging.info('== Executing Scheduled Task: {} =='.format(self.name))
+
+            if self.running:
+                logging.warning('Task {} is already running, cancelling execution.')
+                return
+
+            self.running = True
 
             if restart:
                 self.next_execution = datetime.now().replace(microsecond=0) + timedelta(seconds=self.interval)
