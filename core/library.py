@@ -429,7 +429,7 @@ class Metadata(object):
             'source': None,
             'quality': None,
             'path': filepath,
-            'edition': None
+            'edition': []
         }
 
         titledata = self.parse_filename(filepath)
@@ -468,8 +468,10 @@ class Metadata(object):
             data['year'] = tmdbdata['release_date'][:4]
             data.update(tmdbdata)
 
-        if data.get('edition'):
-            data['edition'] = ' '.join(sorted(data['edition']))
+        if data.get('3d'):
+            data['edition'].append('3D')
+
+        data['edition'] = ' '.join(sorted(data['edition']))
 
         return data
 
