@@ -161,7 +161,8 @@ def added(*args):
 
     plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
-    threading.Thread(target=execute, args=(plugins, args)).start()
+    if plugins:
+        threading.Thread(target=execute, args=(plugins, args)).start()
 
     return
 
@@ -181,7 +182,8 @@ def snatched(*args):
 
     plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
-    threading.Thread(target=execute, args=(plugins, args)).start()
+    if plugins:
+        threading.Thread(target=execute, args=(plugins, args)).start()
 
     return
 
@@ -201,7 +203,8 @@ def finished(*args):
 
     plugins = [os.path.join(plugin_dir, i[0]) for i in sorted_plugins if i[1][0]]
 
-    threading.Thread(target=execute, args=(plugins, args)).start()
+    if plugins:
+        threading.Thread(target=execute, args=(plugins, args)).start()
 
     return
 
