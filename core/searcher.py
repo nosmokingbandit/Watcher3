@@ -138,7 +138,7 @@ class Searcher():
         if core.CONFIG['Search']['verifyreleases'] == 'predb':
             self.predb.check_all()
 
-        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] in ('Waiting', 'Wanted', 'Found', 'Finished') and self.verify(i, today=today)]
+        backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] is not 'Disabled' and self.verify(i, today=today)]
         if backlog_movies:
             logging.debug('Backlog movies: {}'.format(', '.join(i['title'] for i in backlog_movies)))
             for movie in backlog_movies:
