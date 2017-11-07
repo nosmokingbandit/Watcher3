@@ -115,7 +115,7 @@ class PostProcessingScan(object):
                  'downloadid': ''
                  }
 
-            pp.POST(**d)
+            pp.default(**d)
 
 
 class AutoSearch(object):
