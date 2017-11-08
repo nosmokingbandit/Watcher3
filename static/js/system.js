@@ -147,8 +147,6 @@ function upload_restore_zip(event, elem){
 
     $input.liteUploader({
         script: url_base + "/ajax/restore_backup",
-        rules: {allowedFileTypes: "application/x-zip-compressed, application/zip, application/octet-stream"}
-
     })
     .on("lu:errors", function (e, errors) {
         if(errors[0]["errors"][0]["type"] == "type"){
