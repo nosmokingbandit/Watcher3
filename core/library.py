@@ -383,7 +383,8 @@ class ImportCPLibrary(object):
             movie['vote_average'] = m['info']['rating']['imdb'][0]
             movie['imdbid'] = m['info']['imdb']
             movie['id'] = m['info']['tmdb_id']
-            movie['release_date'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+            ts = m['info']['release_date'].get('theater')
+            movie['release_date'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d') if ts else None
 
             movie['alternative_titles'] = {'titles': [{'iso_3166_1': 'US',
                                                        'title': ','.join(m['info']['titles'])
