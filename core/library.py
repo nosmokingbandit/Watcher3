@@ -375,19 +375,26 @@ class ImportCPLibrary(object):
 
             movie.setdefault('resolution', 'BluRay-1080P')
 
-            movie['title'] = m['info']['original_title']
-            movie['year'] = m['info']['year']
-            movie['overview'] = m['info']['plot']
-            movie['poster_path'] = '/{}'.format(m['info']['images']['poster_original'][0].split('/')[-1])
-            movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(m['info']['tmdb_id'])
-            movie['vote_average'] = m['info']['rating']['imdb'][0]
-            movie['imdbid'] = m['info']['imdb']
-            movie['id'] = m['info']['tmdb_id']
-            ts = m['info']['release_date'].get('theater')
+            cpm = m['info']
+
+            movie['title'] = cpm.get('original_title', '')
+            movie['year'] = cpm.year('year') if cpm.get('year', 0) != 0 else 'N/A'
+            movie['overview'] = cpm.get('plot', '')
+            p = cpm.get('images', {}).get('poster_original', [''])[0].split('/')[-1]
+            if p:
+                movie['poster_path'] = p
+            else:
+                movie['poster_path'] = None
+
+            movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(cpm.get('tmdb_id', ''))
+            movie['vote_average'] = cpm.get('rating', {}).get('imdb', [0])[0]
+            movie['imdbid'] = cpm.get('imdb', None)
+            movie['id'] = cpm.get('tmdb_id', None)
+            ts = cpm.get('release_date', {}).get('theater', None)
             movie['release_date'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d') if ts else None
 
             movie['alternative_titles'] = {'titles': [{'iso_3166_1': 'US',
-                                                       'title': ','.join(m['info']['titles'])
+                                                       'title': ','.join(cpm.get('titles', []))
                                                        }]
                                            }
             movie['release_dates'] = {'results': []}
