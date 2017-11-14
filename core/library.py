@@ -378,7 +378,7 @@ class ImportCPLibrary(object):
             cpm = m['info']
 
             movie['title'] = cpm.get('original_title', '')
-            movie['year'] = cpm.year('year') if cpm.get('year', 0) != 0 else 'N/A'
+            movie['year'] = cpm.get('year') if cpm.get('year', 0) != 0 else 'N/A'
             movie['overview'] = cpm.get('plot', '')
             p = cpm.get('images', {}).get('poster_original', [''])[0].split('/')[-1]
             if p:
