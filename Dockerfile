@@ -1,10 +1,4 @@
 FROM python:3.6-alpine
-LABEL author="guysp"
-
-# set version label
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_version="Version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 
 # install git
 RUN apk add --no-cache git
