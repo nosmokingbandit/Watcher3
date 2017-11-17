@@ -6,6 +6,8 @@ ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="Version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 
+# install git
+RUN apk add --no-cache git
 # copy app to dockerfile
 COPY . /app/watcher3
 
