@@ -8,6 +8,6 @@ COPY . /app/watcher3
 # ports and volumes
 EXPOSE 9090
 WORKDIR /app/watcher3
-VOLUME /config /downloads /movies
+VOLUME /config /downloads /movies /app/watcher3/userdata
 
 CMD python /app/watcher3/watcher.py -c /config/config.cfg -l /config/logs/ --db /config/database.sqlite --plugins /config/plugins/
