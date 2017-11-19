@@ -352,22 +352,28 @@ class ImportCPLibrary(object):
                 movie['status'] = 'Disabled'
                 for i in m['releases']:
                     if i['status'] == 'done':
-                        name = i['info']['name']
+                        if i.get('info'):
+                            name = i['info']['name'].lower()
+                        elif i.get('identifier'):
+                            name = i['identifier'].lower()
+                        else:
+                            continue
                         title_data = PTN.parse(name)
 
                         movie['audiocodec'] = title_data.get('audio')
                         movie['videocodec'] = title_data.get('codec')
 
-                        movie['size'] = i['info']['size'] * 1024 * 1024
-                        if '4K' in name or 'UHD' in name or '2160P' in name:
+                        movie['size'] = i.get('info', {}).get('size', 0) * 1024 * 1024
+                        if any(i in name for i in ['4K', 'UHD', '2160P']):
                             movie['resolution'] = 'BluRay-4K'
-                        elif '1080' in name:
+                        elif any(i in name for i in ['1080', 'brrip', 'bdrip', 'bluray']):
                             movie['resolution'] = 'BluRay-1080P'
                         elif '720' in name:
                             movie['resolution'] = 'BluRay-720P'
                         else:
                             movie['resolution'] = 'DVD-SD'
                         break
+
                 movie.setdefault('size', 0)
                 movie['quality'] = 'Default'
             else:
