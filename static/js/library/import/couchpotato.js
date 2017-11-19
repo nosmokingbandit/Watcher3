@@ -158,7 +158,7 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} r['movie']['title'].`;
+                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
                 var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
 
                 $progress_text.text(progress_text);
@@ -193,6 +193,4 @@ function import_library(event, elem){
     .always(function(){
         $('a#import_return').slideDown();
     });
-
-
 }
