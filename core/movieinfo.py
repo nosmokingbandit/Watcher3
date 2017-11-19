@@ -230,13 +230,13 @@ class TMDB(object):
         logging.info('Grabbing popular movies from  TheMovieDB')
 
         if section == 'toprated':
-            url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&include_adult=false'
+            url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&include_adult=false&region=US'
         elif section == 'popular':
-            url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&include_adult=false'
+            url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&include_adult=false&region=US'
         elif section == 'nowplaying':
-            url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&include_adult=false'
+            url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&include_adult=false&region=US'
         elif section == 'upcoming':
-            url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&include_adult=false'
+            url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&include_adult=false&region=US'
         elif section == 'recommendation':
             rmovie = core.sql.get_random_movie()
             url = 'https://api.themoviedb.org/3/movie/' + str( rmovie.get('tmdbid')) + '/recommendations?language=en-US&include_adult=false'
