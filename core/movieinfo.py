@@ -221,6 +221,45 @@ class TMDB(object):
             logging.error('Error attempting to get IMDBID from TMDB.', exc_info=True)
             return ''
 
+    def get_suggestions(self, section, tmdbid):
+        ''' get popular movies from TMDB
+
+        Returns list of results
+        '''
+
+        logging.info('Grabbing popular movies from  TheMovieDB')
+
+        if section == 'toprated':
+            url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&include_adult=false'
+        elif section == 'popular':
+            url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&include_adult=false'
+        elif section == 'nowplaying':
+            url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&include_adult=false'
+        elif section == 'upcoming':
+            url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&include_adult=false'
+        elif section == 'recommendation':
+            rmovie = core.sql.get_random_movie()
+            url = 'https://api.themoviedb.org/3/movie/' + str( rmovie.get('tmdbid')) + '/recommendations?language=en-US&include_adult=false'
+        elif section == 'similar':
+            url = 'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '/recommendations?language=en-US&include_adult=false'
+
+        logging.info('grabbing suggestions from TMDB {}'.format(url))
+        url = url + '&api_key={}'.format(_k(b'tmdb'))
+
+        self.use_token()
+
+        try:
+            results = json.loads(Url.open(url).text)
+            if results.get('success') == 'false':
+                return []
+            else:
+                return results['results']
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e:
+            logging.error('Error grabbing popular from  TMDB.', exc_info=True)
+            return []
+
 
 def trailer(title_date):
     ''' Gets trailer embed ID from Youtube.
@@ -250,3 +289,5 @@ def trailer(title_date):
                 logging.error('Unable to get trailer from Youtube.', exc_info=True)
             tries += 1
     return ''
+
+

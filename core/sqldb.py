@@ -813,6 +813,28 @@ class SQL(object):
         else:
             return None
 
+    def get_random_movie(self):
+        ''' Gets random movie id,title
+
+        grabs a random movie id,title
+
+        Returns dict
+        '''
+
+        logging.debug('Retrieving random movie id')
+
+        command = ['SELECT tmdbid,title FROM MOVIES ORDER BY RANDOM() LIMIT 1']
+
+        result = self.execute(command)
+ 
+
+        if result:
+            data = result.fetchone()
+            if data:
+                logging.debug('Retrieved random movie: ' + data[1])
+                return dict(data)
+        return {}
+
 
 class DatabaseUpdate(object):
     ''' namespace for database update methods

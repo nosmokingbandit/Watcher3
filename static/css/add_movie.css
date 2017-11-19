@@ -59,3 +59,12 @@ iframe#trailer {
 div.modal-body p.plot{
     text-indent: 2em;
 }
+
+span.section-title{
+    font-size: 1.2em;
+    text-decoration: underline;
+}
+
+span.sub-section-title{
+    font-size: .7em;
+}

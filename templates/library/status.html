@@ -6,6 +6,7 @@
     <link href="${url_base}/static/css/library/status.css?v=002" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=001" type="text/javascript"></script>
     <script src="${url_base}/static/js/library/status.js?v=005" type="text/javascript"></script>
+    <script src="/static/js/lib/jquery.redirect.js?v=001" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
@@ -169,6 +170,8 @@
                     <div class="modal-footer">
 
                         <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
+                        <a class="btn btn-success" id="sort_direction" onclick="go_similar(event, this, '{tmdbid}', '{title_escape}')">${_('Similar Movies')}</a>
+
                     </div>
                 </div>
             </div>

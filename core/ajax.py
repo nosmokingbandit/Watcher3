@@ -77,6 +77,21 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
+    def get_suggestions(self, section, tmdbid):
+        ''' show movie get_suggestions tmdb
+
+        Returns str json-encoded list of dicts that contain tmdb's data.
+        '''
+
+        try:
+            results = self.tmdb.get_suggestions(section,tmdbid)
+        except:
+            logging.info('No Results found for {}'.format(get_suggestions))
+
+        return results
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_search_results(self, imdbid, quality=None):
         ''' Gets search results for movie
         imdbid (str): imdb id #
