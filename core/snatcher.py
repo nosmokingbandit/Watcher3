@@ -63,7 +63,7 @@ class Snatcher():
                     continue
                 finished_date_obj = datetime.datetime.strptime(finished_date, '%Y-%m-%d')
                 if finished_date_obj + keepsearchingdelta >= today:
-                    minscore = movie['finished_score'] + keepsearchingscore
+                    minscore = movie.get('finished_score', 0) + keepsearchingscore
                     logging.info('{} {} was marked Finished on {}. Checking for a better release (min score {}).'.format(title, year, finished_date, minscore))
                     best = self.best_release(movie, minscore=minscore)
                     if best:
