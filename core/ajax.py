@@ -755,14 +755,10 @@ class Ajax(object):
         fake_results = self.score.score(fake_results, imported=True)
 
         for i in success:
-            score = None
             for r in fake_results:
                 if r['imdbid'] == i['imdbid']:
-                    score = r['score']
+                    core.sql.update('MOVIES', 'finished_score', r['score'], 'imdbid', i['imdbid'])
                     break
-
-            if score:
-                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
         core.sql.write_search_results(fake_results)
 
@@ -891,14 +887,10 @@ class Ajax(object):
         fake_results = self.score.score(fake_results, imported=True)
 
         for i in success:
-            score = None
             for r in fake_results:
                 if r['imdbid'] == i['imdbid']:
-                    score = r['score']
+                    core.sql.update('MOVIES', 'finished_score', r['score'], 'imdbid', i['imdbid'])
                     break
-
-            if score:
-                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
         core.sql.write_search_results(fake_results)
 
@@ -1016,14 +1008,10 @@ class Ajax(object):
             fake_results = self.score.score(fake_results, imported=True)
 
         for i in success:
-            score = None
             for r in fake_results:
                 if r['imdbid'] == i['imdbid']:
-                    score = r['score']
+                    core.sql.update('MOVIES', 'finished_score', r['score'], 'imdbid', i['imdbid'])
                     break
-
-            if score:
-                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
         if fake_results:
             core.sql.write_search_results(fake_results)
@@ -1100,14 +1088,10 @@ class Ajax(object):
         fake_results = self.score.score(fake_results, imported=True)
 
         for i in success:
-            score = None
             for r in fake_results:
                 if r['imdbid'] == i['imdbid']:
-                    score = r['score']
+                    core.sql.update('MOVIES', 'finished_score', r['score'], 'imdbid', i['imdbid'])
                     break
-
-            if score:
-                core.sql.update('MOVIES', 'finished_score', score, 'imdbid', i['imdbid'])
 
         core.sql.write_search_results(fake_results)
     import_cp_movies._cp_config = {'response.stream': True, 'tools.gzip.on': False}
