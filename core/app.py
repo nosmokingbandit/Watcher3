@@ -168,7 +168,7 @@ class App(object):
 
     @cherrypy.expose
     def sugg_recommendation(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='recommendation', section_title='Movie Recommendation', sub_section_title='(*Movie recommendations are based on a random movie from your library)', **self.defaults())
+        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='recommendation', section_title='Loading...', **self.defaults())
 
     @cherrypy.expose
     def sugg_similar(self, tmdbid, title):

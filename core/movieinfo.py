@@ -253,11 +253,15 @@ class TMDB(object):
             if results.get('success') == 'false':
                 return []
             else:
+                if rmovie:
+                    results['results'].append({'rmovie_title': rmovie.get('title')})
+                    logging.debug(json.dumps(results['results'], sort_keys=True,
+                                 indent=4, separators=(',', ': ')))
                 return results['results']
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logging.error('Error grabbing popular from  TMDB.', exc_info=True)
+            logging.error('Error grabbing suggestions from  TMDB.', exc_info=True)
             return []
 
 

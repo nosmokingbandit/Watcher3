@@ -20,7 +20,6 @@ $(document).ready(function(){
         .querySelector('script[data-id="suggestions"][data-tmdbid]')
         .getAttribute('data-tmdbid');
     }
-    console.log('narf' + section);
 
     $.post(url_base + "/ajax/get_suggestions", {
 	"section": section,
@@ -28,6 +27,9 @@ $(document).ready(function(){
     })
     .done(function(results){
         $.each(results, function(ind, movie){
+          if (movie["rmovie_title"] != null){
+               $("#section-title").html("Movie Recommendations based on \"" + movie["rmovie_title"] + "\"");
+          }else{
             if(movie["poster_path"] != null){
                 var poster_path = movie['poster_url'] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
             } else {
@@ -45,6 +47,7 @@ $(document).ready(function(){
             var $li = $(li);
             $li.data("movie", movie);
             $movie_list.append($li)
+           }
         });
 
         $movie_list.css("display", "flex").hide().fadeIn();
