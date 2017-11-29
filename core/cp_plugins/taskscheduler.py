@@ -267,7 +267,6 @@ class SchedulerPlugin(plugins.SimplePlugin):
         def start(self):
             delay = self._calc_delay(*self._init_args[:3])
             self.next_execution = datetime.now().replace(microsecond=0) + timedelta(seconds=delay)
-            print(self.next_execution)
             self.timer = Timer(delay, self._task)
             self.timer.start()
 
