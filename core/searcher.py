@@ -131,12 +131,12 @@ class Searcher():
 
         today = datetime.datetime.today().replace(second=0, microsecond=0)
 
+        if core.CONFIG['Search']['verifyreleases'] == 'predb':
+            self.predb.check_all()
+
         movies = core.sql.get_user_movies()
         if not movies:
             return
-
-        if core.CONFIG['Search']['verifyreleases'] == 'predb':
-            self.predb.check_all()
 
         backlog_movies = [i for i in movies if i['backlog'] != 1 and i['status'] is not 'Disabled' and self.verify(i, today=today)]
         if backlog_movies:
