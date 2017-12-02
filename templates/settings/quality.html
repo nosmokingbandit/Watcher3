@@ -30,9 +30,9 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
                 <div class="panel-body">
                     <ul class="sources sortable">
                         %for src in sources:
-                        <li class="source" data-source="${src}" data-sort="${profile['Sources'][src][1]}">
+                        <li class="source" data-source="${src}" data-sort="${profile['Sources'].get(src, [None, 99])[1]}">
                             <i class="mdi mdi-drag-horizontal sortable_handle"></i>
-                            <i class="mdi mdi-checkbox-blank-outline c_box" value="${profile['Sources'][src][0]}"></i>
+                            <i class="mdi mdi-checkbox-blank-outline c_box" value="${profile['Sources'].get(src, [False, None])[0]}"></i>
                             ${src}
                         </li>
                         %endfor
