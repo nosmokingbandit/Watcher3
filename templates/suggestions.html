@@ -14,8 +14,14 @@
     <body>
         ${navbar}
         <div class="container-fluid">
-
-        <span id="section-title" class="section-title">${section_title}</span>
+		<ul class="nav nav-pills sugg_bar">
+                  <li ${'class="active"' if section == 'popular' else ''}><a href="${url_base}/sugg_popular">Most Popular</a></li>
+                  <li ${'class="active"' if section == 'now_playing' else ''}><a href="${url_base}/sugg_now_playing">Now Playing</a></li>
+                  <li ${'class="active"' if section == 'top_rated' else ''}><a href="${url_base}/sugg_top_rated">Top Rated</a></li>
+                  <li ${'class="active"' if section == 'upcoming' else ''}><a href="${url_base}/sugg_upcoming">Upcoming</a></li>
+                  <li ${'class="active"' if section == 'similar' or section == 'random' else ''}><a href="${url_base}/sugg_similar">Similar</a></li>
+		</ul>
+        <span id="section_title" class="section_title">${section_title}</span>
             <ul id="movies">
             </ul>
         </div>

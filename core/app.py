@@ -6,8 +6,6 @@ from core.postprocessing import Postprocessing
 import os
 import json
 from mako.template import Template
-from tmdbv3api import TMDb
-from tmdbv3api import Movie
 from datetime import datetime, timedelta
 import os.path
 import json
@@ -155,24 +153,25 @@ class App(object):
         return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='popular', section_title='TMDB Most Popular Movies', **self.defaults())
 
     @cherrypy.expose
-    def sugg_nowplaying(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='nowplaying', section_title='Now Playing', **self.defaults())
+    def sugg_now_playing(self):
+        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='now_playing', section_title='Now Playing', **self.defaults())
 
     @cherrypy.expose
-    def sugg_toprated(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='toprated', section_title='TMDB Top Rated Movies', **self.defaults())
+    def sugg_top_rated(self):
+        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='top_rated', section_title='TMDB Top Rated Movies', **self.defaults())
 
     @cherrypy.expose
     def sugg_upcoming(self):
         return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='upcoming', section_title='Upcoming Movies', **self.defaults())
 
     @cherrypy.expose
-    def sugg_recommendation(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='recommendation', section_title='Loading...', **self.defaults())
-
-    @cherrypy.expose
-    def sugg_similar(self, tmdbid, title):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='similar', section_title='Movies Similar To '+title, tmdbid=tmdbid, **self.defaults())
+    def sugg_similar(self, **params):
+        if params:
+            movie = core.sql.get_movie_details('tmdbid', params['tmdbid']);
+            title = movie.get('title');
+            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='similar', section_title='Movies Similar To '+title, tmdbid=params['tmdbid'], **self.defaults())
+        else:
+            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='random', section_title='Loading...', **self.defaults())
 
     @cherrypy.expose
     def settings(self, *path):

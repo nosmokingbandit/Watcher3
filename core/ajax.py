@@ -83,6 +83,7 @@ class Ajax(object):
         Returns str json-encoded list of dicts that contain tmdb's data.
         '''
 
+        results = []
         try:
             results = self.tmdb.get_suggestions(section,tmdbid)
         except:

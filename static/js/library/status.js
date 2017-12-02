@@ -729,8 +729,6 @@ function go_similar(event, elem, tmdbid, title){
         return false;
     }
 
-    $.redirect(url_base+'/sugg_similar', {
-           "tmdbid": tmdbid,
-	   "title": title
-    });
+    window.location.href = url_base+'/sugg_similar?tmdbid=' + tmdbid;
+
 }

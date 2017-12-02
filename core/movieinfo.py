@@ -227,23 +227,24 @@ class TMDB(object):
         Returns list of results
         '''
 
-        logging.info('Grabbing popular movies from  TheMovieDB')
+        rmovie = None
+        logging.info('BOOOOOOOOOOOOOOOOOOOOOM');
+        logging.info(str(type(tmdbid)) + tmdbid);
+        if tmdbid == "0":
+           logging.info('true');
+        else:
+           logging.info('false');
 
-        if section == 'toprated':
-            url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&include_adult=false&region=US'
-        elif section == 'popular':
-            url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&include_adult=false&region=US'
-        elif section == 'nowplaying':
-            url = 'https://api.themoviedb.org/3/movie/now_playing?language=en-US&include_adult=false&region=US'
-        elif section == 'upcoming':
-            url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&include_adult=false&region=US'
-        elif section == 'recommendation':
+        if section == 'random':
             rmovie = core.sql.get_random_movie()
-            url = 'https://api.themoviedb.org/3/movie/' + str( rmovie.get('tmdbid')) + '/recommendations?language=en-US&include_adult=false'
+            tmdbid = str(rmovie.get('tmdbid'))
+            url = 'https://api.themoviedb.org/3/movie/' + str( tmdbid ) + '/recommendations?language=en-US&include_adult=false'
         elif section == 'similar':
-            url = 'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '/recommendations?language=en-US&include_adult=false'
+            url = 'https://api.themoviedb.org/3/movie/' + str( tmdbid ) + '/recommendations?language=en-US&include_adult=false'
+        else:
+            url = 'https://api.themoviedb.org/3/movie/' + section + '?language=en-US&include_adult=false&region=US'
 
-        logging.info('grabbing suggestions from TMDB {}'.format(url))
+        logging.info('grabbing movies from TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
 
         self.use_token()
@@ -257,11 +258,12 @@ class TMDB(object):
                     results['results'].append({'rmovie_title': rmovie.get('title')})
                     logging.debug(json.dumps(results['results'], sort_keys=True,
                                  indent=4, separators=(',', ': ')))
+
                 return results['results']
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logging.error('Error grabbing suggestions from  TMDB.', exc_info=True)
+            logging.error('Error grabbing suggestions from  TMDB: ' + str(e), exc_info=True)
             return []
 
 

@@ -28,7 +28,7 @@ $(document).ready(function(){
     .done(function(results){
         $.each(results, function(ind, movie){
           if (movie["rmovie_title"] != null){
-               $("#section-title").html("Movie Recommendations based on \"" + movie["rmovie_title"] + "\"");
+               $("#section_title").html("Movies similar to \"" + movie["rmovie_title"] + "\"");
           }else{
             if(movie["poster_path"] != null){
                 var poster_path = movie['poster_url'] = "http://image.tmdb.org/t/p/w300" + movie["poster_path"]
