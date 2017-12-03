@@ -396,7 +396,7 @@ class Searcher():
         logging.info('Determining source media for {}'.format(result['title']))
 
         title = result['title']
-        if any(i in title for i in ('4K', 'UHD', '2160P')):
+        if any(i in title.upper() for i in ('4K', 'UHD', '2160P')):
             resolution = '4K'
         elif '1080' in title:
             resolution = '1080P'

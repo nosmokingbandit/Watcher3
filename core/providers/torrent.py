@@ -437,7 +437,7 @@ class LimeTorrents(object):
                 result['size'] = i['size']['$t']
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i['title']['$t']
+                result['title'] = str(i['title']['$t'])
                 result['imdbid'] = imdbid
                 result['indexer'] = 'LimeTorrents'
                 result['info_link'] = i['link']['$t']
@@ -743,7 +743,7 @@ class Torrentz2(object):
                 result['size'] = int(desc[1]) * m
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i['title']['$t']
+                result['title'] = str(i['title']['$t'])
                 result['imdbid'] = imdbid
                 result['indexer'] = 'Torrentz2'
                 result['info_link'] = i['link']['$t']
@@ -1009,7 +1009,7 @@ class TorrentDownloads(object):
                 result['size'] = i['size']['$t']
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = i['title']['$t']
+                result['title'] = str(i['title']['$t'])
                 result['imdbid'] = imdbid
                 result['indexer'] = 'TorrentDownloads'
                 result['info_link'] = 'http://www.torrentdownloads.me{}'.format(i['link']['$t'])
