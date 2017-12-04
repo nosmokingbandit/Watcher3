@@ -49,7 +49,7 @@ class ImdbRss(object):
                 logging.error('IMDB rss request.', exc_info=True)
                 continue
 
-            last_sync = record.get(list_id, 'Sat, 01 Jan 2000 00:00:00 GMT')
+            last_sync = record.get(list_id) or 'Sat, 01 Jan 2000 00:00:00 GMT'
             last_sync = datetime.strptime(last_sync, self.date_format)
 
             record[list_id] = self.parse_build_date(response)
