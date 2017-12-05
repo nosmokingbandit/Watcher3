@@ -463,7 +463,7 @@ class Metadata(object):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
             tmdbdata = self.tmdb.search(title_date, single=True)
             if not tmdbdata:
-                logging.warning('Unable to get data from TheMovieDB for {}'.format(data['imdbid']))
+                logging.warning('Unable to get data from TheMovieDB for {}'.format(data['title']))
                 return data
 
             tmdbdata = tmdbdata[0]
