@@ -517,10 +517,11 @@ class Postprocessing(object):
             logging.info('Changing remote path from {} to {}'.format(path, new_path))
             return new_path
 
-    def compile_path(self, string, data):
+    def compile_path(self, string, data, is_file=False):
         ''' Compiles string to file/path names
         string (str): brace-formatted string to substitue values (ie '/movies/{title}/')
         data (dict): of values to sub into string
+        is_file (bool): if path is a file, false if directory
 
         Takes a renamer/mover path and adds values.
             ie '{title} {year} {resolution}' -> 'Movie 2017 1080P'
@@ -541,11 +542,12 @@ class Postprocessing(object):
         while '  ' in new_string:
             new_string = new_string.replace('  ', ' ')
 
-        new_string = self.map_remote(new_string).strip()
+        if not is_file:
+            new_string = self.map_remote(new_string).strip()
 
         logging.debug('Created path "{}" from "{}"'.format(new_string, string))
 
-        return self.sanitize(new_string)
+        return self.sanitize(new_string, is_file=is_file)
 
     def renamer(self, data):
         ''' Renames movie file based on renamerstring.
@@ -573,7 +575,7 @@ class Postprocessing(object):
         ext = os.path.splitext(abs_path_old)[1]
 
         # get the new file name
-        new_name = self.compile_path(renamer_string, data)
+        new_name = self.compile_path(renamer_string, data, is_file=True)
 
         if not new_name:
             logging.info('New file name would be blank. Cancelling renamer.')
@@ -581,6 +583,7 @@ class Postprocessing(object):
 
         if core.CONFIG['Postprocessing']['replacespaces']:
             new_name = new_name.replace(' ', '.')
+
         new_name = new_name + ext
 
         # new absolute path
@@ -814,7 +817,7 @@ class Postprocessing(object):
             # if it is somehow neither
             return False
 
-    def sanitize(self, string):
+    def sanitize(self, string, is_file=False):
         ''' Sanitize file names and paths
         string (str): to sanitize
 
@@ -826,7 +829,10 @@ class Postprocessing(object):
         config = core.CONFIG['Postprocessing']
         repl = config['replaceillegal']
 
-        string = re.sub(r'["*?<>|]+', repl, string)
+        if is_file:
+            string = re.sub(r'[\/"*?<>|:]+', repl, string)
+        else:
+            string = re.sub(r'["*?<>|]+', repl, string)
 
         drive, path = os.path.splitdrive(string)
         path = path.replace(':', repl)
