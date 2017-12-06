@@ -134,30 +134,24 @@ class Postprocessing(object):
             return path
         else:
             # Find the biggest file in the dir. Assume that this is the movie.
-            try:
-                files = os.listdir(path)
-            except Exception as e:
-                logging.error('Path not found in filesystem. Will be unable to move or rename.',
-                              exc_info=True)
-                return ''
-
-            files = []
-            for root, dirs, filenames in os.walk(path):
-                for file in filenames:
-                    files.append(os.path.join(root, file))
-
-            if files == []:
-                return ''
-
             biggestfile = None
-            s = 0
-            for file in files:
-                size = os.path.getsize(file)
-                if size > s:
-                    biggestfile = file
-                    s = size
+            try:
+                s = 0
+                for root, dirs, filenames in os.walk(path):
+                    for file in filenames:
+                        f = os.path.join(root, file)
+                        logging.debug('Found file {} in postprocessing dir.'.format(f))
+                        size = os.path.getsize(f)
+                        if size > s:
+                            biggestfile = f
+                            s = size
+            except Exception as e:
+                logging.warning('Unable to find file to process.', exc_info=True)
 
-            logging.info('Post-processing file {}.'.format(biggestfile))
+            if biggestfile:
+                logging.info('Largest file in directory {} is {}, processing this file.'.format(path, biggestfile.replace(path, '')))
+            else:
+                logging.warning('Unable to determine largest file. Postprocessing may fail at a later point.')
 
             return biggestfile
 
