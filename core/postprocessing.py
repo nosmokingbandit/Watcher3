@@ -417,20 +417,6 @@ class Postprocessing(object):
         data.update(self.metadata.convert_to_db(data))
         result['data']['original_file'] = result['data']['movie_file']
 
-        # renamer
-        if config['renamerenabled']:
-            result['tasks']['renamer'] = {'enabled': True}
-            new_file_name = self.renamer(data)
-            if new_file_name == '':
-                result['tasks']['renamer']['response'] = False
-            else:
-                path = os.path.split(data['movie_file'])[0]
-                data['movie_file'] = os.path.join(path, new_file_name)
-                result['tasks']['renamer']['response'] = True
-        else:
-            logging.info('Renamer disabled.')
-            result['tasks']['mover'] = {'enabled': False}
-
         # mover
         if config['moverenabled']:
             result['tasks']['mover'] = {'enabled': True}
@@ -443,6 +429,20 @@ class Postprocessing(object):
                 result['tasks']['mover']['response'] = True
         else:
             logging.info('Mover disabled.')
+            result['tasks']['mover'] = {'enabled': False}
+
+        # renamer
+        if config['renamerenabled']:
+            result['tasks']['renamer'] = {'enabled': True}
+            new_file_name = self.renamer(data)
+            if new_file_name == '':
+                result['tasks']['renamer']['response'] = False
+            else:
+                path = os.path.split(data['movie_file'])[0]
+                data['movie_file'] = os.path.join(path, new_file_name)
+                result['tasks']['renamer']['response'] = True
+        else:
+            logging.info('Renamer disabled.')
             result['tasks']['mover'] = {'enabled': False}
 
         if data.get('imdbid'):
