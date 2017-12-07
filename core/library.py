@@ -958,33 +958,33 @@ class Manage(object):
 
         logging.info('Determining appropriate status for movie {}.'.format(imdbid))
 
-        local_details = core.sql.get_movie_details('imdbid', imdbid)
-        if local_details:
-            current_status = local_details.get('status')
+        movie = core.sql.get_movie_details('imdbid', imdbid)
+        if movie:
+            current_status = movie.get('status')
         else:
             return ''
 
         if current_status == 'Disabled':
             return 'Disabled'
 
+        new_status = None
         result_status = core.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
         if 'Finished' in result_status:
-            status = 'Finished'
+            new_status = 'Finished'
         elif 'Snatched' in result_status:
-            status = 'Snatched'
+            new_status = 'Snatched'
         elif 'Available' in result_status:
-            status = 'Found'
-        elif local_details.get('predb') == 'found':
-            status = 'Wanted'
-        else:
-            status = 'Waiting'
+            new_status = 'Found'
 
-        logging.info('Setting MOVIES {} status to {}.'.format(imdbid, status))
-        if core.sql.update('MOVIES', 'status', status, 'imdbid', imdbid):
-            return status
+        if new_status:
+            logging.info('Setting MOVIES {} status to {}.'.format(imdbid, new_status))
+            if core.sql.update('MOVIES', 'status', new_status, 'imdbid', imdbid):
+                return new_status
+            else:
+                logging.error('Could not set {} to {}'.format(imdbid, new_status))
+                return ''
         else:
-            logging.error('Could not set {} to {}'.format(imdbid, status))
-            return ''
+            return 'Wanted' if self.searcher.verify(movie) else 'Waiting'
 
     def get_stats(self):
         ''' Gets stats from database for graphing
