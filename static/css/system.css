@@ -20,3 +20,14 @@ table#tasks i.disabled{
 .progress{
     margin-top: 1.25em;
 }
+
+#donate{
+    padding-top: 2em;
+    font-size: 0.75em;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#donate i{
+    transition: none;
+}
