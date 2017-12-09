@@ -312,6 +312,9 @@ class Score():
         Returns int
         '''
 
+        a = a.replace('&', 'and')
+        b = b.replace('&', 'and')
+
         a_words = Url.normalize(a).split(' ')
         b_words = Url.normalize(b).split(' ')
 
