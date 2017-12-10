@@ -429,6 +429,7 @@ class Postprocessing(object):
                 result['tasks']['mover']['response'] = True
         else:
             logging.info('Mover disabled.')
+            data['finished_file'] = data['movie_file']
             result['tasks']['mover'] = {'enabled': False}
 
         # renamer
