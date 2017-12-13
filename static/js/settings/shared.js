@@ -18,7 +18,7 @@ $(document).ready(function(){
     $("select").each(function(i, elem){
         var $this = $(elem);
         var val = $this.attr('value');
-        $this.children("option[value='"+val+"']").attr('selected', 'selected');
+        $this.children("option[value='"+val+"']").prop('selected', true);
 
     });
 
