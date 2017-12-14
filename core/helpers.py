@@ -44,7 +44,11 @@ class Url(object):
         Returns str
         '''
         s = s.translate(Url.trans)
-        s = ''.join(i for i in s if i not in punctuation)
+        for i in punctuation:
+            s = s.replace(i, ' ')
+        while '  ' in s:
+            s = s.replace('  ', ' ')
+
         s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
 
         return s.lower().strip()
