@@ -116,6 +116,7 @@ class NewzNabProvider(object):
             channel = gdata.data(fromstring(feed))['rss']['channel']
             indexer = channel['title']['$t']
             items = channel['item']
+            assert(type(items) == list)
         except Exception as e:
             logging.error('Unexpected XML format from NewzNab indexer.', exc_info=True)
             return []
