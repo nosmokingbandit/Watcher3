@@ -4,7 +4,7 @@ import datetime
 import time
 import xml.etree.cElementTree as ET
 from xml.etree.cElementTree import fromstring
-from xmljson import gdata
+from xmljson import yahoo
 import core
 from core import proxy
 from core.helpers import Url
@@ -201,7 +201,7 @@ class Torrent(NewzNabProvider):
         try:
             xml = Url.open(url).text
 
-            caps = gdata.data(fromstring(xml))['caps']['searching']['movie-search']['supportedParams']
+            caps = yahoo.data(fromstring(xml))['caps']['searching']['movie-search']['supportedParams']
 
             core.sql.write('CAPS', {'url': url_base, 'caps': caps})
         except Exception as e:
@@ -424,7 +424,7 @@ class LimeTorrents(object):
         logging.info('Parsing LimeTorrents results.')
 
         try:
-            items = gdata.data(fromstring(xml))['rss']['channel']['item']
+            items = yahoo.data(fromstring(xml))['rss']['channel']['item']
         except Exception as e:
             logging.error('Unexpected XML format from LimeTorrents.', exc_info=True)
             return []
@@ -434,13 +434,13 @@ class LimeTorrents(object):
             result = {}
             try:
                 result['score'] = 0
-                result['size'] = i['size']['$t']
+                result['size'] = int(i['size'])
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = str(i['title']['$t'])
+                result['title'] = i['title']
                 result['imdbid'] = imdbid
                 result['indexer'] = 'LimeTorrents'
-                result['info_link'] = i['link']['$t']
+                result['info_link'] = i['link']
                 result['torrentfile'] = i['enclosure']['url']
                 result['guid'] = result['torrentfile'].split('.')[1].split('/')[-1].lower()
                 result['type'] = 'torrent'
@@ -448,7 +448,7 @@ class LimeTorrents(object):
                 result['freeleech'] = 0
                 result['download_client'] = None
 
-                s = i['description']['$t'].split('Seeds: ')[1]
+                s = i['description'].split('Seeds: ')[1]
                 seed_str = ''
                 while s[0].isdigit():
                     seed_str += s[0]
@@ -725,7 +725,7 @@ class Torrentz2(object):
         logging.info('Parsing Torrentz2 results.')
 
         try:
-            items = gdata.data(fromstring(xml))['rss']['channel']['item']
+            items = yahoo.data(fromstring(xml))['rss']['channel']['item']
         except Exception as e:
             logging.error('Unexpected XML format from Torrentz2.', exc_info=True)
             return []
@@ -734,7 +734,7 @@ class Torrentz2(object):
         for i in items:
             result = {}
             try:
-                desc = i['description']['$t'].split(' ')
+                desc = i['description'].split(' ')
                 hash_ = desc[-1]
 
                 m = (1024 ** 2) if desc[2] == 'MB' else (1024 ** 3)
@@ -743,10 +743,10 @@ class Torrentz2(object):
                 result['size'] = int(desc[1]) * m
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = str(i['title']['$t'])
+                result['title'] = i['title']
                 result['imdbid'] = imdbid
                 result['indexer'] = 'Torrentz2'
-                result['info_link'] = i['link']['$t']
+                result['info_link'] = i['link']
                 result['torrentfile'] = magnet(hash_)
                 result['guid'] = hash_
                 result['type'] = 'magnet'
@@ -996,7 +996,7 @@ class TorrentDownloads(object):
         logging.info('Parsing TorrentDownloads results.')
 
         try:
-            items = gdata.data(fromstring(xml))['rss']['channel']['item']
+            items = yahoo.data(fromstring(xml))['rss']['channel']['item']
         except Exception as e:
             logging.error('Unexpected XML format from TorrentDownloads.', exc_info=True)
             return []
@@ -1006,20 +1006,20 @@ class TorrentDownloads(object):
             result = {}
             try:
                 result['score'] = 0
-                result['size'] = i['size']['$t']
+                result['size'] = int(i['size'])
                 result['status'] = 'Available'
                 result['pubdate'] = None
-                result['title'] = str(i['title']['$t'])
+                result['title'] = i['title']
                 result['imdbid'] = imdbid
                 result['indexer'] = 'TorrentDownloads'
-                result['info_link'] = 'http://www.torrentdownloads.me{}'.format(i['link']['$t'])
-                result['torrentfile'] = magnet(i['info_hash']['$t'])
-                result['guid'] = i['info_hash']['$t']
+                result['info_link'] = 'http://www.torrentdownloads.me{}'.format(i['link'])
+                result['torrentfile'] = magnet(i['info_hash'])
+                result['guid'] = i['info_hash']
                 result['type'] = 'magnet'
                 result['downloadid'] = None
                 result['freeleech'] = 0
                 result['download_client'] = None
-                result['seeders'] = int(i['seeders']['$t'])
+                result['seeders'] = int(i['seeders'])
 
                 results.append(result)
             except Exception as e:

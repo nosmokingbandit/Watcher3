@@ -1,5 +1,5 @@
 from xml.etree.cElementTree import fromstring
-from xmljson import gdata
+from xmljson import yahoo
 import urllib.parse
 import logging
 import re
@@ -102,7 +102,7 @@ class NewzNabProvider(object):
         Replaces all namespaces with 'ns', so namespaced attributes are
             accessible with the key '{ns}attr'
 
-        Loads feed with xmljson in gdata format
+        Loads feed with xmljson in yahoo format
         Creates item dict for database table SEARCHRESULTS -- removes unused
             keys and ensures required keys are present (even if blank)
 
@@ -113,8 +113,8 @@ class NewzNabProvider(object):
         feed = re.sub(r'xmlns:([^=]*)=[^ ]*"', r'xmlns:\1="ns"', feed)
 
         try:
-            channel = gdata.data(fromstring(feed))['rss']['channel']
-            indexer = channel['title']['$t']
+            channel = yahoo.data(fromstring(feed))['rss']['channel']
+            indexer = channel['title']
             items = channel['item']
             assert(type(items) == list)
         except Exception as e:
@@ -131,16 +131,16 @@ class NewzNabProvider(object):
                     "download_client": None,
                     "downloadid": None,
                     "freeleech": 1 if item['attr'].get('downloadvolumefactor', 1) == 0 else 0,
-                    "guid": item.get('link', {}).get('$t'),
+                    "guid": item.get('link'),
                     "imdbid": self.imdbid,
                     "indexer": indexer,
-                    "info_link": item.get('guid', {}).get('$t') if item.get('guid', {}).get('isPermaLink') else item.get('comments', {}).get('$t'),
-                    "pubdate": item.get('pubDate', {}).get('$t', '')[5:16],
+                    "info_link": item.get('guid', {}).get('content') if item.get('guid', {}).get('isPermaLink') else item.get('comments'),
+                    "pubdate": item.get('pubDate', '')[5:16],
                     "score": 0,
                     "seeders": 0,
-                    "size": item.get('size', {}).get('$t') or item.get('enclosure', {}).get('length'),
+                    "size": int(item.get('size') or item.get('enclosure', {}).get('length', 0)),
                     "status": "Available",
-                    "title": item.get('title', {}).get('$t') or item.get('description', {}).get('$t'),
+                    "title": item.get('title') or item.get('description'),
                     "torrentfile": None,
                     "type": self.feed_type
                 }
@@ -267,7 +267,7 @@ class NewzNabProvider(object):
             logging.error('Newz/TorzNab connection check.', exc_info=True)
             return {'response': False, 'error': _('No connection could be made because the target machine actively refused it.')}
 
-        error_json = gdata.data(fromstring(response))
+        error_json = yahoo.data(fromstring(response))
 
         e_code = error_json.get('error', {}).get('code')
         if e_code:
