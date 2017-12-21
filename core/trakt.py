@@ -110,6 +110,7 @@ class Trakt(object):
                                 year += i
                         year = int(year)
 
+                        logging.info('Searching TheMovieDatabase for {} {}'.format(title, year))
                         movie = core.manage.tmdb._search_title('{} {}'.format(title, year))[0]
                         if movie:
                             movie['origin'] = 'Trakt'
