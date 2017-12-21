@@ -73,8 +73,10 @@ class ImdbRss(object):
                 self.sync_new_movies(movies, list_id)
 
         logging.info('Storing last synced date.')
-        core.sql.update('SYSTEM', 'data', json.dumps(record), 'name', 'imdb_sync_record')
-
+        if core.sql.row_exists('SYSTEM', name='imdb_sync_record'):
+            core.sql.update('SYSTEM', 'data', json.dumps(record), 'name', 'imdb_sync_record')
+        else:
+            core.sql.write('SYSTEM', {'data': json.dumps(record), 'name': 'imdb_sync_record'})
         logging.info('IMDB sync complete.')
 
     def parse_xml(self, feed):
