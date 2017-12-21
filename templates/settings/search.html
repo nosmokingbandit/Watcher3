@@ -177,6 +177,13 @@
                     <input type="number" id="traktscore" class="form-control" min="0" placeholder="7" value="${config['Watchlists']['traktscore']}">
                 </div>
 
+                <div class="col-md-6">
+                    <label>${_('Trakt Watchlist URLs')}</label>
+                    <input type="text" id="traktrss" class="form-control" placeholder="https://trakt.tv/users/user/lists/movielist.atom?..." value="${config['Watchlists']['traktrss']}" data-toggle="tooltip" title="${_('Separate lists with commas')}">
+                </div>
+
+                <div class="col-md-12"></div>
+
                 <div class="col-md-3">
                     <label>${_('Trakt Lists')}</label>
                     <div class="input-group">
