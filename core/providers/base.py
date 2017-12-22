@@ -134,7 +134,7 @@ class NewzNabProvider(object):
                     "guid": item.get('link'),
                     "imdbid": self.imdbid,
                     "indexer": indexer,
-                    "info_link": item.get('guid', {}).get('content') if item.get('guid', {}).get('isPermaLink') else item.get('comments'),
+                    "info_link": item.get('comments', '').split('#')[0],
                     "pubdate": item.get('pubDate', '')[5:16],
                     "score": 0,
                     "seeders": 0,
@@ -151,7 +151,7 @@ class NewzNabProvider(object):
                         result['guid'] = result['guid'].split('&')[0].split(':')[-1]
                         result['type'] = 'magnet'
 
-                    result['seeders'] = item['attr'].get('seeders')
+                    result['seeders'] = item['attr'].get('seeders', 0)
 
                 results.append(result)
             except Exception as e:
@@ -159,78 +159,6 @@ class NewzNabProvider(object):
                 continue
 
         return results
-
-    def _make_item_dict(self, item):
-        ''' Converts parsed xml into dict.
-        item (object): elementtree parse object of xml information
-
-        Helper function for parse_newznab_xml().
-
-        Creates dict for sql table SEARCHRESULTS. Makes sure all results contain
-            all neccesary keys and nothing else.
-
-        If newznab guid is NOT a permalink, uses the comments link for info_link.
-
-        Gets torrent hash and determines if download is torrent file or magnet uri.
-
-        Returns dict
-        '''
-
-        item_keep = ('title', 'link', 'guid', 'size', 'pubDate', 'comments', 'description')
-        d = {}
-        permalink = True
-        for ic in item:
-            if ic.tag in item_keep:
-                if ic.tag == 'guid' and ic.attrib.get('isPermaLink', 'false') == 'false':
-                    permalink = False
-                d[ic.tag.lower()] = ic.text
-                continue
-            if not d.get('size') and ('newznab' in ic.tag or 'torznab' in ic.tag) and ic.attrib['name'] == 'size':
-                d['size'] = ic.attrib['value']
-            if 'torznab' in ic.tag and ic.attrib['name'] == 'seeders':
-                d['seeders'] = int(ic.attrib['value'])
-                continue
-            if 'torznab' in ic.tag and ic.attrib['name'] == 'downloadvolumefactor':
-                d['freeleech'] = 1 - int(ic.attrib['value'])
-                continue
-            if 'newznab' in ic.tag and ic.attrib['name'] == 'imdb':
-                d['imdbid'] = 'tt{}'.format(ic.attrib['value'])
-
-        if not d.get('title'):
-            d['title'] = d.get('description', "")
-
-        d['size'] = int(d['size'])
-        if not d.get('imdbid'):
-            d['imdbid'] = self.imdbid
-        d['pubdate'] = d['pubdate'][5:16]
-
-        if not permalink:
-            d['info_link'] = d['comments']
-        else:
-            d['info_link'] = d['guid']
-
-        del d['comments']
-        d['guid'] = d['link']
-        del d['link']
-        d['score'] = 0
-        d['status'] = 'Available'
-        d['torrentfile'] = None
-        d['downloadid'] = None
-        d['download_client'] = None
-        if not d.get('freeleech'):
-            d['freeleech'] = 0
-
-        if self.feed_type == 'nzb':
-            d['type'] = 'nzb'
-        else:
-            d['torrentfile'] = d['guid']
-            if d['guid'].startswith('magnet'):
-                d['guid'] = d['guid'].split('&')[0].split(':')[-1]
-                d['type'] = 'magnet'
-            else:
-                d['type'] = 'torrent'
-
-        return d
 
     @staticmethod
     def test_connection(indexer, apikey):
