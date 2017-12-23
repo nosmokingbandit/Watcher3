@@ -170,58 +170,6 @@ class ImportPlexLibrary(object):
     '''
 
     @staticmethod
-    def get_libraries(url, token):
-        ''' Gets list of libraries in server url
-        url (str): url and port of plex server
-        token (str): plex auth token for server
-
-        Returns dict ajax-style response
-        '''
-
-        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
-
-        url = '{}/library/sections'.format(url)
-
-        try:
-            response = Url.open(url, headers=headers)
-            if response.status_code != 200:
-                return {'response', False, 'error', 'Unable to contact Plex server, error {}'.format(response.status_code)}
-            libraries = json.loads(response.text).get('MediaContainer', {}).get('Directory')
-        except Exception as e:
-            logging.error('Unable to contact Plex server.', exc_info=True)
-            return {'response', False, 'error', 'Unable to contact Plex server.'}
-
-        if not libraries:
-            return {'response', False, 'error', 'No libraries found on Plex server.'}
-
-        return {'response': True, 'libraries': libraries}
-
-    @staticmethod
-    def get_movies(url, token, library_key):
-        ''' Get movies from plex library
-        url (str): url of server
-        token (str): plex access token
-        library_key (int): library id #
-
-        Returns dict ajax-style response
-        '''
-
-        headers = {'X-Plex-Token': token, 'Accept': 'application/json'}
-
-        url = '{}/library/sections/{}/all?includeExtras=1'.format(url, library_key)
-
-        try:
-            response = Url.open(url, headers=headers)
-            if response.status_code != 200:
-                return {'response': False, 'error': 'Unable to contact Plex server, error {}'.format(response.status_code)}
-            movies = json.loads(response.text)
-        except Exception as e:
-            logging.error('Unable to contact Plex server.', exc_info=True)
-            return {'response': False, 'error': 'Unable to contact Plex server.'}
-
-        return {'response': True, 'movies': movies}
-
-    @staticmethod
     def read_csv(csv_text):
         ''' Parse plex csv
         csv_text (str): text from csv file
