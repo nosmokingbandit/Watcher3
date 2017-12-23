@@ -111,7 +111,7 @@ class PostProcessingScan(object):
             d = {'apikey': core.CONFIG['Server']['apikey'],
                  'mode': 'complete',
                  'path': i,
-                 'guid': r.get('guid', ''),
+                 'guid': r.get('guid') or '',
                  'downloadid': ''
                  }
 

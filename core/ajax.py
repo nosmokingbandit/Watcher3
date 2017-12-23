@@ -869,7 +869,7 @@ class Ajax(object):
             movie['size'] = 0
             movie['status'] = 'Disabled'
             movie['predb'] = 'found'
-            movie['finished_file'] = movie.get('finished_file', '').strip()
+            movie['finished_file'] = (movie.get('finished_file') or '').strip()
             movie['origin'] = 'Kodi Import'
 
             response = core.manage.add_movie(movie)

@@ -832,7 +832,7 @@ class ThePirateBay(object):
             result = {}
             try:
 
-                result['title'] = i[1][0].text or i[1][0].attrib.get('title', None)
+                result['title'] = i[1][0].text or i[1][0].attrib.get('title')
                 if not result['title']:
                     continue
 

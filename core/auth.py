@@ -37,7 +37,7 @@ def check_auth(*args, **kwargs):
     Does not return
     '''
 
-    conditions = cherrypy.request.config.get('auth.require', None)
+    conditions = cherrypy.request.config.get('auth.require')
     if conditions is not None:
         username = cherrypy.session.get(core.SESSION_KEY)
         if username:

@@ -428,14 +428,12 @@ def generate_simulacrum(movie):
               'downloadid': None,
               'guid': None,
               'resolution': movie.get('resolution'),
-              'size': movie.get('size', ''),
-              'releasegroup': movie.get('releasegroup', ''),
+              'size': movie.get('size') or 0,
+              'releasegroup': movie.get('releasegroup') or '',
               'freeleech': 0
               }
 
-    t = movie.get('release_title', movie['title'])
-
-    title = '{}.{}.{}.{}.{}.{}'.format(t,
+    title = '{}.{}.{}.{}.{}.{}'.format(movie.get('release_title') or movie['title'],
                                        movie['year'],
                                        movie.get('resolution') or '.',  # Kind of a hacky way to make sure it doesn't print None in the title
                                        movie.get('audiocodec') or '.',
@@ -451,7 +449,6 @@ def generate_simulacrum(movie):
 
     result['title'] = title
 
-    fake_guid = 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
-    result['guid'] = movie.get('guid', fake_guid)
+    result['guid'] = movie.get('guid') or 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
 
     return result

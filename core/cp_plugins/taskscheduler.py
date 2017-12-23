@@ -164,7 +164,7 @@ class SchedulerPlugin(plugins.SimplePlugin):
             self.timer = None
             self.next_execution = None
 
-            record = SchedulerPlugin.record.get(self.name, {}).get('last_execution', None)
+            record = SchedulerPlugin.record.get(self.name, {}).get('last_execution')
 
             if record:
                 self.last_execution = record

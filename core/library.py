@@ -383,9 +383,9 @@ class ImportCPLibrary(object):
 
             cpm = m['info']
 
-            movie['title'] = cpm.get('original_title', '')
-            movie['year'] = cpm.get('year') if cpm.get('year', 0) != 0 else 'N/A'
-            movie['overview'] = cpm.get('plot', '')
+            movie['title'] = cpm.get('original_title') or ''
+            movie['year'] = cpm.get('year') or 'N/A'
+            movie['overview'] = cpm.get('plot') or ''
             p = (cpm.get('images', {}).get('poster_original') or [''])[0].split('/')[-1]
             if p:
                 movie['poster_path'] = p
@@ -394,9 +394,9 @@ class ImportCPLibrary(object):
 
             movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(cpm.get('tmdb_id', ''))
             movie['vote_average'] = cpm.get('rating', {}).get('imdb', [0])[0]
-            movie['imdbid'] = cpm.get('imdb', None)
-            movie['id'] = cpm.get('tmdb_id', None)
-            ts = cpm.get('release_date', {}).get('theater', None)
+            movie['imdbid'] = cpm.get('imdb')
+            movie['id'] = cpm.get('tmdb_id')
+            ts = cpm.get('release_date', {}).get('theater')
             movie['release_date'] = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d') if ts else None
 
             movie['alternative_titles'] = {'titles': [{'iso_3166_1': 'US',
@@ -585,7 +585,7 @@ class Metadata(object):
             if any(a.lower() == qual.lower() for a in aliases):
                 meta_data['source'] = source
                 break
-        meta_data['source'] = meta_data.get('source', None)
+        meta_data.setdefault('source', None)
 
         meta_data['releasegroup'] = meta_data.pop('group', None)
 
@@ -613,7 +613,7 @@ class Metadata(object):
         elif not movie.get('year'):
             movie['year'] = 'N/A'
 
-        movie['added_date'] = movie.get('added_date', str(datetime.date.today()))
+        movie.setdefault('added_date', str(datetime.date.today()))
 
         if movie.get('poster_path'):
             movie['poster'] = '{}.jpg'.format(movie['imdbid'])
@@ -622,7 +622,7 @@ class Metadata(object):
 
         movie['plot'] = movie.get('overview') if not movie.get('plot') else movie.get('plot')
         movie['url'] = 'https://www.themoviedb.org/movie/{}'.format(movie.get('id', movie.get('tmdbid')))
-        movie['score'] = movie.get('score', movie.get('vote_average', 0))
+        movie['score'] = movie.get('score') or movie.get('vote_average') or 0
 
         if not movie.get('status'):
             movie['status'] = 'Waiting'
@@ -804,9 +804,9 @@ class Manage(object):
             response['error'] = _('{} already exists in library.').format(movie['title'])
             return response
 
-        movie['quality'] = movie.get('quality', 'Default')
-        movie['status'] = movie.get('status', 'Waiting')
-        movie['origin'] = movie.get('origin', 'Search')
+        movie.setdefault('quality', 'Default')
+        movie.setdefault('status', 'Waiting')
+        movie.setdefault('origin', 'Search')
 
         poster_path = movie.get('poster_path')
 
@@ -891,7 +891,7 @@ class Manage(object):
             search_result['indexer'] = 'Post-Processing Import'
             if not search_result.get('title'):
                 search_result['title'] = movie_info['title']
-            search_result['size'] = os.path.getsize(movie_info.get('orig_filename', '.'))
+            search_result['size'] = os.path.getsize(movie_info.get('orig_filename') or '.')
             if not search_result['resolution']:
                 search_result['resolution'] = 'Unknown'
 
