@@ -171,7 +171,7 @@ class App(object):
             title = movie.get('title');
             return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='similar', section_title='Movies Similar To '+title, tmdbid=params['tmdbid'], **self.defaults())
         else:
-            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='random', section_title='Loading...', **self.defaults())
+            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='random', section_title='', **self.defaults())
 
     @cherrypy.expose
     def settings(self, *path):
