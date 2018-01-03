@@ -196,6 +196,16 @@
                         </span>
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <label>${_('Minimum File Size')}</label>
+                    <div class="input-group">
+                        <input type="number" id="minsize" class="form-control" min="0" placeholder="500" value="${config['Scanner']['minsize']}">
+                        <span class="input-group-addon">
+                            ${_('MB')}
+                        </span>
+                    </div>
+                </div>
             </form>
 
             <h1>${_('Remote Mapping')}</h1>
