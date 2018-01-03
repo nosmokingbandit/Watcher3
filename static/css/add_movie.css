@@ -73,7 +73,6 @@ span.section_title{
   border-radius:0.25em;
 }
 .sugg_bar>li>a.active,
-.sugg_bar>li>a:hover,
 .sugg_bar>li>a:focus {
    background-color: #0066cc;
 }
