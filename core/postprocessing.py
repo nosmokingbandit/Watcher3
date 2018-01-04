@@ -38,11 +38,9 @@ class Postprocessing(object):
             imdbid (str): imdb identification number (tt123456)
             downloadid (str): id number from downloader
 
-
         While processing many variables are produced to track files through renaming, moving, etc
-        Perhaps the most important name is data['movie_file'], which is the current name/location
+        Perhaps the most important name is data['finished_file'], which is the current name/location
             of the file being processed. This is updated when renamed, moved, etc.
-
 
         Returns dict of post-processing tasks and data
         '''
@@ -73,7 +71,7 @@ class Postprocessing(object):
         data['path'] = self.map_remote(data['path'])
 
         # get the actual movie file name
-        data['movie_file'] = self.get_movie_file(data['path'])
+        data['original_file'] = self.get_movie_file(data['path'])
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -221,7 +219,7 @@ class Postprocessing(object):
             logging.info('Unable to find local data for release. Using only data found from file.')
 
         if data:
-            mdata = self.metadata.from_file(data['movie_file'], imdbid=data.get('imdbid'))
+            mdata = self.metadata.from_file(data['original_file'], imdbid=data.get('imdbid'))
             mdata.update(data)
             if not mdata.get('quality'):
                 data['quality'] = 'Default'
@@ -415,21 +413,19 @@ class Postprocessing(object):
         result['tasks']['update_movie_status'] = r
 
         data.update(self.metadata.convert_to_db(data))
-        result['data']['original_file'] = result['data']['movie_file']
 
-        # mover
+        # mover. sets ['finished_file']
         if config['moverenabled']:
             result['tasks']['mover'] = {'enabled': True}
             response = self.mover(data)
             if not response:
                 result['tasks']['mover']['response'] = False
             else:
-                data['movie_file'] = response
                 data['finished_file'] = response
                 result['tasks']['mover']['response'] = True
         else:
             logging.info('Mover disabled.')
-            data['finished_file'] = data['movie_file']
+            data['finished_file'] = data['original_file']
             result['tasks']['mover'] = {'enabled': False}
 
         # renamer
@@ -439,8 +435,8 @@ class Postprocessing(object):
             if new_file_name == '':
                 result['tasks']['renamer']['response'] = False
             else:
-                path = os.path.split(data['movie_file'])[0]
-                data['movie_file'] = os.path.join(path, new_file_name)
+                path = os.path.split(data['finished_file'])[0]
+                data['finished_file'] = os.path.join(path, new_file_name)
                 result['tasks']['renamer']['response'] = True
         else:
             logging.info('Renamer disabled.')
@@ -563,11 +559,10 @@ class Postprocessing(object):
             return ''
 
         # existing absolute path
-        abs_path_old = data['movie_file']
-        file_path = os.path.split(data['movie_file'])[0]
+        path = os.path.split(data['finished_file'])[0]
 
         # get the extension
-        ext = os.path.splitext(abs_path_old)[1]
+        ext = os.path.splitext(data['finished_file'])[1]
 
         # get the new file name
         new_name = self.compile_path(renamer_string, data, is_file=True)
@@ -581,12 +576,9 @@ class Postprocessing(object):
 
         new_name = new_name + ext
 
-        # new absolute path
-        abs_path_new = os.path.join(file_path, new_name)
-
-        logging.info('Renaming {} to {}'.format(os.path.basename(data['movie_file']), new_name))
+        logging.info('Renaming {} to {}'.format(os.path.basename(data['original_file']), new_name))
         try:
-            os.rename(abs_path_old, abs_path_new)
+            os.rename(data['finished_file'], os.path.join(path, new_name))
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
@@ -630,7 +622,7 @@ class Postprocessing(object):
         ''' Removes addtional associated file of movie_file
         movie_file (str): absolute file path of old movie file
 
-        Removes any file in movie_file's directory that share the same file name
+        Removes any file in original_file's directory that share the same file name
 
         Does not cause mover failure on error.
 
@@ -683,7 +675,7 @@ class Postprocessing(object):
             logging.error('Mover failed: Could not create directory {}.'.format(target_folder), exc_info=True)
             return ''
 
-        current_file_path = data['movie_file']
+        current_file_path = data['original_file']
         current_path, file_name = os.path.split(current_file_path)
         # If finished_file exists, recycle or remove
         if data.get('finished_file'):
@@ -722,19 +714,19 @@ class Postprocessing(object):
                 self.remove_additional_files(existing_movie_file)
 
         # Finally the actual move process
-        new_file_location = os.path.join(target_folder, os.path.basename(data['movie_file']))
+        new_file_location = os.path.join(target_folder, os.path.basename(data['original_file']))
 
         if config['movermethod'] == 'hardlink':
             logging.info('Creating hardlink from {} to {}.'.format(data['original_file'], new_file_location))
             try:
-                os.link(data['movie_file'], new_file_location)
+                os.link(data['original_file'], new_file_location)
             except Exception as e:
                 logging.error('Mover failed: Unable to create hardlink.', exc_info=True)
                 return ''
         elif config['movermethod'] == 'copy':
-            logging.info('Copying {} to {}.'.format(data['movie_file'], new_file_location))
+            logging.info('Copying {} to {}.'.format(data['original_file'], new_file_location))
             try:
-                shutil.copy(data['movie_file'], new_file_location)
+                shutil.copy(data['original_file'], new_file_location)
             except Exception as e:
                 logging.error('Mover failed: Unable to copy movie.', exc_info=True)
                 return ''
