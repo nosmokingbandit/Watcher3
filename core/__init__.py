@@ -71,7 +71,7 @@ def restart():
     '''
     cherrypy.engine.stop()
     python = sys.executable
-    args = [SCRIPT_PATH] + sys.argv[1:]
+    args = ['"{}"'.format(SCRIPT_PATH)] + sys.argv[1:]
     p = 'Server stopped -- respawning script as: \n {} {}'.format(python, *args)
     logging.info(p)
     print(p)
