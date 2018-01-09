@@ -39,23 +39,6 @@ if __name__ == '__main__':
             logging.warning('Unable to set locale. Date parsing may not work correctly.')
             print('\033[33m Unable to set locale. Date parsing may not work correctly.\033[0m')
 
-    '''
-    This next block of code can be removed some time in the future
-    This moves user's files to userdata/ if they are found in the original location
-    '''
-
-    for f in ('watcher.sqlite', 'config.cfg'):
-        dst = os.path.join('userdata', f)
-        if not os.path.isfile(f) or os.path.isfile(dst):
-            continue
-        shutil.copy(f, dst)
-        os.remove(f)
-    pd = os.path.join('userdata', 'posters')
-    opd = os.path.join('static', 'images', 'posters')
-    if os.path.isdir(opd) and not os.path.isdir(pd):
-        shutil.copytree(opd, pd)
-        shutil.rmtree(opd)
-
     # parse user-passed arguments
     parser = argparse.ArgumentParser(description='Watcher Server App')
     parser.add_argument('-d', '--daemon', help='Run the server as a daemon.', action='store_true')

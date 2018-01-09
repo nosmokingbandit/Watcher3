@@ -7,13 +7,12 @@ import logging
 logging = logging.getLogger(__name__)
 
 # Paths to local things
-PROG_PATH = None            # Absolute path to watcher.py parent dir
-SCRIPT_PATH = None          # Absolute path to watcher.py file
 CONF_FILE = os.path.join('userdata', 'config.cfg')
+PROG_PATH = None                            # Absolute path to watcher.py parent dir
+SCRIPT_PATH = None                          # Absolute path to watcher.py file
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
 DB_FILE = os.path.join('userdata', 'watcher.sqlite')
-THEME = 'Default'
 MAKO_CACHE = 'templates/cache'
 
 # Paths to internet things
@@ -27,10 +26,10 @@ SERVER_PORT = None
 URL_BASE = ''
 
 # Update info
-UPDATE_STATUS = None        # Dict of git update status ie {'status': 'current'}
-UPDATE_LAST_CHECKED = None  # Obj datetime.datetime.now() when last check executed
-UPDATING = False            # Bool if current running update process
-CURRENT_HASH = None         # Current commit hash of install
+UPDATE_STATUS = None                        # Dict of git update status ie {'status': 'current'}
+UPDATE_LAST_CHECKED = None                  # Obj datetime.datetime.now() when last check executed
+UPDATING = False                            # Bool if current running update process
+CURRENT_HASH = None                         # Current commit hash of install
 
 # Dynamic info
 NEXT_SEARCH = None                          # Obj datetime.datetime.now() + searchfrequency
@@ -45,8 +44,8 @@ LANGUAGES = {}                              # Dict of language name: gettext obj
 LANGUAGE = 'en'                             # Str first two letters of language code
 
 # Rate limiting
-TMDB_TOKENS = 35        # Int begin amount of tokens for TMDB rate limiting
-TMDB_LAST_FILL = None   # Obj datetime.datetime.now() of last time TMDB tokens have been filled
+TMDB_TOKENS = 35                            # Int begin amount of tokens for TMDB rate limiting
+TMDB_LAST_FILL = None                       # Obj datetime.datetime.now() of last time TMDB tokens have been filled
 
 # Global Media Constants
 SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P', 'BluRay-SD',
