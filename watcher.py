@@ -46,6 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--port', help='Port to bind to.', type=int)
     parser.add_argument('-b', '--browser', help='Open browser on launch.', action='store_true')
     parser.add_argument('-c', '--conf', help='Location of config file.', type=str)
+    parser.add_argument('--userdata', help='Userdata dir containing database, config, etc.', type=str)
     parser.add_argument('-l', '--log', help='Directory in which to create log files.', type=str)
     parser.add_argument('--db', help='Absolute path to database file.', type=str)
     parser.add_argument('--plugins', help='Directory in which plugins are stored.', type=str)
@@ -53,6 +54,10 @@ if __name__ == '__main__':
     parser.add_argument('--debug', help='Start in Debug mode.', action='store_true')
     passed_args = parser.parse_args()
 
+    if passed_args.userdata:
+        core.USERDATA = passed_args.userdata
+        core.CONF_FILE = os.path.join(passed_args.userdata, 'config.cfg')
+        core.DB_FILE = os.path.join(passed_args.userdata, 'watcher.sqlite')
     if passed_args.db:
         core.DB_FILE = passed_args.db
     else:

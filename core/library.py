@@ -1008,7 +1008,7 @@ class Manage(object):
 class Poster(object):
 
     def __init__(self):
-        self.poster_folder = os.path.join('userdata', 'posters')
+        self.poster_folder = os.path.join(core.USERDATA, 'posters')
 
         if not os.path.exists(self.poster_folder):
             os.makedirs(self.poster_folder)

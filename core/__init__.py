@@ -7,12 +7,13 @@ import logging
 logging = logging.getLogger(__name__)
 
 # Paths to local things
-CONF_FILE = os.path.join('userdata', 'config.cfg')
 PROG_PATH = None                            # Absolute path to watcher.py parent dir
 SCRIPT_PATH = None                          # Absolute path to watcher.py file
+USERDATA = 'userdata'
+CONF_FILE = os.path.join(USERDATA, 'config.cfg')
+DB_FILE = os.path.join(USERDATA, 'watcher.sqlite')
 LOG_DIR = 'logs'
 PLUGIN_DIR = 'plugins'
-DB_FILE = os.path.join('userdata', 'watcher.sqlite')
 MAKO_CACHE = 'templates/cache'
 
 # Paths to internet things
