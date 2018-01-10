@@ -350,9 +350,10 @@ class Score():
             result_res = result['resolution']
             logging.debug('Scoring and filtering {} based on resolution {}.'.format(result['title'], result_res))
             size = result['size'] / 1000000
-            if result['type'] == 'import' and result['resolution'] == 'Unknown':
+            if result['type'] == 'import' and result['resolution'] not in sources:
                 lst.append(result)
                 continue
+
             for k, v in sources.items():
                 if v[0] is False and result['type'] != 'import':
                     continue
@@ -366,19 +367,13 @@ class Score():
 
                 if result_res == k:
                     logging.debug('{} matches source {}, checking size.'.format(result['title'], k))
-                    if result['type'] == 'import':
-                        result['score'] += abs(priority - score_range) * 40
-                        lst.append(result)
-                        logging.debug('{} is an import, skipping size check.'.format(result['title']))
-                        break
-                    if min_size < size < max_size:
-                        result['score'] += abs(priority - score_range) * 40
-                        lst.append(result)
-                        logging.debug('{} size {} is within range {}-{}.'.format(result['title'], size, min_size, max_size))
-                        break
-                    else:
+
+                    if result['type'] != 'import' and not (min_size < size < max_size):
                         logging.debug('Removing {}, size {} not in range {}-{}.'.format(result['title'], size, min_size, max_size))
                         break
+
+                    result['score'] += abs(priority - score_range) * 40
+                    lst.append(result)
                 else:
                     continue
 
@@ -433,7 +428,7 @@ def generate_simulacrum(movie):
               'freeleech': 0
               }
 
-    title = '{}.{}.{}.{}.{}.{}'.format(movie.get('release_title') or movie['title'],
+    title = '{}.{}.{}.{}.{}.{}'.format(movie['title'],
                                        movie['year'],
                                        movie.get('resolution') or '.',  # Kind of a hacky way to make sure it doesn't print None in the title
                                        movie.get('audiocodec') or '.',
