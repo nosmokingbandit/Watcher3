@@ -6,9 +6,8 @@ import time
 import cherrypy
 import datetime
 import core
-from core import config, library, searchresults, searcher, snatcher, movieinfo, notification, plugins
+from core import config, library, searchresults, searcher, snatcher, movieinfo, notification, plugins, downloaders
 from core.providers import torrent, newznab
-from core.downloaders import nzbget, sabnzbd, transmission, qbittorrent, deluge, rtorrent, blackhole
 from core.helpers import Conversions
 from core.rss import predb
 import backup
@@ -293,22 +292,8 @@ class Ajax(object):
             if not client:
                 logging.info('Download client not found, cannot cancel download.')
                 return response
-            elif client == 'NZBGet':
-                cancelled = nzbget.Nzbget.cancel_download(downloadid)
-            elif client == 'SABnzbd':
-                cancelled = sabnzbd.Sabnzbd.cancel_download(downloadid)
-            elif client == 'QBittorrent':
-                cancelled = qbittorrent.QBittorrent.cancel_download(downloadid)
-            elif client == 'DelugeRPC':
-                cancelled = deluge.DelugeRPC.cancel_download(downloadid)
-            elif client == 'DelugeWeb':
-                cancelled = deluge.DelugeWeb.cancel_download(downloadid)
-            elif client == 'Transmission':
-                cancelled = transmission.Transmission.cancel_download(downloadid)
-            elif client == 'rTorrentSCGI':
-                cancelled = rtorrent.rTorrentSCGI.cancel_download(downloadid)
-            elif client == 'rTorrentHTTP':
-                cancelled = rtorrent.rTorrentHTTP.cancel_download(downloadid)
+            else:
+                cancelled = getattr(downloaders, client).cancel_download(downloadid)
 
             if not cancelled:
                 response['response'] = False
@@ -366,24 +351,7 @@ class Ajax(object):
 
         data = json.loads(data)
 
-        if mode == 'sabnzbd':
-            test = sabnzbd.Sabnzbd.test_connection(data)
-        elif mode == 'nzbget':
-            test = nzbget.Nzbget.test_connection(data)
-        elif mode == 'blackhole':
-            test = blackhole.Base.test_connection(data)
-        elif mode == 'transmission':
-            test = transmission.Transmission.test_connection(data)
-        elif mode == 'delugerpc':
-            test = deluge.DelugeRPC.test_connection(data)
-        elif mode == 'delugeweb':
-            test = deluge.DelugeWeb.test_connection(data)
-        elif mode == 'qbittorrent':
-            test = qbittorrent.QBittorrent.test_connection(data)
-        elif mode == 'rtorrentscgi':
-            test = rtorrent.rTorrentSCGI.test_connection(data)
-        elif mode == 'rtorrenthttp':
-            test = rtorrent.rTorrentHTTP.test_connection(data)
+        test = getattr(downloaders, mode).test_connection(data)
 
         if test is True:
             response['response'] = True

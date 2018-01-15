@@ -2,10 +2,10 @@ import logging
 import datetime
 import urllib.parse
 import core
-import os
 from core import plugins
-from core.downloaders import deluge, qbittorrent, nzbget, sabnzbd, transmission, rtorrent, blackhole
+from core import downloaders
 from core.helpers import Torrent
+
 logging = logging.getLogger(__name__)
 
 
@@ -201,65 +201,24 @@ class Snatcher():
         imdbid = data['imdbid']
         title = data['title']
 
-        # If sending to SAB
-        sab_conf = core.CONFIG['Downloader']['Usenet']['Sabnzbd']
-        if sab_conf['enabled'] is True:
-            logging.info('Sending nzb to Sabnzbd.')
-            response = sabnzbd.Sabnzbd.add_nzb(data)
+        for client, config in core.CONFIG['Downloader']['Usenet'].items():
+            if config['enabled']:
+                logging.info('Sending nzb to {}'.format(client))
 
-            if response['response'] is True:
-                logging.info('Successfully sent {} to Sabnzbd.'.format(title))
+                response = getattr(downloaders, client).add_nzb(data)
 
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'SABnzbd'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+                if response['response']:
+                    logging.info('Successfully sent {} to {}.'.format(title, client))
 
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to SABnzbd.', 'download_client': 'SABnzbd', 'downloadid': response['downloadid']}
+                    db_update = {'downloadid': response['downloadid'], 'download_client': client}
+                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+
+                    if self.update_status_snatched(guid, imdbid):
+                        return {'response': True, 'message': 'Sent to {}.'.format(client), 'download_client': client, 'downloadid': response['downloadid']}
+                    else:
+                        return {'response': False, 'error': 'Could not mark search result as Snatched.'}
                 else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to NZBGET
-        nzbg_conf = core.CONFIG['Downloader']['Usenet']['NzbGet']
-        if nzbg_conf['enabled'] is True:
-            logging.info('Sending nzb to NzbGet.')
-            response = nzbget.Nzbget.add_nzb(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to NZBGet.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'NZBGet'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to NZBGet.', 'download_client': 'NZBGet', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to BLACKHOLE
-        blackhole_conf = core.CONFIG['Downloader']['Usenet']['BlackHole']
-        if blackhole_conf['enabled'] is True:
-            d = blackhole_conf['directory']
-
-            logging.info('Saving NZB as {}'.format(os.path.join(d, title)))
-            response = blackhole.NZB.add_nzb(data)
-
-            if response['response'] is True:
-                logging.info('Successfully saved {} in BlackHole.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
+                    return response
 
     def snatch_torrent(self, data):
         ''' Sends torrent or magnet to download client
@@ -281,143 +240,24 @@ class Snatcher():
             else:
                 return {'response': False, 'error': 'Unable to get torrent hash from indexer.'}
 
-        # If sending to Transmission
-        transmission_conf = core.CONFIG['Downloader']['Torrent']['Transmission']
-        if transmission_conf['enabled'] is True:
-            logging.info('Sending {} to Transmission.'.format(kind))
-            response = transmission.Transmission.add_torrent(data)
+        for client, config in core.CONFIG['Downloader']['Torrent'].items():
+            if config['enabled']:
+                logging.info('Sending {} to {}'.format(kind, client))
 
-            if response['response'] is True:
-                logging.info('Successfully sent {} to Transmission.'.format(title))
+                response = getattr(downloaders, client).add_torrent(data)
 
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'Transmission'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+                if response['response']:
+                    logging.info('Successfully sent {} to {}.'.format(title, client))
 
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to Transmission.', 'download_client': 'Transmission', 'downloadid': response['downloadid']}
+                    db_update = {'downloadid': response['downloadid'], 'download_client': client}
+                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+
+                    if self.update_status_snatched(guid, imdbid):
+                        return {'response': True, 'message': 'Sent to {}.'.format(client), 'download_client': client, 'downloadid': response['downloadid']}
+                    else:
+                        return {'response': False, 'error': 'Could not mark search result as Snatched.'}
                 else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to QBittorrent
-        qbit_conf = core.CONFIG['Downloader']['Torrent']['QBittorrent']
-        if qbit_conf['enabled'] is True:
-            logging.info('Sending {} to QBittorrent.'.format(kind))
-            response = qbittorrent.QBittorrent.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to QBittorrent.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'QBittorrent'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to QBittorrent.', 'download_client': 'QBittorrent', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to DelugeRPC
-        delugerpc_conf = core.CONFIG['Downloader']['Torrent']['DelugeRPC']
-        if delugerpc_conf['enabled'] is True:
-            logging.info('Sending {} to DelugeRPC.'.format(kind))
-            response = deluge.DelugeRPC.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to DelugeRPC.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'DelugeRPC'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'DelugeRPC', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to DelugeWeb
-        delugeweb_conf = core.CONFIG['Downloader']['Torrent']['DelugeWeb']
-        if delugeweb_conf['enabled'] is True:
-            logging.info('Sending {} to DelugeWeb.'.format(kind))
-            response = deluge.DelugeWeb.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to DelugeWeb.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'DelugeWeb'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to Deluge.', 'download_client': 'DelugeWeb', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to rTorrentSCGI
-        rtorrent_conf = core.CONFIG['Downloader']['Torrent']['rTorrentSCGI']
-        if rtorrent_conf['enabled'] is True:
-            logging.info('Sending {} to rTorrent.'.format(kind))
-            response = rtorrent.rTorrentSCGI.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to rTorrent.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentSCGI'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to rTorrent.', 'download_client': 'rTorrentSCGI', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark '
-                            'search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to rTorrentHTTP via ruTorrent plugin
-        rtorrent_conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']
-        if rtorrent_conf['enabled'] is True:
-            logging.info('Sending {} to rTorrent.'.format(kind))
-            response = rtorrent.rTorrentHTTP.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully sent {} to rTorrent.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'rTorrentHTTP'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Sent to rTorrent.', 'download_client': 'rTorrentHTTP', 'downloadid': response['downloadid']}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
-
-        # If sending to BlackHole
-        blackhole_conf = core.CONFIG['Downloader']['Torrent']['BlackHole']
-        if blackhole_conf['enabled'] is True:
-            d = blackhole_conf['directory']
-            logging.info('Saving {} as {}'.format(kind, os.path.join(d, title)))
-            response = blackhole.Torrent.add_torrent(data)
-
-            if response['response'] is True:
-                logging.info('Successfully saved {} in BlackHole.'.format(title))
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                db_update = {'downloadid': response['downloadid'], 'download_client': 'BlackHole'}
-                core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
-
-                if self.update_status_snatched(guid, imdbid):
-                    return {'response': True, 'message': 'Saved to BlackHole.', 'download_client': 'BlackHole', 'downloadid': None}
-                else:
-                    return {'response': False, 'error': 'Could not mark search result as Snatched.'}
-            else:
-                return response
+                    return response
         else:
             return {'response': False, 'error': 'No download client enabled.'}
 
