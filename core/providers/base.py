@@ -116,7 +116,8 @@ class NewzNabProvider(object):
             channel = yahoo.data(fromstring(feed))['rss']['channel']
             indexer = channel['title']
             items = channel['item']
-            assert(type(items) == list)
+            if type(items) != list:
+                items = [items]
         except Exception as e:
             logging.error('Unexpected XML format from NewzNab indexer.', exc_info=True)
             return []
