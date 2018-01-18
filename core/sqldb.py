@@ -530,6 +530,8 @@ class SQL(object):
         Gets values in TABLE:column where idcol == idval
 
         Returns list ['val1', 'val2', 'val3'] (list can be empty)
+
+        Currently not used, but kept for future reference
         '''
 
         logging.debug('Getting distinct values for {} in {}'.format(idval.split('&')[0], TABLE))

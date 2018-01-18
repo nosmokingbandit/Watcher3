@@ -916,7 +916,18 @@ class Manage(object):
             return 'Disabled'
 
         new_status = None
-        result_status = core.sql.get_distinct('SEARCHRESULTS', 'status', 'imdbid', imdbid)
+
+        t = []
+
+        if core.CONFIG['Downloader']['Sources']['usenetenabled']:
+            t.append('nzb')
+        if core.CONFIG['Downloader']['Sources']['torrentenabled']:
+            t += ['torrent', 'magnet']
+
+        cmd = 'SELECT DISTINCT status FROM SEARCHRESULTS WHERE imdbid="{}" AND type IN ("{}")'.format(imdbid, '", "'.join(t))
+
+        result_status = core.sql.execute([cmd]) or []
+
         if 'Finished' in result_status:
             new_status = 'Finished'
         elif 'Snatched' in result_status:
