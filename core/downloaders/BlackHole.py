@@ -68,9 +68,9 @@ def cancel_download(downloadid):
     This method does nothing. It simply exists so we don't throw an exception
         if it is called automatically.
 
-    Returns False
+    Returns True
     '''
-    return False
+    return True
 
 
 def add_nzb(data):
