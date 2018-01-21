@@ -926,7 +926,11 @@ class Manage(object):
 
         cmd = 'SELECT DISTINCT status FROM SEARCHRESULTS WHERE imdbid="{}" AND type IN ("{}")'.format(imdbid, '", "'.join(t))
 
-        result_status = core.sql.execute([cmd]) or []
+        try:
+            result_status = [i for i in core.sql.execute([cmd]).fetchall()[0]] or []
+        except Exception as e:
+            logging.warning('Unable to determine movie status.', exc_info=True)
+            result_status = []
 
         if 'Finished' in result_status:
             new_status = 'Finished'
