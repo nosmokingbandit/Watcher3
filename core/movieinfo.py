@@ -221,6 +221,51 @@ class TMDB(object):
             logging.error('Error attempting to get IMDBID from TMDB.', exc_info=True)
             return ''
 
+    def get_suggestions(self, section, tmdbid):
+        ''' get popular movies from TMDB
+
+        Returns list of results
+        '''
+
+        rmovie = None
+        logging.info('BOOOOOOOOOOOOOOOOOOOOOM');
+        logging.info(str(type(tmdbid)) + tmdbid);
+        if tmdbid == "0":
+           logging.info('true');
+        else:
+           logging.info('false');
+
+        if section == 'random':
+            rmovie = core.sql.get_random_movie()
+            tmdbid = str(rmovie.get('tmdbid'))
+            url = 'https://api.themoviedb.org/3/movie/' + str( tmdbid ) + '/recommendations?language=en-US&include_adult=false'
+        elif section == 'similar':
+            url = 'https://api.themoviedb.org/3/movie/' + str( tmdbid ) + '/recommendations?language=en-US&include_adult=false'
+        else:
+            url = 'https://api.themoviedb.org/3/movie/' + section + '?language=en-US&include_adult=false&region=US'
+
+        logging.info('grabbing movies from TMDB {}'.format(url))
+        url = url + '&api_key={}'.format(_k(b'tmdb'))
+
+        self.use_token()
+
+        try:
+            results = json.loads(Url.open(url).text)
+            if results.get('success') == 'false':
+                return []
+            else:
+                if rmovie:
+                    results['results'].append({'rmovie_title': rmovie.get('title')})
+                    logging.debug(json.dumps(results['results'], sort_keys=True,
+                                 indent=4, separators=(',', ': ')))
+
+                return results['results']
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception as e:
+            logging.error('Error grabbing suggestions from  TMDB: ' + str(e), exc_info=True)
+            return []
+
 
 def trailer(title_date):
     ''' Gets trailer embed ID from Youtube.
@@ -250,3 +295,5 @@ def trailer(title_date):
                 logging.error('Unable to get trailer from Youtube.', exc_info=True)
             tries += 1
     return ''
+
+

@@ -41,7 +41,22 @@
                     </ul>
                 </li>
                 <li class="${'active' if current == 'add_movie' else ''}">
-                    <a href="${url_base}/add_movie">${_('Add Movie')}</a>
+                    <a href="${url_base}/add_movie" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    ${_('Add Movie')}
+ 		    <i class="mdi mdi-chevron-down"></i>
+		    </a>
+		     <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="${url_base}/add_movie">
+                                <i class="mdi mdi-magnify"></i> ${_('Search')}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="${url_base}/sugg_popular">
+                                <i class="mdi mdi-star"></i> ${_('Suggestions')}
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="dropdown ${'active' if current == 'settings' else ''}">
                     <a href="${url_base}/settings/server" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">

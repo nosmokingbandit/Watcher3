@@ -59,3 +59,20 @@ iframe#trailer {
 div.modal-body p.plot{
     text-indent: 2em;
 }
+
+span.section_title{
+    font-size: 1.2em;
+    text-decoration: underline;
+    margin-top: 10px;
+    display:block;
+}
+
+.sugg_bar {
+  background-color:#444;
+  font-size: 0.8em ;
+  border-radius:0.25em;
+}
+.sugg_bar>li>a.active,
+.sugg_bar>li>a:focus {
+   background-color: #0066cc;
+}

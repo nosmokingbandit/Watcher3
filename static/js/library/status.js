@@ -371,7 +371,7 @@ function open_info_modal(event, elem){
                                   <span>Nothing found yet. Next search sheduled for ${response["next"]}.</span>
                               </div>`;
         }
-
+	movie['title_escape'] = movie['title'].replace(/'/g, "\\'");
         var modal = format_template(info_template, movie);
         $movie_status = $(modal);
 
@@ -721,5 +721,14 @@ function update_result_status($child, status){
     var $status_label = $child.closest("div.search_result").find("span.status");
     $status_label.removeClass($status_label.text());
     $status_label.addClass(status).text(status);
+
+}
+
+function go_similar(event, elem, tmdbid, title){
+    if (tmdbid == ""){
+        return false;
+    }
+
+    window.location.href = url_base+'/sugg_similar?tmdbid=' + tmdbid;
 
 }
