@@ -1,26 +1,25 @@
 $(document).ready(function () {
-    indexer_template = $("textarea#new_indexer")[0].innerText;
-
+    indexer_template = document.querySelector("template#new_indexer").innerHTML;
 });
 
-function test_indexer(event, elem){
+function test_indexer(event, button){
     event.preventDefault();
-    var orig_oc = elem.getAttribute("onClick");
-    elem.removeAttribute("onClick");
+    button.setAttribute('disabled', true)
 
-    $this = $(elem).find("i");
-    var $tr = $this.closest('tr');
+    var icon = button.children[0]
+    var tr = button.parentElement.parentElement;
 
-    var url = $tr.find("input[data-id='url']").val();
+    var url = tr.querySelector('input[data-id="url"').value;
 
     if(!url){
         return
     }
 
-    $this.removeClass("mdi-lan-pending").addClass("mdi-circle-outline animated");
+    icon.classList.replace('mdi-lan-pending', 'mdi-circle');
+    icon.classList.add('animated');
 
-    var api = $tr.find("input[data-id='api']").val();
-    var mode = $this.closest("form").data("category");
+    var api = tr.querySelector('input[data-id="api"]').value;
+    var mode = tr.parentElement.dataset.category;
 
     $.post(url_base + "/ajax/indexer_test", {"indexer": url,
                                              "apikey": api,
@@ -37,19 +36,23 @@ function test_indexer(event, elem){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $this.removeClass("mdi-circle-outline animated").addClass("mdi-lan-pending");
-        elem.setAttribute("onClick", orig_oc);
+        button.removeAttribute('disabled');
+        icon.classList.replace('mdi-circle', 'mdi-lan-pending');
+        icon.classList.remove('animated');
     });
 }
 
 function add_indexer(event, mode){
     event.preventDefault();
-    $(`form[data-category="${mode}"] tbody`).append(indexer_template);
+    document.querySelector(`tbody[data-category="${mode}"]`).insertAdjacentHTML('beforeend', indexer_template);
 }
 
-function remove_indexer(event, elem){
-    var $this = $(elem);
-    $this.closest("tr").fadeOut(500, function(){$(this).remove()});
+function remove_indexer(event, button){
+    event.preventDefault();
+    var $tr = $(button).closest('tr');
+    $tr.fadeOut(500, function(){
+        $tr.remove()
+    })
 }
 
 function _get_settings(){
@@ -63,60 +66,55 @@ function _get_settings(){
 // INDEXERS['NEWZNAB']
     var required_fields = [];
 
-    $("form[data-category='newznab'] tbody > tr").each(function(i, elem){
-        var $this = $(elem);
-
-        var $url = $this.find("input[data-id='url']");
-        var url = $url.val();
-        var $api = $this.find("input[data-id='api']");
-        var api = $api.val();
+    each(document.querySelectorAll("tbody[data-category='newznab'] > tr"), function(row, index){
+        var $url = row.querySelector("input[data-id='url']");
+        var url = $url.value;
+        var $api = row.querySelector("input[data-id='api']");
+        var api = $api.value;
 
         if(api && !url){
-            $url.addClass('empty');
+            $url.classList.add('border-danger');
             blanks = true;
             return false;
         }
         else if(!api && !url){
-            return false;
+            return;
         }
         else {
-            enabled = is_checked($this.find("i.c_box"));
-            settings["NewzNab"][i] = [url, api, enabled];
+            enabled = is_checked(row.querySelector("i.c_box"));
+            settings["NewzNab"][index] = [url, api, enabled];
         }
+
     });
 
 // INDEXERS['TORZNAB']
     var required_fields = [];
 
-    $("form[data-category='torznab'] tbody > tr").each(function(i, elem){
-        var $this = $(elem);
-
-        var $url = $this.find("input[data-id='url']");
-        var url = $url.val();
-        var $api = $this.find("input[data-id='api']");
-        var api = $api.val();
+    each(document.querySelectorAll("tbody[data-category='torznab'] > tr"), function(row, index){
+        var $url = row.querySelector("input[data-id='url']");
+        var url = $url.value;
+        var $api = row.querySelector("input[data-id='api']");
+        var api = $api.value;
 
         if(api && !url){
-            $url.addClass('empty');
+            $url.classList.add('border-danger');
             blanks = true;
             return false;
         }
         else if(!api && !url){
-            return false;
+            return;
         }
         else {
-            enabled = is_checked($this.find("i.c_box"));
-            settings["TorzNab"][i] = [url, api, enabled];
+            enabled = is_checked(row.querySelector("i.c_box"));
+            settings["TorzNab"][index] = [url, api, enabled];
         }
     });
 
 // INDEXERS['TORRENT']
     var required_fields = [];
 
-    $("form[data-category='torrent'] i.c_box").each(function(i, elem){
-        var $this = $(elem);
-
-        settings["Torrent"][$this.attr("id")] = is_checked($this);
+    each(document.querySelectorAll("form[data-category='torrent'] i.c_box"), function(checkbox){
+        settings['Torrent'][checkbox.id] = is_checked(checkbox);
     });
 
     if(blanks == true){

@@ -1,18 +1,18 @@
-$(document).ready(function(){
-    var $body = $("body");
-    label_color = $body.css("color");
-    label_size = $body.css("font-size");
-    font_family = $body.css("font-family");
-
+window.addEventListener("DOMContentLoaded", function(){
+    var body_style = getComputedStyle(document.getElementsByTagName("body")[0]);
+    label_color = body_style.color;
+    label_size = body_style.fontSize;
+    font_family = body_style.fontFamily;
 
     status_colors = [];
-    $("div#status_colors > span").each(function(i, elem){
-        status_colors.push($(elem).css("background-color"))
-    });
+
+    each(document.querySelectorAll("div#status_colors > span"), function(span){
+        status_colors.push(getComputedStyle(span).backgroundColor);
+    })
 
     profile_colors = [];
-    $("div#profile_colors > span").each(function(i, elem){
-        profile_colors.push($(elem).css("background-color"))
+    each(document.querySelectorAll("div#profile_colors > span"), function(span){
+        profile_colors.push(getComputedStyle(span).backgroundColor);
     });
 
     var get_stats = $.get(url_base + "/ajax/generate_stats")
@@ -20,7 +20,7 @@ $(document).ready(function(){
         render_charts(response)
     })
 
-    $(window).on("beforeunload", function(){
+    window.addEventListener('beforeunload', function(){
         get_stats.abort();
     });
 });
@@ -33,7 +33,7 @@ function render_charts(stats){
     */
 
     Morris.Donut({
-        element: $("div#chart_status div.chart"),
+        element: document.querySelector("div#chart_status div.chart"),
         data: stats["status"],
         colors: status_colors,
         labelColor: label_color,
@@ -41,7 +41,7 @@ function render_charts(stats){
     })
 
     Morris.Donut({
-        element: $("div#chart_profiles .chart"),
+        element: document.querySelector("div#chart_profiles .chart"),
         data: stats["qualities"],
         colors: profile_colors,
         labelColor: label_color,
@@ -49,7 +49,7 @@ function render_charts(stats){
     })
 
     Morris.Bar({
-        element: $("div#chart_years .chart"),
+        element: document.querySelector("div#chart_years .chart"),
         data: stats["years"],
         xkey: "year",
         ykeys: ["value"],
@@ -61,7 +61,7 @@ function render_charts(stats){
     })
 
     Morris.Line({
-        element: $("div#chart_added .chart"),
+        element: document.querySelector("div#chart_added .chart"),
         data: stats["added_dates"],
         xkey: "added_date",
         ykeys: ["value"],
@@ -74,7 +74,7 @@ function render_charts(stats){
     })
 
     Morris.Bar({
-        element: $("div#chart_scores .chart"),
+        element: document.querySelector("div#chart_scores .chart"),
         data: stats["scores"],
         xkey: "score",
         ykeys: ["value"],
@@ -84,9 +84,10 @@ function render_charts(stats){
         pointStrokeColors: label_color
     })
 
-
-
-    $("svg text").css("font-family", font_family)
-    $("#chart_status svg > path").attr("stroke", "none");
-    $("#chart_profiles svg > path").attr("stroke", "none");
+    each(document.querySelectorAll("svg text"), function(svg){
+        svg.style.fontFamily = font_family;
+    })
+    each(document.querySelectorAll("#chart_status svg path, #chart_profiles svg path"), function(svg){
+        svg.setAttribute('stroke', 'transparent');
+    })
 }

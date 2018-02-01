@@ -1,4 +1,68 @@
-li.dropdown-cat{
+.w-30{
+    width: 30%;
+}
+
+ul#movie_list li div.card{
+    width: 100%;
+    text-align: left;
+    height: 5em;
+    line-height: 1.75em;
+    position: relative;
+    margin: 0.25em 0;
+    display: inline-block;
+    overflow: hidden;
+}
+
+ul#movie_list li img{
+    height: 4.95em;
+    box-shadow: none;
+    margin: 0 0.5em 0 0;
+    float: left;
+    max-width: 3.5em;
+    border-radius: 0;
+}
+
+ul#movie_list li div.card-body,
+ul#movie_list li h6.card-title{
+    padding: 0;
+    margin: 0;
+}
+
+ul#movie_list li .card-title{
+    line-height: 2em;
+    font-size: 1.25em;
+}
+
+ul#movie_list li div.card-body span.year{
+    font-size: 0.8em;
+    opacity: 0.6;
+}
+
+i.mdi-table-edit{
+    font-size: 1.4em;
+}
+
+/* Task Modal */
+#task_modal p.body{
+    overflow: hidden;
+    transition: 0.6s;
+}
+
+#task_modal div.progress{
+    overflow: hidden;
+    max-height: 0%;
+    transition: 0.6s;
+}
+
+div.progress-bar{
+    width: 0%;
+}
+
+#task_modal table{
+    display: none;
+}
+
+/* li.dropdown-cat{
     text-align: center;
     font-weight: bold;
     margin: 0 0 0.5em 0;
@@ -59,4 +123,4 @@ div.modal > div.modal-dialog > div.modal-content > .modal-body > p,
 div.modal > div.modal-dialog > div.modal-content > .modal-body > div.progress,
 div.modal > div.modal-dialog > div.modal-content > .modal-footer{
     transition: none;
-}
+} */

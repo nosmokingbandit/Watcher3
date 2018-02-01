@@ -4,39 +4,42 @@
         <title>Watcher</title>
         <meta content="${url_base}" name="url_base">
         <meta content="width=device-width,initial-scale=1" name="viewport">
-        <link href="${url_base}/auth/static/css/themes/${uitheme or 'Default'}.css?v=001" rel="stylesheet">
-        <link href="${url_base}/auth/static/css/lib/materialdesignicons.min.css?v=001" rel="stylesheet">
-        <link href="${url_base}/auth/static/css/login.css?v=001" rel="stylesheet">
-        <script src="${url_base}/auth/static/js/lib/jquery.310.min.js?v=001" type="text/javascript"></script>
-        <script src="${url_base}/auth/static/js/login.js?v=001" type="text/javascript"></script>
-        <link href="${url_base}/auth/static/css/style.css?v=001" rel="stylesheet">
+        <link href="${url_base}/auth/static/css/themes/${uitheme or 'Default'}.css?v=010 rel="stylesheet">
+        <link href="${url_base}/auth/static/css/lib/materialdesignicons.min.css?v=010 rel="stylesheet">
+        <link href="${url_base}/auth/static/css/login.css?v=010 rel="stylesheet">
+        <script src="${url_base}/auth/static/js/lib/jquery.310.min.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/auth/static/js/login.js?v=010 type="text/javascript"></script>
+        <link href="${url_base}/auth/static/css/style.css?v=010 rel="stylesheet">
         <meta name="enable_notifs" content="false" />
     </head>
     <body>
-        <div id="content" class="container-fluid">
-            <div class="col-md-12">
-                <div class="input-group col-md-6 col-md-offset-3">
-                    <span class="input-group-addon">
-                        <i class="mdi mdi-account"></i>
-                    </span>
+        <div class="row mx-3">
+            <div class="col-md-6 offset-md-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="mdi mdi-account"></i>
+                        </span>
+                    </div>
                     <input type="text" id="user" class="form-control">
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="input-group col-md-6 col-md-offset-3">
-                    <span class="input-group-addon">
-                        <i class="mdi mdi-lock"></i>
-                    </span>
+            <div class="col-md-6 offset-md-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="mdi mdi-lock"></i>
+                        </span>
+                    </div>
                     <input type="password" id="password" class="form-control">
                 </div>
             </div>
-            <div class="col-md-12 col-sm-12">
-                <div class="input-group col-md-6 col-md-offset-3 col-sm-12">
-                    <a class="message btn btn-primary" onclick="login(event)">
-                        <i class="mdi mdi-login"></i>
-                    </a>
-                </div>
+            <div class="col-md-6 offset-md-3">
+                <button class="message btn btn-primary btn-block" onclick="login(event)">
+                    <i class="mdi mdi-login"></i>
+                </button>
             </div>
         </div>
+
     </body>
 </html>

@@ -47,9 +47,9 @@ def render_config(config):
     if config.pop('Config Version', 0) < 2:
         for k, v in config.items():
             html += '''
-            <div class="col-md-6" data-type="string">
+            <div class="col-md-6" data-type="string" data-key="{0}">
                 <label>{0}</label>
-                <input type="text" class="form-control" data-key="{0}" value="{1}">
+                <input type="text" class="form-control" value="{1}">
             </div>
             '''.format(k, v)
 
@@ -87,9 +87,9 @@ def _config_string(config):
     base.update(config)
     try:
         return '''
-        <div class="col-md-6" data-type="string" title="{helptext}">
+        <div class="col-md-6" data-type="string" title="{helptext}" data-key="{name}">
             <label>{label}</label>
-            <input type="text" class="form-control" data-key="{name}" value="{value}">
+            <input type="text" class="form-control" value="{value}">
         </div>
         '''.format(**base)
     except Exception as e:
@@ -109,9 +109,9 @@ def _config_int(config):
     base.update(config)
     try:
         return '''
-        <div class="col-md-6" data-type="int" title="{helptext}">
+        <div class="col-md-6" data-type="int" title="{helptext}" data-key="{name}">
             <label>{label}</label>
-            <input type="number" class="form-control" data-key="{name}" value="{value}" min="{min}" max="{max}">
+            <input type="number" class="form-control" value="{value}" min="{min}" max="{max}">
         </div>
         '''.format(**base)
     except Exception as e:
@@ -129,11 +129,11 @@ def _config_bool(config):
     base.update(config)
     try:
         return '''
-        <div class="col-md-6" data-type="bool" title="{helptext}">
+        <div class="col-md-6" data-type="bool" title="{helptext}" data-key="{name}">
             <label>&nbsp;</label>
             <div class="input-group">
                 <span class="input-group-addon box_box">
-                <i class="mdi mdi-checkbox-blank-outline c_box" data-key="{name}" value="{value}"></i>
+                <i class="mdi mdi-checkbox-blank-outline c_box" value="{value}"></i>
                 </span>
                 <span class="input-group-item form-control _label">
                     {label}

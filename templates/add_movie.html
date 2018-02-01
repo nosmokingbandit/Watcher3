@@ -2,20 +2,78 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/add_movie.css?v=001" rel="stylesheet">
-        <script src="${url_base}/static/js/add_movie.js?v=001" type="text/javascript"></script>
+        <link href="${url_base}/static/css/add_movie.css?v=010 rel="stylesheet">
+        <script src="${url_base}/static/js/add_movie.js?v=010 type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
+        <div class="container">
 
-            <div class="input-group" id="search_bar">
-                <input type="text" id="apikey" class="form-control">
-                <span class="input-group-btn">
-                    <a id="search_button" class="btn btn-default" onclick="search_tmdb(event, this)">
-                        <i class="mdi mdi-magnify"></i>
+            <ul class="nav nav-pills mb-3">
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link active" href="#tab_search" data-toggle="pill" data-cat="search">
+                        Search
                     </a>
-                </span>
+                </li>
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link" href="#tab_popular" data-toggle="pill" data-cat="popular">
+                        Popular
+                    </a>
+                </li>
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link" href="#tab_now_playing" data-toggle="pill" data-cat="now_playing">
+                        Now Playing
+                    </a>
+                </li>
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link" href="#tab_top_rated" data-toggle="pill" data-cat="top_rated">
+                        Top Rated
+                    </a>
+                </li>
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link" href="#tab_upcoming" data-toggle="pill" data-cat="upcoming">
+                        Upcoming
+                    </a>
+                </li>
+                <li class="nav-item border rounded mx-2 mb-3">
+                    <a class="nav-link" href="#tab_similar" data-toggle="pill" data-cat="similar">
+                        Similar
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content rounded mx-auto">
+
+                <div id="tab_search" class="tab-pane bg-light fade show active p-3 m-2 rounded">
+                    <div class="input-group" id="search_bar">
+                        <input type="text" id="apikey" class="form-control form-control-lg">
+                        <div class="input-group-append">
+                            <button id="search_button" class="btn btn-secondary" onclick="search(event, this)">
+                                <i class="mdi mdi-magnify"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab_popular"></div>
+
+                <div id="tab_now_playing"></div>
+
+                <div id="tab_top_rated"></div>
+
+                <div id="tab_upcoming"></div>
+
+                <div id="tab_similar" class="tab-pane bg-light fade show p-3 m-2 rounded">
+                    <div class="input-group">
+                        <select id="movie_names" class="form-control form-control-lg">
+
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" onclick="load_suggestions('similar')">
+                                <i class="mdi mdi-find-replace"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <ul id="movies">
@@ -23,112 +81,102 @@
             </ul>
         </div>
 
-        <textarea id="movie_template" class="hidden">
-            <li class="movie">
-                <img src="{img_url}">
-                <div class="movie_actions btn-group btn-group-justified">
-                    <div class="btn-group">
-                        <span type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                            ${_('Add')}
-                            <i class="mdi mdi-chevron-down"></i>
-                        </span>
-                        <ul class="dropdown-menu dropdown-menu-left dropdown-menu-wide">
-                            <li>
-                                <a onclick="add_movie(event, this, 'Default')">
-                                    ${_('Default')}
+        <template id="movie_template">
+            <li>
+                <div class="card">
+                    <img src="{img_url}" class="card-img-top">
+                    <div class='btn-group'>
+                        <div class="dropdown w-75">
+                            <button type="button" class="btn btn-secondary dropdown-toggle w-100 rounded-0" data-toggle="dropdown">
+                                ${_('Add')}
+                            </button>
+                            <div class="dropdown-menu">
+                                %for profile in profiles:
+                                <a class="dropdown-item" href="#" onclick="add_movie(event, this, '${profile[0]}')">
+                                    ${profile[0]}
+                                    %if profile[1]:
+                                        <i class="mdi mdi-star"></i>
+                                    %endif
                                 </a>
-                            </li>
-                            %if len(profiles) > 0:
-                            <li class="divider"></li>
-                            %endif
-                            %for profile in profiles:
-                            <li>
-                                <a onclick="add_movie(event, this, '${profile}')">
-                                    ${profile}
-                                </a>
-                            </li>
-                            %endfor
-                        </ul>
+                                %endfor
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary w-25 rounded-0 show_details" onclick="show_details(event, this)">
+                            <i class="mdi mdi-open-in-new"></i>
+                        </button>
                     </div>
-
-                    <div class="btn-group">
-                        <a class="btn btn-default" onclick="show_details(event, this)">${_('Details')}</a>
+                    <div class="card-body">
+                        <span class="title px-2">{title}</span>
+                        <span class="year pb-2">{year}</span>
                     </div>
                 </div>
-                <span class="title">{title}</span>
-                <span class="year">{year}</span>
             </li>
-        </textarea>
-        <textarea id="details_template" class="hidden">
+        </template>
+        <template id="details_template">
             <div class="modal fade" id="modal_details">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-wide">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3 class="modal-title">
+                            <h4 class="modal-title">
                                 {title}
                                 <span class="year">{year}</span>
-                            </h3>
-                            <span class="label label-default">
-                                ${_('Theatrical Release')}: {release_date}
-                            </span>
-                            <span class="label label-default">
-                                ${_('Score')}: {vote_average}
-                            </span>
-                            <a class="label label-info" href="https://www.themoviedb.org/movie/{id}" target="_blank" rel="noopener">
+                            </h4>
+                            <button class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                                <i class="mdi mdi-close"></i>
+                            </button>
+                        </div>
+                        <div class="modal-badges">
+                            <a class="badge badge-info" href="https://www.themoviedb.org/movie/{id}" target="_blank" rel="noopener">
                                 TheMovieDB <i class="mdi mdi-earth"></i>
                             </a>
+                            <span class="badge badge-dark">
+                                <i class="mdi mdi-theater" title="${_('Theatrical Release')}"></i>
+                                {release_date}
+                            </span>
+                            <span class="badge badge-dark">
+                                <i class="mdi mdi-star" title="${_('Score')}"></i>
+                                {vote_average}
+                            </span>
                         </div>
 
-                        <div class="modal-body">
-
-                            <div class="col-md-5">
-                                <img src="{poster_url}" class="img-responsive">
-                            </div>
-                            <div class="col-md-7">
-                                <div class="embed-responsive embed-responsive-16by9">
-                                    <iframe src="" id="trailer"></iframe>
+                        <div class="modal-body pb-0">
+                            <div class="row">
+                                <div class="col-md-5 text-center">
+                                    <img src="{poster_url}" class="img-responsive">
                                 </div>
-                            </div>
-                            <div class="col-md-7">
-                                <div class="well">
+                                <div class="col-md-7">
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe src="" id="trailer"></iframe>
+                                    </div>
                                     <p class="plot">{overview}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="modal-footer">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <div class="btn-group pull-right">
-                                <span type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
                                     ${_('Add')}
-                                    <i class="mdi mdi-chevron-down"></i>
-                                </span>
-                                <ul class="dropdown-menu dropdown-menu-left dropdown-menu-wide">
-                                    <li>
-                                        <a onclick="add_movie(event, this, 'Default', modal=true)">
-                                            ${_('Default')}
-                                        </a>
-                                    </li>
-                                    %if len(profiles) > 0:
-                                    <li class="divider"></li>
-                                    %endif
+                                </button>
+                                <div class="dropdown-menu">
                                     %for profile in profiles:
-                                    <li>
-                                        <a onclick="add_movie(event, this, '${profile}', modal=true)">
-                                            ${profile}
-                                        </a>
-                                    </li>
+                                    <a class="dropdown-item" href="#" onclick="add_movie(event, this, '${profile[0]}', modal=true)">
+                                        ${profile[0]}
+                                        %if profile[1]:
+                                            <i class="mdi mdi-star"></i>
+                                        %endif
+                                    </a>
                                     %endfor
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </textarea>
+        </template>
 
         <div id="thinker">
-            <i class="mdi mdi-circle-outline animated"></i>
+            <i class="mdi mdi-circle animated"></i>
         </div>
     </body>
 </html>

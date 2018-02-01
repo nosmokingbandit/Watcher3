@@ -1,12 +1,11 @@
 $(document).ready(function () {
-    $input_api_key = $("input#apikey");
-    git_url = $("span#git_url").text();
+    $input_api_key = document.querySelector('input#apikey');
 });
 
 function new_key(event){
     event.preventDefault();
     var key = _generate_key(32);
-    $input_api_key.val(key);
+    $input_api_key.value = key;
 };
 
 function update_check(event, elem){
@@ -15,7 +14,7 @@ function update_check(event, elem){
 
     var original_content = $this[0].innerHTML;
 
-    $this.html("<i class='mdi mdi-circle-outline animated'></i>");
+    $this.html("<i class='mdi mdi-circle animated'></i>");
 
 
     $.post(url_base + "/ajax/update_check", {})
@@ -51,10 +50,10 @@ function _get_settings(){
 // SERVER
     var required_fields = ['serverhost', 'serverport', 'keeplogs', 'apikey', 'checkupdatefrequency']
 
-    $("form[data-category='server'] i").each(function(){
-        var $this = $(this);
-        settings[$this.attr("id")] = is_checked($this);
-    });
+    each(document.querySelectorAll("form[data-category='server'] i.c_box"), function(checkbox){
+        settings[checkbox.id] = is_checked(checkbox);
+    })
+
 
     if(settings['customwebroot']){
         required_fields.push("customwebrootpath")
@@ -66,30 +65,19 @@ function _get_settings(){
         required_fields.push("ssl_cert", "ssl_key")
     }
 
-    $("form[data-category='server'] :input:not(button)").each(function(){
-        var $this = $(this);
-
-        if($this.val() == "" && required_fields.includes($this.attr("id"))){
-            $this.addClass("empty");
+    each(document.querySelectorAll("form[data-category='server'] input, form[data-category='server'] select"), function(input){
+        if(input.value == "" && required_fields.includes(input.id)){
+            input.classList.add('border-danger');
             blanks = true;
-            return;
+            return
         }
-
-        if($this.attr("type") == "number"){
-            var min = parseInt($this.attr("min"));
-            var val = Math.max(parseInt($this.val()), min);
-            settings[$this.attr("id")] = val || min;
-        }
-        else{
-            settings[$this.attr("id")] = $this.val();
-        }
-    });
+        settings[input.id] = parse_input(input);
+    })
 
 // SERVER['PROXY']
-    $("form[data-category='proxy'] i").each(function(){
-        $this = $(this);
-        settings["Proxy"][$this.attr("id")] = is_checked($this);
-    });
+    each(document.querySelectorAll("form[data-category='proxy'] i.c_box"), function(checkbox){
+        settings['Proxy'][checkbox.id] = is_checked(checkbox);
+    })
 
     if(settings['Proxy']['enabled']){
         required_fields = ["host", "port"];
@@ -97,23 +85,14 @@ function _get_settings(){
         required_fields = [];
     }
 
-    $("form[data-category='proxy'] :input:not(button)").each(function(){
-        $this = $(this);
-
-        if($this.val() == "" && required_fields.includes($this.attr("id"))){
-            $this.addClass("empty");
+    each(document.querySelector("form[data-category='proxy']").querySelectorAll('input, select'), function(input){
+        if(input.value == "" && required_fields.includes(input.id)){
+            input.classList.add('border-danger');
             blanks = true;
-            return;
+            return
         }
 
-        if($this.attr("type") == "number"){
-            var min = parseInt($this.attr("min"));
-            var val = Math.max(parseInt($this.val()), min);
-            settings["Proxy"][$this.attr("id")] = val || min;
-        }
-        else{
-            settings['Proxy'][$this.attr("id")] = $this.val();
-        }
+        settings['Proxy'][input.id] = parse_input(input);
     });
 
     if(blanks == true){

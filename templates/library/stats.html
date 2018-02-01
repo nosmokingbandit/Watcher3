@@ -2,70 +2,71 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/stats.css?v=001" rel="stylesheet">
-        <link href="${url_base}/static/css/lib/morris.css?v=001" rel="stylesheet">
-        <script type="text/javascript" src="${url_base}/static/js/lib/raphael.min.js?v=06.02"></script>
-        <script type="text/javascript" src="${url_base}/static/js/lib/morris.min.js?v=06.02"></script>
-        <script type="text/javascript" src="${url_base}/static/js/library/stats.js?v=06.02"></script>
+        <link href="${url_base}/static/css/library/stats.css?v=010 rel="stylesheet">
+        <link href="${url_base}/static/css/lib/morris.css?v=010 rel="stylesheet">
+        <script type="text/javascript" src="${url_base}/static/js/lib/raphael.min.js?v=010></script>
+        <script type="text/javascript" src="${url_base}/static/js/lib/morris.min.js?v=010></script>
+        <script type="text/javascript" src="${url_base}/static/js/library/stats.js?v=010></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
-            <div id="chart_status" class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        ${_('Status')}
-                    </div>
-                    <div class="chart">
-                    </div>
-                </div>
-            </div>
-            <div id="chart_profiles" class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        ${_('Quality Profiles')}
-                    </div>
-                    <div class="chart">
+        <div class="container">
+            <div class="row">
+                <div id="chart_status" class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            ${_('Status')}
+                        </div>
+                        <div class="chart">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="chart_years" class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        ${_('Movies By Year')}
-                    </div>
-                    <div class="chart">
-                    </div>
-                </div>
-            </div>
-            <div id="chart_added" class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        ${_('Library Growth')}
-                    </div>
-                    <div class="chart">
+                <div id="chart_profiles" class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            ${_('Quality Profiles')}
+                        </div>
+                        <div class="chart">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="chart_scores" class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        ${_('Scores')}
+                <div id="chart_years" class="col-md-12 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            ${_('Movies By Year')}
+                        </div>
+                        <div class="chart">
+                        </div>
                     </div>
-                    <div class="chart">
+                </div>
+                <div id="chart_added" class="col-md-12 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            ${_('Library Growth')}
+                        </div>
+                        <div class="chart">
+                        </div>
+                    </div>
+                </div>
+                <div id="chart_scores" class="col-md-12 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            ${_('Scores')}
+                        </div>
+                        <div class="chart">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="status_colors" class="hidden">
-            <span class="waiting"></span>
-            <span class="wanted"></span>
-            <span class="found"></span>
-            <span class="snatched"></span>
-            <span class="finished"></span>
+            <span class="badge-dark"></span>
+            <span class="badge-warning"></span>
+            <span class="badge-info"></span>
+            <span class="badge-primary"></span>
+            <span class="badge-success"></span>
         </div>
-
         <div id="profile_colors" class="hidden">
             <span class="bg-primary"></span>
             <span class="bg-success"></span>

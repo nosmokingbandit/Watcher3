@@ -3,11 +3,6 @@ body, html{
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-div#content{
-    position: relative;
-    height: 100%;
     background-image: url('../images/logo_big.png');
     background-position: 50% 25%;
     background-repeat: no-repeat;

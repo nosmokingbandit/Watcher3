@@ -1,281 +1,241 @@
 <%
     applied_profiles = {i['quality'] for i in movies}
+    status_colors = {'Finished': 'success', 'Snatched': 'primary', 'Found': 'info', 'Available': 'info', 'Wanted': 'warning', 'Waiting': 'dark', 'Bad': 'danger'}
 %>
 
 <!DOCTYPE HTML5>
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/manage.css?v=002" rel="stylesheet">
+        <link href="${url_base}/static/css/library/manage.css?v=010 rel="stylesheet">
 
-        <script src="${url_base}/static/js/lib/echo.min.js?v=001" type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/manage.js?v=003" type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/echo.min.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/manage.js?v=010 type="text/javascript"></script>
     <body>
         ${navbar}
-        <div class="container-fluid">
-            <div class="well clearfix">
-                <div class="col-md-6">
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-md-6 text-center">
                     <div class="btn-group">
-                        <a class="btn btn-default" onclick="select_all()" title="Select All">
+                        <button class="btn btn-light border" onclick="select_all()" title="Select All">
                             <i class="mdi mdi-checkbox-multiple-marked"></i>
-                        </a>
-                        <a class="btn btn-default" onclick="select_none()" title="De-Select All">
+                        </button>
+                        <button class="btn btn-light border" onclick="select_none()" title="De-Select All">
                             <i class="mdi mdi-checkbox-multiple-blank-outline"></i>
-                        </a>
-                        <a class="btn btn-default" onclick="select_inverse()" title="Invert Selection">
+                        </button>
+                        <button class="btn btn-light border" onclick="select_inverse()" title="Invert Selection">
                             <i class="mdi mdi-minus-box"></i>
-                        </a>
-                        <div class="btn-group">
-                            <a class="dropdown-toggle form-control btn btn-default" data-toggle="dropdown" aria-expanded="false">
+                        </button>
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-light border dropdown-toggle rounded-0 " data-toggle="dropdown">
                                 ${_('Attribute')}
-                            <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li class="dropdown-cat">${_('Status')}</li>
-                                <li>
-                                    <a data-key="status" data-value="Waiting" onclick="select_attrib(event, this)">${_('Waiting')}</a>
-                                </li>
-                                <li>
-                                    <a data-key="status" data-value="Wanted" onclick="select_attrib(event, this)">${_('Wanted')}</a>
-                                </li>
-                                <li>
-                                    <a data-key="status" data-value="Found" onclick="select_attrib(event, this)">${_('Found')}</a>
-                                </li>
-                                <li>
-                                    <a data-key="status" data-value="Snatched" onclick="select_attrib(event, this)">${_('Snatched')}</a>
-                                </li>
-                                <li>
-                                    <a data-key="status" data-value="Finished" onclick="select_attrib(event, this)">${_('Finished')}</a>
-                                </li>
-                                <li class="divider"></li>
-                                <li class="dropdown-cat">${_('Quality Profile')}</li>
+                                <span class="caret"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <h6 class="dropdown-header">${_('Status')}</h6>
+                                <a class="dropdown-item" href="#" data-key="status" data-value="Waiting" onclick="select_attrib(event, this, 'status', 'Waiting')">${_('Waiting')}</a>
+                                <a class="dropdown-item" href="#" data-key="status" data-value="Wanted" onclick="select_attrib(event, this, 'status', 'Wanted')">${_('Wanted')}</a>
+                                <a class="dropdown-item" href="#" data-key="status" data-value="Found" onclick="select_attrib(event, this, 'status', 'Found')">${_('Found')}</a>
+                                <a class="dropdown-item" href="#" data-key="status" data-value="Snatched" onclick="select_attrib(event, this, 'status', 'Snatched')">${_('Snatched')}</a>
+                                <a class="dropdown-item" href="#" data-key="status" data-value="Finished" onclick="select_attrib(event, this, 'status', 'Finished')">${_('Finished')}</a>
+
+                                <div class="divider"></div>
+                                <h6 class="dropdown-header">${_('Quality Profile')}</h6>
                                 %for i in applied_profiles:
-                                <li>
-                                    <a data-key="quality" data-value="${i}" onclick="select_attrib(event, this)">${i}</a>
-                                </li>
+                                <a class="dropdown-item" href="#" onclick="select_attrib(event, this, 'quality', '${i}')">${i}</a>
                                 %endfor
-                            </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="btn-group pull-right">
-                        <a class="btn btn-success" data-toggle="modal" data-target="#modal_backlog_search">
+                <div class="col-md-6 text-center">
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="show_modal(event, this, 'backlog_search')">
                             <i class="mdi mdi-magnify" title="${_('Force Backlog Search')}"></i>
                         </a>
-                        <a class="btn btn-primary" data-toggle="modal" data-target="#modal_metadata">
+                        <button class="btn btn-secondary" onclick="show_modal(event, this, 'update_metadata')">
                             <i class="mdi mdi-tag-text-outline" title="${_('Update Metadata')}"></i>
                         </a>
-                        <a class="btn btn-info" data-toggle="modal" data-target="#modal_quality">
+                        <button class="btn btn-secondary" onclick="show_modal(event, this, 'change_quality')">
                             <i class="mdi mdi-video" title="${_('Change Quality&nbsp;Profile')}"></i>
                         </a>
-                        <a class="btn btn-warning" data-toggle="modal" data-target="#modal_reset">
+                        <button class="btn btn-secondary" onclick="show_modal(event, this, 'reset')">
                             <i class="mdi mdi-backup-restore" title="${_('Reset')}"></i>
                         </a>
-                        <a class="btn btn-danger" data-toggle="modal" data-target="#modal_remove">
+                        <button class="btn btn-secondary" onclick="show_modal(event, this, 'remove')">
                             <i class="mdi mdi-delete" title="${_('Remove')}"></i>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <ul id="movie_list" class="striped">
+            <ul id="movie_list">
                 %for movie in movies:
-                <% _status = 'Finished' if movie['status'] == 'Disabled' else movie['status'] %>
-                <% _poster = url_base + '/posters/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg' %>
-                 <li class="movie" imdbid="${movie['imdbid']}" data-status="${_status}" data-quality="${movie['quality']}">
-                    <img data-echo="${_poster}" src="${url_base}/static/images/missing_poster.jpg">
-                    <i class="mdi mdi-checkbox-blank-outline c_box" data-imdbid="${movie['imdbid']}" data-tmdbid="${movie['tmdbid']}" value="False"></i>
-                    <span class="label status ${_status}">${_(_status)}</span>
-                    <span class="label label-info quality">${movie['quality']}</span>
-                    <br/>
-                    <span class="title">${movie['title']}</span>
-                    <span class="year">${movie['year']}</span>
+                <%
+                    _status = 'Finished' if movie['status'] == 'Disabled' else movie['status']
+                    _poster = url_base + '/posters/' + movie['poster'] if movie.get('poster') else url_base + '/static/images/missing_poster.jpg'
+                %>
+                <li data-imdbid="${movie['imdbid']}" data-status="${_status}" data-quality="${movie['quality']}">
+                    <div class="card">
+                        <img data-echo="${_poster}" src="${url_base}/static/images/missing_poster.jpg" class="card-img-top">
+                        <div class="card-body" data-imdbid="${movie['imdbid']}" data-tmdbid="${movie['tmdbid']}">
+                            <i class="mdi mdi-checkbox-blank-outline c_box" value="False"></i>
+                            <span class="badge badge-${status_colors[_status]} status">${_status}</span>
+                            <span class="badge badge-dark quality">${movie['quality']}</span>
+                            <i class="mdi mdi-table-edit float-right" onclick="edit_movie(event, this)"></i>
+                            <h6 class="card-title">
+                                ${movie['title']}
+                                <span class="year">
+                                    ${movie['year']}
+                                </span>
+                            </h6>
+                        </div>
+                    </div>
                 </li>
-
                 %endfor
             </ul>
-
-
         </div>
 
     <!-- Modals for Management Actions -->
-        <div class="modal fade" id="modal_backlog_search">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">${_('Backlog Search')}</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ${_('A full backlog search will be performed for selected movies. <br/> Be aware that this will consume one API hit per movie and may take several minutes to complete.')}
-                        </p>
-                        <div class="progress hidden">
-                            <div class="progress-bar"></div>
+
+        <template id="template_modal">
+            <div class="modal fade" id="task_modal">
+                <div class="modal-dialog modal-wide">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">
+                                {title}
+                            </h4>
+                            <button class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                                <i class="mdi mdi-close"></i>
+                            </button>
                         </div>
-                        <table class="table table-striped hidden">
-                            <thead>
-                                <tr>
-                                    <th>IMDB ID</th>
-                                    <th>${_('Error')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <a class="btn btn-success" onclick="backlog_search(event, this)">${_('Force Backlog Search')}</a>
+                        <div class="modal-body">
+                            <p class="body">
+                                {body}
+                            </p>
+                            <div class="progress mb-3 bg-dark">
+                                <div class="progress-bar w-0" role="progressbar"></div>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>IMDB ID</th>
+                                        <th>${_('Error')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success" onclick="begin_task(event, this, '{task}')">
+                                <i class="mdi mdi-checkbox-marked-circle-outline"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
 
-        <div class="modal fade" id="modal_metadata">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">${_('Update Metadata')}</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ${_('Metadata and posters will be re-downloaded for selected movies. <br/> This may take several minutes.')}
-                        </p>
-                        <div class="progress hidden">
-                            <div class="progress-bar"></div>
+        <template id="quality_select">
+            <select class="form-control btn-light border mt-3 border" id="quality" value="">
+                <option value="" selected="selected">${_('Choose a Quality Profile')}</option>
+                %for i in profiles:
+                <option value="${i}">${i}</option>
+                %endfor
+            </select>
+        </template>
+
+        <template id="template_edit">
+            <div class="modal fade" id="edit_modal">
+                <div class="modal-dialog modal-wide">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">
+                                Edit Database
+                            </h4>
+                            <button class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                                <i class="mdi mdi-close"></i>
+                            </button>
                         </div>
-                        <table class="table table-striped hidden">
-                            <thead>
-                                <tr>
-                                    <th>IMDB ID</th>
-                                    <th>${_('Error')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <a class="btn btn-primary" onclick="refresh_metadata(event, this)">${_('Update Metadata')}</a>
+                        <div class="modal-body pt-0">
+                            <div class="alert alert-warning mt-3" role="alert">
+                                Editing a movie's database entry may cause problems. Proceed with caution.
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <i class="mdi mdi-close"></i>
+                                </button>
+                            </div>
+
+                            <table id='edit_movie_table' class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-30" scope="col">Field</th>
+                                        <th scope="col">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Title</td>
+                                        <td>
+                                            <input type="text" data-id="title" class="form-control form-control-sm" value="{title}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Year</td>
+                                        <td>
+                                            <input type="number" data-id="year" class="form-control form-control-sm" min="0" value="{year}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Theatrical Release Date<br/>
+                                            <small>[YYYY-MM-DD]</small>
+                                        </td>
+                                        <td>
+                                            <input type="text" data-id="release_date" class="form-control form-control-sm" value="{release_date}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Home Media Release Date<br/>
+                                            <small>[YYYY-MM-DD]</small>
+                                        </td>
+                                        <td>
+                                            <input type="text" data-id="media_release_date" class="form-control form-control-sm" value="{media_release_date}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Media File
+                                        </td>
+                                        <td>
+                                            <input type="text" data-id="finished_file" class="form-control form-control-sm" value="{finished_file}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Alternative Titles
+                                        </td>
+                                        <td>
+                                            <input type="text" data-id="alternative_titles" class="form-control form-control-sm" value="{alternative_titles}">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success" onclick="save_movie_details(event, this, '{tmdbid}')">
+                                <i class="mdi mdi-content-save"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="modal fade" id="modal_quality">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">${_('Change Quality Profile')}</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ${_('Quality profiles will be changed for selected movies.')}
-                            <br/>
-                            <select class="form-control" id="quality" value="">
-                                <option value="" selected="selected" disabled>${_('Choose a Quality Profile')}</option>
-                                %for i in profiles:
-                                <option value="${i}">${i}</option>
-                                %endfor
-                        </select>
-                        </p>
-                        <div class="progress hidden">
-                            <div class="progress-bar"></div>
-                        </div>
-                        <table class="table table-striped hidden">
-                            <thead>
-                                <tr>
-                                    <th>IMDB ID</th>
-                                    <th>${_('Error')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <a class="btn btn-info" onclick="change_quality(event, this)">${_('Change Quality Profile')}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="modal fade" id="modal_reset">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">${_('Reset Movies')}</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ${_('Selected movies will be reset.<br/>Quality Profile will be set to Default.<br/>Status will be set to wanted.<br/>Search Results will be removed (including Imports).<br/>This cannot be undone.')}
-                        </p>
-                        <div class="progress hidden">
-                            <div class="progress-bar"></div>
-                        </div>
-                        <table class="table table-striped hidden">
-                            <thead>
-                                <tr>
-                                    <th>IMDB ID</th>
-                                    <th>${_('Error')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+        </template>
 
-                    <div class="modal-footer">
-                        <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <a class="btn btn-warning" onclick="reset_movies(event, this)">${_('Reset Movies')}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="modal fade" id="modal_remove">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">${_('Remove Movies')}</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ${_('Selected movies will be removed from the library.<br/>This will not delete movie files.<br/>This cannot be undone.')}
-                        </p>
-                        <div class="progress hidden">
-                            <div class="progress-bar"></div>
-                        </div>
-                        <table class="table table-striped hidden">
-                            <thead>
-                                <tr>
-                                    <th>IMDB ID</th>
-                                    <th>${_('Error')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group btn-group-justified">
-                            <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                            <a class="btn btn-danger" onclick="remove_movies(event, this)">${_('Remove Movies')}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </body>
 </html>

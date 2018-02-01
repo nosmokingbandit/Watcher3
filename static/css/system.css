@@ -1,33 +1,32 @@
-table#tasks{
-    font-size: 0.9em;
-}
-
-table#tasks th.center,
-table#tasks td.center{
-    width: 1%;
-    text-align: center;
-}
-
-table#tasks i.disabled{
-    opacity: 0.5;
-    transition: inherit;
-}
-
-.panel-footer{
-    word-wrap: break-word;
-}
-
-.progress{
-    margin-top: 1.25em;
+h5{
+    display: inline-block;
+    margin: 0;
 }
 
 #donate{
     padding-top: 2em;
-    font-size: 0.75em;
+    font-size: 0.8em;
     margin: 0 auto;
     text-align: center;
 }
 
-#donate i{
-    transition: none;
+.hidden{
+    display: none;
+}
+
+.modal-body label{
+    margin: 0;
+    overflow: hidden;
+}
+
+.modal-body > div.text_content{
+    transition: .6s;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+div.progress{
+    transition: .6s;
+    max-height: 0%;
+    overflow: hidden;
 }

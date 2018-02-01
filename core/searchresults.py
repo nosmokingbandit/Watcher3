@@ -19,7 +19,7 @@ class Score():
 
         If imported is True imdbid can be ignored. Otherwise imdbid is required.
 
-        If imported, uses modified 'Default' quality profile so results
+        If imported, uses modified 'base' quality profile so results
             cannot be filtered out.
 
         Iterates over the list and filters movies based on Words.
@@ -63,7 +63,7 @@ class Score():
             if quality_profile in core.CONFIG['Quality']['Profiles']:
                 quality = core.CONFIG['Quality']['Profiles'][quality_profile]
             else:
-                quality = core.CONFIG['Quality']['Profiles']['Default']
+                quality = core.config.default_profile()
 
         sources = quality['Sources']
         retention = core.CONFIG['Search']['retention']
@@ -383,12 +383,12 @@ class Score():
     def import_quality(self):
         ''' Creates quality profile for imported results
 
-        Creates import profile that mimics Default profile, but it incapable
+        Creates import profile that mimics the base profile, but it incapable
             of removing search results.
 
         Returns dict
         '''
-        profile = json.loads(json.dumps(core.CONFIG['Quality']['Profiles']['Default']))
+        profile = core.config.base_profile
 
         profile['ignoredwords'] = ''
         profile['requiredwords'] = ''

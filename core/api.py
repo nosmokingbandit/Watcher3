@@ -5,7 +5,6 @@ import threading
 
 import logging
 
-
 logging = logging.getLogger(__name__)
 
 api_version = 2.2
@@ -45,7 +44,7 @@ mode=addmovie
         Adds a movie to the user's library
         Accepts imdb and tmdb id #s
         Imdb id must include 'tt'
-        Will add using 'Default' quality profile unless specified otherwise
+        Will add using Default quality profile unless specified otherwise
 
     Example:
         Request:
@@ -239,7 +238,7 @@ class API(object):
         origin = cherrypy.request.headers.get('User-Agent', 'API')
         origin = 'API' if origin.startswith('Mozilla/') else origin
         if quality is None:
-            quality = 'Default'
+            quality = core.config.default_profile()
 
         if imdbid:
             logging.info('API request add movie imdb {}'.format(imdbid))

@@ -2,101 +2,105 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/import/kodi.css?v=001" rel="stylesheet">
-        <script src="${url_base}/static/js/library/import/shared.js?v=001" type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/import/kodi.js?v=001" type="text/javascript"></script>
+        <link href="${url_base}/static/css/library/import/kodi.css?v=010 rel="stylesheet">
+        <script src="${url_base}/static/js/library/import/shared.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/import/kodi.js?v=010 type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
+        <div class="container">
             <h1>${_('Import Kodi Library')}</h1>
             <br/>
-            <span id="progress_text"></span>
-            <div class="progress hidden">
+
+            <nav id="stepper" class="nav nav-pills nav-fill">
+                <span class="nav-item nav-link border active" target="connect">Connect</span>
+                <span class="nav-item nav-link border mx-3" target="import">Import</span>
+                <span class="nav-item nav-link border" target="review">Review</span>
+            </nav>
+
+            <div id="progress_bar" class="progress my-3 bg-dark">
                 <div class="progress-bar"></div>
+                <span class="text-light"></span>
             </div>
 
-            <div id="server_info" class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Kodi Server Information')}</h3>
+            <form id="connect" class="form-group row bg-light rounded mx-auto py-3">
+                <div class="col-md-6">
+                    <label>${_('Address')}</label>
+                    <input type="text" id="address" class="form-control" placeholder="http://localhost">
                 </div>
-                <div class="panel-body">
-                    <div class="col-md-6">
-                        <label>${_('Address')}</label>
-                        <input type="text" id="address" class="form-control" placeholder="http://localhost">
-                    </div>
-                    <div class="col-md-6">
-                        <label>${_('Port')}</label>
-                        <input type="number" id="port" class="form-control" min="0" placeholder="8080">
-                    </div>
-                    <div class="col-md-6">
-                        <label>${_('User Name')}</label>
-                        <input type="text" id="user" class="form-control" placeholder="Kodi">
-                    </div>
-                    <div class="col-md-6">
-                        <label>${_('Password')}</label>
-                        <input type="text" id="password" class="form-control" placeholder="password">
-                    </div>
+                <div class="col-md-6">
+                    <label>${_('Port')}</label>
+                    <input type="number" id="port" class="form-control" min="0" placeholder="8080">
                 </div>
-            </div>
-            <a id="scan_library" class="btn btn-primary" onclick="scan_library(event, this)">
-                <i class="mdi mdi-file-find"></i>
-                ${_('Scan Library')}
-            </a>
+                <div class="col-md-6">
+                    <label>${_('User Name')}</label>
+                    <input type="text" id="user" class="form-control" placeholder="Kodi">
+                </div>
+                <div class="col-md-6">
+                    <label>${_('Password')}</label>
+                    <input type="text" id="password" class="form-control" placeholder="password">
+                </div>
+                <div class="col-md-12 mt-3">
+                    <button class="btn btn-primary float-right" onclick="connect(event, this)">
+                        <i class="mdi mdi-file-find"></i>
+                        ${_('Scan Library')}
+                    </button>
+                </div>
+            </form>
 
-            <div id="no_new_movies" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('No New Movies Found')}</h3>
+            <form id="import" class="form-group row bg-light rounded mx-auto py-3 hidden">
+                <div id="no_imports" class="hidden">
+                    <div class="alert alert-info mx-3">
+                            ${_('No new movies found.')}
+                    </div>
+                    <button class="btn btn-secondary float-right mr-3">
+                        ${_('Return')}
+                    </button>
                 </div>
-                <div class="panel-body">
-                    ${_('No new movies have been found in Kodi\'s library.')}
-                </div>
-            </div>
 
-            <div id="remote_map" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Remote Paths')}</h3>
-                </div>
-                <div class="panel-body">
-                    <p>${_('Kodi lists file locations relative to itself. If Kodi is on a different device than Watcher you may need to alter file paths.')}
-                    </p>
-                    <p>
+                <div id="remote_map" class="card mx-3 hidden">
+                    <div class="card-header">
+                        <big>${_('Remote Paths')}</big>
+                    </div>
+                    <div class="card-body">
+                        ${_('Kodi lists file locations relative to itself. If Kodi is on a different device than Watcher you may need to alter file paths.')}
+                        <br/><br/>
                         ${_('To alter a remote path, enter the information in the following form and click Apply. Multiple changes can be applied. Use the same principles as described in the wiki.')}
                         <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Remote-Mapping" target="_blank" rel="noopener">
                             <i class="mdi mdi-help-circle-outline"></i>
                         </a>
-                    </p>
-                    <div class="col-md-6">
-                        <label>${_('Local Path')}</label>
-                        <input type="text" id="local_path" class="form-control" placeholder="//Movies">
-                    </div>
-                    <div class="col-md-6">
-                        <label>${_('Remote Path')}</label>
-                        <input type="text" id="remote_path" class="form-control" placeholder="//Movies">
-                    </div>
-                    <div id="remote_actions" class="col-md-6 btn-group">
-                        <a class="btn btn-default" onclick="apply_remote(event)">
-                            <i class="mdi mdi-check"></i>
-                            ${_('Apply')}
-                        </a>
-                        <a class="btn btn-default" onclick="reset_remote(event)">
-                            <i class="mdi mdi-undo"></i>
-                            ${_('Reset')}
-                        </a>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>${_('Local Path')}</label>
+                                <input type="text" id="local_path" class="form-control" placeholder="//Movies">
+                            </div>
+                            <div class="col-md-6">
+                                <label>${_('Remote Path')}</label>
+                                <input type="text" id="remote_path" class="form-control" placeholder="//Movies">
+                            </div>
+                            <div id="remote_actions" class="col-md-12 mt-3">
+                                <button class="btn btn-secondary float-right" onclick="apply_remote(event)">
+                                    <i class="mdi mdi-check"></i>
+                                    ${_('Apply')}
+                                </button>
+                                <button class="btn btn-secondary float-right mr-3" onclick="reset_remote(event)">
+                                    <i class="mdi mdi-undo"></i>
+                                    ${_('Reset')}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="scanned_movies" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Kodi Movies')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-striped table-hover">
+                <div id="complete_movies" class="hidden">
+                    <h3 class="ml-3">
+                        ${_('Kodi Movies')}
+                    </h3>
+                    <table class="table table-sm table-hover">
                         <thead>
                             <tr>
                                 <th class="shrink">${_('Import')}</th>
-                                <th>${_('File Location')}</th>
+                                <th>${_('File')}</th>
                                 <th>${_('Title')}</th>
                                 <th class="shrink">${_('IMDB ID')}</th>
                                 <th class="shrink">${_('Source')}</th>
@@ -106,38 +110,34 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
-                <i class="mdi mdi-archive"></i>
-                ${_('Import Library')}
-            </a>
+                <button id="button_import" class="btn btn-primary float-right mr-3 hidden" onclick="start_import(event, this)">
+                    <i class="mdi mdi-archive"></i>
+                    ${_('Import Library')}
+                </button>
+            </form>
 
-
-            <div id="import_success" class="panel panel-success hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Imported Movies')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-striped table-hover">
+            <form id="review" class="form-group row bg-light rounded mx-auto py-3 hidden">
+                <div id="import_success" class="hidden">
+                    <h3 class="ml-3">${_('Imported Movies')}</h3>
+                    <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
-                                <th class="shrink">${_('IMDB ID')}</th>
+                                <th>
+                                    ${_('Title')}
+                                </th>
+                                <th class="shrink">
+                                    ${_('IMDB ID')}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div id="import_error" class="panel panel-danger hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Import Errors')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-striped table-hover">
+                <div id="import_error" class="hidden">
+                    <h3 class="ml-3">${_('Import Errors')}</h3>
+                    <table class="table table-sm table-hover">
                         <thead>
                             <tr>
                                 <th>${_('Title')}</th>
@@ -148,24 +148,23 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
-                <i class="mdi mdi-undo-variant"></i>
-                ${_('Return')}
-            </a>
-
-
+                <button class="btn btn-secondary float-right mr-3">
+                    ${_('Return')}
+                </button>
+            </form>
         </div>
-        <textarea id="source_select" class="hidden">
-            <select class="source_select btn btn-sm btn-default">
+
+        <template id="source_select">
+            <select class="source_select btn btn-sm btn-light border">
                 %for source in sources:
                 <option value="${source}">${source}</option>
                 %endfor
             </select>
-        </textarea>
-        <textarea id="quality_select" class="hidden">
-            <select class="quality_select btn btn-sm btn-default">
+        </template>
+
+        <template id="quality_select">
+            <select class="quality_select btn btn-sm btn-light border">
                 %for profile in profiles:
                     %if profile == "Default":
                     <option value="Default" selected="true">Default</option>
@@ -174,6 +173,6 @@
                     %endif
                 %endfor
             </select>
-        </textarea>
+        </template>
     </body>
 </html>

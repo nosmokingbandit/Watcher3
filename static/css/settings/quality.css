@@ -1,24 +1,9 @@
-div.quality_profile{
-    overflow: auto;
-    transition: none;
+div.quality_profile input,
+div.quality_profile .input-group{
+    margin-bottom: 1.5em;
 }
 
-div.quality_profile h2{
-    margin-top: 0;
-}
 
-div.panel{
-    margin-top: 1em;
-}
-
-div.panel i{
-    font-size: 1.75em;
-}
-
-div.panel ul li{
-    margin: 0.25em 0;
-}
-
-form#profiles .panel input{
-    margin: 0 0 1em 0;
+div.profile_contents{
+    display: none;
 }

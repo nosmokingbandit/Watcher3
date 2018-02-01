@@ -1,129 +1,113 @@
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
+<nav class="navbar navbar-expand-md navbar-light bg-light shadow">
+    <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <i class="mdi mdi-menu"></i>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span>
+                    <i class="mdi mdi-menu"></i>
+                </span>
             </button>
             <a href="${url_base}/library/status">
-              <img src="${url_base}/static/images/logo.png" alt="" class="navbar-brand">
+                <img src="${url_base}/static/images/logo.png" alt="" class="">
             </a>
         </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-            <ul class="nav navbar-nav">
-                <li class="dropdown ${'active' if current == 'library' else ''}">
-                    <a href="${url_base}/library/status" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item dropdown ${'active' if current == 'library' else ''}">
+                    <a href="${url_base}/library/status" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         ${_('Library')}
-                        <i class="mdi mdi-chevron-down"></i>
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="${url_base}/library/status">
+                            <a href="${url_base}/library/status" class="nav-link">
                                 <i class="mdi mdi-bookmark"></i> ${_('Status')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/library/manage">
+                            <a href="${url_base}/library/manage" class="nav-link">
                                 <i class="mdi mdi-briefcase"></i> ${_('Manage')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/library/import">
+                            <a href="${url_base}/library/import" class="nav-link">
                                 <i class="mdi mdi-archive"></i> ${_('Import')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/library/stats">
+                            <a href="${url_base}/library/stats" class="nav-link">
                                 <i class="mdi mdi-chart-bar"></i> ${_('Stats')}
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li class="${'active' if current == 'add_movie' else ''}">
-                    <a href="${url_base}/add_movie" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                    ${_('Add Movie')}
- 		    <i class="mdi mdi-chevron-down"></i>
-		    </a>
-		     <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a href="${url_base}/add_movie">
-                                <i class="mdi mdi-magnify"></i> ${_('Search')}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="${url_base}/sugg_popular">
-                                <i class="mdi mdi-star"></i> ${_('Suggestions')}
-                            </a>
-                        </li>
-                    </ul>
+                <li class="nav-item ${'active' if current == 'add_movie' else ''}">
+                    <a href="${url_base}/add_movie" class="nav-link">${_('Add Movie')}</a>
                 </li>
-                <li class="dropdown ${'active' if current == 'settings' else ''}">
-                    <a href="${url_base}/settings/server" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                <li class="nav-item dropdown ${'active' if current == 'settings' else ''}">
+                    <a href="${url_base}/settings/server" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         ${_('Settings')}
-                        <i class="mdi mdi-chevron-down"></i>
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="${url_base}/settings/server">
+                            <a href="${url_base}/settings/server" class="nav-link">
                                 <i class="mdi mdi-server"></i> ${_('Server')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/search">
+                            <a href="${url_base}/settings/search" class="nav-link">
                                 <i class="mdi mdi-magnify"></i> ${_('Search')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/quality">
+                            <a href="${url_base}/settings/quality" class="nav-link">
                                 <i class="mdi mdi-video"></i> ${_('Quality')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/indexers">
+                            <a href="${url_base}/settings/indexers" class="nav-link">
                                 <i class="mdi mdi-sitemap"></i> ${_('Indexers')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/downloader">
+                            <a href="${url_base}/settings/downloader" class="nav-link">
                                 <i class="mdi mdi-download"></i> ${_('Downloader')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/postprocessing">
+                            <a href="${url_base}/settings/postprocessing" class="nav-link">
                                 <i class="mdi mdi-file-video"></i> ${_('Postprocessing')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/plugins">
+                            <a href="${url_base}/settings/plugins" class="nav-link">
                                 <i class="mdi mdi-puzzle"></i> ${_('Plugins')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/logs">
+                            <a href="${url_base}/settings/logs" class="nav-link">
                                 <i class="mdi mdi-clipboard-text"></i> ${_('Logs')}
                             </a>
                         </li>
                         <li>
-                            <a href="${url_base}/settings/system">
+                            <a href="${url_base}/settings/system" class="nav-link">
                                 <i class="mdi mdi-memory"></i> ${_('System')}
                             </a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="dropdown-divider"></li>
                         %if show_logout:
                         <li data-toggle="modal" data-target="#modal_logout">
-                            <a>
+                            <a class="nav-link">
                                 <i class="mdi mdi-logout"></i> ${_('Log Out')}
                             </a>
                         </li>
                         %endif
                         <li>
-                            <a data-toggle="modal" data-target="#modal_restart">
+                            <a data-toggle="modal" data-target="#modal_restart" class="nav-link">
                                 <i class="mdi mdi-restart"></i> ${_('Restart')}
                             </a>
                         </li>
                         <li>
-                            <a data-toggle="modal" data-target="#modal_shutdown">
+                            <a data-toggle="modal" data-target="#modal_shutdown" class="nav-link">
                                 <i class="mdi mdi-power"></i> ${_('Shut Down')}
                             </a>
                         </li>
@@ -149,12 +133,18 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">${_('Log Out?')}</h4>
+                <h4 class="modal-title">
+                    ${_('Log Out?')}
+                </h4>
+                <button class="btn btn-secondary btn-sm float-right" data-dismiss="modal">
+                    <i class="mdi mdi-close"></i>
+                </button>
             </div>
             <div class="modal-footer">
                 <div class="btn-group btn-group-justified">
-                    <a class="btn btn-default" data-dismiss="modal">${_('Cancel')}</a>
-                    <a class="btn btn-warning" onclick="logout(event)">${_('Log Out')}</a>
+                    <a class="btn btn-warning" onclick="logout(event)">
+                        ${_('Log Out')}
+                    </a>
                 </div>
             </div>
         </div>
@@ -165,13 +155,17 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">${_('Shut Down Watcher?')}</h4>
+                <h4 class="modal-title">
+                    ${_('Shut Down Watcher?')}
+                </h4>
+                <button class="btn btn-secondary btn-sm float-right" data-dismiss="modal">
+                    <i class="mdi mdi-close"></i>
+                </button>
             </div>
             <div class="modal-footer">
-                <div class="btn-group btn-group-justified">
-                    <a class="btn btn-default" data-dismiss="modal">${_('Cancel')}</a>
-                    <a href="${url_base}/system/shutdown" class="btn btn-danger">${_('Shut Down')}</a>
-                </div>
+                <a href="${url_base}/system/shutdown" class="btn btn-outline-danger">
+                    ${_('Shut Down')}
+                </a>
             </div>
         </div>
     </div>
@@ -181,13 +175,17 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">${_('Restart Watcher?')}</h4>
+                <h4 class="modal-title">
+                    ${_('Restart Watcher?')}
+                </h4>
+                <button class="btn btn-secondary btn-sm float-right" data-dismiss="modal">
+                    <i class="mdi mdi-close"></i>
+                </button>
             </div>
             <div class="modal-footer">
-                <div class="btn-group btn-group-justified">
-                    <a class="btn btn-default" data-dismiss="modal">${_('Cancel')}</a>
-                    <a href="${url_base}/system/restart" class="btn btn-warning">${_('Restart')}</a>
-                </div>
+                <a href="${url_base}/system/restart" class="btn btn-warning">
+                    ${_('Restart')}
+                </a>
             </div>
         </div>
     </div>

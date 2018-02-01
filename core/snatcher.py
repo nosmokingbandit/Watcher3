@@ -211,7 +211,7 @@ class Snatcher():
                     logging.info('Successfully sent {} to {}.'.format(title, client))
 
                     db_update = {'downloadid': response['downloadid'], 'download_client': client}
-                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, 'guid', guid)
 
                     if self.update_status_snatched(guid, imdbid):
                         return {'response': True, 'message': 'Sent to {}.'.format(client), 'download_client': client, 'downloadid': response['downloadid']}
@@ -250,7 +250,7 @@ class Snatcher():
                     logging.info('Successfully sent {} to {}.'.format(title, client))
 
                     db_update = {'downloadid': response['downloadid'], 'download_client': client}
-                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, guid=guid)
+                    core.sql.update_multiple_values('SEARCHRESULTS', db_update, 'guid', guid)
 
                     if self.update_status_snatched(guid, imdbid):
                         return {'response': True, 'message': 'Sent to {}.'.format(client), 'download_client': client, 'downloadid': response['downloadid']}

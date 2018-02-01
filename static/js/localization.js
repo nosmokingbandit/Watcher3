@@ -10,5 +10,5 @@ Strings to be translated are key:val pairs in the language code object, with the
 */
 
 languages = {
-
+    "en": {}
 }

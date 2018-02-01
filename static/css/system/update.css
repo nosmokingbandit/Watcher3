@@ -31,7 +31,8 @@ div.updating{
 
 div#thinker{
     width: 4em;
-    height: 1em;
-    bottom: calc(50% - 0.5em);
+    height: 4em;
+    bottom: calc(50% - 2em);
     right: calc(50% - 2em);
 }
+

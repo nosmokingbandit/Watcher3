@@ -1,45 +1,18 @@
 body{
-    width: 100%;
-    height: 100%;
-    margin-top: 0;
-    padding: 0;
-}
 
-i.mdi{
-    transition: none;
-}
-
-div#content{
-    height: 100%;
     background-image: url('../images/logo_big.png');
     background-position: 50% 25%;
     background-repeat: no-repeat;
-    transition: 2s;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-    align-items: center;
 }
 
-div#content > div{
-    margin: 0 auto;
-}
 
-div.input-group{
-    margin-top: 1em;
-}
-
-.message{
+div.row{
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 70%;
-    text-align: center;
+    top: 50%;
+    left: 0%;
+    right: 0%;
 }
 
-.message > i{
-    font-size: 1.5em;
+div.row > div{
+    margin-bottom: 1em;
 }

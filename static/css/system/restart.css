@@ -24,7 +24,8 @@ div.message{
 
 div#thinker{
     width: 4em;
-    height: 1em;
-    bottom: calc(50% - 0.5em);
+    height: 4em;
+    line-height: 4em;
+    bottom: calc(50% - 2.25em);
     right: calc(50% - 2em);
 }

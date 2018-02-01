@@ -1,0 +1,73 @@
+$white:    #fff !default;
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #999 !default;
+$gray-600: #7A8288 !default;
+$gray-700: #52575C !default;
+$gray-800: #3A3F44 !default;
+$gray-900: #272B30 !default;
+$black:    #000 !default;
+
+$blue:    #007bff !default;
+$indigo:  #6610f2 !default;
+$purple:  #6f42c1 !default;
+$pink:    #e83e8c !default;
+$red:     #ee5f5b !default;
+$orange:  #fd7e14 !default;
+$yellow:  #f89406 !default;
+$green:   #62c462 !default;
+$teal:    #20c997 !default;
+$cyan:    #5bc0de !default;
+
+$primary:       $blue !default;
+$secondary:     $gray-700 !default;
+$success:       $green !default;
+$info:          $cyan !default;
+$warning:       $yellow !default;
+$danger:        $red !default;
+$light:         $gray-800 !default;
+$dark:          $gray-200 !default;
+
+// Options
+$enable-rounded: true !default;
+
+// Common
+$border-color:  $gray-600 !default;
+
+// Body
+$body-color:    $gray-200 !default;
+$body-bg:       $gray-900 !default;
+
+// Fonts
+$font-family-sans-serif: "Segoe UI", "Source Sans Pro", Calibri, Candara, Arial, sans-serif !default;
+$font-size-base: 0.9375rem !default;
+$headings-font-weight:   300 !default;
+
+// Navbar
+$navbar-light-color:                $gray-400 !default;
+$navbar-light-hover-color:          $gray-200 !default;
+$navbar-light-active-color:         $gray-200 !default;
+
+$dropdown-link-color:               $gray-200 !default;
+$dropdown-header-color:             $gray-400 !default;
+$dropdown-bg:                       $gray-900 !default;
+$dropdown-border-color:             $border-color !default;
+$dropdown-divider-bg:               $border-color !default;
+
+// Cards
+$card-bg:                           $light !default;
+
+// Modals
+$modal-content-bg:               $body-bg !default;
+$modal-header-border-color:      $border-color !default;
+
+// List Groups Alternating Rows
+$list-group-bg:                     $body-bg !default;
+
+// Input and Forms
+$input-color:                           $gray-800 !default;
+$input-group-addon-color:               $body-color !default;
+$input-group-addon-bg:                  $gray-800 !default;
+$input-group-addon-border-color:        $border-color !default;

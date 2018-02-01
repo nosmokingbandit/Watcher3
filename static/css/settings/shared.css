@@ -1,44 +1,15 @@
 form{
-
-    overflow: auto;
-}
-
-h1{
-    margin-top: 0.75em;
-}
-
-form input{
-    line-height: 1.5em;
-}
-
-form input[type="time"]{
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-label{
-    display: inline-block;
+    max-width: 95%;
 }
 
 form > div{
-    margin: 0 0 1em 0;
+    margin-bottom: 1em;
 }
 
-.list-group-item{
-    overflow: auto;
-    line-height: 1.5em;
+label{
+    font-weight: 500;
 }
 
-.separator{
-    margin-top: 1.5em;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.4);
-}
-
-
-.input-group-addon.box_box{
-    padding: 0.5em;
-}
-
-.input-group-addon.box_box > i.c_box{
-    font-size: 1.75em;
+button#save_settings{
+    margin: 0 1.25em 1em 0;
 }

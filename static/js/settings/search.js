@@ -1,11 +1,9 @@
 $(document).ready(function () {
-    $("input[type='time']").each(function(i, elem){
-        var $this = $(elem);
-        var hr = $this.data("hour").toString().padStart(2, 0);
-        var min = $this.data("minute").toString().padStart(2, 0);
-        $this.attr("value", hr + ":" + min);
+    each(document.querySelectorAll('input[type="time"]'), function(input){
+        var hr = input.dataset.hour.toString().padStart(2, 0);
+        var min = input.dataset.minute.toString().padStart(2, 0);
+        input.value = hr + ':' + min;
     })
-
 });
 
 function _get_settings(){
@@ -18,10 +16,9 @@ function _get_settings(){
 // SEARCH
     var required_fields = ['rsssyncfrequency', 'waitdays', 'mintorrentseeds', 'freeleechpoints', 'retention']
 
-    $("form[data-category='search'] i.c_box").each(function(){
-        var $this = $(this);
-        settings[$this.attr("id")] = is_checked($this);
-    });
+    each(document.querySelectorAll("form[data-category='search'] i.c_box"), function(checkbox){
+        settings[checkbox.id] = is_checked(checkbox);
+    })
 
     if(settings['skipwait']){
         required_fields.push("skipwaitweeks")
@@ -30,34 +27,25 @@ function _get_settings(){
         required_fields.push("keepsearchingdays", "keepsearchingscore")
     }
 
-    $("form[data-category='search'] :input:not(button)").each(function(){
-        var $this = $(this);
-        if($this.val() == "" && required_fields.includes($this.attr("id"))){
-            $this.addClass("empty");
+    each(document.querySelector("form[data-category='search']").querySelectorAll('input, select'), function(input){
+        if(input.value == "" && required_fields.includes(input.id)){
+            input.classList.add('border-danger');
             blanks = true;
+            return
         }
-
-        if($this.attr("type") == "number"){
-            var min = parseInt($this.attr("min"));
-            var val = Math.max(parseInt($this.val()), min);
-            settings[$this.attr("id")] = val || min;
-        }
-        else{
-            settings[$this.attr("id")] = $this.val();
-        }
-    });
+        settings[input.id] = parse_input(input);
+    })
 
 // SERVER['WATCHLISTS']
     required_fields = []
 
-    $("form[data-category='watchlists'] i.c_box").each(function(){
-        var $this = $(this);
-        if($this.data("sub-category") == "traktlist"){
-            settings["Watchlists"]["Traktlists"][$this.attr("id")] = is_checked($this);
+    each(document.querySelectorAll("form[data-category='watchlists'] i.c_box"), function(checkbox){
+        if(checkbox.dataset['subCategory'] == 'traktlist'){
+            settings['Watchlists']['Traktlists'][checkbox.id] = is_checked(checkbox);
         } else {
-            settings["Watchlists"][$this.attr("id")] = is_checked($this);
+            settings['Watchlists'][checkbox.id] = is_checked(checkbox);
         }
-    });
+    })
 
     if(settings["Watchlists"]['imdbsync']){
         required_fields.push("imdbrss", "imdbfrequency")
@@ -69,35 +57,27 @@ function _get_settings(){
         required_fields.push("traktfrequency", "traktscore", "traktlength")
     }
 
-    $("form[data-category='watchlists'] :input:not(button)").each(function(){
-        var $this = $(this);
-        if($this.val() == "" && required_fields.includes($this.attr("id"))){
-            $this.addClass("empty");
+
+    each(document.querySelector("form[data-category='watchlists']").querySelectorAll('input, select'), function(input){
+        if(input.value == "" && required_fields.includes(input.id)){
+            input.classList.add('border-danger');
             blanks = true;
+            return
         }
-
-        if($this.attr("id") == "popularmoviestime"){
-            var [hour, min] = $this.val().split(":").map(function(item){
-                                                             return parseInt(item);
-                                                         });
-
-            settings["Watchlists"]["popularmovieshour"] = hour;
-            settings["Watchlists"]["popularmoviesmin"] = min;
-        }
-        else if($this.attr("type") == "number"){
-            var min = parseInt($this.attr("min"));
-            var val = Math.max(parseInt($this.val()), min);
-            settings["Watchlists"][$this.attr("id")] = val || min;
-        }
-        else if($this.attr("id") == "imdbrss"){
-            settings["Watchlists"]["imdbrss"] = $this.val().split(',').map(function(item){
+        if(input.id == 'popularmoviestime'){
+            var [hour, min] = input.value.split(":").map(function(item){
+                return parseInt(item);
+            });
+            settings['Watchlists']['popularmovieshour'] = hour;
+            settings['Watchlists']['popularmoviesmin'] = min;
+        } else if(input.id == "imdbrss"){
+            settings["Watchlists"]["imdbrss"] = input.value.split(',').map(function(item){
                                                                                return item.trim();
                                                                            });
+        } else {
+            settings['Watchlists'][input.id] = parse_input(input);
         }
-        else {
-            settings["Watchlists"][$this.attr("id")] = $this.val();
-        }
-    });
+    })
 
     if(blanks == true){
         return false;

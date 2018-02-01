@@ -2,81 +2,84 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/library/import/directory.css?v=001" rel="stylesheet">
-        <script src="${url_base}/static/js/library/import/shared.js?v=001" type="text/javascript"></script>
-        <script src="${url_base}/static/js/library/import/directory.js?v=001" type="text/javascript"></script>
+        <link href="${url_base}/static/css/library/import/directory.css?v=010 rel="stylesheet">
+        <script src="${url_base}/static/js/library/import/shared.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/import/directory.js?v=010 type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
+        <div class="container">
             <h1>${_('Import Directory')}</h1>
             <br/>
-            <span id="progress_text"></span>
-            <div class="progress hidden">
+
+            <nav id="stepper" class="nav nav-pills nav-fill">
+                <span class="nav-item nav-link border active" target="connect">Connect</span>
+                <span class="nav-item nav-link mx-3 border" target="import">Import</span>
+                <span class="nav-item nav-link border" target="review">Review</span>
+            </nav>
+
+            <div id="progress_bar" class="progress my-3 bg-dark">
                 <div class="progress-bar"></div>
+                <span class="text-light"></span>
             </div>
 
-            <div id="select_directory" class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Select Directory')}</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="col-md-12">
-                        <div class="input-group">
-                            <span class="input-group-item">
-                                <input type="text" id="directory_input" class="form-control">
-                            </span>
-                            <span class="input-group-btn">
-                                <a class="btn btn-default" data-toggle="modal" data-target="#modal_browser">
-                                    <i class="mdi mdi-folder-open"></i>
-                                </a>
-                            </span>
-                        </div>
+            <form id="connect" class="form-group row bg-light rounded mx-auto py-3">
+                <div class="col-md-12">
+                    <label>${_('Select Directory')}</label>
+                    <div class="input-group">
+                           <input type="text" id="directory_input" class="form-control">
+                        <span class="input-group-append">
+                            <button class="btn btn-light border" data-toggle="modal" data-target="#modal_browser" onclick="(function(event){event.preventDefault()})(event)">
+                                <i class="mdi mdi-folder-open"></i>
+                            </button>
+                        </span>
                     </div>
-                    <div class="col-md-6">
-                        <label>${_('Minimum File Size')}</label>
-                        <div class="input-group">
-                            <span class="input-group-item">
-                                <input type="number" id="min_file_size" class="form-control" min="0" value="500">
-                            </span>
-                            <span class="input-group-addon">
+                </div>
+                <div class="col-md-6">
+                    <label>${_('Minimum File Size')}</label>
+                    <div class="input-group">
+                        <input type="number" id="min_file_size" class="form-control" min="0" value="500">
+                        <span class="input-group-append">
+                            <span class="input-group-text">
                                 ${_('MegaBytes')}
                             </span>
-                        </div>
+                        </span>
                     </div>
-                    <div class="col-md-6">
-                        <label>${_('Scan Recursively')}</label>
-                        <div class="input-group">
-                            <span class="input-group-addon">
+                </div>
+                <div class="col-md-6">
+                    <label>${_('Scan Recursively')}</label>
+                    <div class="input-group">
+                        <span class="input-group-prepend">
+                            <span class="input-group-text">
                                 <i id="scan_recursive" class="mdi mdi-checkbox-marked c_box" value="True"></i>
                             </span>
-                            <span class="input-group-item form-control">
-                                ${_('Scan sub-folders as well.')}
-                            </span>
-                        </div>
+                        </span>
+                        <span class="input-group-item form-control">
+                            ${_('Scan sub-folders')}
+                        </span>
                     </div>
                 </div>
-            </div>
-            <a id="scan_dir" class="btn btn-primary" onclick="scan_library(event, this)">
-                <i class="mdi mdi-file-find"></i>
-                ${_('Scan Directory')}
-            </a>
+                <div class="col-md-12 mt-3">
+                    <button class="btn btn-primary float-right" onclick="connect(event, this)">
+                        <i class="mdi mdi-file-find"></i>
+                        ${_('Scan Directory')}
+                    </button>
+                </div>
+            </form>
 
-            <div id="no_new_movies" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('No New Movies Found')}</h3>
+            <form id="import" class="form-group row bg-light rounded mx-auto py-3 hidden">
+                <div id="no_imports" class="hidden">
+                    <div class="alert alert-info mx-3">
+                            ${_('No new movies found.')}
+                    </div>
+                    <button class="btn btn-secondary float-right mr-3">
+                        ${_('Return')}
+                    </button>
                 </div>
-                <div class="panel-body">
-                    ${_('No new movies have been found.')}
-                </div>
-            </div>
 
-            <div id="complete_movies" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Found Movies')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-hover">
+                <div id="complete_movies" class="hidden">
+                    <h3 class="ml-3">${_('Found Movies')}</h3>
+                    <table class="table table-hover table-sm">
                         <thead>
                             <tr>
                                 <th class="shrink">${_('Import')}</th>
@@ -91,15 +94,10 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div id="incomplete_movies" class="panel panel-default hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Incomplete Movies')}</h3>
-                </div>
-                <div class="panel-body">
-                    <p>${_('The following movies are missing key information. Review and correct as needed.')}</p>
-                    <table class="table table-hover">
+                <div id="incomplete_movies" class="hidden">
+                    <h3 class="ml-3">${_('Incomplete Movies')}</h3>
+                    <p class="mx-3">${_('The following movies are missing key information. Review and correct as needed.')}</p>
+                    <table class="table table-hover table-sm">
                         <thead>
                             <tr>
                                 <th class="shrink">${_('Import')}</th>
@@ -114,27 +112,24 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
 
-            <a id="import_library" class="btn btn-primary hidden" onclick="import_library(event, this)">
-                <i class="mdi mdi-archive"></i>
-                ${_('Import Library')}
-            </a>
+                <button id="button_import" class="btn btn-primary float-right mr-3 hidden" onclick="start_import(event, this)">
+                    <i class="mdi mdi-archive"></i>
+                    ${_('Import Library')}
+                </button>
+            </form>
 
-            <div id="import_success" class="panel panel-success hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Imported Movies')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-hover">
+            <form id="review" class="form-group row bg-light rounded mx-auto py-3 hidden">
+                <div id="import_success" class="hidden">
+                    <h3 class="ml-3">${_('Imported Movies')}</h3>
+                    <table class="table table-hover table-sm">
                         <thead>
                             <tr>
-                                <th>${_('Title')}</th>
+                                <th>
+                                    ${_('Title')}
+                                </th>
                                 <th class="shrink">
                                     ${_('TheMovieDB&nbsp;ID')}
-                                    <a href="https://www.themoviedb.org/">
-                                        <i class="mdi mdi-globe"></i>
-                                    </a>
                                 </th>
                             </tr>
                         </thead>
@@ -142,14 +137,9 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div id="import_error" class="panel panel-danger hidden">
-                <div class="panel-heading">
-                    <h3 class="panel-title">${_('Import Errors')}</h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table table-hover">
+                <div id="import_error" class="hidden">
+                    <h3 class="ml-3">${_('Import Errors')}</h3>
+                    <table class="table table-hover table-sm">
                         <thead>
                             <tr>
                                 <th>${_('Title')}</th>
@@ -160,24 +150,22 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <a id="import_return" class="btn btn-success hidden" href="${url_base}/library/import">
-                <i class="mdi mdi-undo-variant"></i>
-                ${_('Return')}
-            </a>
-
-
+                <button class="btn btn-secondary float-right mr-3">
+                    ${_('Return')}
+                </button>
+            </form>
         </div>
-        <textarea id="source_select" class="hidden">
-            <select class="source_select btn btn-sm btn-default">
+
+        <template id="source_select">
+            <select class="source_select btn btn-sm btn-light border">
                 %for source in sources:
                 <option value="${source}">${source}</option>
                 %endfor
             </select>
-        </textarea>
-        <textarea id="quality_select" class="hidden">
-            <select class="quality_select btn btn-sm btn-default">
+        </template>
+
+        <template id="quality_select">
+            <select class="quality_select btn btn-sm btn-light border">
                 %for profile in profiles:
                     %if profile == "Default":
                     <option value="Default" selected="true">Default</option>
@@ -186,22 +174,26 @@
                     %endif
                 %endfor
             </select>
-        </textarea>
+        </template>
 
         <div id="modal_browser" class="modal fade">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-wide">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">${_('Select Library Directory')}</h4>
+                        <h4 class="modal-title">
+                            ${_('Select Library Directory')}
+                        </h4>
+                        <button type="button" class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i>
+                        </button>
                     </div>
                     <div class="modal-body">
-                        <div class="well col-md-12" id="modal_current_dir">
-                            ${current_dir}
+                        <div class="col-md-12">
+                            <input type="text" id="modal_current_dir" class="form-control" value="${current_dir}" readonly>
                         </div>
-
-                        <ul id="modal_file_list" class="list-group">
+                        <ul id="modal_file_list" class="mx-3 my-3 rounded">
                             %for i in file_list:
-                            <li class="col-md-6 list-group-item">
+                            <li class="col-md-6 p-1 border">
                                 <i class="mdi mdi-folder"></i>
                                 ${i}
                             </li>
@@ -209,8 +201,9 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <a type="button" class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                        <a type="button" class="btn btn-primary pull-right" onclick="file_browser_select(event, this)">${_('Select')}</a>
+                        <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#modal_browser" onclick="file_browser_select(event, this)">
+                            ${_('Select')}
+                        </button>
                     </div>
                 </div>
             </div>

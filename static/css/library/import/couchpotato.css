@@ -1,30 +1,38 @@
-label{
-    display: inline-block;
-    margin: 1.5em 0 0.5em 0;
+nav.nav-pills > span{
+    user-select: none;
 }
 
-div#server_info,
-a#start_scan,
-a#import_library,
-div.progress,
-div#import_success,
-div#import_error{
-    transition: none;
+.hidden{
+    display: none;
+}
+
+form{
+    margin-top: 1em;
+    overflow: auto;
+}
+
+form > div{
+    margin-bottom: 1em;
 }
 
 table{
-    line-height: 2.25em;
+    font-size: 0.8em;
 }
 
-select{
-    max-width: 10em;
-}
-
-table i.mdi{
-    line-height: 1.75em;
-}
-
-table > thead > tr > th.shrink{
+th.shrink{
     width: 1%;
+}
 
+#progress_bar{
+    overflow: hidden;
+    max-height: 0%;
+    transition: 0.6s;
+    position: relative;
+}
+
+#progress_bar > span{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8em;
 }

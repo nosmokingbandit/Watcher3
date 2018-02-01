@@ -1,10 +1,13 @@
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
+    $stepper = document.getElementById('stepper');
     $progress = $("div.progress");
-    $progress_bar = $("div.progress > div.progress-bar");
-    $progress_text = $("span#progress_text")
 
-    source_select = $("textarea#source_select")[0].innerText;
-    quality_select = $("textarea#quality_select")[0].innerText;
+    $progress = document.getElementById('progress_bar');
+    $progress_bar = $progress.children[0];
+    $progress_text = $progress.children[1];
+
+    $source_select = document.querySelector('template#source_select').content.children[0];
+    $quality_select = document.querySelector('template#quality_select').content.children[0];
 
     // Clear empty highlight on input
     $("body").on("click", "input", function(){
@@ -30,5 +33,16 @@ $(document).ready(function(){
 function is_checked($checkbox){
     // Turns value of checkbox "True"/"False" into bool
     // checkbox: jquery object of checkbox <i>
-    return ($checkbox.attr("value") == "True")
+    return $checkbox.getAttribute("value") == "True"
+}
+
+
+function set_stepper(value){
+    each($stepper.children, function(pill){
+        if(pill.getAttribute('target') == value){
+            pill.classList.add('active');
+        } else {
+            pill.classList.remove('active');
+        }
+    })
 }

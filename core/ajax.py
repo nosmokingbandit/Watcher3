@@ -76,19 +76,18 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def get_suggestions(self, section, tmdbid):
-        ''' show movie get_suggestions tmdb
+    def tmdb_categories(self, cat, tmdbid=None):
+        ''' Get categories of movies from TMDB
 
-        Returns str json-encoded list of dicts that contain tmdb's data.
+        Returns list of dicts of movies
         '''
 
-        results = []
-        try:
-            results = self.tmdb.get_suggestions(section,tmdbid)
-        except:
-            logging.info('No Results found for {}'.format(get_suggestions))
+        return self.tmdb.get_category(cat, tmdbid)[:8]
 
-        return results
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def quick_titles(self):
+        return core.sql.quick_titles()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -645,8 +644,10 @@ class Ajax(object):
 
                 if response['response'] == 'complete':
                     p = metadata.get('poster_path')
+                    r = metadata.get('resolution')
                     metadata = self.metadata.convert_to_db(metadata)
                     metadata['poster_path'] = p
+                    metadata['resolution'] = r
 
                 metadata['size'] = os.path.getsize(path)
                 metadata['human_size'] = Conversions.human_file_size(metadata['size'])
@@ -802,6 +803,36 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
+    def single_movie_details(self, key, value):
+        ''' Gets single movie's details from database
+        key (str): key for sql.get_movie_details
+        value (str): value for sql.get_movie_details
+
+        Returns dict
+        '''
+        return core.sql.get_movie_details(key, value)
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def set_movie_details(self, data):
+        ''' Updates movie in database
+        data (dict): movie fields and values to update
+
+        data *must* include valid tmdbid
+
+        Returns dict
+        '''
+        data = json.loads(data)
+        tmdbid = data.pop('tmdbid')
+
+        if not core.sql.update_multiple_values('MOVIES', data, 'tmdbid', tmdbid):
+            return {'response': False, 'error': Errors.database_write}
+        else:
+            return {'response': True, 'message': 'Database Updated'}
+
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
     def get_kodi_movies(self, url):
         ''' Gets list of movies from kodi server
         url (str): url of kodi server
@@ -859,12 +890,12 @@ class Ajax(object):
             response = core.manage.add_movie(movie)
             if response['response'] is True:
                 fake_results.append(searchresults.generate_simulacrum(movie))
-                yield json.dumps({'response': True, 'progress': [progress, length], 'movie': movie})
+                yield json.dumps({'response': True, 'progress': [progress, length], 'title': movie['title'], 'imdbid': movie['imdbid']})
                 progress += 1
                 success.append(movie)
                 continue
             else:
-                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': response['error']})
+                yield json.dumps({'response': False, 'title': movie['title'], 'imdbid': movie['imdbid'], 'progress': [progress, length], 'error': response['error']})
                 progress += 1
                 continue
 
@@ -1184,7 +1215,7 @@ class Ajax(object):
                 yield json.dumps({'response': False, 'error': _('Unable to purge search results.'), 'imdbid': imdbid, 'index': i + 1})
                 continue
 
-            db_reset = {'quality': 'Default',
+            db_reset = {'quality': config.default_profile(),
                         'status': 'Waiting',
                         'finished_date': None,
                         'finished_score': None,
@@ -1194,7 +1225,7 @@ class Ajax(object):
                         'predb_backlog': None
                         }
 
-            if not core.sql.update_multiple_values('MOVIES', db_reset, imdbid=imdbid):
+            if not core.sql.update_multiple_values('MOVIES', db_reset, 'imdbid', imdbid):
                 yield json.dumps({'response': False, 'error': Errors.database_write, 'imdbid': imdbid, 'index': i + 1})
                 continue
 

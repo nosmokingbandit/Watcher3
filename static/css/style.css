@@ -1,5 +1,5 @@
 body{
-    margin: 5em 0 2em 0;
+    margin: 6em 0 2em 0;
 }
 
 input{
@@ -14,6 +14,14 @@ a:hover{
     text-decoration: none;
 }
 
+.shadow{
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1), 0 3px 3px rgba(0,0,0,0.1);
+}
+
+.container{
+    max-width: 960px;
+}
+
 i.mdi{
     font-size: 1.2em;
     width: 1.25em;
@@ -26,20 +34,36 @@ i.mdi{
 
 i.mdi.animated{
     animation: material-zoom 2s infinite;
+    animation-timing-function: ease-in-out;
+}
+
+nav.navbar{
+    padding: 0.5em;
+}
+
+nav.navbar img{
+    height: 3em;
 }
 
 @keyframes material-zoom {
     0%{
-        transform: scale(0.0);
+        transform: scale(0);
         opacity: 0;
     }
-    50%{
-        opacity: 1.0;
+    40%{
+        opacity: .9;
+    }
+    80%{
+        transform: scale(3);
+        opacity: 0;
     }
     100%{
-        transform: scale(1.5);
         opacity: 0;
     }
+}
+
+button{
+    overflow: hidden;
 }
 
 ul{
@@ -47,14 +71,8 @@ ul{
     padding: 0;
 }
 
-textarea, input, button{ outline: none; }
-
-ul.sortable{
-    transition: none;
-}
-
-div.container-fluid{
-    max-width: 960px;
+textarea, input, button{
+    outline: none;
 }
 
 /* Nav Bar */
@@ -64,19 +82,12 @@ div.container-fluid{
     top: 0;
     left: 0;
     z-index: 10;
-    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.25);
 }
 
-ul.nav > li > a{
-    height: 3em;
-    padding: 0 1em;
-    line-height: 3em;
+ul.dropdown-menu > li{
+    padding-left: 0.5em;
+    min-width: 10.5em;
 }
-
-.navbar div.navbar-right > a.btn{
-    font-size: 1.25em;
-}
-
 
 /* Notification Animations */
 .animated{
@@ -119,29 +130,42 @@ ul.nav > li > a{
 
 /* Loading Animation */
 #thinker{
-    transition: none;
-    display: none;
+    overflow: hidden;
     width: 4em;
+    height: 4em;
+    line-height: 4em;
     font-size: 4em;
 	position: absolute;
     bottom: calc(50% - 2em);
     right: calc(50% - 2em);
-	opacity: 1;
+    opacity: 1;
+    max-height: 0%;
     text-align: center;
-}
-
-#thinker i{
-    vertical-align: middle;
 }
 
 .thinker_small{
-    transition: none;
-    display: none;
+    transition: .6s;
+    max-height: 0%;
     width: 100%;
     font-size: 2em;
-    padding: 0.5em 0;
 	opacity: 1;
     text-align: center;
+    overflow: hidden;
+}
+
+.modal-dialog.modal-wide{
+    max-width: 900px;
+}
+
+.btn i.mdi,
+.input-group-prepend i.mdi{
+    font-size: 1.5em;
+    line-height: 1em;
+}
+
+/* Bootstrap Overrides */
+table.table th{
+    padding: .4rem;
 }
 
 /* Always hide hacks at the bottom and hope nobody sees it */

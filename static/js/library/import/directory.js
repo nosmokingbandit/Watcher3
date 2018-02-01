@@ -1,30 +1,29 @@
-$(document).ready(function(){
-    $dir_input = $("input#directory_input");
+window.addEventListener("DOMContentLoaded", function(){
+    $dir_input = document.getElementById("directory_input");
 
-    $modal_current_dir = $("div#modal_current_dir");
+    $modal_current_dir = document.querySelector("input#modal_current_dir");
     $modal_file_list = $("ul#modal_file_list");
 
     $modal_file_list.on("click", "li", function(){
         $this = $(this);
-        var path = $this.text();
         $.post(url_base+'/ajax/list_files', {
-            "current_dir": $modal_current_dir.text(),
-            "move_dir": path
+            "current_dir": $modal_current_dir.value,
+            "move_dir": $this.text().trim()
         })
         .done(function(response){
             if(response['error']){
                 $.notify({message: response['error']}, {type: "danger"})
             } else {
-                $modal_current_dir.text(response['new_path']);
+                $modal_current_dir.value = response['new_path'];
 
                 var file_list = "";
                 $(response["list"]).each(function(i, f){
-                    file_list += `<li class="col-md-6 list-group-item">
+                    file_list += `<li class="col-md-6 p-1 border">
                                       <i class="mdi mdi-folder"></i>
                                       ${f}
                                   </li>`
                 })
-                file_list += `<li class="col-md-6 list-group-item">
+                file_list += `<li class="col-md-6 p-1 border">
                                   <i class="mdi mdi-folder"></i>
                                   ..
                               </li>`
@@ -40,49 +39,44 @@ $(document).ready(function(){
 
 function file_browser_select(event, elem){
     event.preventDefault();
-    var $modal = $(elem).closest("div#modal_browser");
-
-    var dir = $modal.find("div#modal_current_dir").text().trim();
-
-    $dir_input.val(dir);
-
-    $modal.modal("hide");
+    var dir = $modal_current_dir.value.trim();
+    $dir_input.value = dir;
+    //$modal.modal("hide");
 }
 
-function scan_library(event, elem){
+function connect(event, elem){
     event.preventDefault();
 
-    directory = $dir_input.val();
+    directory = $dir_input.value;
     if(directory == ""){
-        $dir_input.addClass("empty");
+        $dir_input.classList.add("border-danger");
         return false;
     }
 
-    var minsize = $("input#min_file_size").val()
+    var $minsize = document.getElementById("min_file_size");
+    var minsize = $minsize.value;
     if(minsize == ""){
-        $("input#min_size").addClass("empty");
+        $minsize.classList.add("border-danger");
         return false;
     } else {
         minsize = parseInt(minsize);
         if(minsize < 0){
             minsize = 0;
         }
-    }
+    };
 
-    var recursive = is_checked($("i#scan_recursive"))
+    var recursive = is_checked(document.getElementById("scan_recursive"))
 
-    $("div#select_directory").slideUp();
-    $("a#scan_dir").slideUp();
-    $progress_bar.width("0%");
-    $progress.slideDown();
+    $('form#connect').slideUp(600);
+    $progress_bar.style.width = '0%';
+    $progress.style.maxHeight = '100%';
 
-    $complete_div = $("div#complete_movies");
-    $complete_table = $("div#complete_movies table > tbody");
-    $incomplete_div = $("div#incomplete_movies");
-    $incomplete_table = $("div#incomplete_movies table > tbody");
+    $complete_div = document.querySelector("div#complete_movies");
+    $complete_table = document.querySelector("div#complete_movies table > tbody");
+    $incomplete_div = document.querySelector("div#incomplete_movies");
+    $incomplete_table = document.querySelector("div#incomplete_movies table > tbody");
 
-    var no_imports = true;
-
+    no_imports = true;
     var last_response_len = false;
     $.ajax(url_base + '/ajax/scan_library_directory', {
         method: "POST",
@@ -102,12 +96,16 @@ function scan_library(event, elem){
                 var response = JSON.parse(response_update);
                 if(response['response'] == null){
                     return
+                }
 
-                } else if(response["response"] == "incomplete"){
-                    no_imports = false;
+                if(response['response'] != 'in_library'){
                     var movie = response["movie"];
-                    var select = $(source_select);
-                    select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
+                    var select = $source_select.cloneNode(true);
+                    select.querySelector(`option[value="${movie["resolution"]}"]`).setAttribute("selected", true);
+                }
+
+                if(response["response"] == "incomplete"){
+                    no_imports = false;
                     var $row = $(`<tr>
                                     <td>
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
@@ -119,25 +117,20 @@ function scan_library(event, elem){
                                         ${movie["title"]}
                                     </td>
                                     <td>
-                                        <input type="text" class="incomplete_tmdbid form-control" placeholder="0000" value="${movie['tmdbid'] || ''}"/>
+                                        <input type="number" class="incomplete_tmdbid form-control form-control-sm" placeholder="0000" value="${movie['tmdbid'] || ''}"/>
                                     </td>
                                     <td class="resolution">
-                                        ${select[0].outerHTML}
+                                        ${select.outerHTML}
                                     </td>
                                     <td>
                                         ${movie["human_size"]}
                                     </td>
-                                </tr>`)
-                    $row.data("movie", movie);
-                    $row.find(`select.source_select > option[value="${movie['resolution']}"]`).attr("selected", true);
+                                </tr>`)[0]
+                    $row.dataset.movie = JSON.stringify(movie);
                     $incomplete_table.append($row);
-                    $incomplete_div.show();
-
+                    $incomplete_div.classList.remove('hidden');
                 } else if(response["response"] == "complete"){
                     no_imports = false;
-                    var movie = response["movie"];
-                    var select = $(source_select);
-                    select.children(`option[value="${movie["resolution"]}"]`).attr("selected", true);
                     var $row = $(`<tr>
                                     <td>
                                         <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
@@ -152,36 +145,37 @@ function scan_library(event, elem){
                                         ${movie["tmdbid"]}
                                     </td>
                                     <td class="resolution">
-                                        ${select[0].outerHTML}
+                                        ${select.outerHTML}
                                     </td>
                                     <td>
                                         ${movie["human_size"]}
                                     </td>
-                                </tr>`)
-                    $row.data("movie", movie);
-                    $row.find(`select.source_select > option[value="${movie['resolution']}"]`).attr("selected", true);
+                                </tr>`)[0]
+                    $row.dataset.movie = JSON.stringify(movie);
                     $complete_table.append($row);
-                    $complete_div.show();
+                    $complete_div.classList.remove('hidden');
                 }
 
-                var progress_text = `${response['progress'][0]} / ${response['progress'][1]} ${response['movie']['title']} ${response['response']}.`.replace("_", " ");
                 var progress_percent = Math.round(parseInt(response['progress'][0]) / parseInt(response['progress'][1]) * 100);
-
-                $progress_text.text(progress_text);
-                $progress_bar.width(progress_percent + "%")
+                $progress_text.innerText = `${response['progress'][0]} / ${response['progress'][1]} ${response['movie']['title']}.`.replace("_", " ");
+                $progress_bar.style.width = (progress_percent + "%");
             }
         }
     })
     .done(function(data){
+        set_stepper('import');
+
+        if(no_imports == true){
+            document.getElementById('no_imports').classList.remove('hidden');
+        } else {
+            document.getElementById('button_import').classList.remove('hidden');
+        }
+
+        $("form#import").slideDown();
         window.setTimeout(function(){
-            $progress.slideUp();
-            $progress_text.slideUp();
-            if(no_imports == false){
-                $("a#import_library").slideDown();
-            } else {
-                $("div#no_new_movies").slideDown();
-                $("a#import_return").slideDown();
-            }
+            $progress.style.maxHeight = '0%';
+            $progress_text.innerText = '';
+            $progress_bar.style.width = '0%';
         }, 500)
     })
     .fail(function(data){
@@ -190,40 +184,28 @@ function scan_library(event, elem){
     });
 };
 
-function import_library(event, elem){
+function start_import(event, button){
     event.preventDefault();
 
-    var movies = [];
     var corrected_movies = [];
-
-    $("div#complete_movies table > tbody > tr ").each(function(i, row){
-        var $row = $(row);
-        if(!is_checked($row.find("i.c_box"))){
-            return
-        }
-
-        movie = $row.data("movie");
-        movie["resolution"] = $row.find("select.source_select").val();
-        movies.push(movie);
-    });
-
     var blanks = false;
-    $("div#incomplete_movies table > tbody > tr ").each(function(i, row){
-        var $row = $(row);
-        if(!is_checked($row.find("i.c_box"))){
+    each(document.querySelectorAll("div#incomplete_movies table > tbody > tr "), function(row, index){
+        if(!is_checked(row.querySelector('i.c_box'))){
             return
         }
 
-        movie = $row.data("movie");
-        movie["tmdbid"] = $row.find("input.incomplete_tmdbid").val();
+        movie = JSON.parse(row.dataset.movie);
+
+        var $tmdbid_input = row.querySelector("input.incomplete_tmdbid")
+        movie["tmdbid"] = $tmdbid_input.value;
 
         if(!movie["tmdbid"]){
             blanks = true;
-            $row.find("input.incomplete_imdbid").addClass("empty");
+            $tmdbid_input.classList.add("border-danger");
             return
         }
 
-        movie["resolution"] = $row.find("select.source_select").val();
+        movie["resolution"] = row.querySelector("select.source_select").value;
         corrected_movies.push(movie);
     });
 
@@ -232,17 +214,25 @@ function import_library(event, elem){
         return false;
     }
 
-    $("div#complete_movies").slideUp();
-    $("div#incomplete_movies").slideUp();
-    $("a#import_library").slideUp();
-    $progress_bar.width("0%");
-    $progress.slideDown();
+    var movies = [];
+    each(document.querySelectorAll("div#complete_movies table > tbody > tr "), function(row, index){
+        if(!is_checked(row.querySelector('i.c_box'))){
+            return
+        }
 
-    var $success = $("div#import_success");
-    var $success_table = $("div#import_success table > tbody");
-    var $error = $("div#import_error");
-    var $error_table = $("div#import_error table > tbody")
-    $progress_text.text("").show();
+        movie = JSON.parse(row.dataset.movie);
+        movie["resolution"] = row.querySelector("select.source_select").value;
+        movies.push(movie);
+    });
+
+    $('form#import').slideUp(600);
+    $progress_bar.style.width = '0%';
+    $progress.style.maxHeight = '100%';
+
+    var $success_div = document.querySelector("div#import_success");
+    var $success_table = document.querySelector("div#import_success table > tbody");
+    var $error_div = document.querySelector("div#import_error");
+    var $error_table = document.querySelector("div#import_error table > tbody");
 
     var last_response_len = false;
     $.ajax(url_base + '/ajax/import_dir', {
@@ -263,40 +253,41 @@ function import_library(event, elem){
                 }
                 var r = JSON.parse(response_update);
 
-                var progress_text = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
-                var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
-
-                $progress_text.text(progress_text);
-
-                $progress_bar.width(progress_percent + "%")
                 if(r['response'] == true){
-                    $success.slideDown()
+                    $success_div.classList.remove('hidden');
                     var row = `<tr>
                                     <td>${r['movie']['title']}</td>
                                     <td>${r['movie']['tmdbid']}</td>
                                 </tr>`
-                    $success_table.append(row)
+                    $success_table.innerHTML += row;
                 } else {
-                    $error.slideDown()
+                    $error_div.classList.remove('hidden');
                     var row = `<tr>
                                     <td>${r['movie']['title']}</td>
                                     <td>${r['error']}</td>
                                 </tr>`
-                    $error_table.append(row)
+                    $error_table.innerHTML += row;
                 }
+
+                var progress_percent = Math.round(parseInt(r['progress'][0]) / parseInt(r['progress'][1]) * 100);
+                $progress_text.innerText = `${r['progress'][0]} / ${r['progress'][1]} ${r['movie']['title']}.`;
+                $progress_bar.style.width = (progress_percent + "%");
+
             }
         }
     })
     .done(function(data){
-        $progress.slideUp();
-        $progress_text.slideUp();
+        set_stepper('review');
+        $("form#review").slideDown();
+        window.setTimeout(function(){
+            $progress.style.maxHeight = '0%';
+            $progress_text.innerText = '';
+            $progress_bar.style.width = '0%';
+        }, 500)
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
     })
-    .always(function(){
-        $('a#import_return').slideDown();
-    });
 }
 

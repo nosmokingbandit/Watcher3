@@ -1,81 +1,75 @@
-<%
-user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
-%>
-
 <%def name="generate_profile(name, profile)">
-    <div id="${name}" class="well quality_profile">
-
-        %if name == 'Default':
-        <div class="col-md-12">
-            <h2>${_('Default')}</h2>
-            <input type="hidden" id="name" value="Default">
-        </div>
-        %else:
-
-            <div class="col-md-6 input-group">
-                <input type="text" id="name" class="form-control" value="${name}">
-                <span class="input-group-btn">
-                    <a class="btn btn-danger pull-right" onclick="delete_profile(event, this)">
-                        <i class="mdi mdi-delete delete_profile"></i>
-                    </a>
+    <div id="${name}" class="quality_profile row bg-light rounded mx-auto py-3">
+        <div class="col-md-6 input-group my-0">
+            <div class="input-group-prepend">
+                <span class="input-group-text">
+                    <i class="mdi radio ${'mdi-star' if profile.get('default') else 'mdi-star-outline'}" value="${'True' if profile.get('default') else 'False'}" title="${_('Use as Default profile')}"></i>
                 </span>
             </div>
-        %endif
-
+            <input type="text" id="name" class="form-control" value="${name}">
+        </div>
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    ${_('Sources')}
-                </div>
-                <div class="panel-body">
-                    <ul class="sources sortable">
-                        %for src in sources:
-                        <li class="source" data-source="${src}" data-sort="${profile['Sources'].get(src, [None, 99])[1]}">
-                            <i class="mdi mdi-drag-horizontal sortable_handle"></i>
-                            <i class="mdi mdi-checkbox-blank-outline c_box" value="${profile['Sources'].get(src, [False, None])[0]}"></i>
-                            ${src}
-                        </li>
-                        %endfor
-                    </ul>
-                </div>
-            </div>
+            <button class="btn btn-light border float-right" onclick="edit_profile(event, this)">
+                <i class="mdi mdi-chevron-down"></i>
+            </button>
         </div>
 
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    ${_('Filters')}
+        <div class="col-md-12 profile_contents mt-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>${_('Sources')}</h5>
+                    <div class="card">
+                        <ul class="sources sortable">
+                            %for src in sources:
+                            <li class="source rounded pl-2 my-1" data-source="${src}" data-sort="${profile['Sources'].get(src, [None, 99])[1]}">
+                                <i class="mdi mdi-drag-horizontal sortable_handle"></i>
+                                <i class="mdi mdi-checkbox-blank-outline c_box" value="${profile['Sources'].get(src, [False, None])[0]}"></i>
+                                ${src}
+                            </li>
+                            %endfor
+                        </ul>
+                    </div>
                 </div>
-                <div class="panel-body" data-sub-category="filters" data-toggle="tooltip" title="${_('Group words with ampersands and split groups with commas')}">
-                    <label>${_('Required Words')}</label>
-                    <input type="text" id="requiredwords" class="form-control" value="${profile['requiredwords']}">
 
-                    <label>${_('Preferred Words')}</label>
-                    <input type="text" id="preferredwords" class="form-control" placeholder='this&is&a&group, one, two, three' value="${profile['preferredwords']}">
+                <div class="col-md-6">
+                    <h5>${_('Filters')}</h5>
+                    <div data-sub-category="filters" data-toggle="tooltip" title="${_('Group words with ampersands and split groups with commas')}">
+                        <label>${_('Required Words')}</label>
+                        <input type="text" id="requiredwords" class="form-control" value="${profile['requiredwords']}">
 
-                    <label>${_('Ignored Words')}</label>
-                    <input type="text" id="ignoredwords" class="form-control" value="${profile['ignoredwords']}">
+                        <label>${_('Preferred Words')}</label>
+                        <input type="text" id="preferredwords" class="form-control" placeholder='this&is&a&group, one, two, three' value="${profile['preferredwords']}">
 
-                </div>
-            </div>
-        </div>
+                        <label>${_('Ignored Words')}</label>
+                        <input type="text" id="ignoredwords" class="form-control" value="${profile['ignoredwords']}">
+                    </div>
 
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    ${_('Misc.')}
-                </div>
-                <div class="panel-body" data-sub-category="misc">
-                    <ul>
-                        <li>
-                            <i id="scoretitle" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['scoretitle']}"></i>
-                            ${_('Score and filter release titles')}
-                        </li>
-                        <li>
-                            <i id="prefersmaller" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['prefersmaller']}"></i>
-                            ${_('Prefer smaller file sizes')}
-                        </li>
-                    </ul>
+                    <h5 class="mt-4">${_('Misc.')}</h5>
+                    <div data-sub-category="misc">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i id="scoretitle" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['scoretitle']}"></i>
+                                </span>
+                            </div>
+                            <span class="input-group-item form-control">
+                                    ${_('Score and filter release titles')}
+                            </span>
+                        </div>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i id="prefersmaller" class="mdi mdi-checkbox-blank-outline c_box" value="${profile['prefersmaller']}"></i>
+                                </span>
+                            </div>
+                            <span class="input-group-item form-control">
+                                    ${_('Prefer smaller file sizes')}
+                            </span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-danger float-right" onclick="delete_profile(event, this)">
+                        <i class="mdi mdi-delete"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -87,37 +81,36 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/settings/shared.css?v=001" rel="stylesheet">
-        <link href="${url_base}/static/css/settings/quality.css?v=001" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/shared.css?v=010 rel="stylesheet">
+        <link href="${url_base}/static/css/settings/quality.css?v=010 rel="stylesheet">
 
-        <script src="${url_base}/static/js/settings/shared.js?v=002" type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/quality.js?v=001" type="text/javascript"></script>
-        <script src="${url_base}/static/js/lib/jquery.sortable.min.js?v=001" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/quality.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/jquery.sortable.min.js?v=010 type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
+        <div class="container">
             <h1>${_('Quality Profiles')}</h1>
-            <form id='profiles'>
-                ${generate_profile("Default", config['Profiles']['Default'])}
-
-                %for name, profile in user_profiles.items():
+            <form id='profiles' class="mx-auto">
+                %for name, profile in config['Profiles'].items():
                 ${generate_profile(name, profile)}
                 %endfor
             </form>
 
             <div class='col-md-12' id="add_profile">
-                <a class="btn btn-primary" onclick="add_profile(event)">
+                <button class="btn btn-outline-primary" onclick="add_profile(event)">
                     <i class="mdi mdi-plus"></i>
-                    ${_('Add Profile')}
-                </a>
+                </button>
             </div>
 
-            <h1>${_('Sources')}</h1>
-            <form class="form-horizontal well" data-category="sources">
-                <span><b>${_('Specify acceptable size ranges (in MegaBytes) for source media.')}</b></span>
+            <h1 class="mt-4">${_('Sources')}</h1>
+            <form class="form-group row bg-light rounded mx-auto py-3" data-category="sources">
+                <div class="col-md-12">
+                    ${_('Specify acceptable size ranges (in MegaBytes) for source media.')}
+                </div>
                 <table class="table table-hover">
-                    <thead>
+                    <thead class="thead-light">
                         <tr>
                             <th></th>
                             <th>${_('Min Size')}</th>
@@ -132,10 +125,10 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
                         <tr id="${src}">
                             <td>${src}</td>
                             <td>
-                                <input type="number" class="input-sm form-control" data-range="min" min="0" value=${v['min']}>
+                                <input type="number" class="form-control form-control-sm" data-range="min" min="0" value=${v['min']}>
                             </td>
                             <td>
-                                <input type="number" class="input-sm form-control" data-range="max" min="0" value=${v['max']}>
+                                <input type="number" class="form-control form-control-sm" data-range="max" min="0" value=${v['max']}>
                             </td>
                         </tr>
                         %endfor
@@ -144,17 +137,17 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
             </form>
 
             <h2>${_('Aliases')}</h2>
-            <form class="form-horizontal well" data-category="aliases">
-                <span><b>${_('Keywords used to determine source media')}</b></span>
-                <br/>
-                <br/>
+            <form class="form-group row bg-light rounded mx-auto py-3" data-category="aliases">
+                <div class="col-md-12">
+                    ${_('Keywords used to determine source media')}
+                </div>
                 <table id="aliases" class="table table-hover" data-toggle="tooltip"title="${_('Separate Keywords with commas')}">
                     <tbody>
                         %for name, alias in config['Aliases'].items():
                         <tr>
                             <td>${name}</td>
                             <td>
-                                <input type="text" id="${name}" class="input-sm form-control" value="${', '.join(alias)}">
+                                <input type="text" id="${name}" class="form-control form-control-sm" value="${', '.join(alias)}">
                             </td>
                         </tr>
                         %endfor
@@ -162,15 +155,15 @@ user_profiles = {k: v for k, v in config['Profiles'].items() if k != 'Default'}
                 </table>
             </form>
 
-            <a id="save_settings" class="btn btn-success pull-right" onclick="save_settings(event, this)">
+            <button id="save_settings" class="btn btn-success float-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
-                ${_('Save Settings')}
-            </a>
+
+            </button>
         </div>
 
-        <textarea id="profile_template" class="hidden">
+        <template id="profile_template">
             ${generate_profile("", {'Sources': {'BluRay-1080P': [True, 1], 'BluRay-4K': [False, 0], 'BluRay-720P': [True, 2], 'CAM-SD': [False, 13], 'DVD-SD': [False, 9], 'Screener-1080P': [False, 10], 'Screener-720P': [False, 11], 'Telesync-SD': [False, 12], 'WebDL-1080P': [True, 4], 'WebDL-4K': [False, 3], 'WebDL-720P': [True, 5], 'WebRip-1080P': [True, 7], 'WebRip-4K': [False, 6], 'WebRip-720P': [True, 8]}, 'ignoredwords': 'subs,german,dutch,french,truefrench,danish,swedish,spanish,italian,korean,dubbed,swesub,korsub,dksubs,vain,HC,blurred', 'preferredwords': '', 'prefersmaller': False, 'requiredwords': '', 'scoretitle': True})}
-        </textarea>
+        </template>
 
     </body>
 </html>

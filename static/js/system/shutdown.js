@@ -1,7 +1,8 @@
 $(document).ready(function () {
     document.title = "Watcher - Shutting Down Server";
-    $thinker = $("div#thinker");
-    $thinker.show();
+
+    $thinker = document.getElementById("thinker");
+    $thinker.style.maxHeight = '100%';
 
     $.post(url_base + "/ajax/server_status", {
         "mode": "shutdown"
@@ -25,7 +26,7 @@ $(document).ready(function () {
         .fail(function(r){
             clearInterval(check);
             document.title = "Watcher";
-            $thinker.css("opacity", 0);
+            $thinker.style.maxHeight = '0%';
             $("div.message").css("opacity", 0);
             $("div#content").css("background-position", "50% 45%");
         })

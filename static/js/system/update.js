@@ -1,4 +1,4 @@
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
     var updating = $("meta[name='updating']").attr("content");
 
     if(updating.toLowerCase() == 'false'){

@@ -1,6 +1,11 @@
-$(document).ready(function(){
-    $checkboxes = $("ul#movie_list > li > .c_box");
-    $movie_lis = $("ul#movie_list > li");
+window.addEventListener("DOMContentLoaded", function(){
+    $checkboxes = document.querySelectorAll("ul#movie_list i.c_box");
+    $movie_lis = document.querySelectorAll("ul#movie_list > li");
+
+    modal_template = document.querySelector('template#template_modal').innerHTML;
+    edit_modal = document.querySelector('template#template_edit').innerHTML;
+
+    selected_movies = [];
 
     echo.init({offsetVertical: 100,
                callback: function(element, op){
@@ -8,140 +13,138 @@ $(document).ready(function(){
                }
     });
 
-    $checkboxes.click(function(){
-        checkbox_switch(this)
-    });
+    each($checkboxes, function(checkbox){
+        checkbox.addEventListener('click', checkbox_switch);
+    })
 
-    // Reset modal inner html after close
-    $("div.modal").each(function(){
-        var $this = $(this);
-        var html = $this[0].innerHTML;
-        $this.on("hidden.bs.modal", function(){
-            $this.html(html);
-        });
-    });
+    modal_dicts = {'backlog_search': {title: 'Backlog Search',
+                                    body: 'A full backlog search will be performed for selected movies. <br/> Be aware that this will consume one API hit per movie and may take several minutes to complete.',
+                                    task: '_backlog_search'
+                                    },
+                   'update_metadata': {title: 'Update Metadata',
+                                       body: 'Metadata and posters will be re-downloaded for selected movies. <br/> This may take several minutes.',
+                                       task: '_update_metadata'
+                                       },
+                   'change_quality': {title: 'Change Quality Profile',
+                                      body: 'Quality profiles will be changed for selected movies.' + document.querySelector('template#quality_select').innerHTML,
+                                      task: '_change_quality'
+                                      },
+                   'reset': {title: 'Reset Movies',
+                             body: 'Selected movies will be reset.<br/>Quality Profile will be set to Default.<br/>Status will be set to wanted.<br/>Search Results will be removed (including Imports).<br/>This cannot be undone.',
+                             task: '_reset'
+                             },
+                   'remove': {title: 'Remove Movies',
+                              body: 'Selected movies will be removed from the library.<br/>This will not delete movie files.<br/>This cannot be undone.',
+                              task: '_remove'
+                              }
+                  }
+
 
 
 });
 
-function checkbox_switch(elem){
-    $this = $(elem);
+function checkbox_switch(event){
+    var checkbox = event.target;
     // turn on
-    if( $this.attr("value") == "False" ){
-        $this.attr("value", "True");
-        $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+    if(checkbox.getAttribute("value") == "False"){
+        checkbox.setAttribute("value", "True");
+        checkbox.classList.replace("mdi-checkbox-blank-outline", "mdi-checkbox-marked");
     // turn off
-    } else if ($this.attr("value") == "True" ){
-        $this.attr("value", "False");
-        $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
+    } else if(checkbox.getAttribute("value") == "True"){
+        checkbox.setAttribute('value', 'False');
+        checkbox.classList.replace("mdi-checkbox-marked", "mdi-checkbox-blank-outline");
     }
 };
 
 function select_all(){
-    each($checkboxes.attr("value", "False"), checkbox_switch);
+    each($checkboxes, function(checkbox){
+        checkbox.setAttribute('value', 'False');
+        checkbox_switch({target: checkbox});
+    });
 }
 
 function select_none(){
-each($checkboxes.attr("value", "True"), checkbox_switch);
+    each($checkboxes, function(checkbox){
+        checkbox.setAttribute('value', 'True');
+        checkbox_switch({target: checkbox});
+    });
 }
 
 function select_inverse(){
-    each($checkboxes, checkbox_switch);
+    each($checkboxes, function(checkbox){
+        checkbox_switch({target: checkbox});
+    });
 }
 
-function select_attrib(event, elem, key, value){
+function select_attrib(event, button, key, value){
     event.preventDefault();
-    var $this = $(elem);
-    var key = $this.data("key");
-    var value = $this.data("value");
 
-    select_none();
-
-    var i = $movie_lis.length;
-    while (--i >= 0){
-        var $this = $($movie_lis[i]);
-        if($this.data(key) == value){
-            $this.find("i.c_box").removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked").attr("value", "True");
+    each($movie_lis, function(movie){
+        if(movie.dataset[key] == value){
+            var c = movie.querySelector('i.c_box');
+            c.classList.replace("mdi-checkbox-blank-outline", "mdi-checkbox-marked");
+            c.setAttribute('value', 'True');
         }
-    }
+    });
 }
 
-function backlog_search(event, elem){
+function show_modal(event, button, task){
+    selected_movies = _selected_movies();
+    if(selected_movies.length == 0){
+        $.notify({message: _("No movies are selected.")}, {type: "warning"})
+        return false
+    }
+
+    var $modal = $(format_template(modal_template, modal_dicts[task]));
+    $modal.modal('show');
+    // Destory modal after close
+    $modal.on("hidden.bs.modal", function(modal){
+        $modal.remove();
+    });
+}
+
+function begin_task(event, button, task){
+    window[task]();
+};
+
+function _backlog_search(event, elem){
+    var movies = _selected_movies();
+    _manager_request("manager_backlog_search", {"movies": movies});
+}
+
+function _update_metadata(event, elem){
+    // Preps call to _manager_request
+    var movies = _selected_movies();
+    _manager_request("manager_update_metadata", {"movies": movies});
+}
+
+function _change_quality(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
 
-    if(!_can_process(movies)){
-        return
-    }
-
-    _manager_request($("div#modal_backlog_search"), "manager_backlog_search", {"movies": movies});
-}
-
-function refresh_metadata(event, elem){
-    // Preps call to _manager_request
-    var movies = _selected_movies();
-
-    if(!_can_process(movies)){
-        return
-    }
-
-    _manager_request($("div#modal_metadata"), "manager_update_metadata", {"movies": movies});
-}
-
-function change_quality(event, elem){
-    // Preps call to _manager_request
-    var movies = _selected_movies();
-
-    if(!_can_process(movies)){
-        return
-    }
-
-    var quality = $("div#modal_quality select#quality").val();
-
+    var quality = document.querySelector('#task_modal .modal-body select#quality').value;
     if(!quality){
         $.notify({message: _("Select a new Quality Profile.")}, {type: "warning"})
         return
     }
 
-    _manager_request($("div#modal_quality"), "manager_change_quality", {"movies": movies, "quality": quality});
+    _manager_request("manager_change_quality", {"movies": movies, "quality": quality});
 }
 
-function reset_movies(event, elem){
+function _reset(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
-
-    if(!_can_process(movies)){
-        return
-    }
-
-    var quality = $("div#modal_quality select#quality").val();
-
-    _manager_request($("div#modal_reset"), "manager_reset_movies", {"movies": movies});
+    _manager_request("manager_reset_movies", {"movies": movies});
 }
 
-function remove_movies(event, elem){
+function _remove(event, elem){
     // Preps call to _manager_request
     var movies = _selected_movies();
-
-    if(!_can_process(movies)){
-        return
-    }
-
-    _manager_request($("div#modal_remove"), "manager_remove_movies", {"movies": movies});
+    _manager_request("manager_remove_movies", {"movies": movies});
 }
 
-function _can_process(movies){
-    if(movies.length > 0){
-        return true
-    } else {
-        $.notify({message: _("No movies are selected.")}, {type: "warning"})
-        return false
-    }
-}
-
-function _manager_request($modal, url, payload){
+function _manager_request(url, payload){
     /* Fires xhr ajax request for ajax/url_base with payload {movies: movies}
-    modal: jquery object of open modal
     url: str url tail to be appended to 'url_base/ajax/<url>'
     payload: dict of POST data
 
@@ -156,22 +159,21 @@ function _manager_request($modal, url, payload){
 
     When done, shows modal footer.
     */
+    var $modal = document.getElementById('task_modal');
+    var $modal_body = $modal.querySelector('p.body');
+    var $progress = $modal.querySelector('div.progress');
+    var $progress_bar = $modal.querySelector('div.progress-bar');
+    var $error_table = $modal.querySelector(".modal-body > table");
+    var $error_table_body = $error_table.querySelector('tbody');
+    var $close_button = $modal.querySelector('div.modal-header button');
+
+    $close_button.setAttribute('disabled', true);
+    $modal_body.style.maxHeight = '0%';
+    $progress.style.maxHeight = '100%';
+    $modal.querySelector('div.modal-footer > button').setAttribute('disabled', true);
 
     var movie_count = payload["movies"].length;
     payload["movies"] = JSON.stringify(payload["movies"]);
-
-    var $modal_p = $modal.find(".modal-body > p");
-    $modal_p.empty();
-
-    $modal.find(".modal-body > div.progress").slideDown();
-    var $modal_footer = $modal.find('.modal-footer');
-    $modal_footer.slideUp(500, function(){
-        $modal_footer.find("a.btn")[1].remove();
-    });
-
-    $error_table = $modal.find(".modal-body > table");
-
-    $progress_bar = $modal.find(".modal-body > div.progress > div.progress-bar");
 
     var last_response_len = false;
     $.ajax(url_base+"/ajax/"+url, {
@@ -193,42 +195,123 @@ function _manager_request($modal, url, payload){
                 response = JSON.parse(response_update);
 
                 var progress = Math.round((parseInt(response["index"]) / movie_count) * 100);
-                $progress_bar.width(progress + "%");
-                $modal_p.text(`${response["index"]} / ${movie_count}`);
+                $progress_bar.style.width = (progress + "%");
+                $progress_bar.innerText = `${response["index"]} / ${movie_count}`;
 
                 if(response['response'] == false){
-                    $error_table.show();
-                    $error_table.find("tbody").append(`<tr>
-                                                          <td> ${response['imdbid']} </td>
-                                                          <td> ${response['error']} </td>
-                                                      </tr>
-                                                      `)
+                    $error_table.style.display = 'block';
+                    $error_table_body.innerHTML += `<tr>
+                                                        <td> ${response['imdbid']} </td>
+                                                        <td> ${response['error']} </td>
+                                                    </tr>`
                 }
             }
         }
     })
     .done(function(){
-        $modal_footer.slideDown();
-        $modal_p.html("Finished -- Refresh page to see changes.");
+        $modal_body.innerText = "Finished -- Refresh page to see changes.";
+        $modal_body.style.maxHeight = "100%";
     })
     .fail(function(data){
         var err = data.status + ' ' + data.statusText
         $.notify({message: err}, {type: "danger"});
-    });
-
+    })
+    .always(function(){
+        $close_button.removeAttribute('disabled');
+    })
 }
 
 function _selected_movies(){
     // Returns list of dicts of selected movies.
     // IE [{imdbid: 'tt1234567', tmdbid: '123456'}, {imdbid: 'tt7654321', tmdbid: '654321'}]
     var movies = [];
-    $checkboxes.each(function(){
-        var $this = $(this);
-        if($this.attr("value") == "True"){
-            movies.push({"imdbid": $this.data("imdbid"),
-                         "tmdbid": $this.data("tmdbid")
+    each($checkboxes, function(checkbox){
+        if(checkbox.getAttribute("value") == "True"){
+            movies.push({"imdbid": checkbox.parentElement.dataset.imdbid,
+                         "tmdbid": checkbox.parentElement.dataset.tmdbid
                          })
         }
     })
     return movies;
+}
+
+function edit_movie(event, button){
+    var tmdbid = button.parentElement.dataset.tmdbid;
+
+    $.post(url_base + "/ajax/single_movie_details", {
+        key: 'tmdbid',
+        value: tmdbid
+    })
+    .done(function(movie){
+        if(movie == {}){
+            $.notify({message: 'Unable to read movie from database.'}, {type: "danger", delay: 0});
+            return;
+        }
+
+        var $modal = $(format_template(edit_modal, movie));
+
+        $modal.modal('show');
+        // Destory modal after close
+        $modal.on("hidden.bs.modal", function(modal){
+            $modal.remove();
+        });
+
+    })
+
+    return;
+}
+
+
+function save_movie_details(event, button, tmdbid){
+    var data = {};
+    var date_format = RegExp(/\d{4}-\d{2}-\d{2}/)
+
+    each(document.querySelectorAll('table#edit_movie_table input'), function(input){
+        data[input.dataset.id] = _parse_input(input);
+    });
+
+    if(!date_format.test(data.release_date) || !date_format.test(data.media_release_date)){
+        $.notify({message: 'Dates must match format YYYY-MM-DD'}, {type: "danger", delay: 0});
+        return
+    }
+
+    button.classList.replace('mdi-content-save', 'mdi-circle');
+    button.classList.add('animated');
+
+    data['tmdbid'] = tmdbid;
+
+    $.post(url_base + "/ajax/set_movie_details", {
+        data: JSON.stringify(data)
+    })
+    .done(function(response){
+        if(response["response"] == true){
+            $.notify({message: response["message"]})
+        } else {
+            $.notify({message: response['error']}, {type: "danger", delay: 0})
+        }
+    })
+    .fail(function(data){
+        var err = data.status + ' ' + data.statusText;
+        $.notify({message: err}, {type: "danger", delay: 0});
+    })
+    .always(function(){
+        button.classList.replace('mdi-circle', 'mdi-content-save');
+        button.classList.remove('animated');
+    });
+
+}
+
+function _parse_input(input){
+    // Parses input elements into their respective type while
+    //     modifying for min/max values of numbers, etc
+    // input: html node of input
+    //
+    // Returns declared type of input
+    if(input.type == "number"){
+        var min = parseInt(input.min || 0);
+        var val = Math.max(parseInt(input.value), min);
+        return val || min;
+    } else {
+        return input.value;
+    }
 }

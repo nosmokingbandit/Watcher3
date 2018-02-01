@@ -1,4 +1,9 @@
-table > tbody > tr{
+th.mapping_input_header > span{
+    width: 49%;
+    display: inline-block;
     text-align: center;
-    transition: none;
+}
+
+h1{
+    display: inline-block;
 }

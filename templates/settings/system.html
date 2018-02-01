@@ -1,0 +1,192 @@
+<!DOCTYPE HTML5>
+<html>
+    <head>
+        ${head}
+        <link href="${url_base}/static/css/system.css?v=010 rel="stylesheet">
+        <script src="${url_base}/static/js/system.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/lib/liteuploader.min.js?v=010 type="text/javascript"></script>
+
+        <meta name="tasks" content='${tasks}'>
+        <meta name="server_time" content="${server_time[1]}">
+    </head>
+    <body>
+        ${navbar}
+        <div class="container">
+
+            <h2>${_('System Information')}</h2>
+            <div class="row">
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="mdi mdi-clock"></i>
+                                ${_('Server Time')}
+                            </h5>
+                        </div>
+                        <div id="server_time" class="card-body">
+                            ${server_time[0]}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="mdi mdi-language-python"></i>
+                                ${_('Watcher Directory')}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            ${system['system']['path']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="mdi mdi-database"></i>
+                                ${_('Database')}
+                            </h5>
+                            <span class="float-right">[${system['database']['size']} KB]</span>
+                        </div>
+                        <div class="card-body">
+                            ${system['database']['file']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="mdi mdi-settings"></i>
+                                ${_('Config')}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            ${system['config']['file']}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 my-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>
+                                <i class="mdi mdi-console"></i>
+                                ${_('Launch Arugments')}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            [Python ${system['system']['version']}]
+                            ${' '.join(system['system']['arguments'])}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>${_('Backup')}</h2>
+            <div class="col-md-12">
+                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_create_backup">
+                    <i class="mdi mdi-package-variant-closed"></i>
+                    ${_('Create Backup')}
+                </button>
+                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_restore_backup">
+                    <i class="mdi mdi-backup-restore"></i>
+                    ${_('Restore Backup')}
+                </button>
+            </div>
+            </br/>
+
+            <h2>${_('Task Scheduler')}</h2>
+            <table id="tasks" class="table table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>${_('Enabled')}</th>
+                        <th>${_('Name')}</th>
+                        <th>${_('Frequency')}</th>
+                        <th>${_('Last Execution')}</th>
+                        <th>${_('Next Execution')}</th>
+                        <th class="center">${_('Execute Now')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+            <div id="donate">
+                <i class="mdi mdi-gift"></i>
+                BTC:
+                <a href="bitcoin:17BfQVGCsmHBNkVVbL1GxhhYFUMX2uytaT?label=Watcher">
+                <span>17BfQVGCsmHBNkVVbL1GxhhYFUMX2uytaT</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modal_create_backup">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">${_('Create Backup of Watcher?')}</h4>
+                        <button class="btn btn-secondary btn-sm float-right" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${_('A backup will be made of your <b>database</b>, <b>posters</b>, and <b>config</b>.')}
+                        <div class="thinker_small">
+                            <i class="mdi mdi-circle animated"></i>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                            <button class="btn btn-success" onclick="create_backup(event, this)">
+                                ${_('Create Backup')}
+                            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modal_restore_backup">
+            <div class="modal-dialog modal-wide">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">${_('Restore Backup of Watcher?')}</h4>
+                        <button class="btn btn-secondary btn-sm float-right" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text_content">
+                            ${_('Restoring a backup will overwrite your <b>database</b>, <b>posters</b>, and <b>config</b>.<br/>This cannot be undone.<br/>Watcher will automatically restart after backup has been restored.')}
+                            <br/><br/>
+                            <div class="input-group">
+                                <label for="zip_file" class="input-group-prepend rounded-left">
+                                    <input id="zip_file" type="file" name="fileUpload" class="fileUpload" style="display:none;" onchange="_restore_zip_selected(this)"></input>
+                                    <a class="btn btn-secondary text-white">
+                                        <i class="mdi mdi-zip-box"></i>
+                                        ${_('Select Backup Zip')}
+                                    </a>
+                                </label>
+                                <input id="zip_file_input" class="form-control input-group-item" disabled></input>
+                            </div>
+                        </div>
+                        <div class="thinker_small">
+                            <i class="mdi mdi-circle animated"></i>
+                        </div>
+                        <div class="progress bg-dark">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group btn-group-justified">
+                            <button id="submit_restore_zip" class="btn btn-success float-right" onclick="upload_restore_zip(event, this)" disabled>
+                                ${_('Restore Backup')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

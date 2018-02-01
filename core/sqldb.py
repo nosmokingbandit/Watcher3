@@ -236,24 +236,15 @@ class SQL(object):
             logging.error('Unable to update database row.')
             return False
 
-    def update_multiple_values(self, TABLE, data, imdbid='', guid=''):
+    def update_multiple_values(self, TABLE, data, idcol, idval):
         ''' Updates mulitple values in a single sql row
         TABLE (str): database table to access
         data (dict): key/value pairs to update in table
-        imdbid (str): imdbid # of movie to update
-        guid (str): guid of search result to update
+        idcol (str): column to use to id row to write to
+        idval (str): value to use to id row to write to
 
         Return bool.
         '''
-
-        if imdbid:
-            idcol = 'imdbid'
-            idval = imdbid
-        elif guid:
-            idcol = 'guid'
-            idval = guid
-        else:
-            return False
 
         logging.debug('Updating {}:{} to {} in {}.'.format(idcol, idval.split('&')[0], data, TABLE))
 
@@ -815,7 +806,7 @@ class SQL(object):
         else:
             return None
 
-    def get_random_movie(self):
+    def quick_titles(self):
         ''' Gets random movie id,title
 
         grabs a random movie id,title
@@ -825,17 +816,11 @@ class SQL(object):
 
         logging.debug('Retrieving random movie id')
 
-        command = ['SELECT tmdbid,title FROM MOVIES ORDER BY RANDOM() LIMIT 1']
+        command = ['SELECT title, tmdbid FROM MOVIES ORDER BY sort_title']
 
         result = self.execute(command)
- 
 
-        if result:
-            data = result.fetchone()
-            if data:
-                logging.debug('Retrieved random movie: ' + data[1])
-                return dict(data)
-        return {}
+        return [tuple(i) for i in result.fetchall()] if result else []
 
 
 class DatabaseUpdate(object):

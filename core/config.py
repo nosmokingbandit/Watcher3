@@ -7,6 +7,10 @@ from core import localization
 from core.helpers import Comparisons
 
 
+def default_profile():
+    return [k for k, v in core.CONFIG['Quality']['Profiles'].items() if v.get('default')][0]
+
+
 class Config():
     ''' Config
     Config is a simple json object that is loaded into core.CONFIG as a dict
@@ -53,6 +57,8 @@ class Config():
 
         apikey = '%06x' % random.randint(0, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
         config['Server']['apikey'] = apikey
+
+        config['Quality']['Profiles']['Default'] = base_profile
 
         with open(self.file, 'w') as f:
             json.dump(config, f, indent=4, sort_keys=True)
@@ -120,6 +126,17 @@ class Config():
         if new_config['Postprocessing'].get('createhardlink') is True:
             new_config['Postprocessing']['movermethod'] = 'hardlink'
             del new_config['Postprocessing']['createhardlink']
+
+        # Add Default profile if there are none
+        if len(new_config['Quality']['Profiles']) == 0:
+            new_config['Quality']['Profiles']['Default'] = base_profile
+
+        # Set first profile to 'default': True if none are set
+        d = [prof.get('default') for prof in new_config['Quality']['Profiles'].values()]
+        if not any(d):
+            target = 'Default' if new_config['Quality']['Profiles'].get('Default') else list(new_config['Quality']['Profiles'].keys())[0]
+            print('Default Quality Profile not specified, setting *{}* to Default.'.format(target))
+            new_config['Quality']['Profiles'][target]['default'] = True
 
         with open(self.file, 'w') as f:
             json.dump(new_config, f, indent=4, sort_keys=True)
@@ -248,3 +265,72 @@ class Config():
                 interval = core.CONFIG['Postprocessing']['Scanner']['interval'] * 60
                 auto_start = core.CONFIG['Postprocessing']['Scanner']['enabled']
                 core.scheduler_plugin.task_list['PostProcessing Scan'].reload(hr, min, interval, auto_start=auto_start)
+
+
+base_profile = json.loads('''
+{"Sources": {
+        "BluRay-1080P": [
+            true,
+            1
+        ],
+        "BluRay-4K": [
+            false,
+            0
+        ],
+        "BluRay-720P": [
+            true,
+            2
+        ],
+        "CAM-SD": [
+            false,
+            13
+        ],
+        "DVD-SD": [
+            false,
+            9
+        ],
+        "Screener-1080P": [
+            false,
+            10
+        ],
+        "Screener-720P": [
+            false,
+            11
+        ],
+        "Telesync-SD": [
+            false,
+            12
+        ],
+        "WebDL-1080P": [
+            true,
+            4
+        ],
+        "WebDL-4K": [
+            false,
+            3
+        ],
+        "WebDL-720P": [
+            true,
+            5
+        ],
+        "WebRip-1080P": [
+            true,
+            7
+        ],
+        "WebRip-4K": [
+            false,
+            6
+        ],
+        "WebRip-720P": [
+            true,
+            8
+        ]
+    },
+    "ignoredwords": "subs,german,dutch,french,truefrench,danish,swedish,spanish,italian,korean,dubbed,swesub,korsub,dksubs,vain,HC,blurred",
+    "preferredwords": "",
+    "prefersmaller": false,
+    "requiredwords": "",
+    "scoretitle": true,
+    "default": true
+}
+''')

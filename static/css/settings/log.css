@@ -1,11 +1,4 @@
-.well{
-    overflow: auto;
-}
-
-a#view{
-    border-radius: 0;
-}
-
-label{
-    margin-top: 1em;
+samp{
+    display: none;
+    font-size: 10px;
 }

@@ -1,7 +1,10 @@
-h2{
-    margin-top: 0.75em;
+div.card-body > div{
+    overflow: hidden;
+    max-height: 0%;
+    transition: 0.6s;
 }
 
-div.panel-body > div{
-    transition: none;
+
+div.card-body > div > div{
+    margin-bottom: 1em;
 }

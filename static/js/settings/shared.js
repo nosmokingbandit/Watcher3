@@ -1,4 +1,4 @@
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
     var git_url = $("meta[name='git_url']").attr("content");
 
     // Init tooltips
@@ -38,7 +38,7 @@ $(document).ready(function(){
 
     // Clear empty highlight on input
     $("body").on("focus", "input", function(){
-        $(this).removeClass("empty");
+        $(this).removeClass("border-danger");
     })
 
     // set up sortable
@@ -51,14 +51,14 @@ function save_settings(event, elem){
     var $this = $(elem);
     var $i = $this.find("i");
 
-    $i.removeClass("mdi-content-save").addClass("mdi-circle-outline animated");
+    $i.removeClass("mdi-content-save").addClass("mdi-circle animated");
 
     var settings = _get_settings(); // This method is declared in each page's script.
 
 
     if(settings == false){
-        $.notify({message: _("Please fill in all highlighted fields.")}, {type: "warning"})
-        $i.removeClass("mdi-circle-outline animated").addClass("mdi-content-save");
+        $.notify({message: _("Please fill in all highlighted fields.")}, {type: "danger"})
+        $i.removeClass("mdi-circle animated").addClass("mdi-content-save");
         return false
     }
 
@@ -77,18 +77,36 @@ function save_settings(event, elem){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.removeClass("mdi-circle-outline animated").addClass("mdi-content-save");
+        $i.removeClass("mdi-circle animated").addClass("mdi-content-save");
     });
 }
 
-function is_checked($checkbox){
+function is_checked(checkbox){
     // Turns value of checkbox "True"/"False" into bool
-    // checkbox: jquery object of checkbox <i>
-    return ($checkbox.attr("value") == "True")
+    // checkbox: html node of checkbox <i>
+    return (checkbox.getAttribute("value") == "True")
+}
+
+function parse_input(input){
+    // Parses input elements into their respective type while
+    //     modifying for min/max values of numbers, etc
+    // input: html node of input
+    //
+    // Returns declared type of input
+
+    if(input.type == "number"){
+        var min = parseInt(input.min || 0);
+        var val = Math.max(parseInt(input.value), min);
+        return val || min;
+    } else {
+        return input.value;
+    }
 }
 
 // Set up all drag/drop sortable lists
 function init_sortables($sortables=false){
+    // $sortables jquery objects to apply sortable to
+    // if sortables isn't passed will use all ul.sortable in DOM
     if($sortables == false){
         var $sortables = $("ul.sortable");
     }

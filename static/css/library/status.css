@@ -1,38 +1,39 @@
+.hidden{
+    display: none;
+}
+
+/* Tool bar/button groups */
 #toolbar > div{
     margin-bottom: 1em;
     text-align: center;
     padding: 0;
 }
 
-#toolbar i{
-    font-size: 1.5em;
-    line-height: 1em;
+.btn-group > label{
+    margin: 0;
 }
 
-div#pages{
-    text-align: center;
+/* Movie list items */
+.card{
+    cursor: pointer;
 }
 
-a#page_count{
-    min-width: 3.5em;
+.card-body{
+    padding: 0.25em;
 }
 
-ul#movie_list img{
-    opacity: 0;
-    transition: 1s;
-}
-
-span.year,
-ul#movie_list li span.score{
-    opacity: 0.5;
+.card-body span.score,
+.card-body span.year{
+    font-size: 0.8em;
+    opacity: 0.6;
 }
 
 span.score > i{
     width: 0.75em;
 }
 
-ul#movie_list > li{
-    transition: none;
+ul#movie_list{
+    margin: 0 1.5em 1.5em 1.5em;
 }
 
 /* Poster style layout */
@@ -45,122 +46,103 @@ ul#movie_list.posters{
 
 ul#movie_list.posters li{
     width: 10em;
-    margin: 1em 0.75em;
+    margin: 1em 0.5em;
     text-align: center;
 }
 
-ul#movie_list.posters li img{
-    height: 15em;
-    cursor: pointer;
-    margin: 0 auto 0.5em auto;
-    width: 100%;
-}
-
-ul#movie_list.posters span.score,
-ul#movie_list.posters span.year{
-    font-size: 0.8em;
-}
-
-ul#movie_list.posters span.title{
-    display: block;
-    margin: 0.5em 0 0 0;
+.card-img-top{
+    max-height: 14.75em;
 }
 
 /* List style layout */
-ul#movie_list.list{
-    margin: 0 1.5em;
-}
-
-ul#movie_list.list li{
-    cursor: pointer;
+ul#movie_list.list li div.card{
     width: 100%;
     text-align: left;
-    height: 6em;
+    height: 5em;
     line-height: 1.75em;
     position: relative;
-    margin: 0.5em 0;
-}
-
-ul#movie_list.list li span.label{
+    margin: 0.25em 0;
     display: inline-block;
-    height: 2em;
-    line-height: 2em;
+    border-radius: 0;
 }
 
 ul#movie_list.list li img{
-    height: 6em;
+    height: 4.95em;
     box-shadow: none;
-    margin: 0 1em 0 0;
+    margin: 0 0.5em 0 0;
     float: left;
-    max-width: 4em;
+    max-width: 3.5em;
+    border-radius: 0;
 }
 
-ul#movie_list.list li span.title{
+ul#movie_list.list li div.card-body,
+ul#movie_list.list li h6.card-title{
+    padding: 0;
+    margin: 0;
+}
+
+ul#movie_list.list li .card-title{
+    line-height: 2em;
     font-size: 1.25em;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* Compact style layout */
-ul#movie_list.compact{
-    margin: 0 1.5em;
+ul#movie_list.compact div.card{
+    border-radius: 0;
 }
 
-ul#movie_list.compact li{
-    cursor: pointer;
-    line-height: 2em;
-    margin: 0.25em 0;
-    padding-left: 0.5em;
+ul#movie_list.compact li:not(:last-child) div.card{
+    border-bottom: 0px;
 }
 
-ul#movie_list.compact li span.label{
-    display: inline-block;
+ul#movie_list.compact li div.card-body{
     height: 2em;
-    line-height: 2em;
-    width: 6em;
-    margin-right: 1em;
 }
 
 ul#movie_list.compact li img{
     display: none;
 }
 
+ul#movie_list.compact li span.badge.status{
+    margin: .25em 1em .25em .25em;
+    float: left;
+}
+
+ul#movie_list.compact li h6.card-title{
+    display: inline-block;
+    margin: 0;
+}
 
 ul#movie_list.compact li span.score{
-    display: none;
+    float: right;
 }
 
-ul#movie_list.compact li span.title{
-    font-size: 1.25em;
-    display: inline-block;
-    width: calc(100% - 8em);
-    vertical-align: top;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-ul#movie_list.compact li span.year{
-    display: inline-block;
-    width: 3em;
-    margin-right: 1em;
-    text-align: right;
-}
 
 div#hidden_count{
     text-align: center;
 }
 
 /* Status Modal */
-div.modal-header h3{
-    display: block;
+
+div#modal_details span.year{
+    opacity: 0.6;
+    font-size: 0.75em;
 }
 
-div.modal-header > *:not(h3){
-    margin-top: 0.5em;
-    display: inline-block;
+div.modal-badges{
+    padding: 0.5em 1em;
+}
+
+div.modal-badges > .badge{
+    font-size: 0.8em;
+    height: 1.75em;
+    line-height: 1.25em;
+    margin-bottom: .25rem;
+    font-weight: normal;
+}
+
+div.modal-badges > .badge i.mdi{
+    vertical-align: unset;
 }
 
 img.poster{
@@ -168,93 +150,27 @@ img.poster{
     max-height: 18em;
 }
 
-div.modal-body {
-    padding: 1.25em 0;
+div#movie_actions{
+    text-align: center;
 }
 
-div.modal-body div.search_result{
-    overflow: auto;
-    line-height: 2em;
-    padding-bottom: 0.5em;
-}
-
-div.modal-body label{
-    margin-top: 0;
-}
-
-div.modal-body div#movie_actions a{
-    white-space: normal;
-}
-
-div.modal-body div#movie_actions i{
-    font-size: 1.5em;
-}
-
-div.modal-body div#movie_actions{
-    margin: 1.25em 0 1em 0;
-    padding: 0 0.25em;
-}
-
-div.modal-body div#movie_actions > .btn{
-    padding: 0;
-    width: 100%
-}
-
-div.modal-body div#movie_settings{
-    margin: 0 0 1em 0;
-    padding: 0 0.5em;
-    overflow: auto;
-}
-
-div.modal-body div#movie_settings select,
-div.modal-body div#movie_settings a {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5em;
-}
-
-div .modal-body div#movie_settings div,
-div.modal-body div#movie_settings a {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-}
-
-div.modal-body div#movie_settings a#update_movie_options {
-    margin-top: 20px;
+div#movie_actions > div{
+    margin: 0.25em 0;
 }
 
 div.modal-body p.plot{
-    text-indent: 2em;
+    text-indent: 1.5em;
 }
 
-    /* Search Results table */
-div.modal-body div#search_results_table{
+/* Search Results table */
+ul#search_results_table{
     overflow-y: scroll;
-    max-height: 17em;
-    transition: none;
+    max-height: 18em;
+    transition: .6s;
+    padding: 0;
+    margin: 0;
 }
 
-div.modal-body div#search_results_table div.result_actions{
-    text-align: right;
-}
-
-div.modal-body div#search_results_table div.result_info{
-    margin-bottom: 0.25em;
-}
-
-div.modal-body div#search_results_table div.search_result span.title{
-    word-break: break-all;
-}
-
-div.modal-body div#search_results_table div.search_result > span {
-    margin: 0 0.5em;
-    display: block;
-}
-
-div.modal-body div#search_results_table div.search_result i.mdi{
-    font-size: 1.5em;
-}
-
-div#delete_file{
-    margin-top: 1em;
+ul#search_results_table li:nth-of-type(odd){
+    background-color:rgba(0,0,0,.05)
 }

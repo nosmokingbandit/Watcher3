@@ -3,210 +3,266 @@
 
 <head>
     ${head}
-    <link href="${url_base}/static/css/library/status.css?v=002" rel="stylesheet">
-    <script src="${url_base}/static/js/lib/echo.min.js?v=001" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=005" type="text/javascript"></script>
-    <script src="/static/js/lib/jquery.redirect.js?v=001" type="text/javascript"></script>
+    <link href="${url_base}/static/css/library/status.css?v=010 rel="stylesheet">
+    <script src="${url_base}/static/js/lib/echo.min.js?v=010 type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=010 type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
 </head>
 
 <body>
     ${navbar}
-    <div class="container-fluid clearfix">
-        <div id="toolbar" class="col-md-12">
+    <div class="container">
+        <div id="toolbar" class='row'>
+
             <div id="movie_layout" class="col-md-4 col-sm-6">
-                <div class="btn-group pull-left">
-                    <a class="btn btn-default" data-layout="posters">
-                        <i class="mdi mdi-view-grid"></i>
-                    </a>
-                    <a class="btn btn-default" data-layout="list striped">
-                        <i class="mdi mdi-view-list"></i>
-                    </a>
-                    <a class="btn btn-default" data-layout="compact striped">
-                        <i class="mdi mdi-view-headline"></i>
-                    </a>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <button class="btn btn-light border" data-layout="posters">
+                        <input type="radio">
+                            <i class="mdi mdi-view-grid"></i>
+                        </input>
+                    </button>
+                    <button class="btn btn-light border" data-layout="list">
+                        <input type="radio">
+                            <i class="mdi mdi-view-list"></i>
+                        </input>
+                    </button>
+                    <button class="btn btn-light border" data-layout="compact">
+                        <input type="radio">
+                            <i class="mdi mdi-view-headline"></i>
+                        </input>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-4 col-md-push-4 col-sm-6">
-                <div class="btn-group pull-right">
-                    <select id="movie_sort_key" class="btn btn-default">
+
+            <div class="col-md-4 col-sm-6 order-md-3">
+                <div class="btn-group">
+                    <select id="movie_sort_key" class="btn btn-light border">
                         <option value="title">${_('Title')}</option>
                         <option value="year">${_('Year')}</option>
                         <option value="status">${_('Status')}</option>
                     </select>
-                    <a class="btn btn-default" id="sort_direction" onclick="switch_sort_direction(event, this)">
+                    <button class="btn btn-light border" id="sort_direction" onclick="switch_sort_direction(event, this)">
                         <i class="mdi"></i>
-                    </a>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-4 col-md-pull-4 col-sm-12">
-                <span id="page_left" onclick="change_page_sequential(event, -1)">
-                    <i class="mdi mdi-chevron-double-left"></i>
-                    </span>
+
+            <div class="text-center col-md-4 col-sm-12">
                 <div class="btn-group">
-                    <select id="page_number" class="btn btn-default">
-                    </select>
-                    <a id="page_count" class="btn btn-default active"></a>
+                    <button id="page_left" class="btn btn-light border" onclick="change_page_sequential(event, -1)">
+                        <i class="mdi mdi-chevron-double-left"></i>
+                    </button>
+                    <select id="page_number" class="btn btn-light border"></select>
+                    <button id="page_count" class="btn btn-light border"></button>
+                    <button id="page_right" class="btn btn-light border" onclick="change_page_sequential(event, 1)">
+                        <i class="mdi mdi-chevron-double-right"></i>
+                    </button>
                 </div>
-                <span id="page_right" onclick="change_page_sequential(event, 1)">
-                    <i class="mdi mdi-chevron-double-right"></i>
-                    </span>
             </div>
         </div>
     </div>
-    <div class="container-fluid">
-        <ul id="movie_list" class="hidden striped">
+    <div class="container">
+        <ul id="movie_list" class="striped">
         </ul>
-        <div id="hidden_count" class="${'hidden' if hidden_count == 0 else ''}">
-            <div class="label label-default">
+        <div id="hidden_count" ${'hidden' if hidden_count == 0 else ''}>
+            <div class="badge badge-dark">
                 ${hidden_count} Finished movies not shown
             </div>
         </div>
     </div>
     <div id="overlay"></div>
-    <textarea id="template_movie" class="hidden">
-        <li class="movie" data-imdbid="{imdbid}" onclick="open_info_modal(event, this)">
-            <img data-echo="{url_base}/{poster}" src="{url_base}/static/images/missing_poster.jpg">
-            <span class="label status {status}">{status_translated}</span>
-            <span class="score">
-                <i class="mdi mdi-star-outline"></i>
-                <i class="mdi mdi-star-outline"></i>
-                <i class="mdi mdi-star-outline"></i>
-                <i class="mdi mdi-star-outline"></i>
-                <i class="mdi mdi-star-outline"></i>
-            </span>
-            <span class="title">
-                {title}
-            </span>
-            <span class="year">
-                {year}
-            </span>
+    <template id="template_movie">
+        <li data-imdbid="{imdbid}" onclick="open_info_modal(event, this)">
+            <div class="card">
+                <img data-echo="{url_base}/posters/{poster}" src="{url_base}/static/images/missing_poster.jpg" class="card-img-top">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        {title}
+                        <span class="year">
+                            {year}
+                        </span>
+                    </h6>
+                    <span class="badge badge-{status_color} status">{status_translated}</span>
+                    <span class="score mr-2">
+                        <i class="mdi mdi-star-outline"></i>
+                        <i class="mdi mdi-star-outline"></i>
+                        <i class="mdi mdi-star-outline"></i>
+                        <i class="mdi mdi-star-outline"></i>
+                        <i class="mdi mdi-star-outline"></i>
+                    </span>
+
+                </div>
+            </div>
         </li>
-    </textarea>
-    <textarea id="template_movie_info" class="hidden">
+    </template>
+    <template id="template_movie_info">
         <div class="modal fade" id="modal_details">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-wide">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 class="modal-title">
-                            <span class="title">{title}</span>
+                        <h4 class="modal-title">
+                            {title}
                             <span class="year">{year}</span>
-                        </h3>
-                        <a class="label label-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank" rel="noopener">
-                            TheMovieDB <i class="mdi mdi-earth"></i>
+                        </h4>
+                        <button class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+
+                    <div class="modal-badges">
+                        <a class="badge badge-info" href="https://www.themoviedb.org/movie/{tmdbid}" target="_blank" rel="noopener">
+                            TheMovieDB <i class="mdi mdi-link-variant"></i>
                         </a>
-                        <a class="label label-info" href="http://www.imdb.com/title/{imdbid}" target="_blank" rel="noopener">
-                            IMDB <i class="mdi mdi-earth"></i>
+                        <a class="badge badge-info" href="http://www.imdb.com/title/{imdbid}" target="_blank" rel="noopener">
+                            IMDB <i class="mdi mdi-link-variant"></i>
                         </a>
-                        <span class="label label-default">
-                            ${_('Theatrical Release')}: {release_date}
+                        <span class="badge badge-dark">
+                            <i class="mdi mdi-theater" title="${_('Theatrical Release')}"></i>
+                            {release_date}
                         </span>
-                        <span class="label label-default">
-                            ${_('Home Release')}: {media_release_date}
+                        <span class="badge badge-dark">
+                            <i class="mdi mdi-television-classic" title="${_('Home Media Release')}"></i>
+                            {media_release_date}
                         </span>
-                        <span class="label label-default">
-                            ${_('Score')}: {score}
+                        <span class="badge badge-dark">
+                            <i class="mdi mdi-star" title="${_('Score')}"></i>
+                            {score}
                         </span>
-                        <span class="label label-default">
-                            ${_('Source')}: {origin}
+                        <span class="badge badge-dark">
+                            <i class="mdi mdi-import" title="${_('Origin')}"></i>
+                            {origin}
                         </span>
-                        <span class="label label-default">
-                            ${_('Date Added')}: {added_date}
+                        <span class="badge badge-dark">
+                            <i class="mdi mdi-calendar-range" title="${_('Date Added')}"></i>
+                            {added_date}
+                        </span>
+                        <span id="finished_file_badge" class="badge badge-success hidden">
+                            <i class="mdi mdi-file-check" title="${_('Finished File')}"></i>
+                            {finished_file}
                         </span>
                     </div>
 
-                    <div class="modal-body">
-                        <div class="col-md-3">
-                            <img src="{url_base}/{poster}" class="img-responsive poster">
-                        </div>
-
-                        <div class="col-md-9">
-
-                            <div id="movie_actions" class="col-md-4 btn-group btn-group-justified">
-                                <a class="btn btn-default" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
-                                    <i class="mdi mdi-magnify"></i>
-                                </a>
-                                <a class="btn btn-default" title="Update Metadata" onclick="update_metadata(event, this, '{imdbid}', '{tmdbid}')">
-                                    <i class="mdi mdi-tag-text-outline"></i>
-                                </a>
-                                <a class="btn btn-default" title="Remove from Library" onclick="remove_movie(event, this, '{imdbid}')">
-                                    <i class="mdi mdi-delete"></i>
-                                </a>
+                    <div class="modal-body pb-0">
+                        <div class="row">
+                            <div class="col-md-3 col-sm-12">
+                                <img src="{url_base}/posters/{poster}" class="img-fluid poster">
+                            </div>
+                            <div class="col-md-4">
+                                <p class="plot">{plot}</p>
                             </div>
 
-                            <div id="movie_settings" class="col-md-8">
-                                <div class="col-md-5 col-sm-12">
-                                    <label>${_('Quality')}</label>
-                                    <select id="movie_quality" class="btn btn-default">
+                            <div id='movie_actions' class="col-md-5">
+                                <div class="btn-group d-flex mb-5">
+                                    <button class="btn btn-secondary w-100" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
+                                        <i class="mdi mdi-magnify"></i>
+                                    </button>
+                                    <button class="btn btn-secondary w-100" title="Update Metadata" onclick="update_metadata(event, this, '{imdbid}', '{tmdbid}')">
+                                        <i class="mdi mdi-tag-text-outline"></i>
+                                    </button>
+                                    <button class="btn btn-secondary w-100" title="Remove from Library" onclick="remove_movie(event, this, '{imdbid}')">
+                                        <i class="mdi mdi-delete"></i>
+                                    </button>
+                                </div>
+
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="mdi mdi-video" title="${_('Quality Profile')}"></i>
+                                        </span>
+                                    </div>
+                                    <select id="movie_quality" class="btn border btn-light border form-control">
                                         %for i in profiles:
                                         <option value="${i}">${i}</option>
                                         %endfor
                                     </select>
                                 </div>
-                                <div class="col-md-5 col-sm-12">
-                                    <label>Status</label>
-                                    <select id="movie_status" class="btn btn-default">
+
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="mdi mdi-label-outline" title="${_('Status')}"></i>
+                                        </span>
+                                    </div>
+                                    <select id="movie_status" class="btn btn-light border border form-control">
                                         <option value="Automatic">${_('Automatic')}</option>
                                         <option value="Disabled">${_('Finished')}</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2 col-sm-12">
-                                    <a id="update_movie_options" class="btn btn-success" onclick="update_movie_options(event, this, '{imdbid}')">
-                                        <i class="mdi mdi-content-save"></i>
-                                    </a>
-                                </div>
+
+                                <button id="update_movie_options" class="btn btn-success border btn-block mt-3" onclick="update_movie_options(event, this, '{imdbid}')">
+                                    <i class="mdi mdi-content-save"></i>
+                                </button>
                             </div>
-
-                            <div class="well col-md-12">
-                                <p class="plot">{plot}</p>
-                            </div>
-
                         </div>
-                        <div id="search_results_table" class="col-md-12 panel panel-default striped">
-                            {table}
+                        <div class="row mt-3">
+                            <ul id="search_results_table" class="col-md-12 list-group-flush border-top">
+                                {table}
+                            </ul>
                         </div>
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <a class="btn btn-default" data-dismiss="modal">${_('Close')}</a>
-                        <a class="btn btn-success" id="sort_direction" onclick="go_similar(event, this, '{tmdbid}')">${_('Similar Movies')}</a>
-
                     </div>
                 </div>
             </div>
         </div>
-    </textarea>
-    <textarea id="template_delete" class="hidden">
+    </template>
+
+    <template id="template_delete">
         <div class="modal fade" id="modal_delete">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog ">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 class="modal-title">
+                        <h4 class="modal-title">
                             ${_('Remove from Library')}
-                        </h3>
+                        </h4>
+                        <button class="btn btn-light border btn-sm float-right" data-dismiss="modal">
+                            <i class="mdi mdi-close"></i>
+                        </button>
                     </div>
-
                     <div class="modal-body">
                         <div class="col-md-12">
                             ${_('Are you sure you want to remove <b>{title}</b> from your library?')}
-
                             <div id="delete_file">
                                 <i class="c_box mdi mdi-checkbox-blank-outline" value="False"></i> ${_('Delete movie file')}
                             </div>
                         </div>
-
                     </div>
-
                     <div class="modal-footer">
+                        <button class="btn btn-danger float-right" onclick="_remove_movie(event, this, '{imdbid}')">
+                            <i class="mdi mdi-delete"></i>
 
-                        <a class="btn btn-default" data-dismiss="modal">${_('Cancel')}</a>
-                        <a class="btn btn-warning pull-right" onclick="_remove_movie(event, this, '{imdbid}')">${_('Remove')}</a>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </textarea>
+    </template>
+    <template id="template_release">
+        <li class="search_result list-group-item" data-guid="{guid}">
+            <div class="title" title="{title}">
+                <b>{title}</b>
+            </div>
+            <div class="row">
+                <div class="result_info col-md-8 mt-1">
+                    <span class="badge badge-{status_color} status" title="Status">{translated_status}</span>
+                    <span class="badge badge-dark" title="Link Type">{type}</span>
+                    <span class="badge badge-dark" title="Indexer">{indexer}</span>
+                    <span class="badge badge-dark" title="Size">{size}</span>
+                    <span class="badge badge-dark" title="Score">{score}</span>
+                    {fl}
+                </div>
+                <div class="result_actions col-md-4 btn-group d-flex">
+                    <a class="btn btn-sm btn-secondary w-100" href="{info_link}" target="_blank" rel="noopener" title="Visit Indexer">
+                        <i class="mdi mdi-information-outline"></i>
+                    </a>
+                    <button class="btn btn-sm btn-secondary w-100" title="Download" onclick="manual_download(event, this, '{guid}', '{type}', '{imdbid}')">
+                        <i class="mdi mdi-download"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary w-100" onclick="mark_bad(event, this, '{guid}', '{imdbid}')" title="Mark release as Bad">
+                        <i class="mdi mdi-cancel"></i>
+                    </button>
+                </div>
+            </div>
+        </li>
+    </template>
 </body>
 
 </html>

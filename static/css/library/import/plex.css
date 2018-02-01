@@ -1,58 +1,43 @@
-td > input.form-control {
-    width: 8em;
+nav.nav-pills > span{
+    user-select: none;
 }
 
-label{
-    display: inline-block;
-    margin: 1.5em 0 0.5em 0;
+.hidden{
+    display: none;
 }
 
-div#server_info,
-a#start_scan,
-a#import_library,
-div.progress,
-div#import_success,
-div#import_error{
-    transition: none;
+form{
+    margin-top: 1em;
+    overflow: auto;
+}
+
+form > div{
+    margin-bottom: 1em;
 }
 
 table{
-    line-height: 2.25em;
+    font-size: 0.8em;
 }
 
-select{
-    max-width: 10em;
-}
-
-table i.mdi{
-    line-height: 1.75em;
-}
-
-table > thead > tr > th.shrink{
+th.shrink{
     width: 1%;
-
 }
 
-.btn-file {
-    position: relative;
+#progress_bar{
     overflow: hidden;
-}
-.btn-file input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    filter: alpha(opacity=0);
-    opacity: 0;
-    outline: none;
-    background: white;
-    cursor: inherit;
-    display: block;
+    max-height: 0%;
+    transition: 0.6s;
+    position: relative;
 }
 
-div#remote_actions{
-    margin-top: 1em;
+#progress_bar > span{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+label {
+    margin: 0;
+    overflow: hidden;
 }

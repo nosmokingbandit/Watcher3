@@ -6,10 +6,6 @@ from core.postprocessing import Postprocessing
 import os
 import json
 from mako.template import Template
-from datetime import datetime, timedelta
-import os.path
-import json
-
 
 import sys
 import time
@@ -74,7 +70,6 @@ class App(object):
     stats_template = Template(filename='templates/library/stats.html', module_directory=core.MAKO_CACHE)
 
     add_movie_template = Template(filename='templates/add_movie.html', module_directory=core.MAKO_CACHE)
-    suggestions_template = Template(filename='templates/suggestions.html', module_directory=core.MAKO_CACHE)
 
     server_template = Template(filename='templates/settings/server.html', module_directory=core.MAKO_CACHE)
     search_template = Template(filename='templates/settings/search.html', module_directory=core.MAKO_CACHE)
@@ -84,8 +79,8 @@ class App(object):
     postprocessing_template = Template(filename='templates/settings/postprocessing.html', module_directory=core.MAKO_CACHE)
     plugins_template = Template(filename='templates/settings/plugins.html', module_directory=core.MAKO_CACHE)
     logs_template = Template(filename='templates/settings/logs.html', module_directory=core.MAKO_CACHE)
+    system_template = Template(filename='templates/settings/system.html', module_directory=core.MAKO_CACHE)
 
-    system_template = Template(filename='templates/system.html', module_directory=core.MAKO_CACHE)
     shutdown_template = Template(filename='templates/system/shutdown.html', module_directory=core.MAKO_CACHE)
     restart_template = Template(filename='templates/system/restart.html', module_directory=core.MAKO_CACHE)
     update_template = Template(filename='templates/system/update.html', module_directory=core.MAKO_CACHE)
@@ -107,12 +102,14 @@ class App(object):
         page = path[0] if len(path) > 0 else 'status'
 
         if page == 'status':
+
             if core.CONFIG['Server']['hidefinished']:
                 movie_count = core.sql.get_library_count(hide_finished=True)
                 hidden_count = core.sql.get_library_count() - movie_count
             else:
                 movie_count = core.sql.get_library_count()
                 hidden_count = 0
+
             return App.status_template.render(profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count, hidden_count=hidden_count, **self.defaults())
         elif page == 'manage':
             movies = core.sql.get_user_movies()
@@ -140,38 +137,15 @@ class App(object):
             else:
                 return self.error_page_404()
         elif page == 'stats':
+            App.stats_template = Template(filename='templates/library/stats.html', module_directory=core.MAKO_CACHE)
+
             return App.stats_template.render(**self.defaults())
         else:
             return self.error_page_404()
 
     @cherrypy.expose
     def add_movie(self):
-        return App.add_movie_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], **self.defaults())
-
-    @cherrypy.expose
-    def sugg_popular(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='popular', section_title='TMDB Most Popular Movies', **self.defaults())
-
-    @cherrypy.expose
-    def sugg_now_playing(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='now_playing', section_title='Now Playing', **self.defaults())
-
-    @cherrypy.expose
-    def sugg_top_rated(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='top_rated', section_title='TMDB Top Rated Movies', **self.defaults())
-
-    @cherrypy.expose
-    def sugg_upcoming(self):
-        return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='upcoming', section_title='Upcoming Movies', **self.defaults())
-
-    @cherrypy.expose
-    def sugg_similar(self, **params):
-        if params:
-            movie = core.sql.get_movie_details('tmdbid', params['tmdbid']);
-            title = movie.get('title');
-            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='similar', section_title='Movies Similar To '+title, tmdbid=params['tmdbid'], **self.defaults())
-        else:
-            return App.suggestions_template.render(profiles=[i for i in core.CONFIG['Quality']['Profiles'] if i != 'Default'], section='random', section_title='', **self.defaults())
+        return App.add_movie_template.render(profiles=[(k, v.get('default', False)) for k, v in core.CONFIG['Quality']['Profiles'].items()], **self.defaults())
 
     @cherrypy.expose
     def settings(self, *path):

@@ -65,7 +65,7 @@ class PreDB(object):
                 db_update['predb'] = 'found'
 
         movie.update(db_update)
-        core.sql.update_multiple_values('MOVIES', db_update, imdbid=imdbid)
+        core.sql.update_multiple_values('MOVIES', db_update, 'imdbid', imdbid)
 
         return movie
 

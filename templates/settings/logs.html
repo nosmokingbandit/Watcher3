@@ -2,21 +2,21 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/settings/shared.css?v=001" rel="stylesheet">
-        <link href="${url_base}/static/css/settings/log.css?v=001" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/shared.css?v=010 rel="stylesheet">
+        <link href="${url_base}/static/css/settings/log.css?v=010 rel="stylesheet">
 
-        <script src="${url_base}/static/js/settings/shared.js?v=002" type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/logs.js?v=002" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/shared.js?v=010 type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/logs.js?v=010 type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
-        <div class="container-fluid">
+        <div class="container">
             <h1>${_('Logs')}</h1>
 
-            <div class="well">
-                <div class="col-md-12 ">
-                        <label>${_('Log Directory')}</label>
-                        <span class="list-group-item">${logdir}</span>
+            <div class="row bg-light rounded mx-auto pb-3">
+                <div class="col-md-12 my-3">
+                    <label>${_('Log Directory')}</label>
+                    <input type="text" class="form-control border" value="${logdir}" readonly>
                 </div>
 
                 <div class="col-md-12">
@@ -27,23 +27,21 @@
                             <option value="${log}">${log}</option>
                             %endfor
                         </select>
-                        <span class="input-group-btn">
-                            <a id="view" class="btn btn-info" onclick="view_log()">
+                        <div class="input-group-append">
+                            <button id="view" class="btn btn-outline-primary" onclick="view_log()" title="${_('View')}">
                                 <i class="mdi mdi-clipboard-text"></i>
-                                ${_('View')}
-                            </a>
-                        </span>
-                        <span class="input-group-btn">
-                            <a class="btn btn-primary" onclick="download_log()">
+                            </button>
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" onclick="download_log()" title="${_('Download')}">
                                 <i class="mdi mdi-download"></i>
-                                ${_('Download')}
-                            </a>
-                        </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <pre id="log_text" class="hidden"></pre>
+            <samp id="log_text" class='bg-light rounded px-3 py-3 mt-3'></samp>
         </div>
     </body>
 </html>

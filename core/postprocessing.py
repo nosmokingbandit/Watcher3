@@ -405,7 +405,7 @@ class Postprocessing(object):
             logging.info('Setting MOVIE status.')
             r = core.manage.movie_status(data['imdbid'])
             db_update = {'finished_date': result['data']['finished_date'], 'finished_score': result['data'].get('finished_score')}
-            core.sql.update_multiple_values('MOVIES', db_update, imdbid=data['imdbid'])
+            core.sql.update_multiple_values('MOVIES', db_update, 'imdbid', data['imdbid'])
 
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')

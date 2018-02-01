@@ -1,10 +1,10 @@
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
     url_base = $("meta[name='url_base']").attr("content");
     show_notifs = JSON.parse($("meta[name='enable_notifs']").attr("content") || "true");
     language = $("meta[name='language']").attr("content") || "en";
 
     if(show_notifs){
-        notifs = JSON.parse($("textarea#notifications_json").text());
+        notifs = JSON.parse(document.querySelector('template#notifications_json').innerHTML);
 
         show_notifications(notifs);
     }
@@ -55,17 +55,22 @@ function remove_notif(){
 
 
 function format_template(t, d){
+    // t: template node
+    // d: dict to substitue
+    // Returns HTML node
     for(var p in d){
-        t=t.replace(new RegExp('{'+p+'}','g'), d[p]);
+        t = t.replace(new RegExp('{'+p+'}','g'), d[p] || '');
     }
-    return t;
+    return $.parseHTML(t.trim())[0];
 }
 
 function each(arr, fn){
     // Executes fn(array_item, array_index) for each item in arr
-    var i = arr.length;
-    while (--i >= 0){
-        fn(arr[i], i)
+    // Break loop by returning false in fn
+    for (var i = 0; i < arr.length; i++){
+        if(fn(arr[i], i) === false){
+            break
+        }
     }
 }
 

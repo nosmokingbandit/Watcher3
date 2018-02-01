@@ -1,21 +1,20 @@
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
     $tasks_table = $("table#tasks > tbody");
     server_time = $("meta[name='server_time']").attr("content");
     tasks = JSON.parse($("meta[name='tasks']").attr("content"));
 
+    $button_begin_restore = document.querySelector("button#submit_restore_zip");
 
     $.each(tasks, function(i, task){
         $tasks_table.append(_render_task_row(task));
     })
 
-    $restore_modal = $("div#modal_restore_backup");
-    var restore_modal_html = $restore_modal[0].innerHTML;
+    $restore_modal = document.getElementById("modal_restore_backup");
+    var restore_modal_html = $restore_modal.innerHTML;
 
-    $restore_modal.on('hidden.bs.modal', function(){
-        $restore_modal.html(restore_modal_html);
+    $restore_modal.addEventListener('hidden.bs.modal', function(){
+        $restore_modal.innerHTML = restore_modal_html;
     })
-
-
 });
 
 function _render_task_row(task){
@@ -51,7 +50,9 @@ function _render_task_row(task){
                 <td>${interval}</td>
                 <td>${le}</td>
                 <td>${next}</td>
-                <td class="center"><i class="mdi mdi-play-circle task_execute" onclick="execute_task(event, this, '${task["name"]}')"></i></td>
+                <td class="center">
+                    <i class="mdi mdi-play-circle task_execute" onclick="execute_task(event, this, '${task["name"]}')"></i>
+                </td>
             </tr>`
     return row
 }
@@ -96,14 +97,16 @@ function time_string(time){
     return `${year}-${month}-${day} ${hour}:${min}:${sec}`
 }
 
-function create_backup(event, elem){
+function create_backup(event, button){
     event.preventDefault();
-    var $btns = $("div#modal_create_backup a.btn");
-    var $thinker = $("div#modal_create_backup div.thinker_small");
+    var $btns = document.querySelectorAll('div#modal_create_backup button');
+    var $thinker = document.querySelector("div#modal_create_backup div.thinker_small");
 
-    $btns.addClass("disabled");
+    each($btns, function(button){
+        button.setAttribute('disabled', true);
+    })
 
-    $thinker.slideDown();
+    $thinker.style.maxHeight = "100%";
 
     $.post(url_base + "/ajax/create_backup", {})
     .done(function(response){
@@ -118,55 +121,61 @@ function create_backup(event, elem){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $btns.removeClass("disabled");
-        $thinker.slideUp();
+        each($btns, function(button){
+            button.removeAttribute('disabled');
+        })
+
+        $thinker.style.maxHeight = "0%";
     });
 }
 
-function _restore_zip_selected(elem){
-    var v = $(elem).val()
-    $("input#zip_file_input").val(v);
+function _restore_zip_selected(input){
+    // Sets text input and enabled buttons when restore zip is selected
+    var v = input.value;
+    document.querySelector("input#zip_file_input").value = v;
     if(v){
-        $("a#submit_restore_zip").removeClass("disabled");
+        $button_begin_restore.removeAttribute("disabled");
     } else {
-        $("a#submit_restore_zip").addClass("disabled");
+        $button_begin_restore.setAttribute("disabled", true);
     }
 }
 
-function upload_restore_zip(event, elem){
+function upload_restore_zip(event, button){
+    // Starts restoration process
     event.preventDefault();
-    var $this = $(elem);
-    var $input = $("#zip_file");
-    var $progress_bar = $restore_modal.find("div.progress-bar");
-    var $modal_tc = $restore_modal.find(".modal-body > div.text_content");
-    var $title_text = $restore_modal.find("div.modal-header > .modal-title");
-    var $thinker_small = $restore_modal.find("div.modal-body div.thinker_small");
-    var oc = $this.attr("onclick");
-    $this.attr("onclick", "");
 
 
-    $input.liteUploader({
+    var $input = document.getElementById("zip_file");
+    var $progress_bar = $restore_modal.querySelector("div.progress-bar");
+    var $modal_tc = $restore_modal.querySelector(".modal-body > div.text_content");
+    var $title_text = $restore_modal.querySelector("div.modal-header > .modal-title");
+
+    var $thinker = document.querySelector("div#modal_create_backup div.thinker_small");
+
+    button.setAttribute('disabled', true);
+
+    $($input).liteUploader({
         script: url_base + "/ajax/restore_backup",
     })
     .on("lu:errors", function (e, errors) {
         if(errors[0]["errors"][0]["type"] == "type"){
             $.notify({message: _("Select a ZIP file.")}, {type: "warning"})
         } else {
-            $.each(errors[0]["errors"], function(i, err){
+            each(errors[0]['errors'], function(err){
                 $.notify({message: `Error: ${err["type"]}`}, {type: "warning"})
             })
         }
     })
     .on("lu:before", function(){
-        $modal_tc.slideUp();
-        $restore_modal.find(".modal-body > div.progress").slideDown();
-        $title_text.text(_("Uploading Restore Zip."));
-        $thinker_small.slideDown();
+        $modal_tc.style.maxHeight = '0%';
+        $restore_modal.querySelector("div.progress").style.maxHeight = '100%';
+        $title_text.innerText = _("Uploading Restore Zip.");
+        $thinker.style.maxHeight = '100%';
     })
     .on("lu:progress", function (e, state) {
-        $progress_bar.width(state.percentage + "%");
+        $progress_bar.style.width = (state.percentage + "%");
         if(state.percentage == 100){
-            $title_text.text(_("Restoring Backup."));
+            $title_text.innerText = _("Restoring Backup.");
         }
     })
     .on("lu:success", function (e, response) {
@@ -185,7 +194,7 @@ function upload_restore_zip(event, elem){
         $.notify({message: err}, {type: "danger", delay: 0});
     });
 
-    $input.data("liteUploader").startUpload();
+    $($input).data("liteUploader").startUpload();
 
     return
 }
@@ -202,7 +211,7 @@ function execute_task(event, elem, name){
 
     $btns.addClass("disabled");
     $this.attr("onclick", "");
-    $this.removeClass("mdi-play-circle").addClass("mdi-circle-outline animated");
+    $this.removeClass("mdi-play-circle").addClass("mdi-circle animated");
 
     $.post(url_base + "/ajax/manual_task_execute", {name: name})
     .done(function(response){
@@ -228,7 +237,7 @@ function execute_task(event, elem, name){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $this.removeClass("mdi-circle-outline animated").addClass("mdi-play-circle");
+        $this.removeClass("mdi-circle animated").addClass("mdi-play-circle");
         $btns.removeClass("disabled");
     });
 

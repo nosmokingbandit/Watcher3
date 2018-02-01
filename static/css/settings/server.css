@@ -1,9 +1,0 @@
-span#restart,
-span#shutdown{
-    margin: 0 1em 0 0;
-    cursor: pointer;
-}
-
-span#update_check{
-    cursor: pointer;
-}

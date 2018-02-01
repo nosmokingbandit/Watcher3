@@ -4,12 +4,13 @@ If url has query string ?e=false, does not instruct server to restart, only chec
 
 */
 
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(){
+
     document.title = "Watcher - Restarting Server";
     var qstring = new URLSearchParams(window.location.search);
 
-    var $thinker = $("div#thinker");
-    $thinker.show();
+    $thinker = document.getElementById("thinker");
+    $thinker.style.maxHeight = '100%';
 
     if(qstring.get("e") !== "false"){
         $.post(url_base + "/ajax/server_status", {
@@ -41,7 +42,7 @@ $(document).ready(function(){
             clearInterval(check);
             document.title = "Watcher - Error";
             $.notify({message: _("Watcher is taking too long to restart. Please check your logs and restart manually.")}, {type: "warning", delay: 0})
-            $thinker.css("opacity", 0);
+            $thinker.style.maxHeight = '0%';
         }
     }, 3000);
 });

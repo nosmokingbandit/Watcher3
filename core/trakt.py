@@ -59,7 +59,7 @@ class Trakt(object):
                                            'title': i['title'],
                                            'origin': 'Trakt'})
             if added['response'] and core.CONFIG['Search']['searchafteradd']:
-                self.searcher.search(imdbid, i['title'], i['year'], 'Default')
+                self.searcher.search(imdbid, i['title'], i['year'], core.config.default_profile())
 
         return success
 
