@@ -63,7 +63,7 @@ class Score():
             if quality_profile in core.CONFIG['Quality']['Profiles']:
                 quality = core.CONFIG['Quality']['Profiles'][quality_profile]
             else:
-                quality = core.config.default_profile()
+                quality = core.CONFIG['Quality']['Profiles'][core.config.default_profile()]
 
         sources = quality['Sources']
         retention = core.CONFIG['Search']['retention']
