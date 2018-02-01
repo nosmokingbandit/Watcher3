@@ -1,29 +1,30 @@
 window.addEventListener("DOMContentLoaded", function(){
     current_page = 1;
 
-    movie_count = parseInt($("meta[name='movie_count']").attr("content"));
+    movie_count = parseInt(document.querySelector('meta[name="movie_count"]').content);
     cached_movies = Array(movie_count);
 
     per_page = 50;
 
-    $page_select = $("select#page_number");
-    $page_select.on("change", function(){
-        current_page = parseInt(this.value);
+    $page_select = document.querySelector("select#page_number");
+
+    $page_select.addEventListener('change', function(event){
+        current_page = parseInt(event.target.value);
         load_library(movie_sort_key, movie_sort_direction, current_page);
     });
 
     pages = Math.ceil(movie_count / per_page);
-    $("button#page_count").text("/ "+pages)
+    document.querySelector("button#page_count").innerText = "/ "+pages;
 
     if(pages > 0){
         each(Array(pages), function(item, index){
-            $page_select.append(`<option value="${index+1}">${index+1}</option>`);
+            $page_select.innerHTML += `<option value="${index+1}">${index+1}</option>`;
         });
     } else {
-        $page_select.append(`<option value="">0</option>`);
+        $page_select.innerHTML += `<option value="">0</option>`;
     }
 
-    $page_select.find("option")[0].setAttribute("selected", true);
+    $page_select.value = '1';
 
     loading_library = false; // Indicates that a library ajax request is being executed
 
@@ -338,7 +339,7 @@ function change_page_sequential(event, direction){
     if(page < 1 || page > pages){
         return false
     }
-    $page_select.val(page.toString());
+    $page_select.value = page;
 
     load_library(movie_sort_key, movie_sort_direction, page)
     current_page = page;
@@ -422,7 +423,7 @@ function _results_table(results){
     */
 
     rows = "";
-    $.each(results, function(i, result){
+    each(results, function(result, index){
         if(result["freeleech"] >= 1){
             result['fl'] = `<span class="label label-default" title="Freeleech: ${result["freeleech"]}"><i class="mdi mdi-heart"></i></span>`
         } else if(result["freeleech"] > 0 && result["freeleech"] < 1 ){
@@ -432,11 +433,10 @@ function _results_table(results){
         }
 
         result["translated_status"] = _(result["status"]);
-
         result['status_color'] = status_colors[result['status']]
-
         rows += format_template(templates.release, result).outerHTML;
-    })
+    });
+
     return rows
 }
 

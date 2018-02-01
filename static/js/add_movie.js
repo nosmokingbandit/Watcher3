@@ -173,7 +173,7 @@ function add_movie(event, elem, quality_profile, modal=false){
         var data = $modal.data("movie");
         var $add_button = $this.closest("div.btn-group").find("button.dropdown-toggle");
     } else {
-        var data = $this.closest("div.movie").data("movie");
+        var data = $this.closest("li").data("movie");
     }
 
     data['quality'] = quality_profile;
