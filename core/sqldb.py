@@ -807,16 +807,16 @@ class SQL(object):
             return None
 
     def quick_titles(self):
-        ''' Gets random movie id,title
+        ''' Gets titles and ids from library
 
-        grabs a random movie id,title
+        Gets a simple tuple of (title, tmdbid, imdbid) for every movie in MOVIES
 
-        Returns dict
+        Returns list of tuples
         '''
 
         logging.debug('Retrieving random movie id')
 
-        command = ['SELECT title, tmdbid FROM MOVIES ORDER BY sort_title']
+        command = ['SELECT title, tmdbid, imdbid FROM MOVIES ORDER BY sort_title']
 
         result = self.execute(command)
 

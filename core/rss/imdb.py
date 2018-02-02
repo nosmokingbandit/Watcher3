@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 import logging
 import os
-import xml.etree.cElementTree as ET
+import csv
 
 logging = logging.getLogger(__name__)
 
@@ -15,62 +15,73 @@ class ImdbRss(object):
     def __init__(self):
         self.tmdb = TMDB()
         self.data_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'imdb')
-        self.date_format = '%a, %d %b %Y %H:%M:%S %Z'
+        self.date_format = '%Y-%m-%d'
         self.searcher = searcher.Searcher()
         return
 
-    def get_rss(self):
-        ''' Syncs rss feed from imdb with library
-        rss_url (str): url of rss feed
-
-        Gets raw rss, sends to self.parse_xml to turn into dict
-
-        Sends parsed xml to self.sync_new_movies
+    def sync(self):
+        ''' Syncs CSV lists from IMDB
 
         Does not return
         '''
+
+        movies_to_add = []
+        library = [i[2] for i in core.sql.quick_titles()]
 
         try:
             record = json.loads(core.sql.system('imdb_sync_record'))
         except Exception as e:
             record = {}
 
-        for url in core.CONFIG['Search']['Watchlists']['imdbrss']:
-            movies = []
-            if 'rss' not in url:
-                logging.warning('Invalid IMDB RSS feed: {}'.format(url))
+        for url in core.CONFIG['Search']['Watchlists']['imdbcsv']:
+            if url[-6:] not in ('export', 'export/'):
+                logging.warning('{} does not look like a valid imdb list'.format(url))
                 continue
 
-            list_id = ''.join(filter(str.isdigit, url))
-            logging.info('Syncing rss IMDB watchlist {}'.format(url))
+            list_id = 'ls' + ''.join(filter(str.isdigit, url))
+            logging.info('Syncing rss IMDB watchlist {}'.format(list_id))
+
+            last_sync = datetime.strptime((record.get(list_id) or '2000-01-01'), self.date_format)
+
             try:
-                response = Url.open(url).text
+                csv_text = Url.open(url).text
+                watchlist = [dict(i) for i in csv.DictReader(csv_text.splitlines())][::-1]
+
+                record[list_id] = watchlist[0]['Created']
+
+                for movie in watchlist:
+                    pub_date = datetime.strptime(movie['Created'], self.date_format)
+
+                    if last_sync > pub_date:
+                        break
+
+                    imdbid = movie['Const']
+                    if imdbid not in library and imdbid not in movies_to_add:
+                        logging.info('Found new watchlist movie {}'.format(movie['Title']))
+                        movies_to_add.append(imdbid)
+
             except Exception as e:
-                logging.error('IMDB rss request.', exc_info=True)
+                logging.warning('Unable to sync list {}'.format(list_id))
+
+        m = []
+        for imdbid in movies_to_add:
+            movie = self.tmdb._search_imdbid(imdbid)
+            if not movie:
+                logging.warning('{} not found on TheMovieDB. Cannot add.'.format(imdbid))
                 continue
+            else:
+                movie = movie[0]
+            logging.info('Adding movie {} {} from IMDB watchlist.'.format(movie['title'], movie['imdbid']))
+            movie['year'] = movie['release_date'][:4]
+            movie['origin'] = 'IMDB'
 
-            last_sync = record.get(list_id) or 'Sat, 01 Jan 2000 00:00:00 GMT'
-            last_sync = datetime.strptime(last_sync, self.date_format)
+            added = core.manage.add_movie(movie)
+            if added['response']:
+                m.append((imdbid, movie['title'], movie['year']))
 
-            record[list_id] = self.parse_build_date(response)
-
-            logging.debug('Last IMDB sync time: {}'.format(last_sync))
-
-            for i in self.parse_xml(response):
-                pub_date = datetime.strptime(i['pubDate'], self.date_format)
-
-                if last_sync >= pub_date:
-                    break
-                else:
-                    if i not in movies:
-                        title = i['title']
-                        imdbid = i['imdbid'] = i['link'].split('/')[-2]
-                        movies.append(i)
-                        logging.info('Found new watchlist movie: {} {}'.format(title, imdbid))
-
-            if movies:
-                logging.info('Found {} movies in watchlist {}.'.format(len(movies), list_id))
-                self.sync_new_movies(movies, list_id)
+        if core.CONFIG['Search']['searchafteradd']:
+            for i in m:
+                self.searcher.search(*i, core.config.default_profile())
 
         logging.info('Storing last synced date.')
         if core.sql.row_exists('SYSTEM', name='imdb_sync_record'):
@@ -78,72 +89,3 @@ class ImdbRss(object):
         else:
             core.sql.write('SYSTEM', {'data': json.dumps(record), 'name': 'imdb_sync_record'})
         logging.info('IMDB sync complete.')
-
-    def parse_xml(self, feed):
-        ''' Turns rss into python dict
-        feed (str): rss feed text
-
-        Returns list of dicts of movies in rss
-        '''
-
-        root = ET.fromstring(feed)
-
-        # This so ugly, but some newznab sites don't output json.
-        items = []
-        for item in root.iter('item'):
-            d = {}
-            for i_c in item:
-                d[i_c.tag] = i_c.text
-            items.append(d)
-        return items
-
-    def parse_build_date(self, feed):
-        ''' Gets lastBuildDate from imdb rss
-        feed (str): str xml feed
-
-        Last build date is used as a stopping point when iterating over the rss.
-            There is no need to check movies twice since they will be removed anyway
-            when checking if it already exists in the library.
-
-        Returns str last build date from rss
-        '''
-
-        root = ET.fromstring(feed)
-
-        for i in root.iter('lastBuildDate'):
-            return i.text
-
-    def sync_new_movies(self, new_movies, list_id):
-        ''' Adds new movies from rss feed
-        new_movies (list): dicts of movies
-        list_id (str): id # of watch list
-
-        Checks last sync time and pulls new imdbids from feed.
-
-        Checks if movies are already in library and ignores.
-
-        Executes ajax.add_wanted_movie() for each new imdbid
-
-        Does not return
-        '''
-
-        existing_movies = [i['imdbid'] for i in core.sql.get_user_movies()]
-
-        movies_to_add = [i for i in new_movies if i['imdbid'] not in existing_movies]
-
-        # do quick-add procedure
-        for movie in movies_to_add:
-            imdbid = movie['imdbid']
-            movie = self.tmdb._search_imdbid(imdbid)
-            if not movie:
-                logging.warning('{} not found on TMDB. Cannot add.'.format(imdbid))
-                continue
-            else:
-                movie = movie[0]
-            logging.info('Adding movie {} {} from imdb watchlist.'.format(movie['title'], movie['imdbid']))
-            movie['year'] = movie['release_date'][:4]
-            movie['origin'] = 'IMDB'
-
-            added = core.manage.add_movie(movie)
-            if added['response'] and core.CONFIG['Search']['searchafteradd']:
-                self.searcher.search(imdbid, movie['title'], movie['year'], 'Default')

@@ -6,7 +6,7 @@
         <link href="${url_base}/static/css/settings/search.css?v=010" rel="stylesheet">
 
         <script src="${url_base}/static/js/settings/shared.js?v=010" type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/search.js?v=010" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/search.js?v=011" type="text/javascript"></script>
     </head>
     <body>
         ${navbar}
@@ -135,9 +135,6 @@
             <h1>${_('Watchlists')}</h1>
 
             <form class="form-group row bg-light rounded mx-auto py-3 py-3" data-category="watchlists">
-                <div class="col-md-12">
-                    * (12.19.17) IMDB has disabled RSS lists and may not sync
-                </div>
                 <div class="col-md-6">
                     <label>${_('Sync IMDB Watchlists Every [X] Minutes')}</label>
                     <div class="input-group">
@@ -152,7 +149,7 @@
 
                 <div class="col-md-6">
                     <label>${_('IMDB Watchlist URLs')}</label>
-                    <input type="text" id="imdbrss" class="form-control" placeholder="http://rss.imdb.com/user/..." value="${', '.join(config['Watchlists']['imdbrss'])}" data-toggle="tooltip" title="${_('Separate lists with commas')}">
+                    <input type="text" id="imdbcsv" class="form-control" placeholder="http://www.imdb.com/list/ls0123456789/export" value="${', '.join(config['Watchlists']['imdbcsv'])}" data-toggle="tooltip" title="${_('Separate lists with commas')}">
                 </div>
 
                 <div class="col-md-12 separator"></div>

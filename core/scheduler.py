@@ -238,7 +238,7 @@ class ImdbRssSync(object):
         else:
             auto_start = False
 
-        SchedulerPlugin.ScheduledTask(hr, min, interval, imdb.get_rss, auto_start=auto_start, name='IMDB Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, imdb.sync, auto_start=auto_start, name='IMDB Sync')
         return
 
 

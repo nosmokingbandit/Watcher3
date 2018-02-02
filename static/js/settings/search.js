@@ -48,7 +48,7 @@ function _get_settings(){
     })
 
     if(settings["Watchlists"]['imdbsync']){
-        required_fields.push("imdbrss", "imdbfrequency")
+        required_fields.push("imdbcsv", "imdbfrequency")
     }
     if(settings["Watchlists"]['popularmoviessync']){
         required_fields.push("popularmoviestime")
@@ -70,8 +70,8 @@ function _get_settings(){
             });
             settings['Watchlists']['popularmovieshour'] = hour;
             settings['Watchlists']['popularmoviesmin'] = min;
-        } else if(input.id == "imdbrss"){
-            settings["Watchlists"]["imdbrss"] = input.value.split(',').map(function(item){
+        } else if(input.id == "imdbcsv"){
+            settings["Watchlists"]["imdbcsv"] = input.value.split(',').map(function(item){
                                                                                return item.trim();
                                                                            });
         } else {
