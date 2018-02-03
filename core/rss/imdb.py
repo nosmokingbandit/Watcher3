@@ -81,7 +81,7 @@ class ImdbRss(object):
 
         if core.CONFIG['Search']['searchafteradd']:
             for i in m:
-                self.searcher.search(*i, core.config.default_profile())
+                self.searcher.search(i[0], i[1], i[2], core.config.default_profile())
 
         logging.info('Storing last synced date.')
         if core.sql.row_exists('SYSTEM', name='imdb_sync_record'):
