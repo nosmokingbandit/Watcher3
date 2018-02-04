@@ -81,27 +81,26 @@ window.addEventListener("DOMContentLoaded", function(){
 
 /* Toolbar action bindings
     /* Movie sort key */
-	$("select#movie_sort_key").change(function(event){
+    document.getElementById('movie_sort_key').addEventListener('change', function(event){
+        event.preventDefault();
         if(loading_library){
-            event.preventDefault();
             return false
         }
-        movie_sort_key = $(this).find("option:selected").val();
+
+        movie_sort_key = event.target.value;
 
         var reset_cache = false;
-        for(i=0; i < cached_movies.length; i++){
-            if(cached_movies[i] === undefined){
+        each(cached_movies, function(cm){
+            if(cm === undefined){
                 reset_cache = true;
-                break
+                return false;
             }
-        }
-
+        })
         if(reset_cache){
             cached_movies = Array(movie_count);
         } else {
             sort_movie_cache(movie_sort_key);
         }
-
 		set_cookie("movie_sort_key", movie_sort_key);
 
         load_library(movie_sort_key, movie_sort_direction, current_page);
@@ -111,48 +110,43 @@ window.addEventListener("DOMContentLoaded", function(){
     // See fn switch_sort_direction()
 
     /* Movie layout style */
-    $("div#movie_layout > div > button").click(function(){
-        var $this = $(this);
-        if ($this.hasClass("active")) {
-            return
-        } else {
-            var movie_layout = $this.attr("data-layout");
-            $this.siblings().removeClass("active");
-            $this.addClass("active");
-            $movie_list.classList = '';
-            $movie_list.classList.add(movie_layout);
-            set_cookie('movie_layout', movie_layout)
-            echo.render();
-        }
-    });
+    each(document.querySelectorAll('div#movie_layout > div > button'), function(button){
+        button.addEventListener('click', function(event){
+            if(button.classList.contains('active')){
+                return;
+            } else {
+                var movie_layout = button.dataset.layout;
+                each(button.parentElement.children, function(sibling){
+                    sibling.classList.remove('active');
+                })
+                button.classList.add('active');
+                $movie_list.classList = '';
+                $movie_list.classList.add(movie_layout);
+                set_cookie('movie_layout', movie_layout)
+                echo.render();
+            }
+        })
 
-    // toggle checkbox status on click
-    $("body").on("click", "i.c_box", function(){
-        $this = $(this);
-        // turn on
-        if( $this.attr("value") == "False" ){
-            $this.attr("value", "True");
-            $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
-        // turn off
-        } else if ($this.attr("value") == "True" ){
-            $this.attr("value", "False");
-            $this.removeClass("mdi-checkbox-marked").addClass("mdi-checkbox-blank-outline");
+    })
+
+    document.getElementsByTagName('body')[0].addEventListener('click', function(event){
+        if(event.target.classList.contains('c_box')){
+            var c = event.target;
+            if(c.getAttribute('value') == 'False'){
+                c.setAttribute('value', 'True');
+                c.classList.replace('mdi-checkbox-blank-outline', 'mdi-checkbox-marked');
+            } else {
+                c.setAttribute('value', 'False');
+                c.classList.replace('mdi-checkbox-marked', 'mdi-checkbox-blank-outline');
+            }
         }
-    });
+    })
 
 });
 
 exp_date = new Date();
 exp_date.setFullYear(exp_date.getFullYear() + 10);
 exp_date = exp_date.toUTCString();
-
-jQuery.fn.justtext = function(){
-    return $(this).clone()
-        .children()
-        .remove()
-        .end()
-        .text();
-};
 
 function read_cookie() {
     /* Read document cookie
@@ -719,14 +713,5 @@ function update_release_status(guid, status){
         label.textContent = status;
         label.classList = `badge badge-${status_colors[status]} status`;
     }
-
-}
-
-function go_similar(event, elem, tmdbid, title){
-    if (tmdbid == ""){
-        return false;
-    }
-
-    window.location.href = url_base+'/sugg_similar?tmdbid=' + tmdbid;
 
 }
