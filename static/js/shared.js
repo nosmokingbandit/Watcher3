@@ -4,7 +4,7 @@ window.addEventListener("DOMContentLoaded", function(){
     language = $("meta[name='language']").attr("content") || "en";
 
     if(show_notifs){
-        notifs = JSON.parse(document.querySelector('template#notifications_json').innerHTML);
+        notifs = JSON.parse(document.querySelector('script#notifications_json').innerHTML);
 
         show_notifications(notifs);
     }
