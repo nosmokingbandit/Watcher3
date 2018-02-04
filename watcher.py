@@ -51,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--db', help='Absolute path to database file.', type=str)
     parser.add_argument('--plugins', help='Directory in which plugins are stored.', type=str)
     parser.add_argument('--pid', help='Directory in which to store pid file.', type=str)
-    parser.add_argument('--debug', help='Start in Debug mode.', action='store_true')
+    parser.add_argument('--stdout', help='Print all log messages to STDOUT.', action='store_true')
     passed_args = parser.parse_args()
 
     if passed_args.userdata:
@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     # Set up logging
     from core import log
-    log.start(core.LOG_DIR, passed_args.debug or False)
+    log.start(core.LOG_DIR, passed_args.stdout or False)
     logging = logging.getLogger(__name__)
     cherrypy.log.error_log.propagate = True
     cherrypy.log.access_log.propagate = False

@@ -23,17 +23,23 @@ def start(path, stdout=False):
     if not os.path.exists(path):
         os.makedirs(path)
 
+    logger = logging.getLogger()
+    logger.setLevel(0)
+
     logfile = os.path.join(path, 'log.txt')
-    backup_days = core.CONFIG['Server']['keeplog']
-    logging_level = logging.DEBUG
 
     formatter = logging.Formatter('%(levelname)s [%(asctime)s] %(name)s.%(funcName)s.%(lineno)s: %(message)s')
-    handler = logging.handlers.TimedRotatingFileHandler(logfile, when='D', interval=1, backupCount=backup_days, encoding='utf-8')
-    handler.setFormatter(formatter)
-    logger = logging.getLogger()
-    logger.addHandler(handler)
+
+    file_handler = logging.handlers.TimedRotatingFileHandler(logfile, when='D', interval=1, backupCount=core.CONFIG['Server']['keeplog'], encoding='utf-8')
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(0 if core.CONFIG['Server']['debuglog'] else 20)
+
+    logger.addHandler(file_handler)
+
     if stdout:
-        logger.addHandler(logging.StreamHandler())
-    logger.setLevel(logging_level)
+        term_handler = logging.StreamHandler()
+        term_handler.setFormatter(formatter)
+        term_handler.setLevel(0)
+        logger.addHandler(term_handler)
 
     return
