@@ -79,6 +79,7 @@ class PostProcessingScan(object):
 
         minsize = core.CONFIG['Postprocessing']['Scanner']['minsize'] * 1048576
 
+        files = []
         if conf['newfilesonly']:
             t = core.scheduler_plugin.record.get('PostProcessing Scan', {}).get('last_execution')
             if not t:
@@ -88,11 +89,22 @@ class PostProcessingScan(object):
             threshold = time.mktime(le.timetuple())
 
             logging.info('Scanning for new files only (last scan: {}).'.format(d, le))
-            files = [os.path.join(d, i) for i in os.listdir(d) if os.path.getmtime(os.path.join(d, i)) > threshold and os.path.getsize(os.path.join(d, i)) > minsize]
-        else:
-            files = [os.path.join(d, i) for i in os.listdir(d) if os.path.getsize(os.path.join(d, i)) > minsize]
 
-        if not files:
+            for i in os.listdir(d):
+                f = os.path.join(d, i)
+                if os.path.isfile(f) and os.path.getmtime(f) > threshold and os.path.getsize(f) > minsize:
+                    files.append(f)
+                elif os.path.isdir(i) and os.path.getmtime(f) > threshold:
+                    files.append(f)
+        else:
+            for i in os.listdir(d):
+                f = os.path.join(d, i)
+                if os.path.isfile(f) and os.path.getsize(f) > minsize:
+                    files.append(f)
+                elif os.path.isdir(f):
+                    files.append(f)
+
+        if files == []:
             logging.info('No new files found in directory scan.')
             return
 

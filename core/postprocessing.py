@@ -72,6 +72,9 @@ class Postprocessing(object):
 
         # get the actual movie file name
         data['original_file'] = self.get_movie_file(data['path'])
+        if not data['original_file']:
+            logging.warning('Unable to find movie file to process.')
+            return {'response': False, 'error': 'No files to process'}
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -147,6 +150,10 @@ class Postprocessing(object):
                 logging.warning('Unable to find file to process.', exc_info=True)
 
             if biggestfile:
+                minsize = core.CONFIG['Postprocessing']['Scanner']['minsize'] * 1048576
+                if os.path.getsize(os.path.join(path, biggestfile)) < minsize:
+                    logging.info('Largest file in directory {} is {}, but is smaller than the minimum size of {} bytes'.format(path, biggestfile, minsize))
+                    return None
                 logging.info('Largest file in directory {} is {}, processing this file.'.format(path, biggestfile.replace(path, '')))
             else:
                 logging.warning('Unable to determine largest file. Postprocessing may fail at a later point.')
