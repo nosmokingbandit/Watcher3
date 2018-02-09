@@ -2,13 +2,11 @@ import logging
 import datetime
 
 from base64 import b16encode
-import re
+import json
 import core
 from core.helpers import Url
 
 logging = logging.getLogger(__name__)
-
-regex_year = re.compile('\d{4}')
 
 
 class Score():
@@ -289,8 +287,7 @@ class Score():
                     continue
 
                 logging.debug('Comparing release {} with titles {}.'.format(result['title'], titles))
-                st = result['title'].split(year)[0] if year in result['title'] else regex_year.split(result['title'])[0]
-                matches = [self._fuzzy_title(st, title) for title in titles]
+                matches = [self._fuzzy_title(result['title'].split(year)[0], title) for title in titles]
                 if any(match > 70 for match in matches):
                     result['score'] += int(max(matches) / 5)
                     lst.append(result)
