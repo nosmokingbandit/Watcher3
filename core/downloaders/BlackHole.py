@@ -119,12 +119,13 @@ def add_torrent(data):
         return {'response': False, 'error': 'Unable to download Torrent.'}
 
 
-def _download_magnet(data, file):
+def _download_magnet(data, path):
     ''' Resolves magnet link to torrent file
     data (dict): release information
     file (str): absolute path to FILE in which to save file
 
-    Iterates through bt_cache sites and attempts to get download.
+    Attempts to use magnet2torrent.com to resolve to torrent file. If that fails,
+        iterates through bt_cache sites and attempts to get download.
 
     The downloaded content is ran through bencode (via core.helpers.Torrent) to
         make sure the hash from the torrent file (or whatever content was download)
@@ -134,21 +135,44 @@ def _download_magnet(data, file):
     '''
     magnet_hash = data['guid'].upper()
 
+    try:
+        logging.info('Attempting to resolve torrent hash through magnet2torrent.com')
+        dl_bytes = Url.open('http://magnet2torrent.com/upload/', post_data={'magnet': 'magnet:?xt=urn:btih:{}'.format(magnet_hash)}, stream=True).content
+        if _verify_torrent(dl_bytes, magnet_hash):
+            logging.info('Torrent found on magnet2torrent.com')
+            with open(path, 'wb') as f:
+                f.write(dl_bytes)
+            del dl_bytes
+            return True
+    except Exception as e:
+        logging.warning('Unable to reach magnet2torrent.com', exc_info=True)
+
     for i in bt_cache:
         try:
             url = i.format(magnet_hash)
             logging.info('Attempting to resolve torrent hash through {}'.format(url))
             dl_bytes = Url.open(url, stream=True).content
-            h = th.get_hash(dl_bytes, file_bytes=True)
-            if h == magnet_hash:
-                with open(file, 'wb') as f:
+            if _verify_torrent(dl_bytes, magnet_hash):
+                logging.info('Torrent found at {}'.format(url))
+                with open(path, 'wb') as f:
                     f.write(dl_bytes)
                 del dl_bytes
                 return True
             else:
                 continue
         except Exception as e:
-            logging.warning('Unable to resolve magnet hash.', exc_info=True)
+            logging.warning('Unable to resolve magnet hash through {}.'.format(i), exc_info=True)
             continue
+
     logging.warning('Torrent hash {} not found on any torrent cache.'.format(magnet_hash))
     return False
+
+
+def _verify_torrent(stream, magnet):
+    ''' Verifies torrent against magnet hash to make sure download is correct
+    stream (str): bitstream of torrent file
+    magnet (str): magnet hash to check against
+
+    Returns Bool
+    '''
+    return magnet == th.get_hash(stream, file_bytes=True)
