@@ -24,10 +24,7 @@ class NewzNab(NewzNabProvider):
 
         indexers = core.CONFIG['Indexers']['NewzNab'].values()
 
-        self.imdbid = imdbid
-
         results = []
-        imdbid_s = imdbid[2:]  # just imdbid numbers
 
         for indexer in indexers:
             if indexer[2] is False:
@@ -38,7 +35,7 @@ class NewzNab(NewzNabProvider):
                 url_base = url_base + '/'
             apikey = indexer[1]
 
-            r = self.search_newznab(url_base, apikey, t='movie', imdbid=imdbid_s)
+            r = self.search_newznab(url_base, apikey, 'movie', imdbid=imdbid[2:])
             for i in r:
                 results.append(i)
 

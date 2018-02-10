@@ -58,8 +58,6 @@ class Torrent(NewzNabProvider):
 
         torz_indexers = core.CONFIG['Indexers']['TorzNab'].values()
 
-        self.imdbid = imdbid
-
         results = []
 
         term = Url.normalize('{} {}'.format(title, year))
@@ -82,10 +80,10 @@ class Torrent(NewzNabProvider):
 
             if 'imdbid' in caps:
                 logging.info('{} supports imdbid search.'.format(url_base))
-                r = self.search_newznab(url_base, apikey, t='movie', cat=2000, imdbid=imdbid)
+                r = self.search_newznab(url_base, apikey, 'movie', imdbid=imdbid)
             else:
                 logging.info('{} does not support imdbid search, using q={}'.format(url_base, term))
-                r = self.search_newznab(url_base, apikey, t='search', cat=2000, q=term)
+                r = self.search_newznab(url_base, apikey, 'search', q=term, imdbid=imdbid)
             for i in r:
                 results.append(i)
 

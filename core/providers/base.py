@@ -20,20 +20,30 @@ class NewzNabProvider(object):
 
     '''
 
-    def search_newznab(self, url_base, apikey, **params):
+    def search_newznab(self, url_base, apikey, type_, q=None, imdbid=None):
         ''' Searches Newznab/Torznab for movie
         url_base (str): base url for all requests (https://indexer.com/)
         apikey (str): api key for indexer
-        params (dict): parameters to url encode and append to url
+        type_ (str): one of 'movie' or 'search'
+        q (str): query to use with type_ == 'search'
+        imdbid (str): imdbid
 
         Creates url based off url_base. Appends url-encoded **params to url.
 
         Returns list of dicts of search results
         '''
 
-        url = '{}api?apikey={}&{}'.format(url_base, apikey, urllib.parse.urlencode(params))
+        url = '{}api?apikey={}&cat=2000&extended=1'.format(url_base, apikey)
 
-        logging.info('SEARCHING: {}api?apikey=APIKEY&{}'.format(url_base, urllib.parse.urlencode(params)))
+        if type_ == 'movie':
+            url += '&t=movie&imdbid={}'.format(imdbid)
+        elif type_ == 'search':
+            url += '&t=search&q={}'.format(q)
+        else:
+            logging.error('Unknown search method {}'.format(type_))
+            return []
+
+        logging.info('SEARCHING: {}'.format(url.replace(apikey, 'APIKEY')))
 
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
@@ -43,7 +53,7 @@ class NewzNabProvider(object):
             else:
                 response = Url.open(url).text
 
-            return self.parse_newznab_xml(response)
+            return self.parse_newznab_xml(response, imdbid=imdbid)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:
@@ -94,10 +104,10 @@ class NewzNabProvider(object):
 
         return results
 
-    def parse_newznab_xml(self, feed):
+    def parse_newznab_xml(self, feed, imdbid=None):
         ''' Parse xml from Newznab api.
         feed (str): xml feed text
-        imdbid (str): imdb id #
+        imdbid (str): imdb id #. Just numbers, do not include 'tt'
 
         Replaces all namespaces with 'ns', so namespaced attributes are
             accessible with the key '{ns}attr'
@@ -133,9 +143,9 @@ class NewzNabProvider(object):
                     "downloadid": None,
                     "freeleech": 1 if item['attr'].get('downloadvolumefactor', 1) == 0 else 0,
                     "guid": item.get('link'),
-                    "imdbid": self.imdbid,
                     "indexer": indexer,
                     "info_link": item.get('comments', '').split('#')[0],
+                    "imdbid": 'tt{}'.format(imdbid if imdbid is not None else item['attr'].get('imdb')),
                     "pubdate": item.get('pubDate', '')[5:16],
                     "score": 0,
                     "seeders": 0,
@@ -145,6 +155,12 @@ class NewzNabProvider(object):
                     "torrentfile": None,
                     "type": self.feed_type
                 }
+
+                if item['attr'].get('imdb'):
+                    result['imdbid'] = 'tt{}'.format(item['attr'].get('imdb'))
+                else:
+                    result['imdbid'] = self.imdbid
+
 
                 if result['type'] != 'nzb':
                     result['torrentfile'] = result['guid']
