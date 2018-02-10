@@ -153,7 +153,7 @@ class Torrent(object):
                 raw = torrent if file_bytes else Url.open(torrent, stream=True).content
                 metadata = bencodepy.decode(raw)
                 hashcontents = bencodepy.encode(metadata[b'info'])
-                return hashlib.sha1(hashcontents).hexdigest().lower()
+                return hashlib.sha1(hashcontents).hexdigest().upper()
             except Exception as e:
                 logging.error('Unable to get torrent hash', exc_info=True)
                 return ''
