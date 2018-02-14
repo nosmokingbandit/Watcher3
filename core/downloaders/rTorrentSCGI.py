@@ -60,7 +60,7 @@ def add_torrent(data):
             return {'response': False, 'error': connected}
 
     try:
-        downloadid = Torrent.get_hash(data['torrentfile']).upper()
+        downloadid = Torrent.get_hash(data['torrentfile'])
 
         if conf['addpaused']:
             client.load(data['torrentfile'])
