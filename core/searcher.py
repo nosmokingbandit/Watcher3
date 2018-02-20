@@ -57,7 +57,7 @@ class Searcher():
                 logging.debug('Resetting predb backlog status for unfound movie {} {}'.format(movie['title'], movie['year']))
                 core.sql.update('MOVIES', 'predb_backlog', None, 'imdbid', movie['imdbid'])
             if not movie.get('media_release_date'):
-                logging.info('{} does not yet have a home media release date.')
+                logging.info('{} does not yet have a home media release date.'.format(movie['title']))
                 verified = False
             else:
                 media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
