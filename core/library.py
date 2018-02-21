@@ -938,16 +938,15 @@ class Manage(object):
             new_status = 'Snatched'
         elif 'Available' in result_status:
             new_status = 'Found'
-
-        if new_status:
-            logging.info('Setting MOVIES {} status to {}.'.format(imdbid, new_status))
-            if core.sql.update('MOVIES', 'status', new_status, 'imdbid', imdbid):
-                return new_status
-            else:
-                logging.error('Could not set {} to {}'.format(imdbid, new_status))
-                return ''
         else:
-            return 'Wanted' if self.searcher.verify(movie) else 'Waiting'
+            new_status = 'Wanted' if self.searcher.verify(movie) else 'Waiting'
+
+        logging.info('Setting MOVIES {} status to {}.'.format(imdbid, new_status))
+        if core.sql.update('MOVIES', 'status', new_status, 'imdbid', imdbid):
+            return new_status
+        else:
+            logging.error('Could not set {} to {}'.format(imdbid, new_status))
+            return ''
 
     def get_stats(self):
         ''' Gets stats from database for graphing
