@@ -410,7 +410,16 @@ class SQL(object):
         else:
             sort = 'DESC'
 
-        command = ['SELECT * FROM SEARCHRESULTS WHERE imdbid="{}" ORDER BY score DESC, size {}, freeleech DESC'.format(imdbid, sort)]
+        if core.CONFIG['Search']['preferredsource'] == '':
+            sk = ''
+        else:
+            sk = ''', CASE type WHEN "nzb" THEN 0
+                                WHEN "torrent" THEN 1
+                                WHEN "magnet" THEN 1
+                    END {}
+                '''.format('ASC' if core.CONFIG['Search']['preferredsource'] == 'usenet' else 'DESC')
+
+        command = ['SELECT * FROM SEARCHRESULTS WHERE imdbid="{}" ORDER BY score DESC {}, size {}, freeleech DESC'.format(imdbid, sk, sort)]
 
         results = self.execute(command)
 

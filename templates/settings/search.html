@@ -110,6 +110,15 @@
                 <div class="col-md-12 separator"></div>
 
                 <div class="col-md-6">
+                    <label>${_('Preferred Source')}</label>
+                    <select id="preferredsource" class="form-control select-sm" value="${config['preferredsource']}">
+                        <option value="">${_('None')}</option>
+                        <option value="torrent">${_('Torrent')}</option>
+                        <option value="usenet">${_('Usenet')}</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
                     <label>${_('Torrents Must Have [X] Seeds')}</label>
                     <input type="number" id="mintorrentseeds" class="form-control" min="0" placeholder="1" value="${config['mintorrentseeds']}">
                 </div>
