@@ -830,7 +830,6 @@ class Ajax(object):
         else:
             return {'response': True, 'message': 'Database Updated'}
 
-
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def get_kodi_movies(self, url):

@@ -1,6 +1,5 @@
 from xml.etree.cElementTree import fromstring
 from xmljson import yahoo
-import urllib.parse
 import logging
 import re
 
@@ -160,7 +159,6 @@ class NewzNabProvider(object):
                     result['imdbid'] = 'tt{}'.format(item['attr'].get('imdb'))
                 else:
                     result['imdbid'] = self.imdbid
-
 
                 if result['type'] != 'nzb':
                     result['torrentfile'] = result['guid']
