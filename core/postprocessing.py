@@ -76,6 +76,8 @@ class Postprocessing(object):
             logging.warning('Unable to find movie file to process.')
             return {'response': False, 'error': 'No files to process'}
 
+        data['parent_dir'] = os.path.basename(os.path.dirname(data['original_file']))
+
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
         data.update(self.get_movie_info(data))
