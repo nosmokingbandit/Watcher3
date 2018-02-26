@@ -67,7 +67,7 @@ function connect(event, elem){
                                 </td>
                             </tr>`)[0];
                 $row.dataset.movie = JSON.stringify(movie);
-                $finished_table.append($row)
+                $finished_table.innerHTML += $row.outerHTML;
                 $finished_div.classList.remove('hidden');
             } else {
                 var $row = $(`<tr>
@@ -85,7 +85,7 @@ function connect(event, elem){
                                 </td>
                             </tr>`)[0];
                 $row.dataset.movie = JSON.stringify(movie);
-                $wanted_table.append($row)
+                $wanted_table.innerHTML += $row.outerHTML;
                 $wanted_div.classList.remove('hidden');
             }
 

@@ -53,7 +53,7 @@ window.addEventListener("DOMContentLoaded", function(){
 
                     $(r["active_tasks"]).each(function(index, name){
                         if(active_names.indexOf(name) == -1){
-                            $tasks_list.append(`<div>${name}</div>`)
+                            $tasks_list.innerHTML += `<div>${name}</div>`;
                         }
                     });
                 }

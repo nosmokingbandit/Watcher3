@@ -48,11 +48,13 @@ function checkbox_switch(event){
     // turn on
     if(checkbox.getAttribute("value") == "False"){
         checkbox.setAttribute("value", "True");
-        checkbox.classList.replace("mdi-checkbox-blank-outline", "mdi-checkbox-marked");
+        checkbox.classList.remove("mdi-checkbox-blank-outline");
+        checkbox.classList.add("mdi-checkbox-marked");
     // turn off
     } else if(checkbox.getAttribute("value") == "True"){
         checkbox.setAttribute('value', 'False');
-        checkbox.classList.replace("mdi-checkbox-marked", "mdi-checkbox-blank-outline");
+        checkbox.classList.remove("mdi-checkbox-marked");
+        checkbox.classList.add("mdi-checkbox-blank-outline");
     }
 };
 
@@ -82,7 +84,8 @@ function select_attrib(event, button, key, value){
     each($movie_lis, function(movie){
         if(movie.dataset[key] == value){
             var c = movie.querySelector('i.c_box');
-            c.classList.replace("mdi-checkbox-blank-outline", "mdi-checkbox-marked");
+            c.classList.remove("mdi-checkbox-blank-outline");
+            c.classList.add("mdi-checkbox-marked");
             c.setAttribute('value', 'True');
         }
     });
@@ -275,7 +278,8 @@ function save_movie_details(event, button, tmdbid){
         return
     }
 
-    button.classList.replace('mdi-content-save', 'mdi-circle');
+    button.classList.remove('mdi-content-save');
+    button.classList.add('mdi-circle');
     button.classList.add('animated');
 
     data['tmdbid'] = tmdbid;
@@ -295,7 +299,8 @@ function save_movie_details(event, button, tmdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        button.classList.replace('mdi-circle', 'mdi-content-save');
+        button.classList.remove('mdi-circle');
+        button.classList.add('mdi-content-save');
         button.classList.remove('animated');
     });
 

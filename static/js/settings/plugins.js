@@ -46,7 +46,8 @@ function save_plugin_conf(event, button){
 
     $modal = $conf_modal[0];
 
-    button.classList.replace('mdi-content-save', 'mdi-circle');
+    button.classList.remove('mdi-content-save');
+    button.classList.add('mdi-circle');
     button.classList.add('animated');
 
     each($modal.querySelectorAll(".modal-body > div.col-md-6"), function(row, index){
@@ -95,7 +96,8 @@ function save_plugin_conf(event, button){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        button.classList.replace('mdi-circle', 'mdi-content-save');
+        button.classList.remove('mdi-circle');
+        button.classList.add('mdi-content-save');
         button.classList.remove('animated');
     });
 }

@@ -136,7 +136,7 @@ function display_movies(movies){
 
         var $li = format_template(item_template, template_dictionary);
         $li.dataset.movie = JSON.stringify(movie);
-        $movie_list.append($li);
+        $movie_list.innerHTML += $li.outerHTML;
     });
 
     $movie_list.style.maxHeight = '200%';

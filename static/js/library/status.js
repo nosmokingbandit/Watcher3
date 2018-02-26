@@ -134,10 +134,12 @@ window.addEventListener("DOMContentLoaded", function(){
             var c = event.target;
             if(c.getAttribute('value') == 'False'){
                 c.setAttribute('value', 'True');
-                c.classList.replace('mdi-checkbox-blank-outline', 'mdi-checkbox-marked');
+                c.classList.remove('mdi-checkbox-blank-outline');
+                c.classList.add('mdi-checkbox-marked');
             } else {
                 c.setAttribute('value', 'False');
-                c.classList.replace('mdi-checkbox-marked', 'mdi-checkbox-blank-outline');
+                c.classList.remove('mdi-checkbox-marked');
+                c.classList.add('mdi-checkbox-blank-outline');
             }
         }
     })
@@ -284,14 +286,16 @@ function _render_library(movies){
         }
         each($item.querySelectorAll("span.score > i.mdi"), function(star, index){
             if(index + 1 <= score){
-                star.classList.replace("mdi-star-outline", "mdi-star");
+                star.classList.remove("mdi-star-outline");
+                star.classList.add("mdi-star");
             } else if(index == i_half_star){
-                star.classList.replace("mdi-star-outline", "mdi-star-half");
+                star.classList.remove("mdi-star-outline");
+                star.classList.add("mdi-star-half");
             }
 
         });
         $item.dataset.movie = JSON.stringify(movie);
-        $movie_list.append($item)
+        $movie_list.innerHTML += $item.outerHTML;
     });
 
     echo.init({offsetVertical: 100,
@@ -437,7 +441,8 @@ function _results_table(results){
 function manual_search(event, button, imdbid){
     $i = button.querySelector('i.mdi');
 
-    $i.classList.replace("mdi-magnify", "mdi-circle");
+    $i.classList.remove("mdi-magnify");
+    $i.classList.add("mdi-circle");
     $i.classList.add("animated");
 
     var $search_results_table = document.getElementById("search_results_table");
@@ -469,7 +474,8 @@ function manual_search(event, button, imdbid){
     })
     .always(function(){
         $search_results_table.style.maxHeight = orig_maxHeight;
-        $i.classList.replace("mdi-circle", "mdi-magnify");
+        $i.classList.remove("mdi-circle");
+        $i.classList.add("mdi-magnify");
         $i.classList.remove('animated');
         $search_results_table.style.overflowY = 'scroll';
     });
@@ -696,7 +702,8 @@ function update_movie_status(imdbid, status){
     }
 
     var $status_label = $movie_list.querySelector(`li[data-imdbid="${imdbid}"] span.status`)
-    $status_label.classList.replace($status_label.innerText, status);
+    $status_label.classList.remove($status_label.innerText);
+    $status_label.classList.add(status);
     $status_label.innerText = status;
     return
 }

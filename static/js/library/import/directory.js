@@ -127,7 +127,7 @@ function connect(event, elem){
                                     </td>
                                 </tr>`)[0]
                     $row.dataset.movie = JSON.stringify(movie);
-                    $incomplete_table.append($row);
+                    $incomplete_table.innerHTML += $row.outerHTML;
                     $incomplete_div.classList.remove('hidden');
                 } else if(response["response"] == "complete"){
                     no_imports = false;
@@ -152,7 +152,7 @@ function connect(event, elem){
                                     </td>
                                 </tr>`)[0]
                     $row.dataset.movie = JSON.stringify(movie);
-                    $complete_table.append($row);
+                    $complete_table.innerHTML += $row.outerHTML;
                     $complete_div.classList.remove('hidden');
                 }
 

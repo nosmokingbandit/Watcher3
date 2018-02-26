@@ -58,7 +58,8 @@ function test_connection(event, button, mode){
 
     var $i = button.children[0];
 
-    $i.classList.replace('mdi-lan-pending', 'mdi-circle');
+    $i.classList.remove('mdi-lan-pending');
+    $i.classList.add('mdi-circle');
     $i.classList.add('animated');
 
     var inputs = document.querySelectorAll("div#" + client + " input");
@@ -86,7 +87,8 @@ function test_connection(event, button, mode){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.classList.replace('mdi-circle', 'mdi-lan-pending');
+        $i.classList.remove('mdi-circle');
+        $i.classList.add('mdi-lan-pending');
         $i.classList.remove('animated');
     });
 }

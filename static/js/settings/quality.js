@@ -12,7 +12,8 @@ function toggle_default(){
         return;
     } else {
         each(document.querySelectorAll('i.mdi.radio'), function(radio){
-            radio.classList.replace('mdi-star', 'mdi-star-outline');
+            radio.classList.remove('mdi-star');
+            radio.classList.add('mdi-star-outline');
             radio.setAttribute('value', 'False');
         })
         this.setAttribute('value', 'True');
@@ -26,10 +27,12 @@ function edit_profile(event, button){
     $i = button.children[0];
     $contents = $(button).closest('div.quality_profile').find('div.profile_contents')
     if($i.classList.contains('mdi-chevron-down')){
-        $i.classList.replace('mdi-chevron-down', 'mdi-chevron-up');
+        $i.classList.remove('mdi-chevron-down');
+        $i.classList.add('mdi-chevron-up');
         $contents.slideDown();
     } else {
-        $i.classList.replace('mdi-chevron-up', 'mdi-chevron-down');
+        $i.classList.remove('mdi-chevron-up');
+        $i.classList.add('mdi-chevron-down');
         $contents.slideUp();
     }
 }
@@ -40,7 +43,8 @@ function add_profile(event){
     $new_profile.find("i.c_box").each(function(){
         var $this = $(this);
         if(this.getAttribute("value") == "True"){
-            this.classList.replace("mdi-checkbox-blank-outline", "mdi-checkbox-marked");
+            this.classList.remove("mdi-checkbox-blank-outline");
+            this.classList.add("mdi-checkbox-marked");
         }
     })
     $profiles_form.append($new_profile)

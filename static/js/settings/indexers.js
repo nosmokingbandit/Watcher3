@@ -15,7 +15,8 @@ function test_indexer(event, button){
         return
     }
 
-    icon.classList.replace('mdi-lan-pending', 'mdi-circle');
+    icon.classList.remove('mdi-lan-pending');
+    icon.classList.add('mdi-circle');
     icon.classList.add('animated');
 
     var api = tr.querySelector('input[data-id="api"]').value;
@@ -37,7 +38,8 @@ function test_indexer(event, button){
     })
     .always(function(){
         button.removeAttribute('disabled');
-        icon.classList.replace('mdi-circle', 'mdi-lan-pending');
+        icon.classList.remove('mdi-circle');
+        icon.classList.add('mdi-lan-pending');
         icon.classList.remove('animated');
     });
 }
