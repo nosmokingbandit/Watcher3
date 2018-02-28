@@ -71,7 +71,7 @@ class Postprocessing(object):
         data['path'] = self.map_remote(data['path'])
 
         # get the actual movie file name
-        data['original_file'] = self.get_movie_file(data['path'])
+        data['original_file'] = self.get_movie_file(data['path'], check_size=False if data['mode'] == 'failed' else True)
         if not data['original_file']:
             logging.warning('Unable to find movie file to process.')
             return {'response': False, 'error': 'No files to process'}
@@ -121,7 +121,7 @@ class Postprocessing(object):
 
         return response
 
-    def get_movie_file(self, path):
+    def get_movie_file(self, path, check_size=True):
         ''' Looks for the filename of the movie being processed
         path (str): url-passed path to download dir
 
@@ -153,7 +153,7 @@ class Postprocessing(object):
 
             if biggestfile:
                 minsize = core.CONFIG['Postprocessing']['Scanner']['minsize'] * 1048576
-                if os.path.getsize(os.path.join(path, biggestfile)) < minsize:
+                if check_size and os.path.getsize(os.path.join(path, biggestfile)) < minsize:
                     logging.info('Largest file in directory {} is {}, but is smaller than the minimum size of {} bytes'.format(path, biggestfile, minsize))
                     return None
                 logging.info('Largest file in directory {} is {}, processing this file.'.format(path, biggestfile.replace(path, '')))
