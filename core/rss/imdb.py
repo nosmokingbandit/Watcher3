@@ -72,7 +72,7 @@ class ImdbRss(object):
             else:
                 movie = movie[0]
             logging.info('Adding movie {} {} from IMDB watchlist.'.format(movie['title'], movie['imdbid']))
-            movie['year'] = movie['release_date'][:4]
+            movie['year'] = movie['release_date'][:4] if movie.get('release_date') else 'N/A'
             movie['origin'] = 'IMDB'
 
             added = core.manage.add_movie(movie)
