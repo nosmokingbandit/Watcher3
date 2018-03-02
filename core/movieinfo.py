@@ -282,5 +282,3 @@ def trailer(title_date):
                 logging.error('Unable to get trailer from Youtube.', exc_info=True)
             tries += 1
     return ''
-
-

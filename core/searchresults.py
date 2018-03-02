@@ -2,7 +2,6 @@ import logging
 import datetime
 
 from base64 import b16encode
-import json
 import core
 from core.helpers import Url
 
