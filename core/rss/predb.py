@@ -14,7 +14,7 @@ class PreDB(object):
         ''' Checks all movies for predb status
 
         Simply loops through MOVIES table and executes self.backlog_search if
-            predb column is not 'found'
+            predb column is not '1'
 
         Returns bool
         '''
@@ -76,7 +76,7 @@ class PreDB(object):
         Returns list of found predb entries
         '''
 
-        title_year = Url.normalize(title_year)
+        title_year = Url.normalize(title_year, ascii_only=True)
 
         url = 'http://predb.me/?cats=movies&search={}&rss=1'.format(title_year)
 
@@ -147,7 +147,7 @@ class PreDB(object):
         Returns bool
         '''
 
-        movie = Url.normalize('{}.{}'.format(title, year)).replace(' ', '.')
+        movie = Url.normalize('{}.{}'.format(title, year), ascii_only=True).replace(' ', '.')
         for pdb in predb_titles:
             if year not in pdb:
                 continue

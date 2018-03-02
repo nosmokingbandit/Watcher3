@@ -33,9 +33,10 @@ class Url(object):
     trans = {i: ' ' for i in map(ord, '+.-_')}
 
     @staticmethod
-    def normalize(s):
+    def normalize(s, ascii_only=False):
         ''' "normalizes" strings for url params
         s (str): text to format
+        ascii_only (bool): reduce to ascii-only characters   <default False>
 
         Strips/replaces unicode chars and replaces punctuation with spaces
 
@@ -49,7 +50,10 @@ class Url(object):
         while '  ' in s:
             s = s.replace('  ', ' ')
 
-        s = unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode('ascii')
+        s = unicodedata.normalize('NFKD', s)
+
+        if ascii_only:
+            s = s.encode('ascii', 'ignore').decode('ascii')
 
         return s.lower().strip()
 
