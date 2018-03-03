@@ -761,21 +761,24 @@ class Postprocessing(object):
 
         if len(keep_extensions) > 0:
             logging.info('Moving additional files with extensions {}.'.format(','.join(keep_extensions)))
-            renamer_string = config['renamerstring']
-            new_name = self.compile_path(renamer_string, data)
+
+            compiled_name = self.compile_path(config['renamerstring'], data)
 
             for root, dirs, filenames in os.walk(data['path']):
                 for name in filenames:
                     old_abs_path = os.path.join(root, name)
-                    ext = os.path.splitext(old_abs_path)[1]  # '.ext'
+                    fname, ext = os.path.splitext(name)  # ('filename', '.ext')
 
-                    target_file = '{}{}'.format(os.path.join(target_folder, new_name), ext)
+                    if config['renamerenabled']:
+                        fname = compiled_name
+
+                    target_file = '{}{}'.format(os.path.join(target_folder, fname), ext)
 
                     if ext.replace('.', '') in keep_extensions:
                         append = 0
                         while os.path.isfile(target_file):
                             append += 1
-                            new_filename = '{}({})'.format(new_name, str(append))
+                            new_filename = '{}({})'.format(fname, str(append))
                             target_file = '{}{}'.format(os.path.join(target_folder, new_filename), ext)
                         try:
                             logging.info('Moving {} to {}'.format(old_abs_path, target_file))
