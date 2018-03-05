@@ -15,7 +15,6 @@ window.addEventListener("DOMContentLoaded", function(){
     })
 
     $pills = $('ul.nav-pills a');
-
     $pills.on('shown.bs.tab', function(e){
         clear_movies();
         if(e.target.dataset.cat == 'search'){

@@ -1,7 +1,7 @@
 window.addEventListener("DOMContentLoaded", function(){
-    url_base = $("meta[name='url_base']").attr("content");
-    show_notifs = JSON.parse($("meta[name='enable_notifs']").attr("content") || "true");
-    language = $("meta[name='language']").attr("content") || "en";
+    url_base = document.querySelector("meta[name='url_base']").content;
+    show_notifs = JSON.parse(document.querySelector("meta[name='enable_notifs']").content || "true");
+    language = document.querySelector("meta[name='language']").content || "en";
 
     if(show_notifs){
         notifs = JSON.parse(document.querySelector('script#notifications_json').innerHTML);
@@ -44,7 +44,7 @@ $.notifyDefaults({type: "success",
                     });
 
 function remove_notif(){
-    var index = $(this).data("index");
+    var index = this.dataset.index;
     if(index === undefined){
         return false;
     }

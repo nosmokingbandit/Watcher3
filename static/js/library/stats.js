@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", function(){
         profile_colors.push(getComputedStyle(span).backgroundColor);
     });
 
-    var get_stats = $.get(url_base + "/ajax/generate_stats");
+    var get_stats = $.get(url_base + "/ajax/generate_stats")
     .done(function(response){
         render_charts(response)
     })

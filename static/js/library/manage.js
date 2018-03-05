@@ -9,7 +9,7 @@ window.addEventListener("DOMContentLoaded", function(){
 
     echo.init({offsetVertical: 100,
                callback: function(element, op){
-                   $(element).css("opacity", 1)
+                   element.style.opacity = 1;
                }
     });
 

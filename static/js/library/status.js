@@ -29,8 +29,7 @@ window.addEventListener("DOMContentLoaded", function(){
 
     loading_library = false; // Indicates that a library ajax request is being executed
 
-    $sort_direction_button = $("button#sort_direction > i");
-    $sort_key_select = $("select#movie_sort_key");
+    $sort_direction_button = document.querySelector("button#sort_direction > i");
     $movie_list = document.getElementById("movie_list");
     $hide_finished_movies_toggle = document.getElementById('hide_finished_movies');
 
@@ -51,7 +50,7 @@ window.addEventListener("DOMContentLoaded", function(){
     var cookie = read_cookie();
     echo.init({offsetVertical: 100,
                callback: function(element, op){
-                   $(element).css("opacity", 1)
+                   element.style.opacity = 1;
                }
     });
 
@@ -72,12 +71,12 @@ window.addEventListener("DOMContentLoaded", function(){
     echo.render();
 
     if (movie_sort_direction == "asc") {
-        $sort_direction_button.addClass("mdi-sort-ascending");
+        $sort_direction_button.classList.add("mdi-sort-ascending");
     } else {
-        $sort_direction_button.addClass("mdi-sort-descending");
+        $sort_direction_button.classList.add("mdi-sort-descending");
     }
 
-    $sort_key_select.find(`option[value=${movie_sort_key}]`).attr("selected", "true")
+    document.querySelector(`select#movie_sort_key > option[value=${movie_sort_key}]`).setAttribute("selected", true)
 
     if(hide_finished_movies == "True"){
         $hide_finished_movies_toggle.setAttribute('value', 'True');
@@ -332,7 +331,7 @@ function _render_library(movies){
 
     echo.init({offsetVertical: 100,
         callback: function(element, op){
-            $(element).css("opacity", 1)
+            element.style.opacity = 1;
         }
     });
 }
@@ -362,11 +361,13 @@ function switch_sort_direction(event, elem){
         return false
     }
 
-    if ($sort_direction_button.hasClass("mdi-sort-ascending")){
-        $sort_direction_button.removeClass("mdi-sort-ascending").addClass("mdi-sort-descending");
+    if ($sort_direction_button.classList.contains("mdi-sort-ascending")){
+        $sort_direction_button.classList.remove("mdi-sort-ascending");
+        $sort_direction_button.classList.add("mdi-sort-descending");
         movie_sort_direction = "desc";
     } else {
-        $sort_direction_button.removeClass("mdi-sort-descending").addClass("mdi-sort-ascending");
+        $sort_direction_button.classList.remove("mdi-sort-descending");
+        $sort_direction_button.classList.add("mdi-sort-ascending");
         movie_sort_direction = "asc";
     }
 
@@ -382,7 +383,7 @@ function open_info_modal(event, elem){
     // Generate and show movie info modal
     event.preventDefault();
 
-    var movie = $(elem).data("movie");
+    var movie = JSON.parse(elem.dataset.movie);
     if(movie["origin"] === null){
         movie["origin"] = ""
     }
@@ -403,11 +404,11 @@ function open_info_modal(event, elem){
         }
         var modal = format_template(templates.info, movie);
 	movie['title_escape'] = movie['title'].replace(/'/g, "\\'");
-        $movie_status = $(modal);
+        $movie_status_modal = $(modal);
 
-        $movie_status.data("movie", movie);
-        $movie_status.find("select#movie_quality > option[value='"+movie["quality"]+"']").attr("selected", true)
-        $status_select = $movie_status.find("select#movie_status");
+        $movie_status_modal.data("movie", movie);
+        $movie_status_modal.find("select#movie_quality > option[value='"+movie["quality"]+"']").attr("selected", true)
+        $status_select = $movie_status_modal.find("select#movie_status");
 
         if(movie["status_select"] == "Disabled"){
              $status_select.find("option[value='Disabled']").attr("selected", true)
@@ -416,10 +417,10 @@ function open_info_modal(event, elem){
         }
 
         if(movie["status"] == "Finished" || movie["status"] == "Disabled"){
-            $movie_status.find("span#finished_file_badge").removeClass('hidden');
+            $movie_status_modal.find("span#finished_file_badge").removeClass('hidden');
         }
 
-        $movie_status.modal("show");
+        $movie_status_modal.modal("show");
     })
     .fail(function(data){
         var err = data.status + " " + data.statusText
@@ -496,8 +497,9 @@ function manual_search(event, button, imdbid){
 function update_metadata(event, elem, imdbid, tmdbid){
     event.preventDefault();
 
-    var $i = $(elem).find("i.mdi");
-    $i.removeClass("mdi-tag-text-outline").addClass("mdi-circle animated");
+    var $i = elem.querySelector('i.mdi');
+    $i.classList.remove("mdi-tag-text-outline");
+    $i.classList.add("mdi-circle animated");
 
     $.post(url_base + "/ajax/update_metadata", {
         "imdbid": imdbid,
@@ -505,24 +507,25 @@ function update_metadata(event, elem, imdbid, tmdbid){
     })
     .done(function(response){
         if(response["response"] == true){
-            $.notify({message: response["message"]})
+            $.notify({message: response["message"]});
         } else {
-            $.notify({message: response["error"]}, {type: "danger"})
+            $.notify({message: response["error"]}, {type: "danger"});
         }
     })
     .fail(function(data){
-        var err = data.status + " " + data.statusText
+        var err = data.status + " " + data.statusText;
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.removeClass("mdi-circle animated").addClass("mdi-tag-text-outline");
+        $i.classList.remove("mdi-circle animated");
+        $i.classList.add("mdi-tag-text-outline");
     });
 }
 
 function remove_movie(event, elem, imdbid){
     event.preventDefault();
 
-    var movie = $movie_status.data("movie");
+    var movie = $movie_status_modal.data("movie");
 
     var modal = format_template(templates.delete, movie);
     $delete = $(modal);
@@ -532,9 +535,10 @@ function remove_movie(event, elem, imdbid){
     }
 
     $delete.modal("show");
-    $movie_status.css("opacity", 0);
+    $movie_status_modal.css("opacity", 0);
     $delete.on('hide.bs.modal', function(){
-        $movie_status.css("opacity", 1);
+        $movie_status_modal.css("opacity", 1);
+        $delete.remove();
     });
 }
 
@@ -542,11 +546,9 @@ function _remove_movie(event, elem, imdbid){
     /* Removes movie from library
     imdbid: str imdb id# of movie to remove
     */
+    var movie = $movie_status_modal.data("movie");
 
-    var $this = $(elem);
-    var movie = $movie_status.data("movie");
-
-    if($("div#delete_file > i.c_box").attr("value") == "True"){
+    if(document.querySelector("div#delete_file > i.c_box").getAttribute("value") == "True"){
         var delete_file = true;
     } else {
         var delete_file = false;
@@ -558,7 +560,7 @@ function _remove_movie(event, elem, imdbid){
             if(response["response"] == true){
                 $.notify({message: response["message"]});
                 $movie_list.querySelector(`li[data-imdbid="${imdbid}"]`).outerHTML = '';
-                $movie_status.modal("hide");
+                $movie_status_modal.modal("hide");
             } else {
                 $.notify({message: response["error"]}, {type: "danger"})
             }
@@ -566,7 +568,7 @@ function _remove_movie(event, elem, imdbid){
             var index = cached_movies.map(function(e){ return e.imdbid; }).indexOf(imdbid);
             cached_movies.splice(index, 1);
 
-            $movie_status.modal("hide");
+            $movie_status_modal.modal("hide");
 
         })
         .fail(function(data){
@@ -600,11 +602,10 @@ function _remove_movie(event, elem, imdbid){
 }
 
 function update_movie_options(event, elem, imdbid){
-    var $this = $(this);
-    var $i = $this.find("i");
+    var $i = elem.querySelector('i');
 
-    var quality = $("select#movie_quality").val();
-    var status = $("select#movie_status").val();
+    var quality = document.getElementById('movie_quality').value;
+    var status = document.getElementById('movie_status').value;
 
     $.post(url_base+"/ajax/update_movie_options", {
         "quality": quality,
@@ -628,11 +629,11 @@ function update_movie_options(event, elem, imdbid){
 function manual_download(event, elem, guid, kind, imdbid){
     event.preventDefault();
 
-    var $this = $(elem);
-    var $i = $this.find("i.mdi");
-    $i.removeClass("mdi-download").addClass("mdi-circle animated");
+    var $i = elem.querySelector('i.mdi');
+    $i.classList.remove("mdi-download");
+    $i.classList.add("mdi-circle animated");
 
-    var year = $movie_status.find("div.modal-header span.year").text();
+    var year = $movie_status_modal.find("div.modal-heade3wr span.year").text();
 
     $.post(url_base + "/ajax/manual_download", {
         "year": year,
@@ -654,7 +655,8 @@ function manual_download(event, elem, guid, kind, imdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.removeClass("mdi-circle animated").addClass("mdi-download");
+        $i.classList.remove("mdi-circle animated");
+        $i.classList.add("mdi-download");
     });
 }
 
@@ -664,11 +666,11 @@ function mark_bad(event, elem, guid, imdbid){
     imdbid: str imdb id# of movie
     */
     event.preventDefault();
-    $this = $(elem);
 
-    var $i = $this.find("i.mdi");
+    var $i = elem.querySelector("i.mdi");
 
-    $i.removeClass("mdi-cancel").addClass("mdi-circle animated");
+    $i.classList.remove("mdi-cancel");
+    $i.classList.add("mdi-circle animated");
 
     $.post(url_base + "/ajax/mark_bad", {
         "guid": guid,
@@ -693,7 +695,8 @@ function mark_bad(event, elem, guid, imdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.removeClass("mdi-circle animated").addClass("mdi-cancel");
+        $i.classList.remove("mdi-circle animated");
+        $i.classList.add("mdi-cancel");
     });
 }
 
