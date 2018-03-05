@@ -6,6 +6,7 @@ $(document).ready(function () {
     $usenet_clients = document.querySelectorAll("div#usenet_client_settings > div");
 
     // Set selects on page load
+    // #TODO use select handling from shared.js to set select value
     each($usenet_clients, function(client){
         if(client.dataset.enabled == 'True'){
             client.style.maxHeight = '100%';

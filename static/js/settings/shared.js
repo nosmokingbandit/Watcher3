@@ -1,26 +1,23 @@
 window.addEventListener("DOMContentLoaded", function(){
-    var git_url = $("meta[name='git_url']").attr("content");
-
     // Init tooltips
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
+    $('[data-toggle="tooltip"]').tooltip()
 
     // set default state for pseudo checkboxes
-    $("i.c_box").each(function(){
-        $this = $(this);
-        if ($this.attr("value") == "True" ){
-            $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+    each(document.querySelectorAll('i.c_box'), function(checkbox, i){
+        if(checkbox.getAttribute('value') == 'True'){
+            checkbox.classList.remove("mdi-checkbox-blank-outline");
+            checkbox.classList.add("mdi-checkbox-marked")
         }
-    });
+    })
 
     // Set select option's values
-    $("select").each(function(i, elem){
-        var $this = $(elem);
-        var val = $this.attr('value');
-        $this.children("option[value='"+val+"']").prop('selected', true);
-
-    });
+    each(document.getElementsByTagName('select'), function(select, i){
+        // #TODO can remove var and make single line when downloader.js is updated
+        var s = select.querySelector("option[value='"+select.getAttribute('value')+"']")
+        if(s){
+            s.setAttribute('selected', true);
+        }
+    })
 
     // toggle checkbox status on click
     $("body").on("click", "i.c_box", function(){
@@ -48,17 +45,18 @@ window.addEventListener("DOMContentLoaded", function(){
 // Shared functions for saving settings
 function save_settings(event, elem){
     event.preventDefault();
-    var $this = $(elem);
-    var $i = $this.find("i");
+    var $i = elem.querySelector('i');
 
-    $i.removeClass("mdi-content-save").addClass("mdi-circle animated");
+    $i.classList.remove("mdi-content-save");
+    $i.classList.add("mdi-circle", "animated");
+
 
     var settings = _get_settings(); // This method is declared in each page's script.
 
-
     if(settings == false){
         $.notify({message: _("Please fill in all highlighted fields.")}, {type: "danger"})
-        $i.removeClass("mdi-circle animated").addClass("mdi-content-save");
+        $i.classList.remove("mdi-circle",  "animated");
+        $i.classList.add("mdi-content-save");
         return false
     }
 
@@ -77,7 +75,8 @@ function save_settings(event, elem){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.removeClass("mdi-circle animated").addClass("mdi-content-save");
+        $i.classList.remove("mdi-circle", "animated");
+        $i.classList.add("mdi-content-save");
     });
 }
 
