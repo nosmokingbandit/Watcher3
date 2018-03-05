@@ -149,20 +149,6 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label>Hide Finished Movies</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i id="hidefinished" class="mdi mdi-checkbox-blank-outline c_box" value="${config['hidefinished']}"></i>
-                            </span>
-                        </div>
-                        <span class="input-group-item form-control">
-                            Hide Finished movies in library
-                        </span>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
                     <label>${_('Language')}</label>
                     <select class="form-control select-sm" id="language" value="${config['language'] or 'en'}">
                         %for i in languages:

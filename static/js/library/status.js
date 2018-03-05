@@ -2,6 +2,7 @@ window.addEventListener("DOMContentLoaded", function(){
     current_page = 1;
 
     movie_count = parseInt(document.querySelector('meta[name="movie_count"]').content);
+    finished_count = parseInt(document.querySelector('meta[name="finished_count"]').content);
     cached_movies = Array(movie_count);
 
     per_page = 50;
@@ -31,6 +32,7 @@ window.addEventListener("DOMContentLoaded", function(){
     $sort_direction_button = $("button#sort_direction > i");
     $sort_key_select = $("select#movie_sort_key");
     $movie_list = document.getElementById("movie_list");
+    $hide_finished_movies_toggle = document.getElementById('hide_finished_movies');
 
     templates = {movie: document.querySelector("template#template_movie").innerHTML,
                  info: document.querySelector("template#template_movie_info").innerHTML,
@@ -57,6 +59,7 @@ window.addEventListener("DOMContentLoaded", function(){
     movie_layout = (cookie["movie_layout"] || '').split(' ')[0] || "posters";
     movie_sort_direction = cookie["movie_sort_direction"] || "desc";
     movie_sort_key = cookie["movie_sort_key"] || "sort_title";
+    hide_finished_movies = cookie["hide_finished_movies"] || "False";
     if(movie_sort_key == 'status_key'){
         movie_sort_key = 'status'
     } else if(movie_sort_key == 'title') {
@@ -75,6 +78,12 @@ window.addEventListener("DOMContentLoaded", function(){
     }
 
     $sort_key_select.find(`option[value=${movie_sort_key}]`).attr("selected", "true")
+
+    if(hide_finished_movies == "True"){
+        $hide_finished_movies_toggle.setAttribute('value', 'True');
+        $hide_finished_movies_toggle.classList.remove("mdi-checkbox-blank-outline");
+        $hide_finished_movies_toggle.classList.add("mdi-checkbox-marked");
+    }
 
 /* Finish by loading page 1 */
     load_library(movie_sort_key, movie_sort_direction, 1)
@@ -144,6 +153,21 @@ window.addEventListener("DOMContentLoaded", function(){
         }
     })
 
+    $hide_finished_movies_toggle.addEventListener('click', function(event){
+        var hf;
+        if(event.target.getAttribute('value') == 'False'){
+            set_cookie('hide_finished_movies', 'True')
+            cached_movies = Array(movie_count - finished_count)
+            hf = 'True'
+        } else {
+            set_cookie('hide_finished_movies', 'False')
+            cached_movies = Array(movie_count)
+            hf = 'False'
+        }
+        $page_select.value = 1;
+        load_library(movie_sort_key, movie_sort_direction, 1, hf);
+    })
+
 });
 
 exp_date = new Date();
@@ -203,11 +227,14 @@ function sort_movie_cache(key){
     });
 }
 
-function load_library(sort_key, sort_direction, page){
+function load_library(sort_key, sort_direction, page, hf){
     /* Loads library into DOM
     sort_key: str value with which to sort movies
     sort_direction: str [asc, desc] direction to sort movies
     page: int page number
+    hf: str ("True", "False") load hidden/finished movies <optional>
+
+    hf will be read from checkbox in DOM if not passed
 
     Clears movies from dom and loads new page.
     Checks if all movies are cached and loads them. If not cached requests movies from server.
@@ -232,6 +259,10 @@ function load_library(sort_key, sort_direction, page){
         }
     }
 
+    if(hf === undefined){
+        hf = $hide_finished_movies_toggle.getAttribute("value");
+    }
+
     if(use_cache) {
         _render_library(cached_page);
         loading_library = false;
@@ -240,7 +271,8 @@ function load_library(sort_key, sort_direction, page){
             "sort_key": sort_key,
             "sort_direction": sort_direction,
             "limit": per_page,
-            "offset": offset
+            "offset": offset,
+            "hide_finished": hf
         })
         .done(function(response){
             Array.prototype.splice.apply(cached_movies, [offset, response.length].concat(response))
@@ -303,26 +335,6 @@ function _render_library(movies){
             $(element).css("opacity", 1)
         }
     });
-}
-
-function change_page(event, elem, page){
-    // page: int page #
-    // Fails if loading_library is true
-    // Constructs then forwards request to load_library
-    event.preventDefault();
-
-    if(loading_library){
-        return false;
-    }
-
-    var $btn = $(elem);
-
-    $page_buttons.removeClass("active");
-    $btn.addClass("active");
-
-    load_library(movie_sort_key, movie_sort_direction, page)
-
-    current_page = page;
 }
 
 function change_page_sequential(event, direction){

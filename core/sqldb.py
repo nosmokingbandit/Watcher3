@@ -344,26 +344,30 @@ class SQL(object):
             logging.error('Unable to get list of user\'s movies.')
             return []
 
-    def get_library_count(self, hide_finished=False):
+    def get_library_count(self):
         ''' Gets count of rows in MOVIES
+        Gets total count and Finished count
 
-        Returns int
+        Returns tuple (int, int)
         '''
 
         logging.debug('Getting count of library.')
 
-        filters = ' WHERE status NOT IN ("Finished", "Disabled")' if hide_finished else ''
-
-        command = 'SELECT COUNT(1) FROM MOVIES' + filters
-
-        result = self.execute([command])
-
+        result = self.execute(['SELECT COUNT(1) FROM MOVIES'])
         if result:
-            x = result.fetchone()[0]
-            return x
+            c = result.fetchone()[0]
         else:
             logging.error('Unable to get count of user\'s movies.')
-            return 0
+            return (0, 0)
+
+        result = self.execute(['SELECT COUNT(1) FROM MOVIES WHERE status IN ("Finished", "Disabled")'])
+        if result:
+            f = result.fetchone()[0]
+        else:
+            logging.error('Unable to get count of user\'s movies.')
+            return (0, 0)
+
+        return (c, f)
 
     def get_movie_details(self, idcol, idval):
         ''' Returns dict of single movie details from MOVIES.

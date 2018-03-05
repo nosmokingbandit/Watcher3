@@ -103,14 +103,9 @@ class App(object):
 
         if page == 'status':
 
-            if core.CONFIG['Server']['hidefinished']:
-                movie_count = core.sql.get_library_count(hide_finished=True)
-                hidden_count = core.sql.get_library_count() - movie_count
-            else:
-                movie_count = core.sql.get_library_count()
-                hidden_count = 0
+            mc, fc = core.sql.get_library_count()
 
-            return App.status_template.render(profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=movie_count, hidden_count=hidden_count, **self.defaults())
+            return App.status_template.render(profiles=core.CONFIG['Quality']['Profiles'].keys(), movie_count=mc, finished_count=fc, **self.defaults())
         elif page == 'manage':
             movies = core.sql.get_user_movies()
             return App.manage_template.render(movies=movies, profiles=core.CONFIG['Quality']['Profiles'].keys(), **self.defaults())

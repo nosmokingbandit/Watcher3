@@ -44,20 +44,23 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def library(self, sort_key, sort_direction, limit=50, offset=0):
+    def library(self, sort_key, sort_direction, limit=50, offset=0, hide_finished=False):
         ''' Get 50 movies from library
         sort_key (str): column name to sort by
         sort_direction (str): direction to sort [ASC, DESC]
 
         limit: int number of movies to get                  <optional - default 50>
         offset: int list index postition to start slice     <optional - default 0>
+        hide_finished (bool): get finished/disabled movies or not
+
+        hide_finished will be converted to bool if string is passed
 
         Gets a 25-movie slice from library sorted by sort key
 
         Returns list of dicts of movies
         '''
 
-        return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset, hide_finished=core.CONFIG['Server']['hidefinished'])
+        return core.sql.get_user_movies(sort_key, sort_direction.upper(), limit, offset, hide_finished=True if hide_finished == 'True' else False)
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
