@@ -15,11 +15,24 @@ def check_credentials(username, password):
 
     Returns bool
     '''
+    l = [(core.CONFIG['Server']['authuser'], core.CONFIG['Server']['authpass'])]
 
-    if username == core.CONFIG['Server']['authuser'] and password == core.CONFIG['Server']['authpass']:
+    if core.CONFIG['Server']['adminrequired']:
+        l.append((core.CONFIG['Server']['adminuser'], core.CONFIG['Server']['adminpass']))
+
+    if (username, password) in l:
         return True
     else:
         return False
+
+
+def is_admin(username):
+    ''' check_auth method to verify if logged in user is admin
+    username (str): username to check against config
+
+    Returns bool
+    '''
+    return True if username == core.CONFIG['Server']['adminuser'] else False
 
 
 def check_auth(*args, **kwargs):
@@ -44,7 +57,7 @@ def check_auth(*args, **kwargs):
             cherrypy.request.login = username
             for condition in conditions:
                 # A condition is just a callable that returns true or false
-                if not condition():
+                if not condition(username):
                     raise cherrypy.InternalRedirect(LOGIN_URL)
         else:
             raise cherrypy.InternalRedirect(LOGIN_URL)
@@ -144,6 +157,9 @@ class AuthController(object):
 
         Internally redirects user to login page.
 
+        If login is required for entire web-ui, returns url to login page
+        If login is *not* required for web-ui (ie logging out admin for Settings pages), returns base url
+
         Returns str url path to login page
         '''
 
@@ -159,4 +175,4 @@ class AuthController(object):
                 origin_ip = cherrypy.request.headers['Remote-Addr']
             self.on_logout(username, origin_ip)
 
-        return core.URL_BASE + LOGIN_URL
+        return core.URL_BASE + (LOGIN_URL if core.CONFIG['Server']['authrequired'] else '/')

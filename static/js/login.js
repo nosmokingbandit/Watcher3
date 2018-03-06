@@ -1,6 +1,11 @@
 window.addEventListener("DOMContentLoaded", function(){
     url_base = $("meta[name='url_base']").attr("content");
 
+    $input_user = document.querySelector('input#user');
+    $input_password = document.querySelector('input#password');
+
+    $input_user.focus();
+
     var ins = document.querySelectorAll('input');
     for (var i = 0; i < ins.length; i++){
         var input = ins[i];
@@ -18,8 +23,6 @@ window.addEventListener("DOMContentLoaded", function(){
 function login(event){
     event.preventDefault();
 
-    var $input_user = document.querySelector('input#user');
-    var $input_password = document.querySelector('input#password');
     var blanks = false;
 
     if(!$input_user.value){
@@ -52,7 +55,7 @@ function login(event){
                 location.reload()
             }
         } else {
-            $input_password.value == '';
+            $input_password.value = '';
         }
     })
     .fail(function(data){

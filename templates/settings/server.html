@@ -100,6 +100,30 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label>* ${_('Password-protect Settings')}</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i id="adminrequired" class="mdi mdi-checkbox-blank-outline c_box" value="${config['adminrequired']}"></i>
+                            </span>
+                        </div>
+                        <span class="input-group-item form-control">
+                                ${_('Require login to access Settings pages.')}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label>${_('Admin User Name')}</label>
+                    <input type="text" id="adminuser" class="form-control" value="${config['adminuser']}">
+                </div>
+                <div class="col-md-3">
+                    <label>${_('Admin Password')}</label>
+                    <input type="text" id="adminpass" class="form-control" value="${config['adminpass']}">
+                </div>
+
+
+                <div class="col-md-6">
                     <label>* ${_('SSL Cert')}</label>
                     <input type="text" id="ssl_cert" class="form-control" placeholder="/path/to/cert.crt" value="${config['ssl_cert']}">
                 </div>

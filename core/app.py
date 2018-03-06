@@ -35,6 +35,10 @@ class App(object):
             'error_page.404': self.error_page_404
         })
 
+        # Lock down settings if required
+        if core.CONFIG['Server']['adminrequired']:
+            self.settings._cp_config['auth.require'] = [core.auth.is_admin]
+
         if core.CONFIG['Server']['checkupdates']:
             scheduler.AutoUpdateCheck.update_check(install=False)
 
@@ -194,6 +198,7 @@ class App(object):
             return App.system_template.render(tasks=json.dumps(tasks), system=system, server_time=[dt, t], **self.defaults())
         else:
             return self.error_page_404()
+    settings._cp_config = {}
 
     @cherrypy.expose
     def system(self, *path, **kwargs):

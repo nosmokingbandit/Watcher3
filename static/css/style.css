@@ -45,6 +45,10 @@ nav.navbar img{
     height: 3em;
 }
 
+nav.navbar .nav-link{
+    padding: .2rem 1rem;
+}
+
 @keyframes material-zoom {
     0%{
         transform: scale(0);
