@@ -94,7 +94,13 @@
                             </a>
                         </li>
                         <li class="dropdown-divider"></li>
-                        %if show_logout:
+                        %if username:
+                        <li>
+                            <a class="nav-link active">
+                                <i class="mdi mdi-account-circle"></i>
+                                <b>${username}</b>
+                            </a>
+                        </li>
                         <li data-toggle="modal" data-target="#modal_logout">
                             <a class="nav-link">
                                 <i class="mdi mdi-logout"></i> ${_('Log Out')}
