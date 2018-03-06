@@ -499,7 +499,8 @@ function update_metadata(event, elem, imdbid, tmdbid){
 
     var $i = elem.querySelector('i.mdi');
     $i.classList.remove("mdi-tag-text-outline");
-    $i.classList.add("mdi-circle animated");
+    $i.classList.add("mdi-circle");
+    $i.classList.add("animated");
 
     $.post(url_base + "/ajax/update_metadata", {
         "imdbid": imdbid,
@@ -517,7 +518,8 @@ function update_metadata(event, elem, imdbid, tmdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.classList.remove("mdi-circle animated");
+        $i.classList.remove("mdi-circle");
+        $i.classList.remove("animated");
         $i.classList.add("mdi-tag-text-outline");
     });
 }
@@ -631,7 +633,8 @@ function manual_download(event, elem, guid, kind, imdbid){
 
     var $i = elem.querySelector('i.mdi');
     $i.classList.remove("mdi-download");
-    $i.classList.add("mdi-circle animated");
+    $i.classList.add("mdi-circle");
+    $i.classList.add("animated");
 
     var year = $movie_status_modal.find("div.modal-heade3wr span.year").text();
 
@@ -655,7 +658,8 @@ function manual_download(event, elem, guid, kind, imdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.classList.remove("mdi-circle animated");
+        $i.classList.remove("mdi-circle");
+        $i.classList.remove("animated");
         $i.classList.add("mdi-download");
     });
 }
@@ -670,7 +674,8 @@ function mark_bad(event, elem, guid, imdbid){
     var $i = elem.querySelector("i.mdi");
 
     $i.classList.remove("mdi-cancel");
-    $i.classList.add("mdi-circle animated");
+    $i.classList.add("mdi-circle");
+    $i.classList.add("animated");
 
     $.post(url_base + "/ajax/mark_bad", {
         "guid": guid,
@@ -695,7 +700,8 @@ function mark_bad(event, elem, guid, imdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $i.classList.remove("mdi-circle animated");
+        $i.classList.remove("mdi-circle");
+        $i.classList.remove("animated");
         $i.classList.add("mdi-cancel");
     });
 }
