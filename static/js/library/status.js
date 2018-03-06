@@ -631,7 +631,8 @@ function manual_download(event, elem, guid, kind, imdbid){
 
     var $i = elem.querySelector('i.mdi');
     $i.classList.remove("mdi-download");
-    $i.classList.add("mdi-circle animated");
+    $i.classList.add("mdi-circle");
+    $i.classList.add("animated");
 
     var year = $movie_status_modal.find("div.modal-heade3wr span.year").text();
 
