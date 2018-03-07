@@ -1,12 +1,12 @@
 window.addEventListener("DOMContentLoaded", function(){
-    $tasks_table = $("table#tasks > tbody");
-    server_time = $("meta[name='server_time']").attr("content");
-    tasks = JSON.parse($("meta[name='tasks']").attr("content"));
+    $tasks_table = document.querySelector("table#tasks > tbody");
+    server_time = document.querySelector('meta[name="server_time"]').content;
+    tasks = JSON.parse(document.querySelector('meta[name="tasks"]').content);
 
     $button_begin_restore = document.querySelector("button#submit_restore_zip");
 
     $.each(tasks, function(i, task){
-        $tasks_table.append(_render_task_row(task));
+        $tasks_table.innerHTML += _render_task_row(task);
     })
 
     $restore_modal = document.getElementById("modal_restore_backup");
@@ -201,25 +201,27 @@ function upload_restore_zip(event, button){
 
 function execute_task(event, elem, name){
     event.preventDefault();
-
     var $this = $(elem);
-    if($this.hasClass("disabled")){
+
+    if(elem.classList.contains("disabled")){
         return
     }
-    var $tr = $this.closest("tr");
-    var $btns = $("i.task_execute");
+    var $tr = elem.parentElement.parentElement;
+    var $btns = document.querySelectorAll("i.task_execute");
 
-    $btns.addClass("disabled");
-    $this.attr("onclick", "");
-    $this.removeClass("mdi-play-circle").addClass("mdi-circle animated");
+    each($btns, function(b, i){
+        b.classList.add("disabled");
+    });
+    elem.classList.remove("mdi-play-circle");
+    elem.classList.add("mdi-circle");
+    elem.classList.add("animated");
 
     $.post(url_base + "/ajax/manual_task_execute", {name: name})
     .done(function(response){
         var t = tasks[name];
         t["last_execution"] = response["last_execution"]
 
-        var row = _render_task_row(t);
-        $tr[0].innerHTML = row;
+        $tr.innerHTML = _render_task_row(t);
 
         if(response["response"] == true){
             $.notify({message: response["message"]})
@@ -237,8 +239,12 @@ function execute_task(event, elem, name){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        $this.removeClass("mdi-circle animated").addClass("mdi-play-circle");
-        $btns.removeClass("disabled");
+        elem.classList.remove("mdi-circle");
+        elem.classList.remove("animated");
+        elem.classList.add("mdi-play-circle");
+        each($btns, function(b, i){
+            b.classList.remove("disabled");
+        });
     });
 
 }

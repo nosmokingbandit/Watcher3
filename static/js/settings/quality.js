@@ -1,14 +1,19 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", function(){
     profile_template = document.querySelector("template#profile_template").innerHTML;
 
     $profiles_form = $("form#profiles");
 
+    each(document.querySelectorAll('i.mdi.radio'), function(r, i){
+        r.addEventListener('click', function(){
+            toggle_default()
+        })
+    })
 
-    $('i.mdi.radio').click(toggle_default)
 });
 
 function toggle_default(){
-    if(this.getAttribute('value') == 'True'){
+    var $i = event.target;
+    if($i.getAttribute('value') == 'True'){
         return;
     } else {
         each(document.querySelectorAll('i.mdi.radio'), function(radio){
@@ -16,9 +21,9 @@ function toggle_default(){
             radio.classList.add('mdi-star-outline');
             radio.setAttribute('value', 'False');
         })
-        this.setAttribute('value', 'True');
-        this.classList.remove('mdi-star-outline');
-        this.classList.add('mdi-star');
+        $i.setAttribute('value', 'True');
+        $i.classList.remove('mdi-star-outline');
+        $i.classList.add('mdi-star');
     }
 }
 

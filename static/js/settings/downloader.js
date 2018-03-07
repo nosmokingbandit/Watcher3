@@ -1,4 +1,4 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", function(){
     $select_usenet = document.querySelector('select#usenet_client');
     $select_torrent = document.querySelector("select#torrent_client");
 

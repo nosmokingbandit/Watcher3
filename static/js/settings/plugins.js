@@ -23,9 +23,9 @@ function edit_plugin_conf(event, elem, folder, filename){
         $conf_modal = $(format_template(template_config, template_dictionary));
 
         $conf_modal.find("i.c_box").each(function(){
-            $this = $(this);
-            if ($this.attr("value") == "True" ){
-                $this.removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked");
+            if (this.getAttribute("value") == "True" ){
+                this.classList.remove("mdi-checkbox-blank-outline")
+                this.classList.add("mdi-checkbox-marked");
             }
         });
 

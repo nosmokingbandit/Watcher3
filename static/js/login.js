@@ -1,5 +1,5 @@
 window.addEventListener("DOMContentLoaded", function(){
-    url_base = $("meta[name='url_base']").attr("content");
+    url_base = document.querySelector("meta[name='url_base']").content;
 
     $input_user = document.querySelector('input#user');
     $input_password = document.querySelector('input#password');

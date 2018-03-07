@@ -1,4 +1,4 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", function(){
     indexer_template = document.querySelector("template#new_indexer").innerHTML;
 });
 

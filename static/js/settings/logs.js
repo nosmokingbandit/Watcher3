@@ -1,4 +1,4 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", function(){
     $log_display = document.querySelector("samp#log_text");
     $select_log = document.querySelector("select#log_file");
 });

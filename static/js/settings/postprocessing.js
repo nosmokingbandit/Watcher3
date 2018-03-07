@@ -1,4 +1,4 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", function(){
     mapping_template = document.querySelector("template#template_mapping").innerHTML;
     $mapping_table = document.querySelector('form[data-category="remote_mapping"] tbody');
 });
