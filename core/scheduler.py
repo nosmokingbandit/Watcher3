@@ -94,7 +94,7 @@ class PostProcessingScan(object):
                 f = os.path.join(d, i)
                 if os.path.isfile(f) and os.path.getmtime(f) > threshold and os.path.getsize(f) > minsize:
                     files.append(f)
-                elif os.path.isdir(i) and os.path.getmtime(f) > threshold:
+                elif os.path.isdir(f) and os.path.getmtime(f) > threshold:
                     files.append(f)
         else:
             for i in os.listdir(d):
