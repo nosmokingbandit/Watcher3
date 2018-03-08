@@ -757,7 +757,7 @@ class Postprocessing(object):
                     logging.error('Mover failed: Unable to create symbolic link.', exc_info=True)
                     return ''
 
-        keep_extensions = [i for i in config['moveextensions'].split(',').strip() if i != '']
+        keep_extensions = [i.strip() for i in config['moveextensions'].split(',') if i != '']
 
         if len(keep_extensions) > 0:
             logging.info('Moving additional files with extensions {}.'.format(','.join(keep_extensions)))
