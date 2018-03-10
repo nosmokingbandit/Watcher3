@@ -278,9 +278,10 @@ function save_movie_details(event, button, tmdbid){
         return
     }
 
-    button.classList.remove('mdi-content-save');
-    button.classList.add('mdi-circle');
-    button.classList.add('animated');
+    var $i = button.children[0]
+    $i.classList.remove('mdi-content-save');
+    $i.classList.add('mdi-circle');
+    $i.classList.add('animated');
 
     data['tmdbid'] = tmdbid;
 
@@ -299,9 +300,9 @@ function save_movie_details(event, button, tmdbid){
         $.notify({message: err}, {type: "danger", delay: 0});
     })
     .always(function(){
-        button.classList.remove('mdi-circle');
-        button.classList.add('mdi-content-save');
-        button.classList.remove('animated');
+        $i.classList.remove('mdi-circle');
+        $i.classList.add('mdi-content-save');
+        $i.classList.remove('animated');
     });
 
 }
