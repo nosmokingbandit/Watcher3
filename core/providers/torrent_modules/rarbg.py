@@ -8,6 +8,8 @@ import json
 logging = logging.getLogger(__name__)
 
 '''
+https://torrentapi.org/apidocs_v2.txt
+
 This api is limited to one request every 2 seconds.
 '''
 
@@ -118,7 +120,7 @@ def _get_token():
     Returns str or None
     '''
     logging.info('Getting RarBG access token.')
-    url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token'
+    url = 'https://www.torrentapi.org/pubapi_v2.php?get_token=get_token&app_id=Watcher'
 
     try:
         result = json.loads(Url.open(url).text)
