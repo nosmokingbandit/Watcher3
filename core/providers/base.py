@@ -144,7 +144,7 @@ class NewzNabProvider(object):
                     "guid": item.get('link'),
                     "indexer": indexer,
                     "info_link": item.get('comments', '').split('#')[0],
-                    "imdbid": 'tt{}'.format(imdbid if imdbid is not None else item['attr'].get('imdb')),
+                    "imdbid": imdbid if imdbid is not None else 'tt{}'.format(item['attr'].get('imdb')),
                     "pubdate": item.get('pubDate', '')[5:16],
                     "score": 0,
                     "seeders": 0,
@@ -154,11 +154,6 @@ class NewzNabProvider(object):
                     "torrentfile": None,
                     "type": self.feed_type
                 }
-
-                if item['attr'].get('imdb'):
-                    result['imdbid'] = 'tt{}'.format(item['attr'].get('imdb'))
-                else:
-                    result['imdbid'] = self.imdbid
 
                 if result['type'] != 'nzb':
                     result['torrentfile'] = result['guid']
