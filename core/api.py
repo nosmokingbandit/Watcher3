@@ -150,10 +150,10 @@ class API(object):
             logging.warning('API request failed, no key supplied.')
             return {'response': False, 'error': 'no api key supplied'}
 
-        # check for api key
         if serverkey != params['apikey']:
             logging.warning('Invalid API key in request: {}'.format(params['apikey']))
             return {'response': False, 'error': 'incorrect api key'}
+        params.pop('apikey')
 
         # find what we are going to do
         if 'mode' not in params:
