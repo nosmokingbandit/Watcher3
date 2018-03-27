@@ -7,7 +7,7 @@ import logging
 
 logging = logging.getLogger(__name__)
 
-api_version = 2.2
+api_version = 2.3
 
 ''' API
 
@@ -26,18 +26,20 @@ All successul method calls then append additional key:value pairs to the output 
 mode=liststatus:
     Description:
         Effectively a database dump of the MOVIES table
-        Will return one value if imdbid is passed, else returns all movies
+        Additional params (besides mode and apikey) will be applied as filters to the movie database
+            For example, passing &imdbid=tt1234557 will only return movies with the imdbid tt1234567.
+            Multiple filters can be applied using the columns described in core.sql
 
     Example:
-        Request:
-            ?apikey=123456789&mode=liststatus&imdbid=tt1234567
-        Response:
-            {'movie': {'key': 'value', 'key2', 'value2'}}
-
         Request:
             ?apikey=123456789&mode=liststatus
         Response:
             {'movies': [{'key': 'value', 'key2', 'value2'}, {'key': 'value', 'key2', 'value2'}]}
+
+        Request:
+            ?apikey=123456789&mode=liststatus&origin=Search
+        Response:
+            {'movies': [{'key': 'value', 'origin', 'Search'}, {'key': 'value', 'origin', 'Search'}]}
 
 mode=addmovie
     Description:
@@ -48,7 +50,7 @@ mode=addmovie
 
     Example:
         Request:
-            ?apikey=123456789&mode=addmovie&imdbid=tt1234567
+            ?apikey=123456789&mode=addmovie&imdbid=tt1234567&quality=Default
         Response:
             {'message': 'MOVIE TITLE YEAR added to wanted list.'}
 
@@ -121,7 +123,8 @@ Major version changes can be expected to break api interactions
 
 2.0     Change to semantically correct json. Responses are now bools instead of str 'true'/'false'
 2.1     Adjust addmovie() to pass origin argument. Adjust addmovie() to search tmdb for itself rather than in core.ajax()
-2.1     Update documentation for all methods
+2.2     Update documentation for all methods
+2.3     Update dispatch method. Allow arbitrary filters in liststatus.
 '''
 
 
@@ -159,88 +162,54 @@ class API(object):
         if 'mode' not in params:
             return {'response': False, 'error': 'no api mode specified'}
 
-        if params['mode'] == 'liststatus':
-
-            if 'imdbid' in params:
-                return self.liststatus(imdbid=params['imdbid'])
-            else:
-                return self.liststatus()
-
-        elif params['mode'] == 'addmovie':
-            if 'imdbid' not in params and 'tmdbid' not in params:
-                return {'response': False, 'error': 'no movie id supplied'}
-            if params.get('imdbid') and params.get('tmdbid'):
-                return {'response': False, 'error': 'multiple movie ids supplied'}
-            else:
-                quality = params.get('quality')
-                if params.get('imdbid'):
-                    return self.addmovie(imdbid=params['imdbid'], quality=quality)
-                elif params.get('tmdbid'):
-                    return self.addmovie(tmdbid=params['tmdbid'], quality=quality)
-        elif params['mode'] == 'removemovie':
-            if 'imdbid' not in params:
-                return {'response': False, 'error': 'no imdbid supplied'}
-            else:
-                imdbid = params['imdbid']
-            return self.removemovie(imdbid)
-
-        elif params['mode'] == 'version':
-            return self.version()
-
-        elif params['mode'] == 'getconfig':
-            return {'response': True, 'config': core.CONFIG}
-
-        elif params['mode'] == 'server_shutdown':
-            threading.Timer(1, core.shutdown).start()
-            return {'response': True}
-
-        elif params['mode'] == 'server_restart':
-            threading.Timer(1, core.restart).start()
-            return {'response': True}
-
+        mode = params.pop('mode')
+        if not hasattr(self, mode):
+            return {'response': False, 'error': 'unknown method call: {}'.format(mode)}
         else:
-            return {'response': False, 'error': 'invalid mode'}
+            return getattr(self, mode)(params)
 
-    def liststatus(self, imdbid=None):
+    def liststatus(self, filters):
         ''' Returns status of user's movies
-        :param imdbid: imdb id number of movie <optional>
+        filters (dict): filters to apply to database request
 
-        Returns list of movie details from MOVIES table. If imdbid is not supplied
-            returns all movie details.
+        Returns all movies where col:val pairs match all key:val pairs in filters
 
-        Returns str dict)
+        Returns list of movie details from MOVIES table.
+
+        Returns dict
         '''
 
-        logging.info('API request movie list.')
+        logging.info('API request movie list -- filters: {}'.format(filters))
         movies = core.sql.get_user_movies()
         if not movies:
-            return 'No movies found.'
+            return {'response': True, 'movies': []}
 
-        if imdbid:
-            for i in movies:
-                if i['imdbid'] == imdbid:
-                    if i['status'] == 'Disabled':
-                        i['status'] = 'Finished'
-                    return {'response': True, 'movie': i}
-        else:
-            for i in movies:
-                if i['status'] == 'Disabled':
-                    i['status'] = 'Finished'
-            return {'response': True, 'movies': movies}
+        for i in filters.keys():
+            if i not in core.sql.MOVIES.columns:
+                return {'response': False, 'error': 'Invalid filter key: {}'.format(i)}
 
-    def addmovie(self, imdbid=None, tmdbid=None, quality=None):
+        return {'response': True, 'movies': [i for i in movies if all(i[k] == v for k, v in filters.items())]}
+
+    # @todo add param checking to each child method
+    def addmovie(self, params):
         ''' Add movie with default quality settings
-        imdbid (str): imdb id #
+        params (dict): params passed in request url
 
-        Returns str dict) {'status': 'success', 'message': 'X added to wanted list.'}
+        Returns dict {'status': 'success', 'message': 'X added to wanted list.'}
         '''
+
+        if not (params.get('imdbid') or params.get('tmdbid')):
+            return {'response': False, 'error': 'no movie id supplied'}
+        elif (params.get('imdbid') and params.get('tmdbid')):
+            return {'response': False, 'error': 'multiple movie ids supplied'}
 
         origin = cherrypy.request.headers.get('User-Agent', 'API')
         origin = 'API' if origin.startswith('Mozilla/') else origin
-        if quality is None:
-            quality = core.config.default_profile()
 
-        if imdbid:
+        quality = params.get('quality') or core.config.default_profile()
+
+        if params.get('imdbid'):
+            imdbid = params['imdbid']
             logging.info('API request add movie imdb {}'.format(imdbid))
             movie = self.tmdb._search_imdbid(imdbid)
             if not movie:
@@ -248,7 +217,8 @@ class API(object):
             else:
                 movie = movie[0]
                 movie['imdbid'] = imdbid
-        elif tmdbid:
+        elif params.get('tmdbid'):
+            tmdbid = params['tmdbid']
             logging.info('API request add movie tmdb {}'.format(tmdbid))
             movie = self.tmdb._search_tmdbid(tmdbid)
 
@@ -263,22 +233,37 @@ class API(object):
 
         return core.manage.add_movie(movie, full_metadata=True)
 
-    def removemovie(self, imdbid):
+    def removemovie(self, params):
         ''' Remove movie from library
-        imdbid (str): imdb id #
+        params (dict): params passed in request url
 
-        Returns str dict)
+        Returns dict
         '''
 
-        logging.info('API request remove movie {}'.format(imdbid))
+        if not params.get('imdbid'):
+            return {'response': False, 'error': 'no imdbid supplied'}
 
-        return core.manage.remove_movie(imdbid)
+        logging.info('API request remove movie {}'.format(params['imdbid']))
 
-    def version(self):
+        return core.manage.remove_movie(params['imdbid'])
+
+    def version(self, *args):
         ''' Simple endpoint to return commit hash
-
         Mostly used to test connectivity without modifying the server.
 
-        Returns str dict)
+        Returns dict
         '''
         return {'response': True, 'version': core.CURRENT_HASH, 'api_version': api_version}
+
+    def getconfig(self, *args):
+        ''' Returns config contents as JSON object
+        '''
+        return {'response': True, 'config': core.CONFIG}
+
+    def server_shutdown(self, *args):
+        threading.Timer(1, core.shutdown).start()
+        return {'response': True}
+
+    def server_restart(self, *args):
+        threading.Timer(1, core.restart).start()
+        return {'response': True}
