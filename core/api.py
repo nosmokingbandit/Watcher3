@@ -30,12 +30,12 @@ mode=liststatus:
 
     Example:
         Request:
-            ?apikey=123456789&mode=liststaus&imdbid=tt1234567
+            ?apikey=123456789&mode=liststatus&imdbid=tt1234567
         Response:
             {'movie': {'key': 'value', 'key2', 'value2'}}
 
         Request:
-            ?apikey=123456789&mode=liststaus
+            ?apikey=123456789&mode=liststatus
         Response:
             {'movies': [{'key': 'value', 'key2', 'value2'}, {'key': 'value', 'key2', 'value2'}]}
 
