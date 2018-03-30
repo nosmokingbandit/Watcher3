@@ -124,7 +124,7 @@ class NewzNabProvider(object):
         try:
             channel = yahoo.data(fromstring(feed))['rss']['channel']
             indexer = channel['title']
-            items = channel['item']
+            items = channel.get('item', [])
             if type(items) != list:
                 items = [items]
         except Exception as e:
