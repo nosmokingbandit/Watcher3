@@ -2,7 +2,8 @@ import core
 from core.movieinfo import TMDB
 import cherrypy
 import threading
-
+import os
+import json
 import logging
 
 logging = logging.getLogger(__name__)
@@ -90,6 +91,22 @@ mode=version
         Response:
             {'version': '4fcdda1df1a4ff327c3219311578d703a288e598', 'api_version': 1.0}
 
+mode=poster
+    Description:
+        Returns desired poster image as data stream with 'image/jpeg' as Content-Type header
+        If an error occurs, returns JSON
+
+    Example:
+        Request:
+            ?apikey=123456789&mode=poster&imdbid=tt1234567
+        Response:
+            <image data>
+
+        Request:
+            ?apikey=123456789&mode=poster&imdbid=tt0000000
+        Response:
+            {'response': false, 'error': 'file not found: tt0000000.jpg'}
+
 mode=server_shutdown
     Description:
         Gracefully terminate Watcher server and child processes.
@@ -128,6 +145,19 @@ Major version changes can be expected to break api interactions
 '''
 
 
+def api_json_out(func):
+    ''' Decorator to return json from api request
+    Use this rather than cherrypy.tools.json_out. The cherrypy tool changes the
+        request handler which only applies to the method being called, in this
+        case default(). Using this allows dispatched methods to return json
+        while still allowing methods to return other content types (ie poster())
+    '''
+    def decor(*args, **kwargs):
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return json.dumps(func(*args, **kwargs)).encode('utf-8')
+    return decor
+
+
 class API(object):
 
     def __init__(self):
@@ -135,7 +165,6 @@ class API(object):
         return
 
     @cherrypy.expose()
-    @cherrypy.tools.json_out()
     def default(self, **params):
         ''' Get handler for API calls
 
@@ -168,6 +197,7 @@ class API(object):
         else:
             return getattr(self, mode)(params)
 
+    @api_json_out
     def liststatus(self, filters):
         ''' Returns status of user's movies
         filters (dict): filters to apply to database request
@@ -190,7 +220,7 @@ class API(object):
 
         return {'response': True, 'movies': [i for i in movies if all(i[k] == v for k, v in filters.items())]}
 
-    # @todo add param checking to each child method
+    @api_json_out
     def addmovie(self, params):
         ''' Add movie with default quality settings
         params (dict): params passed in request url
@@ -233,13 +263,13 @@ class API(object):
 
         return core.manage.add_movie(movie, full_metadata=True)
 
+    @api_json_out
     def removemovie(self, params):
         ''' Remove movie from library
-        params (dict): params passed in request url
+        params (dict): params passed in request url, must include imdbid
 
         Returns dict
         '''
-
         if not params.get('imdbid'):
             return {'response': False, 'error': 'no imdbid supplied'}
 
@@ -247,6 +277,29 @@ class API(object):
 
         return core.manage.remove_movie(params['imdbid'])
 
+    def poster(self, params):
+        ''' Return poster
+        params (dict): params passed in request url, must include imdbid
+
+        Returns image as binary datastream with image/jpeg content type header
+        '''
+
+        cherrypy.response.headers['Content-Type'] = "image/jpeg"
+        try:
+            with open(os.path.abspath(os.path.join(core.USERDATA, 'posters', '{}.jpg'.format(params['imdbid']))), 'rb') as f:
+                img = f.read()
+            return img
+        except KeyError as e:
+            err = {'response': False, 'error': 'no imdbid supplied'}
+        except FileNotFoundError as e:
+            err = {'response': False, 'error': 'file not found: {}.jpg'.format(params['imdbid'])}
+        except Exception as e:
+            err = {'response': False, 'error': str(e)}
+        finally:
+            cherrypy.response.headers['Content-Type'] = 'application/json'
+            return json.dumps(err).encode('utf-8')
+
+    @api_json_out
     def version(self, *args):
         ''' Simple endpoint to return commit hash
         Mostly used to test connectivity without modifying the server.
@@ -255,15 +308,20 @@ class API(object):
         '''
         return {'response': True, 'version': core.CURRENT_HASH, 'api_version': api_version}
 
+    @api_json_out
     def getconfig(self, *args):
         ''' Returns config contents as JSON object
         '''
         return {'response': True, 'config': core.CONFIG}
 
+    @api_json_out
     def server_shutdown(self, *args):
         threading.Timer(1, core.shutdown).start()
         return {'response': True}
 
+    @api_json_out
     def server_restart(self, *args):
         threading.Timer(1, core.restart).start()
         return {'response': True}
+
+
