@@ -92,7 +92,6 @@ class Torrent(NewzNabProvider):
                         if i not in results:
                             results.append(i)
 
-        self.imdbid = None
         return results
 
     def get_rss(self):

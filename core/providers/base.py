@@ -65,8 +65,6 @@ class NewzNabProvider(object):
         Returns list of dicts with parsed release info
         '''
 
-        self.imdbid = None
-
         proxy_enabled = core.CONFIG['Server']['Proxy']['enabled']
 
         if self.feed_type == 'nzb':

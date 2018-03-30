@@ -39,7 +39,6 @@ class NewzNab(NewzNabProvider):
             for i in r:
                 results.append(i)
 
-        self.imdbid = None
         return results
 
     def get_rss(self):
