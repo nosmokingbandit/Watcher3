@@ -35,7 +35,7 @@ class NewzNabProvider(object):
         url = '{}api?apikey={}&cat=2000&extended=1'.format(url_base, apikey)
 
         if type_ == 'movie':
-            url += '&t=movie&imdbid={}'.format(imdbid)
+            url += '&t=movie&imdbid={}'.format(imdbid[2:])
         elif type_ == 'search':
             url += '&t=search&q={}'.format(q)
         else:

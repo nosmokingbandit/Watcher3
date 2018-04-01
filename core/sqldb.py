@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 6
+current_version = 7
 
 
 class SQL(object):
@@ -950,5 +950,23 @@ class DatabaseUpdate(object):
         ''' Add SYSTEM table and imdb_sync_record'''
         core.sql.update_tables()
         core.sql.write('SYSTEM', {'name': 'imdb_sync_record', 'data': '{}'})
+
+    @staticmethod
+    def update_7():
+        ''' Fix missing 'tt' in imdbid column of SEARCHRESULTS '''
+        values = []
+
+        d = core.sql.dump('SEARCHRESULTS')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
+            if not i['imdbid'].startswith('tt'):
+                n = 'tt' + i['imdbid']
+                values.append({'imdbid': n, 'guid': i['guid']})
+
+        if values:
+            core.sql.update_multiple_rows('SEARCHRESULTS', values, 'guid')
+        print()
 
     # Adding a new method? Remember to update the current_version #

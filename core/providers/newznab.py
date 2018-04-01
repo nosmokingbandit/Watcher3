@@ -35,7 +35,7 @@ class NewzNab(NewzNabProvider):
                 url_base = url_base + '/'
             apikey = indexer[1]
 
-            r = self.search_newznab(url_base, apikey, 'movie', imdbid=imdbid[2:])
+            r = self.search_newznab(url_base, apikey, 'movie', imdbid=imdbid)
             for i in r:
                 results.append(i)
 
