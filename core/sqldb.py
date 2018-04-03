@@ -961,10 +961,9 @@ class DatabaseUpdate(object):
 
         for ind, i in enumerate(d):
             print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
-            if not i['imdbid'].startswith('tt'):
+            if i['imdbid'] and not i['imdbid'].startswith('tt'):
                 n = 'tt' + i['imdbid']
                 values.append({'imdbid': n, 'guid': i['guid']})
-
         if values:
             core.sql.update_multiple_rows('SEARCHRESULTS', values, 'guid')
         print()
