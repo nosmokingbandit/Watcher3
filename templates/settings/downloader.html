@@ -126,6 +126,7 @@
                             <option value="DelugeWeb">Deluge WebUI</option>
                             <option value="rTorrentSCGI">rTorrent SCGI</option>
                             <option value="rTorrentHTTP">rTorrent HTTP</option>
+                            <option value="DownloadStation">Synology DownloadStation</option>
                             <option value="Transmission">Transmission</option>
                             <option value="QBittorrent">QBittorrent</option>
                             <option value="BlackHole">${_('Black Hole')}</option>
@@ -286,6 +287,30 @@
                             </div>
                         </div>
                     </div>
+                    <!-- DOWNLOADSTATION -->
+                    <div id="DownloadStation" class="row" data-enabled="${config['Torrent']['DownloadStation']['enabled']}">
+                        <div class="col-md-6">
+                            <label>${_('Hosts')}</label>
+                            <input type="text" data-id="host" class="form-control" placeholder="localhost" value="${config['Torrent']['DownloadStation']['host']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Port')}</label>
+                            <input type="text" data-id="port" class="form-control" placeholder="5000" value="${config['Torrent']['DownloadStation']['port']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('User Name')}</label>
+                            <input type="text" data-id="account" class="form-control" placeholder="" value="${config['Torrent']['DownloadStation']['account']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Password')}</label>
+                            <input type="text" data-id="pass" class="form-control" placeholder="" value="${config['Torrent']['DownloadStation']['pass']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Destination')}</label>
+                            <input type="text" data-id="destination" class="form-control" placeholder="" value="${config['Torrent']['DownloadStation']['destination']}" data-toggle="tooltip" title="${_('Download destination path starting with a shared folder (ie `Downloads/Watcher`). Path must exist.')}">
+                        </div>
+                    </div>
+
                     <!-- TRANSMISSION -->
                     <div id="Transmission" class="row" data-enabled="${config['Torrent']['Transmission']['enabled']}">
                         <div class="col-md-6">
