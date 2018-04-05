@@ -19,6 +19,23 @@ errors = {100: 'Unknown error',
           }
 
 
+def auth_required(func):
+    ''' Decorator to check login before executing method
+    '''
+    def decor(*args, **kwargs):
+        global cookie
+        if cookie is None:
+            conf = core.CONFIG['Downloader']['Torrent']['DownloadStation']
+            url_base = '{}:{}'.format(conf['host'], conf['port'])
+
+            login = _login(url_base, conf['account'], conf['pass'])
+            if login is not True:
+                return {'response': False, 'error': login}
+
+        return func(*args, **kwargs)
+    return decor
+
+
 def test_connection(data):
     ''' Tests connectivity to DownloadStation
     data: dict of DownloadStation server information
@@ -72,10 +89,44 @@ def _login(url, account, password):
         return '{}.'.format(e)
 
 
+@auth_required
 def add_nzb(data):
-    pass
+    ''' Adds nzb to DownloadStation
+    data (dict): nzb information
+
+    Adds torrents to default/path/<category>
+
+    Returns dict ajax-style response
+    '''
+    global cookie
+
+    logging.info('Sending nzb {} to DownloadStation.'.format(data['title']))
+
+    conf = core.CONFIG['Downloader']['Usenet']['DownloadStation']
+    url_base = '{}:{}'.format(conf['host'], conf['port'])
+
+    url = '{}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=2&method=create&uri={}&destination={}&_sid={}'.format(url_base, urlquote(data['guid']), conf['destination'], cookie)
+
+    try:
+        response = Url.open(url)
+
+        if response.status_code != 200:
+            return {'response': False, 'error': '{}: {}'.format(response.status_code, response.reason)}
+        else:
+            response = json.loads(response.text)
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except Exception as e:
+        logging.error('DownloadStation add_torrent', exc_info=True)
+        return {'response': False, 'error': str(e)}
+
+    if not response['success']:
+        return {'response': False, 'error': errors[response['error']]}
+
+    return {'response': True, 'downloadid': data['guid']}
 
 
+@auth_required
 def add_torrent(data):
     ''' Adds torrent or magnet to DownloadStation
     data (dict): torrrent/magnet information
@@ -86,15 +137,10 @@ def add_torrent(data):
     '''
     global cookie
 
+    logging.info('Sending torrent {} to DownloadStation.'.format(data['title']))
+
     conf = core.CONFIG['Downloader']['Torrent']['DownloadStation']
     url_base = '{}:{}'.format(conf['host'], conf['port'])
-
-    if cookie is None:
-        login = _login(url_base, conf['account'], conf['pass'])
-        if login is not True:
-            return {'response': False, 'error': login}
-
-    logging.info('Sending torrent {} to DownloadStation.'.format(data['title']))
 
     url = '{}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=2&method=create&uri={}&destination={}&_sid={}'.format(url_base, urlquote(data['torrentfile']), conf['destination'], cookie)
 
@@ -102,7 +148,7 @@ def add_torrent(data):
         response = Url.open(url)
 
         if response.status_code != 200:
-            return '{}: {}'.format(response.status_code, response.reason)
+            return {'response': False, 'error': '{}: {}'.format(response.status_code, response.reason)}
         else:
             response = json.loads(response.text)
     except (SystemExit, KeyboardInterrupt):
@@ -145,16 +191,12 @@ def get_task_id(url_base, uri):
         return ''
 
 
+@auth_required
 def cancel_download(downloadid):
     global cookie
 
     conf = core.CONFIG['Downloader']['Torrent']['DownloadStation']
     url_base = '{}:{}'.format(conf['host'], conf['port'])
-
-    if cookie is None:
-        login = _login(url_base, conf['account'], conf['pass'])
-        if login is not True:
-            return False
 
     task_id = get_task_id(url_base, downloadid)
     if task_id == '':
@@ -173,7 +215,7 @@ def cancel_download(downloadid):
     except (SystemExit, KeyboardInterrupt):
         raise
     except Exception as e:
-        logging.error('DownloadStation add_torrent', exc_info=True)
+        logging.error('DownloadStation cancel_download', exc_info=True)
         return False
 
     if response['data'][0]['error'] != 0:
