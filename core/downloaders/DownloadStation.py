@@ -121,7 +121,7 @@ def add_nzb(data):
         return {'response': False, 'error': str(e)}
 
     if not response['success']:
-        return {'response': False, 'error': errors[response['error']]}
+        return {'response': False, 'error': errors.get(response['error'], errors[100])}
 
     return {'response': True, 'downloadid': data['guid']}
 
@@ -158,7 +158,7 @@ def add_torrent(data):
         return {'response': False, 'error': str(e)}
 
     if not response['success']:
-        return {'response': False, 'error': errors[response['error']]}
+        return {'response': False, 'error': errors.get(response['error'], errors[100])}
 
     return {'response': True, 'downloadid': data['torrentfile']}
 
@@ -219,7 +219,7 @@ def cancel_download(downloadid):
         return False
 
     if response['data'][0]['error'] != 0:
-        logging.error('Cannot cancel DownloadStation download: {}'.format(errors[response['data'][0]['error']]))
+        logging.error('Cannot cancel DownloadStation download: {}'.format(errors.get(response['data'][0]['error'], errors[100])))
         return False
 
     return True
