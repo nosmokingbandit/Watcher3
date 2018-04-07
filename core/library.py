@@ -193,11 +193,10 @@ class ImportPlexLibrary(object):
         today = str(datetime.date.today())
 
         for movie in movies:
+            parsed = {}
             try:
                 logging.info('Parsing Plex movie {}'.format(movie['Title']))
                 complete = True
-                parsed = {}
-
                 db_id = movie['MetaDB Link'].split('/')[-1]
                 if db_id.startswith('tt'):
                     if db_id in library:
