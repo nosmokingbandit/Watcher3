@@ -11,7 +11,6 @@ label_fix = re.compile('[^a-z0-9_-]')
 
 headers = {'Content-Type': 'application/json', 'User-Agent': 'Watcher'}
 
-
 logging = logging.getLogger(__name__)
 
 
