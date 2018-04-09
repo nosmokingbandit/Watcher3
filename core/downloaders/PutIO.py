@@ -13,6 +13,7 @@ def requires_oauth(func):
     '''
     def decor(*args, **kwargs):
         if not core.CONFIG['Downloader']['Torrent']['PutIO']['oauthtoken']:
+            logging.debug('Cannot execute Put.IO method -- no OAuth Token in config.')
             return {'response': False, 'error': 'No OAuth Token. Create OAuth token on Put.io and enter in settings.'}
         return func(*args, **kwargs)
     return decor
@@ -28,6 +29,7 @@ def test_connection(data):
     logging.info('Testing connection to Put.IO.')
 
     if not core.CONFIG['Downloader']['Torrent']['PutIO']['oauthtoken']:
+        logging.debug('Cannot execute Put.IO method -- no OAuth Token in config.')
         return 'No Application Token. Create Application token and enter in settings.'
 
     response = Url.open(url_base.format('account/info', core.CONFIG['Downloader']['Torrent']['PutIO']['oauthtoken']))
@@ -37,6 +39,7 @@ def test_connection(data):
 
     response = json.loads(response.text)
     if response['status'] != 'OK':
+        logging.debug('Cannot connect to Put.IO: {}'.format(response['error_message']))
         return response['error_message']
     else:
         return True
@@ -49,7 +52,7 @@ def add_torrent(data):
 
     Adds torrents to /default/path/<category>
 
-    Returns dict {'response': True, 'download_id': 'id'}
+    Returns dict {'response': True, 'downloadid': 'id'}
                     {'response': False', 'error': 'exception'}
 
     '''
@@ -58,16 +61,31 @@ def add_torrent(data):
 
     url = url_base.format('transfers/add', conf['oauthtoken'])
 
-    post_data = {'url': data['torrent_file']}
+    post_data = {'url': data['torrentfile']}
 
-    if conf['saveparentid']:
-        post_data['save_parent_id'] = conf['saveparentid']
-    if conf['enablepostprocessing']:
+    if conf['directory']:
+        post_data['save_parent_id'] = conf['directory']
+    if conf['postprocessingenabled']:
         post_data['callback_url'] = '{}/postprocessing/putio_process?apikey={}'.format(conf['externaladdress'], core.CONFIG['Server']['apikey'])
 
-    response = Url.open(url, post_data=post_data)
+    try:
+        response = Url.open(url, post_data=post_data)
+    except Exception as e:
+        logging.warning('Cannot send download to Put.io', exc_info=True)
+        return {'response': False, 'error': str(e)}
 
-    logging.debug(response)
+    if response.status_code != 200:
+        return {'response': False, 'error': '{}: {}'.format(response.status_code, response.reason)}
+
+    try:
+        response = json.loads(response.text)
+        print(json.dumps(response, indent=2))
+        downloadid = response['transfer']['id']
+    except Exception as e:
+        logging.warning('Unexpected response from Put.io', exc_info=True)
+        return {'response': False, 'error': 'Invalid JSON response from Put.IO'}
+
+    return {'response': True, 'downloadid': downloadid}
 
 
 @requires_oauth
@@ -81,12 +99,19 @@ def cancel_download(downloadid):
 
     url = url_base.format('transfers/cancel', conf['oauthtoken'])
 
-    post_data = {'id': downloadid}
+    try:
+        response = Url.open(url, post_data={'id': downloadid})
+    except Exception as e:
+        logging.warning('Unable to cancel Put.io download.', exc_info=True)
+        return {'response': False, 'error': str(e)}
 
-    response = Url.open(url, post_data=post_data)
-
-    if json.loads(response).gets('status') == 'OK':
-        return True
-    else:
+    try:
+        if json.loads(response.text).get('status') == 'OK':
+            return True
+        else:
+            logging.warning('Unable to cancel Put.io download: {}'.format(response))
+            return False
+    except Exception as e:
+        logging.warning('Unable to cancel Put.io download', exc_info=True)
         return False
 
