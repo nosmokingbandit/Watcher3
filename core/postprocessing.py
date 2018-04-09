@@ -25,12 +25,42 @@ class Postprocessing(object):
     @cherrypy.expose
     def putio_process(self, *args, **kwargs):
         ''' Method to handle postprocessing callbacks from Put.io
+
+        Sample kwargs:
+            {
+            "apikey": "APIKEY",
+            "percent_done": "100",
+            "peers_getting_from_us": "0",
+            "completion_percent": "0",
+            "seconds_seeding": "0",
+            "current_ratio": "0.00",
+            "created_torrent": "False",
+            "size": "507637",
+            "up_speed": "0",
+            "callback_url": "http://MYDDNS/watcher/postprocessing/putio_process?apikey=APIKEY",
+            "source": "<full magnet uri including trackers>",
+            "peers_connected": "0",
+            "down_speed": "0",
+            "is_private": "False",
+            "id": "45948956",
+            "simulated": "True",
+            "type": "TORRENT",
+            "save_parent_id": "536510251",
+            "file_id": "536514172",
+            "download_id": "21596709",
+            "torrent_link": "https://api.put.io/v2/transfers/<transferid>/torrent",
+            "finished_at": "2018-04-09 04:13:58",
+            "status": "COMPLETED",
+            "downloaded": "0",
+            "extract": "False",
+            "name": "<download name>",
+            "status_message": "Completed",
+            "created_at": "2018-04-09 04:13:57",
+            "uploaded": "0",
+            "peers_sending_to_us": "0"
+            }
         '''
 
-        logging.debug("PUTIO ARGS")
-        logging.debug(args)
-        logging.debug("PUTIO KWARGS")
-        logging.debug(kwargs)
         return 'Hi'
 
     @cherrypy.expose
