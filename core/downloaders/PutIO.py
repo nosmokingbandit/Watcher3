@@ -3,8 +3,6 @@ import core
 import json
 from core.helpers import Url
 
-from lib import putiopy
-
 logging = logging.getLogger(__name__)
 
 url_base = "https://api.put.io/v2/{}?oauth_token={}"
@@ -29,6 +27,20 @@ def test_connection(data):
 
     logging.info('Testing connection to Put.IO.')
 
+    if not core.CONFIG['Downloader']['Torrent']['PutIO']['oauthtoken']:
+        return 'No Application Token. Create Application token and enter in settings.'
+
+    response = Url.open(url_base.format('account/info', core.CONFIG['Downloader']['Torrent']['PutIO']['oauthtoken']))
+
+    if response.status_code != 200:
+        return '{}: {}'.format(response.status_code, response.reason)
+
+    response = json.loads(response.text)
+    if response['status'] != 'OK':
+        return response['error_message']
+    else:
+        return True
+
 
 @requires_oauth
 def add_torrent(data):
@@ -51,7 +63,7 @@ def add_torrent(data):
     if conf['saveparentid']:
         post_data['save_parent_id'] = conf['saveparentid']
     if conf['enablepostprocessing']:
-        post_data['callback_url'] = '{}/api?apikey={}&mode=putio'.format(conf['externaladdress'])
+        post_data['callback_url'] = '{}/postprocessing/putio_process?apikey={}'.format(conf['externaladdress'], core.CONFIG['Server']['apikey'])
 
     response = Url.open(url, post_data=post_data)
 

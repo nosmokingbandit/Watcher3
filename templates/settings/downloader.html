@@ -3,7 +3,7 @@
     <head>
         ${head}
         <script src="${url_base}/static/js/settings/shared.js?v=012" type="text/javascript"></script>
-        <script src="${url_base}/static/js/settings/downloader.js?v=012" type="text/javascript"></script>
+        <script src="${url_base}/static/js/settings/downloader.js?v=013" type="text/javascript"></script>
 
         <link href="${url_base}/static/css/settings/shared.css?v=010" rel="stylesheet">
         <link href="${url_base}/static/css/settings/downloader.css?v=010" rel="stylesheet">
@@ -124,6 +124,7 @@
                             <option value="" selected="false">${_('Disabled')}</option>
                             <option value="DelugeRPC">Deluge Daemon</option>
                             <option value="DelugeWeb">Deluge WebUI</option>
+                            <option value="PutIO">Put.IO</option>
                             <option value="rTorrentSCGI">rTorrent SCGI</option>
                             <option value="rTorrentHTTP">rTorrent HTTP</option>
                             <option value="Transmission">Transmission</option>
@@ -226,6 +227,73 @@
                             </div>
                         </div>
                     </div>
+                    <!-- PUT.IO -->
+                    <div id="PutIO" class="row" data-enabled="${config['Torrent']['PutIO']['enabled']}">
+                        <div class="col-md-6">
+                            <label>${_('Application Token')}</label>
+                            <div class="input-group">
+                                <input type="text" data-id="oauthtoken" class="form-control" value="${config['Torrent']['PutIO']['oauthtoken']}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" onclick="register_putio(event, this)">
+                                        <i class="mdi mdi-key-plus"></i>
+                                        Create Token
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Put.IO Directory')}</label>
+                            <input type="text" data-id="directory" class="form-control" placeholder="Movies" value="${config['Torrent']['PutIO']['directory']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Enable Post Processing')}</label>
+                            <a href="https://github.com/nosmokingbandit/Watcher3/wiki/Post-Processing#putio" target="_blank">
+                                <i class="mdi mdi-help-circle"></i>
+                            </a>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button class="input-group-text">
+                                        <i data-id="postprocessingenabled" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['postprocessingenabled']}"></i>
+                                    </button>
+                                </div>
+                                <span class="input-group-item form-control">
+                                    ${_('Allow Put.IO to contact Watcher when complete.')}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Watcher External Address')}</label>
+                            <input type="text" data-id="externaladdress" class="form-control" placeholder="acct.ddns.net/watcher" value="${config['Torrent']['PutIO']['externaladdress']}">
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Download to Local Directory')}</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button class="input-group-text">
+                                        <i data-id="download" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['download']}"></i>
+                                    </button>
+                                </div>
+                                <span class="input-group-item form-control">
+                                    ${_('Download and Postprocess in local dir.')}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>${_('Delete from Put.IO')}</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button class="input-group-text">
+                                        <i data-id="delete" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['delete']}"></i>
+                                    </button>
+                                </div>
+                                <span class="input-group-item form-control">
+                                    ${_('Delete file from Put.IO after downloading.')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <!-- RTORRENT SCGI -->
                     <div id="rTorrentSCGI" class="row" data-enabled="${config['Torrent']['rTorrentSCGI']['enabled']}">
                         <div class="col-md-6">

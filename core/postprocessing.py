@@ -23,6 +23,17 @@ class Postprocessing(object):
         return
 
     @cherrypy.expose
+    def putio_process(self, *args, **kwargs):
+        ''' Method to handle postprocessing callbacks from Put.io
+        '''
+
+        logging.debug("PUTIO ARGS")
+        logging.debug(args)
+        logging.debug("PUTIO KWARGS")
+        logging.debug(kwargs)
+        return 'Hi'
+
+    @cherrypy.expose
     @cherrypy.tools.json_out()
     def default(self, **data):
         ''' Handles post-processing requests.
