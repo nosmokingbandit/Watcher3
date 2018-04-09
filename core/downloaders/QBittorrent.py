@@ -74,7 +74,7 @@ def add_torrent(data):
 
     Adds torrents to default/path/<category>
 
-    Returns dict {'response': True, 'download_id': 'id'}
+    Returns dict {'response': True, 'downloadid': 'id'}
                     {'response': False, 'error': 'exception'}
 
     '''

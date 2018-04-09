@@ -43,7 +43,7 @@ def add_torrent(torrent):
     ''' Adds torrent or magnet to Deluge
     torrent: dict of torrrent/magnet information
 
-    Returns dict {'response': True, 'download_id': 'id'}
+    Returns dict {'response': True, 'downloadid': 'id'}
                     {'response': False, 'error': 'exception'}
 
     '''
@@ -88,22 +88,22 @@ def add_torrent(torrent):
 
     if torrent['type'] == 'magnet':
         try:
-            download_id = client.call('core.add_torrent_magnet', torrent['torrentfile'], options).decode('utf-8')
+            downloadid = client.call('core.add_torrent_magnet', torrent['torrentfile'], options).decode('utf-8')
         except Exception as e:
             logging.error('Unable to send magnet.', exc_info=True)
             return {'response': False, 'error': str(e)}
     elif torrent['type'] == 'torrent':
         try:
-            download_id = (client.call('core.add_torrent_url', torrent['torrentfile'], options) or b'').decode('utf-8')
+            downloadid = (client.call('core.add_torrent_url', torrent['torrentfile'], options) or b'').decode('utf-8')
         except Exception as e:
             logging.error('Unable to send torrent.', exc_info=True)
             return {'response': False, 'error': str(e)}
     else:
         return {'response': False, 'error': 'Invalid torrent type {}'.format(torrent['type'])}
 
-    _set_label(download_id, conf['category'], client)
+    _set_label(downloadid, conf['category'], client)
 
-    return {'response': True, 'downloadid': download_id}
+    return {'response': True, 'downloadid': downloadid}
 
 
 def cancel_download(downloadid):
