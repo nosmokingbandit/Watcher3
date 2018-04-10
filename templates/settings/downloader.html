@@ -270,7 +270,7 @@
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <button class="input-group-text">
-                                        <i data-id="download" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['download']}"></i>
+                                        <i data-id="downloadwhencomplete" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['downloadwhencomplete']}"></i>
                                     </button>
                                 </div>
                                 <span class="input-group-item form-control">
@@ -279,11 +279,15 @@
                             </div>
                         </div>
                         <div class="col-md-6">
+                            <label>${_('Download Directory')}</label>
+                            <input type="text" data-id="downloaddirectory" class="form-control" placeholder="/users/Nosferatu/PutIODownloads/" value="${config['Torrent']['PutIO']['downloaddirectory']}">
+                        </div>
+                        <div class="col-md-6">
                             <label>${_('Delete from Put.IO')}</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <button class="input-group-text">
-                                        <i data-id="delete" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['delete']}"></i>
+                                        <i data-id="deleteafterdownload" class="mdi mdi-checkbox-blank-outline c_box" value="${config['Torrent']['PutIO']['deleteafterdownload']}"></i>
                                     </button>
                                 </div>
                                 <span class="input-group-item form-control">
