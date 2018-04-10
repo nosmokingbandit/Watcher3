@@ -1,6 +1,7 @@
 import logging
 import core
 import json
+import os
 from core.helpers import Url
 
 logging = logging.getLogger(__name__)
@@ -79,7 +80,6 @@ def add_torrent(data):
 
     try:
         response = json.loads(response.text)
-        print(json.dumps(response, indent=2))
         downloadid = response['transfer']['id']
     except Exception as e:
         logging.warning('Unexpected response from Put.io', exc_info=True)
@@ -115,3 +115,109 @@ def cancel_download(downloadid):
         logging.warning('Unable to cancel Put.io download', exc_info=True)
         return False
 
+
+@requires_oauth
+def download(_id):
+    ''' Gets link to file from Put.IO
+    _id (str/int): ID to download, can be file or dir
+
+    Downloads all files in putio dir
+
+    Returns dict
+    '''
+    conf = core.CONFIG['Downloader']['Torrent']['PutIO']
+
+    try:
+        response = Url.open(url_base.format('files/{}'.format(_id), conf['oauthtoken']))
+    except Exception as e:
+        return {'response': False, 'error': str(e)}
+
+    try:
+        response = json.loads(response.text)
+        f_data = response['file']
+    except Exception as e:
+        return {'response': False, 'error': 'Invalid json response from Put.io'}
+
+    if f_data['content_type'] == 'application/x-directory':
+        file_list = _read_dir(f_data['id'], conf['oauthtoken'])
+    else:
+        file_list = [f_data]
+
+    download_dir = os.path.join(conf['downloaddirectory'], f_data['name'])
+
+    if not os.path.exists(download_dir):
+        try:
+            os.makedirs(download_dir)
+        except Exception as e:
+            logging.error('Cannot create download dir', exc_info=True)
+            return {'response': False, 'error': 'Cannot create download dir. {}'.format(str(e))}
+    else:
+        logging.warning('Download dir exists, existing files may be overwritten.')
+
+    download_results = []
+    for i in file_list:
+        download_results.append(_download_file(i, download_dir, conf['oauthtoken']))
+
+    logging.info('Download from Put.io finished:')
+    logging.info(json.dumps(download_results, indent=2))
+
+    return {'response': True, 'files': download_results}
+
+
+def _download_file(f_data, directory, token):
+    ''' Downloads file to local dir
+    f_data (dict): Putio file metadata
+    directory (str): Path in which to save file
+    token (str): oauth token
+
+    Downloads file to local dir
+
+    Returns dict
+    '''
+
+    try:
+        response = Url.open(url_base.format('files/{}/download'.format(f_data['id']), token), stream=True)
+    except Exception as e:
+        logging.error('Unable to download file from Put.io', exc_info=True)
+        return {'success': False, 'name': f_data['name'], 'error': str(e)}
+
+    target_file = os.path.join(directory, f_data['name'])
+    try:
+        with open(target_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+    except Exception as e:
+        return {'success': False, 'name': f_data['name'], 'error': str(e)}
+
+    return {'success': True, 'name': f_data['name'], 'location': target_file}
+
+
+def _read_dir(dir_id, token):
+    ''' Recursively reads dir for all files
+    dir_id (str/int): Put.io directory #
+
+    Returns list of dicts
+    '''
+
+    files = []
+
+    try:
+        response = Url.open(url_base.format('files/list', token) + '&parent_id={}'.format(dir_id))
+    except Exception as e:
+        logging.warning('Unable to read files on Put.io', exc_info=True)
+        return []
+
+    try:
+        contents = json.loads(response.text)['files']
+    except Exception as e:
+        logging.warning('Unexpected response from Put.io')
+        return []
+
+    for i in contents:
+        if i['content_type'] == 'application/x-directory':
+            files += _read_dir(i['id'], token)
+        else:
+            files.append(i)
+
+    return files

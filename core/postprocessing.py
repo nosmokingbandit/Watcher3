@@ -8,6 +8,7 @@ import shutil
 import cherrypy
 import core
 from core import plugins, snatcher, library
+from core.downloaders import PutIO
 
 logging = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class Postprocessing(object):
         return
 
     @cherrypy.expose
-    def putio_process(self, *args, **kwargs):
+    def putio_process(self, *args, **transfer_data):
         ''' Method to handle postprocessing callbacks from Put.io
 
         Sample kwargs:
@@ -42,11 +43,11 @@ class Postprocessing(object):
             "peers_connected": "0",
             "down_speed": "0",
             "is_private": "False",
-            "id": "45948956",
+            "id": "45948956",                   # Download ID
             "simulated": "True",
             "type": "TORRENT",
             "save_parent_id": "536510251",
-            "file_id": "536514172",
+            "file_id": "536514172",             # Put.io file ID #
             "download_id": "21596709",
             "torrent_link": "https://api.put.io/v2/transfers/<transferid>/torrent",
             "finished_at": "2018-04-09 04:13:58",
@@ -61,7 +62,21 @@ class Postprocessing(object):
             }
         '''
 
-        return 'Hi'
+        return
+
+        conf = core.CONFIG['Downloader']['PutIO']
+
+        if conf['download']:
+            download = PutIO.download(transfer_data['file_id'])
+            if not download['response']:
+                logging.error('PutIO processing failed.')
+                return
+            # @todo post-process using self.complete()
+        else:
+            # @todo: mark as complete and set file path to put.io url
+            pass
+
+        return
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
