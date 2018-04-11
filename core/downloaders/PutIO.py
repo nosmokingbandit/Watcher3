@@ -161,7 +161,32 @@ def download(_id):
     logging.info('Download from Put.io finished:')
     logging.info(json.dumps(download_results, indent=2))
 
-    return {'response': True, 'files': download_results}
+    return {'response': True, 'files': download_results, 'path': download_dir}
+
+
+@requires_oauth
+def delete(file_id):
+    ''' Deletes file from Put.IO
+    file_id (str): Put.IO id # for file or folder
+
+    Returns bool
+    '''
+    logging.info('Deleting file {} on Put.IO'.format(file_id))
+    conf = core.CONFIG['Downloader']['Torrent']['PutIO']
+
+    url = url_base.format('files/delete', conf['oauthtoken'])
+
+    try:
+        response = Url.open(url, post_data={'file_ids': file_id})
+    except Exception as e:
+        logging.warning('Could not delete files on Put.io', exc_info=True)
+
+    try:
+        response = json.loads(response.text)
+    except Exception as e:
+        logging.warning('Unexpected response from Put.IO', exc_info=True)
+
+    return response.get('status') == 'OK'
 
 
 def _download_file(f_data, directory, token):

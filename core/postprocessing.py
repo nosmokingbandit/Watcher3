@@ -26,6 +26,8 @@ class Postprocessing(object):
     @cherrypy.expose
     def putio_process(self, *args, **transfer_data):
         ''' Method to handle postprocessing callbacks from Put.io
+        Gets called from Put.IO when download completes via POST request including download
+            metadata as transfer_data kwargs.
 
         Sample kwargs:
             {
@@ -62,21 +64,72 @@ class Postprocessing(object):
             }
         '''
 
-        return
+        logging.info('########################################')
+        logging.info('PUT.IO Post-processing request received.')
+        logging.info('########################################')
 
-        conf = core.CONFIG['Downloader']['PutIO']
+        conf = core.CONFIG['Downloader']['Torrent']['PutIO']
 
-        if conf['download']:
+        data = {'downloadid': str(transfer_data['id'])}
+
+        if transfer_data['source'].startswith('magnet'):
+            data['guid'] = transfer_data['source'].split('btih:')[1].split('&')[0]
+        else:
+            data['guid'] = None
+
+        data.update(self.get_movie_info(data))
+
+        if conf['downloadwhencomplete']:
+            logging.info('Downloading Put.IO files and processing locally.')
             download = PutIO.download(transfer_data['file_id'])
             if not download['response']:
                 logging.error('PutIO processing failed.')
                 return
-            # @todo post-process using self.complete()
-        else:
-            # @todo: mark as complete and set file path to put.io url
-            pass
+            data['path'] = download['path']
+            data['original_file'] = self.get_movie_file(data['path'])
 
-        return
+            data.update(self.complete(data))
+
+            if data['status'] == 'finished' and conf['deleteafterdownload']:
+                data['tasks']['delete_putio'] = PutIO.delete(transfer_data['file_id'])
+        else:
+            logging.info('Marking guid as Finished.')
+            guid_result = {}
+            if data['guid']:
+                if core.manage.searchresults(data['guid'], 'Finished'):
+                    guid_result['update_SEARCHRESULTS'] = True
+                else:
+                    guid_result['update_SEARCHRESULTS'] = False
+
+                if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+                    guid_result['update_MARKEDRESULTS'] = True
+                else:
+                    guid_result['update_MARKEDRESULTS'] = False
+                # create result entry for guid
+                data['tasks'][data['guid']] = guid_result
+
+            # update MOVIES table
+            if data.get('imdbid'):
+                db_update = {'finished_file': 'https://app.put.io/files/{}'.format(transfer_data['file_id']), 'status': 'finished'}
+                core.sql.update_multiple_values('MOVIES', db_update, 'imdbid', data['imdbid'])
+
+        title = data['data'].get('title')
+        year = data['data'].get('year')
+        imdbid = data['data'].get('imdbid')
+        resolution = data['data'].get('resolution')
+        rated = data['data'].get('rated')
+        original_file = data['data'].get('original_file')
+        finished_file = data['data'].get('finished_file')
+        downloadid = data['data'].get('downloadid')
+        finished_date = data['data'].get('finished_date')
+        quality = data['data'].get('quality')
+
+        plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
+
+        logging.info('#################################')
+        logging.info('Post-processing complete.')
+        logging.info(data)
+        logging.info('#################################')
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -142,7 +195,6 @@ class Postprocessing(object):
         if data['mode'] == 'failed':
             logging.warning('Post-processing as Failed.')
             response = self.failed(data)
-            logging.warning(response)
         elif data['mode'] == 'complete':
             logging.info('Post-processing as Complete.')
 
@@ -165,7 +217,6 @@ class Postprocessing(object):
 
             plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
-            logging.info(response)
         else:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
             return {'response': False, 'error': 'invalid mode value'}
@@ -283,12 +334,14 @@ class Postprocessing(object):
         else:
             logging.info('Unable to find local data for release. Using only data found from file.')
 
-        if data:
+        if data and data.get('original_file'):
             mdata = self.metadata.from_file(data['original_file'], imdbid=data.get('imdbid'))
             mdata.update(data)
             if not mdata.get('quality'):
                 data['quality'] = 'Default'
             return mdata
+        elif data:
+            return data
         else:
             return {}
 
