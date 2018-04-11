@@ -119,6 +119,19 @@ function _get_settings(){
         settings['Torrent'][checkbox.id] = is_checked(checkbox);
     });
 
+// INDEXERS['PRIVATETORRENT']
+    var required_fields = [];
+
+    var privateTrackers = {};
+
+    var danishbits = {};
+    danishbits.enabled = is_checked(document.querySelector("i[data-id='danishbits']"));
+    danishbits.username = document.querySelector("input[data-id='danishbits-username']").value;
+    danishbits.passkey = document.querySelector("input[data-id='danishbits-passkey']").value;
+    privateTrackers['danishbits'] = danishbits;
+
+    settings['PrivateTorrent'] = privateTrackers;
+
     if(blanks == true){
         return false;
     };

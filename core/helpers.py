@@ -58,7 +58,7 @@ class Url(object):
         return s.lower().strip()
 
     @staticmethod
-    def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False):
+    def open(url, post_data=None, timeout=30, headers={}, stream=False, proxy_bypass=False, expose_user_agent=False):
         ''' Assemles and executes requests call
         url (str): url to request
         post-data (dict): data to send via post                     <optional - default None>
@@ -71,8 +71,10 @@ class Url(object):
 
         Returns object requests response
         '''
-
-        headers['User-Agent'] = random.choice(Url.user_agents)
+        if not expose_user_agent:
+            headers['User-Agent'] = random.choice(Url.user_agents)
+        else:
+            headers['User-Agent'] = 'Watcher3'
 
         verifySSL = core.CONFIG.get('Server', {}).get('verifyssl', False)
 
