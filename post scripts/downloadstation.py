@@ -4,10 +4,10 @@
 
 # Add api information to conf:
 watcherapi = 'apikey'
-watcheraddress = 'http://192.168.0.110:9090/'
+watcheraddress = 'http://localhost:9090/'
 
 # Must use full path of download directory
-destination = '/volume1/DL/Watcher'
+destination = '/volume1/Downloads/Watcher'
 
 # DownloadStation moves the downloaded file *after* calling this script, so we'll wait for it to complete.
 # This can be increased if large files take longer to move to the final dir.
