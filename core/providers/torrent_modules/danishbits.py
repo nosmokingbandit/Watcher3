@@ -67,7 +67,6 @@ def _parse(results, imdbid=None):
         parsed_result['status'] = 'Available'
         parsed_result['score'] = 0
         parsed_result['downloadid'] = None
-        logging.info('Title {} is freeleech {}'.format(result['release_name'], result['freeleech']))
         parsed_result['freeleech'] = True
         parsed_result['download_client'] = None
         parsed_result['title'] = result['release_name']
