@@ -285,8 +285,9 @@ class Score():
                     lst.append(result)
                     continue
 
-                logging.debug('Comparing release {} with titles {}.'.format(result['title'], titles))
-                matches = [self._fuzzy_title(result['title'].split(year)[0], title) for title in titles]
+                rel_title_ss = result['title'].split(year)[0]
+                logging.debug('Comparing release substring {} with titles {}.'.format(rel_title_ss, titles))
+                matches = [self._fuzzy_title(rel_title_ss, title) for title in titles]
                 if any(match > 70 for match in matches):
                     result['score'] += int(max(matches) / 5)
                     lst.append(result)
