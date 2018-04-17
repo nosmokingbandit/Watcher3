@@ -120,15 +120,28 @@ function _get_settings(){
     });
 
 // INDEXERS['PRIVATETORRENT']
-    var required_fields = [];
-
     var privateTrackers = {};
 
-    var danishbits = {};
-    danishbits.enabled = is_checked(document.querySelector("i[data-id='danishbits']"));
-    danishbits.username = document.querySelector("input[data-id='danishbits-username']").value;
-    danishbits.passkey = document.querySelector("input[data-id='danishbits-passkey']").value;
-    privateTrackers['danishbits'] = danishbits;
+    each(document.querySelectorAll("form[data-category='privtorrent'] > div"), function(dataelement){
+        var key = dataelement.dataset.id;
+
+        if (privateTrackers[key] == null) {
+            privateTrackers[key] = {};
+        }
+
+        var enabledelement = dataelement.querySelector('i.c_box');
+        if(enabledelement != null) {
+            privateTrackers[key]["enabled"] = is_checked(enabledelement);
+        }
+
+        var inputelements = dataelement.querySelectorAll('input');
+        if (inputelements != null) {
+            each(inputelements, function (inputelement) {
+                var inputId = inputelement.dataset.id;
+                privateTrackers[key][inputId] = inputelement.value;
+            });
+        }
+    });
 
     settings['PrivateTorrent'] = privateTrackers;
 
