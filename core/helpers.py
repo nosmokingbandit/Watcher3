@@ -71,10 +71,10 @@ class Url(object):
 
         Returns object requests response
         '''
-        if not expose_user_agent:
-            headers['User-Agent'] = random.choice(Url.user_agents)
-        else:
+        if expose_user_agent:
             headers['User-Agent'] = 'Watcher3'
+        else:
+            headers['User-Agent'] = random.choice(Url.user_agents)
 
         verifySSL = core.CONFIG.get('Server', {}).get('verifyssl', False)
 
