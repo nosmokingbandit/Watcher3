@@ -27,11 +27,16 @@ def search(imdbid, term):
         else:
             response = Url.open(url, expose_user_agent=True).text
 
-        results = json.loads(response).get('results')
+        responseobject = json.loads(response)
+        results = responseobject.get('results')
+
         if results:
             return _parse(results, imdbid=imdbid)
         else:
             logging.info('Nothing found on DanishBits')
+            errormsg = responseobject.get('error')
+            if errormsg:
+                logging.info('Error message: {}'.format(errormsg))
             return []
     except (SystemExit, KeyboardInterrupt):
         raise
