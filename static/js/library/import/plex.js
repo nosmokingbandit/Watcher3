@@ -1,3 +1,41 @@
+var import_cache;
+
+var template_import_complete = (index, movie, select) => $(`<tr data-index="${index}">
+                                                                <td>
+                                                                    <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
+                                                                </td>
+                                                                <td class="file_path" data-original="${movie['file']}">
+                                                                    ${movie["file"]}
+                                                                </td>
+                                                                <td>
+                                                                    ${movie["title"]}
+                                                                </td>
+                                                                <td>
+                                                                    ${movie["imdbid"] || movie["tmdbid"]}
+                                                                </td>
+                                                                <td class="resolution">
+                                                                    ${select}
+                                                                </td>
+                                                            </tr>`)[0]
+
+var template_import_incomplete = (index, movie, select) => $(`<tr data-index="${index}">
+                                                                <td>
+                                                                    <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
+                                                                </td>
+                                                                <td class="file_path" data-original="${movie['file']}">
+                                                                    ${movie["file"]}
+                                                                </td>
+                                                                <td>
+                                                                    ${movie["title"]}
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
+                                                                </td>
+                                                                <td class="resolution">
+                                                                    ${select}
+                                                                </td>
+                                                            </tr>`)[0]
+
 function connect(event, elem){
     event.preventDefault();
 
@@ -33,10 +71,16 @@ function connect(event, elem){
             return false
         }
 
+
         if(response["complete"].length + response["incomplete"].length == 0){
             document.getElementById('no_imports').classList.remove('hidden');
         }
 
+        import_cache = response;
+
+        if(response['complete'].length > 0){
+            $complete_div.classList.remove('hidden');
+        };
         each(response['complete'], function(movie, index){
             if(movie['imdbid']){
                 id = movie['imdbid']
@@ -46,52 +90,20 @@ function connect(event, elem){
 
             var select = $source_select.cloneNode(true);
             select.querySelector(`option[value="${movie["resolution"]}"]`).setAttribute("selected", true);
-            var $row = $(`<tr>
-                            <td>
-                                <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
-                            </td>
-                            <td class="file_path" data-original="${movie['file']}">
-                                ${movie["file"]}
-                            </td>
-                            <td>
-                                ${movie["title"]}
-                            </td>
-                            <td>
-                                ${movie["imdbid"] || movie["tmdbid"]}
-                            </td>
-                            <td class="resolution">
-                                ${select.outerHTML}
-                            </td>
-                        </tr>`)[0]
-            $row.dataset.movie = JSON.stringify(movie);
-            $complete_table.innerHTML += $row.outerHTML;
-            $complete_div.classList.remove('hidden');
+
+            var row = template_import_complete(index, movie, select.outerHTML);
+            $complete_table.innerHTML += row.outerHTML;
         });
 
+        if(response['incomplete'].length > 0){
+            $incomplete_div.classList.remove('hidden');
+        };
         each(response['incomplete'], function(movie, index){
             var select = $source_select.cloneNode(true);
             select.querySelector(`option[value="${movie["resolution"]}"]`).setAttribute("selected", true);
-            var $row = $(`<tr>
-                            <td>
-                                <i class="mdi mdi-checkbox-marked c_box", value="True"></i>
-                            </td>
-                            <td class="file_path" data-original="${movie['file']}">
-                                ${movie["file"]}
-                            </td>
-                            <td>
-                                ${movie["title"]}
-                            </td>
-                            <td>
-                                <input type="text" class="incomplete_imdbid form-control" placeholder="tt0000000" value="${movie['imdbid']}"/>
-                            </td>
-                            <td class="resolution">
-                                ${select.outerHTML}
-                            </td>
-                        </tr>`)[0]
-            $row.dataset.movie = JSON.stringify(movie);
-            $incomplete_table.innerHTML += $row.outerHTML;
-            $incomplete_div.classList.remove('hidden');
 
+            var row = template_import_incomplete(index, movie, select.outerHTML);
+            $incomplete_table.innerHTML += row.outerHTML;
         });
 
         set_stepper('import');
@@ -143,18 +155,18 @@ function start_import(event, elem){
             return
         }
 
-        movie = JSON.parse(row.dataset.movie);
-        var $tmdbid_input = row.querySelector("input.incomplete_tmdbid");
+        movie = import_cache['incomplete'][row.dataset.index];
+        var $tmdbid_input = row.querySelector("input.incomplete_imdbid");
 
-        movie["tmdbid"] = $tmdbid_input.value;
+        movie["imdbid"] = $tmdbid_input.value;
 
-        if(!movie["tmdbid"]){
+        if(!movie["imdbid"]){
             blanks = true;
             $tmdbid_input.classList.add("border-danger");
             return
         }
 
-        movie["finished_file"] = row.querySelector("td.file_path").innerText.trim();
+        movie["finished_file"] = movie['file'].trim();
         movie["resolution"] = row.querySelector("select.source_select").value;
         corrected_movies.push(movie);
     });
@@ -165,8 +177,9 @@ function start_import(event, elem){
             return
         }
 
-        movie = JSON.parse(row.dataset.movie);
-        movie["finished_file"] = row.querySelector("td.file_path").innerText.trim();
+        movie = import_cache['complete'][row.dataset.index];
+
+        movie["finished_file"] = movie['file'].trim();
         movie["resolution"] = row.querySelector("select.source_select").value;
         movies.push(movie);
     });

@@ -180,13 +180,18 @@ class ImportPlexLibrary(object):
 
         library = [i['imdbid'] for i in core.sql.get_user_movies()]
         library_tmdb = [i['tmdbid'] for i in core.sql.get_user_movies()]
+
+        delim = csv_text.split('"')[2]
+        if delim not in (',', ';', '|', ':', '\t'):
+            delim = ','
+
         try:
             movies = []
-            reader = csv.DictReader(csv_text.splitlines())
+            reader = csv.DictReader(csv_text.splitlines(), delimiter=delim)
             for row in reader:
                 movies.append(dict(row))
         except Exception as e:
-            return {'response': False, 'error': e}
+            return {'response': False, 'error': str(e)}
 
         parsed_movies = []
         incomplete = []
