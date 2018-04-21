@@ -41,7 +41,7 @@ def add_torrent(data):
 
     Adds torrents to /default/path/<category>
 
-    Returns dict {'response': True, 'download_id': 'id'}
+    Returns dict {'response': True, 'downloadid': 'id'}
                     {'response': False', 'error': 'exception'}
 
     '''
@@ -80,9 +80,9 @@ def add_torrent(data):
 
     try:
         download = client.add_torrent(url, paused=paused, bandwidthPriority=bandwidthPriority, download_dir=download_dir, timeout=30)
-        download_id = download.hashString
-        logging.info('Torrent sent to TransmissionRPC - downloadid {}'.format(download_id))
-        return {'response': True, 'downloadid': download_id}
+        downloadid = download.hashString
+        logging.info('Torrent sent to TransmissionRPC - downloadid {}'.format(downloadid))
+        return {'response': True, 'downloadid': downloadid}
     except (SystemExit, KeyboardInterrupt):
         raise
     except Exception as e:

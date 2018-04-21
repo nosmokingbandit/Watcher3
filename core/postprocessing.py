@@ -8,6 +8,7 @@ import shutil
 import cherrypy
 import core
 from core import plugins, snatcher, library
+from core.downloaders import PutIO
 
 logging = logging.getLogger(__name__)
 
@@ -21,6 +22,114 @@ class Postprocessing(object):
 
     def null(*args, **kwargs):
         return
+
+    @cherrypy.expose
+    def putio_process(self, *args, **transfer_data):
+        ''' Method to handle postprocessing callbacks from Put.io
+        Gets called from Put.IO when download completes via POST request including download
+            metadata as transfer_data kwargs.
+
+        Sample kwargs:
+            {
+            "apikey": "APIKEY",
+            "percent_done": "100",
+            "peers_getting_from_us": "0",
+            "completion_percent": "0",
+            "seconds_seeding": "0",
+            "current_ratio": "0.00",
+            "created_torrent": "False",
+            "size": "507637",
+            "up_speed": "0",
+            "callback_url": "http://MYDDNS/watcher/postprocessing/putio_process?apikey=APIKEY",
+            "source": "<full magnet uri including trackers>",
+            "peers_connected": "0",
+            "down_speed": "0",
+            "is_private": "False",
+            "id": "45948956",                   # Download ID
+            "simulated": "True",
+            "type": "TORRENT",
+            "save_parent_id": "536510251",
+            "file_id": "536514172",             # Put.io file ID #
+            "download_id": "21596709",
+            "torrent_link": "https://api.put.io/v2/transfers/<transferid>/torrent",
+            "finished_at": "2018-04-09 04:13:58",
+            "status": "COMPLETED",
+            "downloaded": "0",
+            "extract": "False",
+            "name": "<download name>",
+            "status_message": "Completed",
+            "created_at": "2018-04-09 04:13:57",
+            "uploaded": "0",
+            "peers_sending_to_us": "0"
+            }
+        '''
+
+        logging.info('########################################')
+        logging.info('PUT.IO Post-processing request received.')
+        logging.info('########################################')
+
+        conf = core.CONFIG['Downloader']['Torrent']['PutIO']
+
+        data = {'downloadid': str(transfer_data['id'])}
+
+        if transfer_data['source'].startswith('magnet'):
+            data['guid'] = transfer_data['source'].split('btih:')[1].split('&')[0]
+        else:
+            data['guid'] = None
+
+        data.update(self.get_movie_info(data))
+
+        if conf['downloadwhencomplete']:
+            logging.info('Downloading Put.IO files and processing locally.')
+            download = PutIO.download(transfer_data['file_id'])
+            if not download['response']:
+                logging.error('PutIO processing failed.')
+                return
+            data['path'] = download['path']
+            data['original_file'] = self.get_movie_file(data['path'])
+
+            data.update(self.complete(data))
+
+            if data['status'] == 'finished' and conf['deleteafterdownload']:
+                data['tasks']['delete_putio'] = PutIO.delete(transfer_data['file_id'])
+        else:
+            logging.info('Marking guid as Finished.')
+            guid_result = {}
+            if data['guid']:
+                if core.manage.searchresults(data['guid'], 'Finished'):
+                    guid_result['update_SEARCHRESULTS'] = True
+                else:
+                    guid_result['update_SEARCHRESULTS'] = False
+
+                if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+                    guid_result['update_MARKEDRESULTS'] = True
+                else:
+                    guid_result['update_MARKEDRESULTS'] = False
+                # create result entry for guid
+                data['tasks'][data['guid']] = guid_result
+
+            # update MOVIES table
+            if data.get('imdbid'):
+                db_update = {'finished_file': 'https://app.put.io/files/{}'.format(transfer_data['file_id']), 'status': 'finished'}
+                core.sql.update_multiple_values('MOVIES', db_update, 'imdbid', data['imdbid'])
+
+        title = data['data'].get('title')
+        year = data['data'].get('year')
+        imdbid = data['data'].get('imdbid')
+        resolution = data['data'].get('resolution')
+        rated = data['data'].get('rated')
+        original_file = data['data'].get('original_file')
+        finished_file = data['data'].get('finished_file')
+        downloadid = data['data'].get('downloadid')
+        finished_date = data['data'].get('finished_date')
+        quality = data['data'].get('quality')
+
+        plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
+
+        logging.info('#################################')
+        logging.info('Post-processing complete.')
+        logging.info(data)
+        logging.info('#################################')
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -86,7 +195,6 @@ class Postprocessing(object):
         if data['mode'] == 'failed':
             logging.warning('Post-processing as Failed.')
             response = self.failed(data)
-            logging.warning(response)
         elif data['mode'] == 'complete':
             logging.info('Post-processing as Complete.')
 
@@ -109,7 +217,6 @@ class Postprocessing(object):
 
             plugins.finished(title, year, imdbid, resolution, rated, original_file, finished_file, downloadid, finished_date, quality)
 
-            logging.info(response)
         else:
             logging.warning('Invalid mode value: {}.'.format(data['mode']))
             return {'response': False, 'error': 'invalid mode value'}
@@ -227,12 +334,14 @@ class Postprocessing(object):
         else:
             logging.info('Unable to find local data for release. Using only data found from file.')
 
-        if data:
+        if data and data.get('original_file'):
             mdata = self.metadata.from_file(data['original_file'], imdbid=data.get('imdbid'))
             mdata.update(data)
             if not mdata.get('quality'):
                 data['quality'] = 'Default'
             return mdata
+        elif data:
+            return data
         else:
             return {}
 

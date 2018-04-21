@@ -198,6 +198,14 @@ class API(object):
             return getattr(self, mode)(params)
 
     @api_json_out
+    def putio_process(self, metadata):
+        ''' Method to handle post-processing callbacks from PutIO
+        metadata (dict): @todo: I don't know yet how this data is formatted
+        '''
+
+        return {}
+
+    @api_json_out
     def liststatus(self, filters):
         ''' Returns status of user's movies
         filters (dict): filters to apply to database request

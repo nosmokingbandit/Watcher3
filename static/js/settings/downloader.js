@@ -140,7 +140,6 @@ function _get_settings(){
     settings['Torrent']['DelugeWeb']['category'] = settings['Torrent']['DelugeWeb']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
     settings['Torrent']['DelugeRPC']['category'] = settings['Torrent']['DelugeRPC']['category'].toLowerCase().replace(/[^a-z0-9_-]/g, '')
 
-
 // DOWNLOADER['SOURCES']
     if($select_usenet.value){
         settings['Sources']['usenetenabled'] = true;
@@ -155,4 +154,12 @@ function _get_settings(){
     }
 
     return {"Downloader": settings}
+}
+
+
+function register_putio(){
+    var client_id = '3328';
+    var redirect = encodeURIComponent('https://nosmokingbandit.github.io/putioregister');
+    url = `https://api.put.io/v2/oauth2/authenticate?client_id=${client_id}&response_type=token&redirect_uri=${redirect}`;
+    window.open(url, '_blank');
 }
