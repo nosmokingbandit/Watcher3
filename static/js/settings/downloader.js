@@ -103,7 +103,7 @@ function _get_settings(){
     settings["Usenet"] = {};
     var blanks = false;
 
-// DOWNLAODER['USENET']
+// DOWNLOADER['USENET']
     each(document.querySelectorAll("div#usenet_client_settings > div"), function(client){
         var name = client.id;
         var config = {};
@@ -120,7 +120,7 @@ function _get_settings(){
         settings['Usenet'][name] = config;
     });
 
-// DOWNLAODER['TORRENT']
+// DOWNLOADER['TORRENT']
     each(document.querySelectorAll("div#torrent_client_settings > div"), function(client){
         var name = client.id;
         var config = {};
