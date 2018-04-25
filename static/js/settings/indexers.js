@@ -134,13 +134,10 @@ function _get_settings(){
             privateTrackers[key]["enabled"] = is_checked(enabledelement);
         }
 
-        var inputelements = dataelement.querySelectorAll('input');
-        if (inputelements != null) {
-            each(inputelements, function (inputelement) {
-                var inputId = inputelement.dataset.id;
-                privateTrackers[key][inputId] = inputelement.value;
-            });
-        }
+        each(dataelement.querySelectorAll('input'), function (inputelement) {
+            var inputId = inputelement.dataset.id;
+            privateTrackers[key][inputId] = inputelement.value;
+        });
     });
 
     settings['PrivateTorrent'] = privateTrackers;
