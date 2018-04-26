@@ -182,6 +182,26 @@
                 </div>
             </form>
 
+            <h1>Private Torrent Indexers</h1>
+            <form class="mx-auto" data-category="privtorrent">
+                <div class="row bg-light rounded mx-auto py-3" data-id="danishbits">
+                    <div class="input-group col-md-6 col-sm-12">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="mdi mdi-checkbox-blank-outline c_box" data-id="enabled" title="Enabled" value="${config['PrivateTorrent']['danishbits']['enabled']}"></i>
+                            </span>
+                        </div>
+                        <span class="input-group-item form-control">
+                            DanishBits
+                        </span>
+                    </div>
+                    <div class="input-group col-md-6 col-sm-12">
+                        <input class="form-control" type="text" data-id="username" placeholder="Username" value="${config['PrivateTorrent']['danishbits']['username']}"/>
+                        <input class="form-control" type="text" data-id="passkey" placeholder="Passkey" value="${config['PrivateTorrent']['danishbits']['passkey']}"/>
+                    </div>
+                </div>
+            </form>
+
             <button id="save_settings" class="btn btn-success float-right" onclick="save_settings(event, this)">
                 <i class="mdi mdi-content-save"></i>
 

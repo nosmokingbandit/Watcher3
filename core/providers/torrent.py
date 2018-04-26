@@ -92,6 +92,16 @@ class Torrent(NewzNabProvider):
                         if i not in results:
                             results.append(i)
 
+        for indexer, indexerobject in core.CONFIG['Indexers']['PrivateTorrent'].items():
+            if indexerobject['enabled']:
+                if not hasattr(torrent_modules, indexer):
+                    logging.warning('Torrent indexer {} enabled but not found in torrent_modules.'.format(indexer))
+                    continue
+                else:
+                    for i in getattr(torrent_modules, indexer).search(imdbid, term):
+                        if i not in results:
+                            results.append(i)
+
         return results
 
     def get_rss(self):

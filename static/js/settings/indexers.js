@@ -119,6 +119,29 @@ function _get_settings(){
         settings['Torrent'][checkbox.id] = is_checked(checkbox);
     });
 
+// INDEXERS['PRIVATETORRENT']
+    var privateTrackers = {};
+
+    each(document.querySelectorAll("form[data-category='privtorrent'] > div"), function(dataelement){
+        var key = dataelement.dataset.id;
+
+        if (privateTrackers[key] == null) {
+            privateTrackers[key] = {};
+        }
+
+        var enabledelement = dataelement.querySelector('i.c_box');
+        if(enabledelement != null) {
+            privateTrackers[key]["enabled"] = is_checked(enabledelement);
+        }
+
+        each(dataelement.querySelectorAll('input'), function (inputelement) {
+            var inputId = inputelement.dataset.id;
+            privateTrackers[key][inputId] = inputelement.value;
+        });
+    });
+
+    settings['PrivateTorrent'] = privateTrackers;
+
     if(blanks == true){
         return false;
     };
