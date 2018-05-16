@@ -25,7 +25,7 @@ class PreDB(object):
         if not movies:
             return False
 
-        backlog_movies = [i for i in movies if i['predb_backlog'] != '1' and i['status'] != 'Disabled']
+        backlog_movies = [i for i in movies if i['predb_backlog'] != '1' and i['status'] not in ('Disabled', 'Finished')]
         rss_movies = [i for i in movies if i['predb_backlog'] == '1' and i['predb'] != 'found' and i['status'] != 'Disabled']
 
         if backlog_movies:
