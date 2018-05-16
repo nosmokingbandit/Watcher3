@@ -11,6 +11,7 @@ ul#movies{
     max-height: 0%;
     overflow: hidden;
     transition: 0.6s;
+    padding-bottom: 4em;
 }
 
 ul#movies li{
