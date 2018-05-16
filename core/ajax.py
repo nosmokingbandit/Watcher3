@@ -222,6 +222,7 @@ class Ajax(object):
 
         Returns dict ajax-style response
         '''
+        logging.info('Starting user-requested backlog search for {}'.format(imdbid))
 
         movie = core.sql.get_movie_details('imdbid', imdbid)
 
