@@ -16,7 +16,6 @@ class Searcher():
         self.nn = newznab.NewzNab()
         self.score = searchresults.Score()
         self.predb = predb.PreDB()
-        self.snatcher = snatcher.Snatcher()
         self.torrent = torrent.Torrent()
 
     def verify(self, movie, today=None):
@@ -105,9 +104,9 @@ class Searcher():
             return
 
         if core.CONFIG['Search']['searchafteradd'] and self.search(imdbid, title, year, quality) and core.CONFIG['Search']['autograb']:
-            best_release = self.snatcher.best_release(movie)
+            best_release = snatcher.best_release(movie)
             if best_release:
-                self.snatcher.download(best_release)
+                snatcher.download(best_release)
 
     def search_all(self):
         ''' Searches for all movies
@@ -157,7 +156,7 @@ class Searcher():
             self.rss_sync(rss_movies)
 
         if core.CONFIG['Search']['autograb']:
-            self.snatcher.grab_all()
+            snatcher.grab_all()
         return
 
     def search(self, imdbid, title, year, quality):

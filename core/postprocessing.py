@@ -16,7 +16,6 @@ logging = logging.getLogger(__name__)
 class Postprocessing(object):
 
     def __init__(self):
-        self.snatcher = snatcher.Snatcher()
         self.metadata = library.Metadata()
         shutil.copystat = self.null
 
@@ -428,8 +427,8 @@ class Postprocessing(object):
             result['tasks']['autograb'] = {'enabled': True}
             logging.info('Grabbing the next best release.')
             if data.get('imdbid') and data.get('quality'):
-                best_release = self.snatcher.best_release(data)
-                if best_release and self.snatcher.download(best_release):
+                best_release = snatcher.best_release(data)
+                if best_release and snatcher.download(best_release):
                     r = True
                 else:
                     r = False

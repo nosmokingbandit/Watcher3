@@ -40,7 +40,6 @@ class Ajax(object):
         self.predb = predb.PreDB()
         self.searcher = searcher.Searcher()
         self.score = searchresults.Score()
-        self.snatcher = snatcher.Snatcher()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -270,7 +269,7 @@ class Ajax(object):
         data = dict(core.sql.get_single_search_result('guid', guid))
         if data:
             data['year'] = year
-            return self.snatcher.download(data)
+            return snatcher.download(data)
         else:
             return {'response': False, 'error': Errors.database_read.format(kind)}
 
