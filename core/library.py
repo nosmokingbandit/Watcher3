@@ -706,7 +706,6 @@ class Manage(object):
     '''
 
     def __init__(self):
-        self.score = searchresults.Score()
         self.tmdb = TMDB()
         self.metadata = Metadata()
         self.poster = Poster()
@@ -847,7 +846,7 @@ class Manage(object):
             if not search_result['resolution']:
                 search_result['resolution'] = 'Unknown'
 
-            search_result = self.score.score([search_result], imported=True)[0]
+            search_result = searchresults.score([search_result], imported=True)[0]
 
             required_keys = ('score', 'size', 'status', 'pubdate', 'title', 'imdbid', 'indexer', 'date_found', 'info_link', 'guid', 'torrentfile', 'resoluion', 'type', 'downloadid', 'freeleech')
 

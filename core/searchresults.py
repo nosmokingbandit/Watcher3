@@ -8,402 +8,431 @@ from core.helpers import Url
 logging = logging.getLogger(__name__)
 
 
-class Score():
+def score(releases, imdbid=None, imported=False):
+    ''' Scores and filters scene releases
+    releases (list): dicts of release metadata to score
+    imdbid (str): imdb identification number                    <optional -default None>
+    impored (bool): indicate if search result is faked import   <optional -default False>
 
-    def score(self, results, imdbid=None, imported=False):
-        ''' Scores and filters search results.
-        results (list): dicts of search results
-        imdbid (str): imdb identification number                    <optional - default None>
-        impored (bool): indicate if search result is faked import   <optional - default False>
+    If imported is True imdbid can be ignored. Otherwise imdbid is required.
 
-        If imported is True imdbid can be ignored. Otherwise imdbid is required.
+    If imported, uses modified 'base' quality profile so releases
+        cannot be filtered out.
 
-        If imported, uses modified 'base' quality profile so results
-            cannot be filtered out.
+    Iterates over the list and filters movies based on Words.
+    Scores movie based on reslution priority, title match, and
+        preferred words,
 
-        Iterates over the list and filters movies based on Words.
-        Scores movie based on reslution priority, title match, and
-            preferred words,
+    Word groups are split in to a list of lists:
+    [['word'], ['word2', 'word3'], 'word4']
 
-        Word groups are split in to a list of lists:
-        [['word'], ['word2', 'word3'], 'word4']
+    Adds 'score' key to each dict in releases and applies score.
 
-        Adds 'score' key to each dict in results and applies score.
+    Returns list of result dicts
+    '''
 
-        Returns list of result dicts
-        '''
+    logging.info('Scoring {} releases.'.format(len(releases)))
 
-        logging.info('Scoring {} search results.'.format(len(results)))
+    if imdbid is None and imported is False:
+        logging.warning('Imdbid required if result is not library import.')
+        return releases
 
-        if imdbid is None and imported is False:
-            logging.warning('Imdbid required if result is not library import.')
-            return results
+    year = None
 
-        self.results = results
-        year = None
+    if imported:
+        logging.debug('Releases are of origin "Import", using custom default quality profile.')
+        titles = []
+        check_size = False
+        movie_details = {'year': '\n'}
+        quality = import_quality()
+    else:
+        movie_details = core.sql.get_movie_details('imdbid', imdbid)
+        year = movie_details.get('year')
+        quality_profile = movie_details['quality']
+        logging.debug('Scoring based on quality profile {}'.format(quality_profile))
 
-        if imported:
-            logging.debug('Search results are Imports, using custom Default quality profile.')
-            titles = []
-            check_size = False
-            movie_details = {'year': '\n'}
-            quality = self.import_quality()
+        titles = [movie_details['title']]
+        if movie_details['alternative_titles']:
+            titles += movie_details['alternative_titles'].split(',')
+
+        check_size = True
+        if quality_profile in core.CONFIG['Quality']['Profiles']:
+            quality = core.CONFIG['Quality']['Profiles'][quality_profile]
         else:
-            movie_details = core.sql.get_movie_details('imdbid', imdbid)
-            year = movie_details.get('year')
-            quality_profile = movie_details['quality']
-            logging.debug('Scoring based on quality profile {}'.format(quality_profile))
+            quality = core.CONFIG['Quality']['Profiles'][core.config.default_profile()]
 
-            titles = [movie_details['title']]
-            if movie_details['alternative_titles']:
-                titles += movie_details['alternative_titles'].split(',')
+    sources = quality['Sources']
 
-            check_size = True
-            if quality_profile in core.CONFIG['Quality']['Profiles']:
-                quality = core.CONFIG['Quality']['Profiles'][quality_profile]
-            else:
-                quality = core.CONFIG['Quality']['Profiles'][core.config.default_profile()]
+    required_groups = [i.split('&') for i in quality['requiredwords'].lower().replace(' ', '').split(',') if i != '']
+    preferred_groups = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
+    ignored_groups = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
 
-        sources = quality['Sources']
-        retention = core.CONFIG['Search']['retention']
-        seeds = core.CONFIG['Search']['mintorrentseeds']
+    # Begin scoring and filtering
+    reset(releases)
+    if ignored_groups and ignored_groups != ['']:
+        releases = remove_ignored(releases, ignored_groups)
 
-        required = [i.split('&') for i in quality['requiredwords'].lower().replace(' ', '').split(',') if i != '']
-        preferred = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
-        ignored = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
+    if required_groups and required_groups != ['']:
+        releases = keep_required(releases, required_groups)
 
-        # These all just modify self.results
-        self.reset()
-        self.remove_ignored(ignored)
-        self.keep_required(required)
-        self.retention_check(retention)
-        self.seed_check(seeds)
-        self.freeleech(core.CONFIG['Search']['freeleechpoints'])
-        self.score_sources(sources, check_size=check_size)
-        if quality['scoretitle']:
-            self.fuzzy_title(titles, year=year)
-        self.score_preferred(preferred)
-        logging.info('Finished scoring search results.')
+    if core.CONFIG['Search']['retention'] > 0 and any(i['type'] == 'nzb' for i in releases):
+        releases = retention_check(releases)
 
-        return self.results
+    if any(i['type'] in ('torrent', 'magnet') for i in releases):
+        if core.CONFIG['Search']['mintorrentseeds'] > 0:
+            releases = seed_check(releases)
+        if core.CONFIG['Search']['freeleechpoints'] > 0:
+            releases = freeleech(releases)
 
-    def reset(self):
-        ''' Sets all result's scores to 0 '''
-        logging.debug('Resetting release scores to 0.')
-        for i, d in enumerate(self.results):
-            self.results[i]['score'] = 0
+    releases = score_sources(releases, sources, check_size=check_size)
 
-    def remove_ignored(self, group_list):
-        ''' Remove results with ignored groups of 'words'
-        group_list (list): forbidden groups of words
+    if quality['scoretitle']:
+        releases = fuzzy_title(releases, titles, year=year)
 
-        group_list must be formatted as a list of lists ie:
-            [['word1'], ['word2', 'word3']]
+    if preferred_groups and preferred_groups != ['']:
+        releases = score_preferred(releases, preferred_groups)
 
-        Iterates through self.results and removes every entry that contains any
-            group of words in group_list
+    logging.info('Finished scoring releases.')
 
-        Does not return
-        '''
+    return releases
 
-        keep = []
 
-        if not group_list or group_list == ['']:
-            return
+def reset(releases):
+    ''' Sets all result's scores to 0
+    releases (dict): scene release metadata to score
 
-        logging.info('Filtering Ignored Words.')
-        for r in self.results:
-            if r['type'] == 'import' and r not in keep:
+    returns dict
+    '''
+    logging.debug('Resetting release scores to 0.')
+    for i, d in enumerate(releases):
+        releases[i]['score'] = 0
+
+
+def remove_ignored(releases, group_list):
+    ''' Remove releases with ignored groups of 'words'
+    releases (list[dict]): scene release metadata to score and filter
+    group_list (list[list[str]]): forbidden groups of words
+
+    group_list must be formatted as a list of lists ie:
+        [['word1'], ['word2', 'word3']]
+
+    Iterates through releases and removes every entry that contains any
+        group of words in group_list
+
+    Returns list[dict]
+    '''
+
+    keep = []
+
+    logging.info('Filtering Ignored Words.')
+    for r in releases:
+        if r['type'] == 'import' and r not in keep:
+            keep.append(r)
+            continue
+        cond = False
+        for word_group in group_list:
+            if all(word in r['title'].lower() for word in word_group):
+                logging.debug('{} found in {}, removing from releases.'.format(word_group, r['title']))
+                cond = True
+                break
+        if cond is False and r not in keep:
+            keep.append(r)
+
+    logging.info('Keeping {} releases.'.format(len(keep)))
+
+    return keep
+
+
+def keep_required(releases, group_list):
+    ''' Remove releases without required groups of 'words'
+    releases (list[dict]): scene release metadata to score and filter
+    group_list (list[list[str]]): required groups of words
+
+    group_list must be formatted as a list of lists ie:
+        [['word1'], ['word2', 'word3']]
+
+    Iterates through releases and removes every entry that does not
+        contain any group of words in group_list
+
+    Returns list[dict]
+    '''
+
+    keep = []
+
+    logging.info('Filtering Required Words.')
+    for r in releases:
+        if r['type'] == 'import' and r not in keep:
+            keep.append(r)
+            continue
+        for word_group in group_list:
+            if all(word in r['title'].lower() for word in word_group) and r not in keep:
+                logging.debug('{} found in {}, keeping this search result.'.format(word_group, r['title']))
                 keep.append(r)
+                break
+            else:
                 continue
-            cond = False
-            for word_group in group_list:
-                if all(word in r['title'].lower() for word in word_group):
-                    logging.debug('{} found in {}, removing from search results.'.format(word_group, r['title']))
-                    cond = True
-                    break
-            if cond is False and r not in keep:
-                keep.append(r)
 
-        self.results = keep
-        logging.info('Keeping {} results.'.format(len(self.results)))
+    logging.info('Keeping {} releases.'.format(len(keep)))
 
-    def keep_required(self, group_list):
-        ''' Remove results without required groups of 'words'
-        group_list (list): required groups of words
+    return keep
 
-        group_list must be formatted as a list of lists ie:
-            [['word1'], ['word2', 'word3']]
 
-        Iterates through self.results and removes every entry that does not
-            contain any group of words in group_list
+def retention_check(releases):
+    ''' Remove releases older than 'retention' days
+    releases (list[dict]): scene release metadata to score and filter
+    retention (int): days of retention limit
 
-        Does not return
-        '''
+    Iterates through releases and removes any nzb entry that was
+        published more than 'retention' days ago
 
-        keep = []
+    returns list[dict]
+    '''
 
-        if not group_list or group_list == ['']:
-            return
+    today = datetime.datetime.today()
 
-        logging.info('Filtering Required Words.')
-        for r in self.results:
-            if r['type'] == 'import' and r not in keep:
-                keep.append(r)
+    logging.info('Checking retention [threshold = {} days].'.format(core.CONFIG['Search']['retention']))
+    keep = []
+    for result in releases:
+        if result['type'] == 'nzb':
+            pubdate = datetime.datetime.strptime(result['pubdate'], '%d %b %Y')
+            age = (today - pubdate).days
+            if age < core.CONFIG['Search']['retention']:
+                keep.append(result)
+            else:
+                logging.debug('{} published {} days ago, removing search result.'.format(result['title'], age))
+        else:
+            keep.append(result)
+
+    logging.info('Keeping {} releases.'.format(len(keep)))
+    return keep
+
+
+def seed_check(releases):
+    ''' Remove any torrents with fewer than 'seeds' seeders
+    releases (list[dict]): scene release metadata to score and filter
+
+    Gets required seeds from core.CONFIG
+
+    Returns list[dict]
+    '''
+
+    logging.info('Checking torrent seeds.')
+    keep = []
+    for result in releases:
+        if result['type'] in ('torrent', 'magnet'):
+            if int(result['seeders']) >= core.CONFIG['Search']['mintorrentseeds']:
+                keep.append(result)
+            else:
+                logging.debug('{} has {} seeds, removing search result.'.format(result['title'], result['seeders']))
+        else:
+            keep.append(result)
+
+    logging.info('Keeping {} releases.'.format(len(keep)))
+    return keep
+
+
+def freeleech(releases):
+    ''' Adds points to freeleech torrents
+    releases (list[dict]): scene release metadata to score and filter
+
+    Returns list[dict]
+    '''
+    points = core.CONFIG['Search']['freeleechpoints']
+    logging.info('Adding Freeleech points.')
+    for res in releases:
+        if res['type'] in ('magnet', 'torrent') and res['freeleech'] == 1:
+            logging.debug('Adding {} Freeleech points to {}.'.format(points, res['title']))
+            res['score'] += points
+
+    return releases
+
+
+def score_preferred(releases, group_list):
+    ''' Increase score for each group of 'words' match
+    releases (list[dict]): scene release metadata to score and filter
+    group_list (list): preferred groups of words
+
+    group_list must be formatted as a list of lists ie:
+        [['word1'], ['word2', 'word3']]
+
+    Iterates through releases and adds 10 points to every
+        entry for each word group it contains
+
+    Returns list[dict]
+    '''
+
+    logging.info('Scoring Preferred Words.')
+
+    if not group_list or group_list == ['']:
+        return
+
+    for r in releases:
+        for word_group in group_list:
+            if all(word in r['title'].lower() for word in word_group):
+                logging.debug('{} found in {}, adding 10 points.'.format(word_group, r['title']))
+                r['score'] += 10
+            else:
                 continue
-            for word_group in group_list:
-                if all(word in r['title'].lower() for word in word_group) and r not in keep:
-                    logging.debug('{} found in {}, keeping this search result.'.format(word_group, r['title']))
-                    keep.append(r)
-                    break
-                else:
-                    continue
+    return releases
 
-        self.results = keep
-        logging.info('Keeping {} results.'.format(len(self.results)))
 
-    def retention_check(self, retention):
-        ''' Remove results older than 'retention' days
-        retention (int): days of retention limit
+def fuzzy_title(releases, titles, year='\n'):
+    ''' Score and remove releases based on title match
+    releases (list[dict]): scene release metadata to score and filter
+    titles (list): titles to match against
+    year (str): year of movie release           <optional -default '\n'>
 
-        Iterates through self.results and removes any nzb entry that was
-            published more than 'retention' days ago
+    If titles is an empty list every result is treated as a perfect match
+    Matches releases based on release_title.split(year)[0]. If year is not passed,
+        matches on '\n', which will include the entire string.
 
-        Does not return
-        '''
+    Iterates through releases and removes any entry that does not
+        fuzzy match 'title' > 70.
+    Adds fuzzy_score / 20 points to ['score']
 
-        today = datetime.datetime.today()
+    Returns list[dict]
+    '''
 
-        if retention == 0:
-            return
+    logging.info('Checking title match.')
 
-        logging.info('Checking retention.')
-        lst = []
-        for result in self.results:
-            if result['type'] != 'nzb':
-                lst.append(result)
-            else:
-                pubdate = datetime.datetime.strptime(result['pubdate'], '%d %b %Y')
-                age = (today - pubdate).days
-                if age < retention:
-                    lst.append(result)
-                else:
-                    logging.debug('{} published {} days ago, removing search result.'.format(result['title'], age))
-
-        self.results = lst
-        logging.info('Keeping {} results.'.format(len(self.results)))
-
-    def seed_check(self, seeds):
-        ''' Remove any torrents with fewer than 'seeds' seeders
-        seeds (int): Minimum number of seeds required
-
-        Does not return
-        '''
-
-        if seeds == 0:
-            return
-        logging.info('Checking torrent seeds.')
-        lst = []
-        for result in self.results:
-            if result['type'] not in ('torrent', 'magnet'):
-                lst.append(result)
-            else:
-                if int(result['seeders']) >= seeds:
-                    lst.append(result)
-                else:
-                    logging.debug('{} has {} seeds, removing search result.'.format(result['title'], result['seeders']))
-        self.results = lst
-        logging.info('Keeping {} results.'.format(len(self.results)))
-
-    def freeleech(self, points):
-        ''' Adds points to freeleech torrents
-        points (int): points to add to search result
-
-        Does not return
-        '''
-        logging.info('Adding Freeleech points.')
-        for res in self.results:
-            if res['freeleech'] == 1:
-                logging.debug('Adding {} points to {}.'.format(points, res['title']))
-                res['score'] += points
-
-    def score_preferred(self, group_list):
-        ''' Increase score for each group of 'words' match
-        group_list (list): preferred groups of words
-
-        group_list must be formatted as a list of lists ie:
-            [['word1'], ['word2', 'word3']]
-
-        Iterates through self.results and adds 10 points to every
-            entry for each word group it contains
-
-        Does not return
-        '''
-
-        logging.info('Scoring Preferred Words.')
-
-        if not group_list or group_list == ['']:
-            return
-
-        for r in self.results:
-            for word_group in group_list:
-                if all(word in r['title'].lower() for word in word_group):
-                    logging.debug('{} found in {}, adding 10 points.'.format(word_group, r['title']))
-                    r['score'] += 10
-                else:
-                    continue
-
-    def fuzzy_title(self, titles, year='\n'):
-        ''' Score and remove results based on title match
-        titles (list): titles to match against
-        year (str): year of movie release           <optional - Default '\n'>
-
-        If titles is an empty list every result is treated as a perfect match
-        Matches releases based on release_title.split(year)[0]. If year is not passed,
-            matches on '\n', which will include the entire string.
-
-        Iterates through self.results and removes any entry that does not
-            fuzzy match 'title' > 70.
-        Adds fuzzy_score / 20 points to ['score']
-
-        Does not return
-        '''
-
-        logging.info('Checking title match.')
-
-        lst = []
-        if titles == []:
-            logging.debug('No titles available to compare, scoring all as perfect match.')
-            for result in self.results:
+    keep = []
+    if titles == []:
+        logging.debug('No titles available to compare, scoring all as perfect match.')
+        for result in releases:
+            result['score'] += 20
+            keep.append(result)
+    else:
+        for result in releases:
+            if result['type'] == 'import' and result not in keep:
+                logging.debug('{} is an Import, soring as a perfect match.'.format(result['title']))
                 result['score'] += 20
-                lst.append(result)
-        else:
-            for result in self.results:
-                if result['type'] == 'import' and result not in lst:
-                    logging.debug('{} is an Import, soring as a perfect match.'.format(result['title']))
-                    result['score'] += 20
-                    lst.append(result)
-                    continue
-
-                rel_title_ss = result['title'].split(year)[0]
-                logging.debug('Comparing release substring {} with titles {}.'.format(rel_title_ss, titles))
-                matches = [self._fuzzy_title(rel_title_ss, title) for title in titles]
-                if any(match > 70 for match in matches):
-                    result['score'] += int(max(matches) / 5)
-                    lst.append(result)
-                else:
-                    logging.debug('{} best title match was {}%, removing search result.'.format(result['title'], max(matches)))
-        self.results = lst
-        logging.info('Keeping {} results.'.format(len(self.results)))
-
-    def _fuzzy_title(self, a, b):
-        ''' Determines how much of a is in b
-        a (str): String to match against b
-        b (str): String to match a against
-
-        Order of a and b matters.
-
-        A is broken down and words are compared against B's words.
-
-        ie:
-        _fuzzy_title('This is string a', 'This is string b and has extra words.')
-        Returns 75 since 75% of a is in b.
-
-        Returns int
-        '''
-
-        a = a.replace('&', 'and')
-        b = b.replace('&', 'and')
-
-        a_words = Url.normalize(a).split(' ')
-        b_words = Url.normalize(b).split(' ')
-
-        m = 0
-        a_len = len(a_words)
-
-        for i in a_words:
-            if i in b_words:
-                b_words.remove(i)
-                m += 1
-
-        return int((m / a_len) * 100)
-
-    def score_sources(self, sources, check_size=True):
-        ''' Score releases based on quality/source preferences
-        sources (dict): sources from user config
-        check_size (bool): whether or not to filter based on size
-
-        Iterates through self.results and removes any entry that does not
-            fit into quality criteria (source-resoution, filesize)
-        Adds to ['score'] based on priority of match
-
-        Does not return
-        '''
-
-        logging.info('Filtering resolution and size requirements.')
-        score_range = len(core.SOURCES) + 1
-
-        sizes = core.CONFIG['Quality']['Sources']
-
-        lst = []
-        for result in self.results:
-            result_res = result['resolution']
-            logging.debug('Scoring and filtering {} based on resolution {}.'.format(result['title'], result_res))
-            size = result['size'] / 1000000
-            if result['type'] == 'import' and result['resolution'] not in sources:
-                lst.append(result)
+                keep.append(result)
                 continue
 
-            for k, v in sources.items():
-                if v[0] is False and result['type'] != 'import':
-                    continue
-                priority = v[1]
-                if check_size:
-                    min_size = sizes[k]['min']
-                    max_size = sizes[k]['max']
-                else:
-                    min_size = 0
-                    max_size = Ellipsis
+            rel_title_ss = result['title'].split(year)[0]
+            logging.debug('Comparing release substring {} with titles {}.'.format(rel_title_ss, titles))
+            matches = [_fuzzy_title(rel_title_ss, title) for title in titles]
+            if any(match > 70 for match in matches):
+                result['score'] += int(max(matches) / 5)
+                keep.append(result)
+            else:
+                logging.debug('{} best title match was {}%, removing search result.'.format(result['title'], max(matches)))
 
-                if result_res == k:
-                    logging.debug('{} matches source {}, checking size.'.format(result['title'], k))
+    logging.info('Keeping {} releases.'.format(len(keep)))
+    return keep
 
-                    if result['type'] != 'import' and not (min_size < size < max_size):
-                        logging.debug('Removing {}, size {} not in range {}-{}.'.format(result['title'], size, min_size, max_size))
-                        break
 
-                    result['score'] += abs(priority - score_range) * 40
-                    lst.append(result)
-                else:
-                    continue
+def _fuzzy_title(a, b):
+    ''' Determines how much of a is in b
+    a (str): String to match against b
+    b (str): String to match a against
 
-        self.results = lst
-        logging.info('Keeping {} results.'.format(len(self.results)))
+    Order of a and b matters.
 
-    def import_quality(self):
-        ''' Creates quality profile for imported results
+    A is broken down and words are compared against B's words.
 
-        Creates import profile that mimics the base profile, but it incapable
-            of removing search results.
+    ie:
+    _fuzzy_title('This is string a', 'This is string b and has extra words.')
+    Returns 75 since 75% of a is in b.
 
-        Returns dict
-        '''
-        profile = core.config.base_profile
+    Returns int
+    '''
 
-        profile['ignoredwords'] = ''
-        profile['requiredwords'] = ''
+    a = a.replace('&', 'and')
+    b = b.replace('&', 'and')
 
-        for i in profile['Sources']:
-            profile['Sources'][i][0] = True
+    a_words = Url.normalize(a).split(' ')
+    b_words = Url.normalize(b).split(' ')
 
-        return profile
+    m = 0
+    a_len = len(a_words)
+
+    for i in a_words:
+        if i in b_words:
+            b_words.remove(i)
+            m += 1
+
+    return int((m / a_len) * 100)
+
+
+def score_sources(releases, sources, check_size=True):
+    ''' Score releases based on quality/source preferences
+    releases (list[dict]): scene release metadata to score and filter
+    sources (dict): sources from user config
+    check_size (bool): whether or not to filter based on size
+
+    Iterates through releases and removes any entry that does not
+        fit into quality criteria (source-resoution, filesize)
+    Adds to ['score'] based on priority of match
+
+    Returns list[dict]
+    '''
+
+    logging.info('Filtering resolution and size requirements.')
+    score_range = len(core.SOURCES) + 1
+
+    sizes = core.CONFIG['Quality']['Sources']
+
+    keep = []
+    for result in releases:
+        result_res = result['resolution']
+        logging.debug('Scoring and filtering {} based on resolution {}.'.format(result['title'], result_res))
+        size = result['size'] / 1000000
+        if result['type'] == 'import' and result['resolution'] not in sources:
+            keep.append(result)
+            continue
+
+        for k, v in sources.items():
+            if v[0] is False and result['type'] != 'import':
+                continue
+            priority = v[1]
+            if check_size:
+                min_size = sizes[k]['min']
+                max_size = sizes[k]['max']
+            else:
+                min_size = 0
+                max_size = Ellipsis
+
+            if result_res == k:
+                logging.debug('{} matches source {}, checking size.'.format(result['title'], k))
+
+                if result['type'] != 'import' and not (min_size < size < max_size):
+                    logging.debug('Removing {}, size {} not in range {}-{}.'.format(result['title'], size, min_size, max_size))
+                    break
+
+                result['score'] += abs(priority - score_range) * 40
+                keep.append(result)
+            else:
+                continue
+
+    logging.info('Keeping {} releases.'.format(len(keep)))
+    return keep
+
+
+def import_quality():
+    ''' Creates quality profile for imported releases
+
+    Creates import profile that mimics the base profile, but it incapable
+        of removing releases.
+
+    Returns dict
+    '''
+    profile = core.config.base_profile
+
+    profile['ignoredwords'] = ''
+    profile['requiredwords'] = ''
+
+    for i in profile['Sources']:
+        profile['Sources'][i][0] = True
+
+    return profile
 
 
 def generate_simulacrum(movie):
     ''' Generates phony search result for imported movies
     movie (dict): movie info
 
-    movie will use 'release_title' key if found, else 'title' to generate results
+    movie will use 'release_title' key if found, else 'title' to generate fake release
 
     Resturns dict to match SEARCHRESULTS table
     '''

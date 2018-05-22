@@ -39,7 +39,6 @@ class Ajax(object):
         self.metadata = library.Metadata()
         self.predb = predb.PreDB()
         self.searcher = searcher.Searcher()
-        self.score = searchresults.Score()
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -67,7 +66,7 @@ class Ajax(object):
         ''' Search tmdb for movies
         search_term (str): title and year of movie (Movie Title 2016)
 
-        Returns str json-encoded list of dicts that contain tmdb's data.
+        Returns list of dicts that contain tmdb's data.
         '''
 
         results = self.tmdb.search(search_term)
@@ -740,7 +739,7 @@ class Ajax(object):
                 yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(data['title'])})
                 progress += 1
 
-        fake_results = self.score.score(fake_results, imported=True)
+        fake_results = searchresults.score(fake_results, imported=True)
 
         for i in success:
             for r in fake_results:
@@ -901,7 +900,7 @@ class Ajax(object):
                 progress += 1
                 continue
 
-        fake_results = self.score.score(fake_results, imported=True)
+        fake_results = searchresults.score(fake_results, imported=True)
 
         for i in success:
             for r in fake_results:
@@ -1022,7 +1021,7 @@ class Ajax(object):
                 continue
 
         if fake_results:
-            fake_results = self.score.score(fake_results, imported=True)
+            fake_results = searchresults.score(fake_results, imported=True)
 
         for i in success:
             for r in fake_results:
@@ -1102,7 +1101,7 @@ class Ajax(object):
                 progress += 1
                 continue
 
-        fake_results = self.score.score(fake_results, imported=True)
+        fake_results = searchresults.score(fake_results, imported=True)
 
         for i in success:
             for r in fake_results:

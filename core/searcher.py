@@ -14,7 +14,6 @@ class Searcher():
 
     def __init__(self):
         self.nn = newznab.NewzNab()
-        self.score = searchresults.Score()
         self.predb = predb.PreDB()
         self.torrent = torrent.Torrent()
 
@@ -171,7 +170,7 @@ class Searcher():
             found_date doesn't change and scores can be updated if the quality profile
             was modified since last search.
 
-        Sends ALL results to searchresults.Score.score() to be (re-)scored and filtered.
+        Sends ALL results to searchresults.score() to be (re-)scored and filtered.
 
         Checks if guid matches entries in MARKEDRESULTS and
             sets status if found. Default status Available.
@@ -213,7 +212,7 @@ class Searcher():
         for idx, result in enumerate(results):
             results[idx]['resolution'] = self.get_source(result)
 
-        scored_results = self.score.score(results, imdbid=imdbid)
+        scored_results = searchresults.score(results, imdbid=imdbid)
 
         # sets result status based off marked results table
         marked_results = core.sql.get_marked_results(imdbid)
@@ -301,7 +300,7 @@ class Searcher():
             for idx, result in enumerate(new_results):
                 new_results[idx]['resolution'] = self.get_source(result)
 
-            scored_results = self.score.score(new_results, imdbid=imdbid)
+            scored_results = searchresults.score(new_results, imdbid=imdbid)
 
             if len(scored_results) == 0:
                 logging.info('No acceptable results found for {}'.format(imdbid))
