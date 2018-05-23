@@ -16,7 +16,7 @@ class TMDB(object):
             core.TMDB_LAST_FILL = time()
         return
 
-    def get_tokens(self):
+    def _get_tokens(self):
         ''' Refills TMDB tokens if possible
 
         If tokens are needed, checks if they've been refilled in the
@@ -32,7 +32,7 @@ class TMDB(object):
                 core.TMDB_LAST_FILL = time()
         return core.TMDB_TOKENS
 
-    def use_token(self):
+    def _use_token(self):
         ''' Uses tmdb api token
 
         Use as a blocking method before url requests.
@@ -40,7 +40,7 @@ class TMDB(object):
 
         Does not return
         '''
-        while self.get_tokens() < 3:
+        while self._get_tokens() < 3:
             sleep(0.3)
         core.TMDB_TOKENS -= 1
 
@@ -96,7 +96,7 @@ class TMDB(object):
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
 
-        self.use_token()
+        self._use_token()
 
         try:
             results = json.loads(Url.open(url).text)
@@ -124,7 +124,7 @@ class TMDB(object):
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
 
-        self.use_token()
+        self._use_token()
 
         try:
             results = json.loads(Url.open(url).text)
@@ -154,7 +154,7 @@ class TMDB(object):
         logging.info('Searching TMDB {}'.format(url))
         url = url + '&api_key={}'.format(_k(b'tmdb'))
 
-        self.use_token()
+        self._use_token()
 
         try:
             response = Url.open(url)
@@ -193,9 +193,9 @@ class TMDB(object):
 
             url = 'https://api.themoviedb.org/3/search/movie?api_key={}&language=en-US&query={}&year={}&page=1&include_adult=false'.format(_k(b'tmdb'), title, year)
 
-            while self.get_tokens() < 3:
+            while self._get_tokens() < 3:
                 sleep(0.3)
-            self.use_token()
+            self._use_token()
 
             try:
                 results = json.loads(Url.open(url).text)
@@ -212,7 +212,7 @@ class TMDB(object):
 
         url = 'https://api.themoviedb.org/3/movie/{}?api_key={}'.format(tmdbid, _k(b'tmdb'))
 
-        self.use_token()
+        self._use_token()
 
         try:
             results = json.loads(Url.open(url).text)
@@ -228,7 +228,9 @@ class TMDB(object):
 
         tmdbid required for section=similar, otherwise can be ignored.
 
-        Returns list of results
+        Gets list of movies in cat from tmdbid (ie popular, now playing, coming soon, etc)
+
+        Returns list[dict]
         '''
 
         if cat == 'similar':
@@ -240,7 +242,7 @@ class TMDB(object):
 
         url += '&api_key={}'.format(_k(b'tmdb'))
 
-        self.use_token()
+        self._use_token()
 
         try:
             results = json.loads(Url.open(url).text)
