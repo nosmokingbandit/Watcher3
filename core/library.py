@@ -702,7 +702,7 @@ class Metadata(object):
 
 
 class Manage(object):
-    ''' Methods to manipulate status of movies or search results
+    ''' Methods to manipulate status of movies or search results in database
     '''
 
     def __init__(self):
