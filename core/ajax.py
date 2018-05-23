@@ -35,7 +35,6 @@ class Ajax(object):
 
     def __init__(self):
         self.tmdb = movieinfo.TMDB()
-        self.config = config.Config()
         self.metadata = library.Metadata()
         self.predb = predb.PreDB()
         self.searcher = searcher.Searcher()
@@ -169,7 +168,7 @@ class Ajax(object):
             return {'response': True, 'message': _('Settings saved.')}
 
         try:
-            self.config.write(save_data)
+            config.write(save_data)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception as e:

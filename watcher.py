@@ -79,14 +79,13 @@ if __name__ == '__main__':
 
     # set up config file on first launch
     from core import config
-    conf = config.Config()
     if not os.path.isfile(core.CONF_FILE):
-        print('\033[33m Config file not found. Creating new basic config {}. Please review settings. \033[0m'.format(core.CONF_FILE))
-        conf.new_config()
+        print('\033[33m## Config file not found. Creating new basic config {}. Please review settings. \033[0m'.format(core.CONF_FILE))
+        config.new_config()
     else:
         print('Config file found, merging any new options.')
-        conf.merge_new_options()
-    conf.stash()
+        config.merge_new_options()
+    config.load()
 
     # Set up logging
     from core import log
