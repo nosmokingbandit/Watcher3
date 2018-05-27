@@ -56,11 +56,8 @@ def add_torrent(data):
     Adds label if set in config
 
     Returns dict {'response': True, 'downloadid': 'id'}
-                    {'response': False, 'error': 'exception'}
-
+                 {'response': False, 'error': 'exception'}
     '''
-    global client
-
     logging.info('Sending torrent {} to rTorrent HTTP RPC Plugin.'.format(data['title']))
 
     conf = core.CONFIG['Downloader']['Torrent']['rTorrentHTTP']

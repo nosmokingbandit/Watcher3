@@ -98,7 +98,6 @@ def add_nzb(data):
 
     Returns dict ajax-style response
     '''
-    global cookie
 
     logging.info('Sending nzb {} to DownloadStation.'.format(data['title']))
 
@@ -135,7 +134,6 @@ def add_torrent(data):
 
     Returns dict ajax-style response
     '''
-    global cookie
 
     logging.info('Sending torrent {} to DownloadStation.'.format(data['title']))
 
@@ -172,7 +170,6 @@ def get_task_id(url_base, uri):
 
     Returns str
     '''
-    global cookie
 
     url = '{}/webapi/DownloadStation/task.cgi?api=SYNO.DownloadStation.Task&version=2&method=list&additional=detail&_sid={}'.format(url_base, cookie)
 
@@ -193,7 +190,6 @@ def get_task_id(url_base, uri):
 
 @auth_required
 def cancel_download(downloadid):
-    global cookie
 
     conf = core.CONFIG['Downloader']['Torrent']['DownloadStation']
     url_base = '{}:{}'.format(conf['host'], conf['port'])

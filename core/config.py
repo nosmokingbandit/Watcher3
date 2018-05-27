@@ -39,7 +39,6 @@ def new_config():
 
     Returns dict of newly created config
     '''
-    global base_file
 
     with open(base_file, 'r') as f:
         config = json.load(f)
@@ -103,7 +102,6 @@ def merge_new_options():
 
     Does not return
     '''
-    global base_file
 
     new_config = {}
 
