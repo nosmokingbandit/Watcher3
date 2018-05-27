@@ -30,6 +30,9 @@ def score(releases, imdbid=None, imported=False):
 
     Returns list of result dicts
     '''
+    if len(releases) == 0:
+        logging.info('No releases to score.')
+        return releases
 
     logging.info('Scoring {} releases.'.format(len(releases)))
 

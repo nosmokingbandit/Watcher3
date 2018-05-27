@@ -6,7 +6,7 @@ import csv
 import threading
 from core import searchresults, plugins, searcher
 import core
-from core.movieinfo import TMDB
+from core.movieinfo import TheMovieDatabase, Poster
 from core.helpers import Url
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
@@ -366,13 +366,8 @@ class Metadata(object):
     ''' Methods for gathering/preparing metadata for movies
     '''
 
-    def __init__(self):
-        self.tmdb = TMDB()
-        self.poster = Poster()
-        self.MOVIES_cols = [i.name for i in core.sql.MOVIES.c]
-        return
-
-    def from_file(self, filepath, imdbid=None):
+    @staticmethod
+    def from_file(filepath, imdbid=None):
         ''' Gets video metadata using hachoir.parser
         filepath (str): absolute path to movie file
         imdbid (str): imdb id #             <optional - Default None>
@@ -399,10 +394,10 @@ class Metadata(object):
             'edition': []
         }
 
-        titledata = self.parse_filename(filepath)
+        titledata = Metadata.parse_filename(filepath)
         data.update(titledata)
 
-        filedata = self.parse_media(filepath)
+        filedata = Metadata.parse_media(filepath)
         data.update(filedata)
 
         if data.get('resolution'):
@@ -413,7 +408,7 @@ class Metadata(object):
 
         if data.get('title') and not data.get('imdbid'):
             title_date = '{} {}'.format(data['title'], data['year']) if data.get('year') else data['title']
-            tmdbdata = self.tmdb.search(title_date, single=True)
+            tmdbdata = TheMovieDatabase.search(title_date, single=True)
             if not tmdbdata:
                 logging.warning('Unable to get data from TheMovieDB for {}'.format(data['title']))
                 return data
@@ -425,7 +420,7 @@ class Metadata(object):
                 logging.warning('Unable to get data from TheMovieDB for {}'.format(data['imdbid']))
                 return data
 
-            tmdbdata = tmdbdata = self.tmdb._search_tmdbid(tmdbid)
+            tmdbdata = tmdbdata = TheMovieDatabase._search_tmdbid(tmdbid)
             if tmdbdata:
                 tmdbdata = tmdbdata[0]
             else:
@@ -442,7 +437,8 @@ class Metadata(object):
 
         return data
 
-    def parse_media(self, filepath):
+    @staticmethod
+    def parse_media(filepath):
         ''' Uses Hachoir-metadata to parse the file header to metadata
         filepath (str): absolute path to file
 
@@ -493,7 +489,8 @@ class Metadata(object):
 
         return metadata
 
-    def parse_filename(self, filepath):
+    @staticmethod
+    def parse_filename(filepath):
         ''' Uses PTN to get as much info as possible from path
         filepath (str): absolute path to movie file
 
@@ -543,7 +540,8 @@ class Metadata(object):
 
         return meta_data
 
-    def convert_to_db(self, movie):
+    @staticmethod
+    def convert_to_db(movie):
         ''' Takes movie data and converts to a database-writable dict
         movie (dict): of movie information
 
@@ -617,11 +615,12 @@ class Metadata(object):
             if isinstance(v, str):
                 movie[k] = v.strip()
 
-        movie = {k: v for k, v in movie.items() if k in self.MOVIES_cols}
+        movie = {k: v for k, v in movie.items() if k in [i.name for i in core.sql.MOVIES.c]}
 
         return movie
 
-    def update(self, imdbid, tmdbid=None, force_poster=True):
+    @staticmethod
+    def update(imdbid, tmdbid=None, force_poster=True):
         ''' Updates metadata from TMDB
         imdbid (str): imdb id #
         tmdbid (str): or int tmdb id #                                  <optional - default None>
@@ -657,13 +656,13 @@ class Metadata(object):
 
             if not tmdbid:
                 logging.debug('TMDB id not found in local database, searching TMDB for {}'.format(imdbid))
-                tmdb_data = self.tmdb._search_imdbid(imdbid)
+                tmdb_data = TheMovieDatabase._search_imdbid(imdbid)
                 tmdbid = tmdb_data[0].get('id') if tmdb_data else None
             if not tmdbid:
                 logging.debug('Unable to find {} on TMDB.'.format(imdbid))
                 return {'response': False, 'error': 'Unable to find {} on TMDB.'.format(imdbid)}
 
-        new_data = self.tmdb._search_tmdbid(tmdbid)
+        new_data = TheMovieDatabase._search_tmdbid(tmdbid)
 
         if not new_data:
             logging.warning('Empty response from TMDB.')
@@ -673,7 +672,7 @@ class Metadata(object):
 
         new_data.pop('status')
 
-        target_poster = os.path.join(self.poster.poster_folder, '{}.jpg'.format(imdbid))
+        target_poster = os.path.join(Poster.folder, '{}.jpg'.format(imdbid))
 
         if new_data.get('poster_path'):
             poster_path = 'http://image.tmdb.org/t/p/w300{}'.format(new_data['poster_path'])
@@ -682,7 +681,7 @@ class Metadata(object):
             poster_path = None
 
         movie.update(new_data)
-        movie = self.convert_to_db(movie)
+        movie = Metadata.convert_to_db(movie)
 
         core.sql.update_multiple_values('MOVIES', movie, 'imdbid', imdbid)
 
@@ -696,7 +695,7 @@ class Metadata(object):
                     logging.warning('Unable to remove existing poster.', exc_info=True)
                     return {'response': False, 'error': 'Unable to remove existing poster.'}
 
-            self.poster.save_poster(imdbid, poster_path)
+            Poster.save(imdbid, poster_path)
 
         return {'response': True, 'message': 'Metadata updated.'}
 
@@ -705,13 +704,8 @@ class Manage(object):
     ''' Methods to manipulate status of movies or search results in database
     '''
 
-    def __init__(self):
-        self.tmdb = TMDB()
-        self.metadata = Metadata()
-        self.poster = Poster()
-        self.searcher = searcher.Searcher()
-
-    def add_movie(self, movie, full_metadata=False):
+    @staticmethod
+    def add_movie(movie, full_metadata=False):
         ''' Adds movie to Wanted list.
         movie (dict): movie info to add to database.
         full_metadata (bool): if data is complete and ready for write
@@ -738,7 +732,7 @@ class Manage(object):
 
         if not full_metadata:
             logging.debug('More information needed, searching TheMovieDB for {}'.format(tmdbid))
-            tmdb_data = self.tmdb._search_tmdbid(tmdbid)
+            tmdb_data = TheMovieDatabase._search_tmdbid(tmdbid)
             if not tmdb_data:
                 response['error'] = _('Unable to find {} on TMDB.').format(tmdbid)
                 return response
@@ -761,7 +755,7 @@ class Manage(object):
 
         poster_path = movie.get('poster_path')
 
-        movie = self.metadata.convert_to_db(movie)
+        movie = Metadata.convert_to_db(movie)
 
         if not core.sql.write('MOVIES', movie):
             response['response'] = False
@@ -770,10 +764,10 @@ class Manage(object):
         else:
             if poster_path:
                 poster_url = 'http://image.tmdb.org/t/p/w300/{}'.format(poster_path)
-                threading.Thread(target=self.poster.save_poster, args=(movie['imdbid'], poster_url)).start()
+                threading.Thread(target=Poster.save, args=(movie['imdbid'], poster_url)).start()
 
             if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
-                threading.Thread(target=self.searcher._t_search_grab, args=(movie,)).start()
+                threading.Thread(target=searcher._t_search_grab, args=(movie,)).start()
 
             response['response'] = True
             response['message'] = _('{} {} added to library.').format(movie['title'], movie['year'])
@@ -781,7 +775,8 @@ class Manage(object):
 
             return response
 
-    def remove_movie(self, imdbid):
+    @staticmethod
+    def remove_movie(imdbid):
         ''' Remove movie from library
         imdbid (str): imdb id #
 
@@ -798,7 +793,7 @@ class Manage(object):
 
         if removed is True:
             response = {'response': True, 'message': _('{} removed from library.').format(m.get('title'))}
-            threading.Thread(target=self.poster.remove_poster, args=(imdbid,)).start()
+            threading.Thread(target=Poster.remove, args=(imdbid,)).start()
         elif removed is False:
             response = {'response': False, 'error': _('Unable to remove {}.').format(m.get('title'))}
         elif removed is None:
@@ -806,7 +801,9 @@ class Manage(object):
 
         return response
 
-    def searchresults(self, guid, status, movie_info=None):
+    # @todo move to searchresults module?
+    @staticmethod
+    def searchresults(guid, status, movie_info=None):
         ''' Marks searchresults status
         guid (str): download link guid
         status (str): status to set
@@ -857,7 +854,8 @@ class Manage(object):
             else:
                 return False
 
-    def markedresults(self, guid, status, imdbid=None):
+    @staticmethod
+    def markedresults(guid, status, imdbid=None):
         ''' Marks markedresults status
         guid (str): download link guid
         status (str): status to set
@@ -897,7 +895,8 @@ class Manage(object):
                 logging.warning('Imdbid not supplied or found, unable to add entry to MARKEDRESULTS.')
                 return False
 
-    def movie_status(self, imdbid):
+    @staticmethod
+    def movie_status(imdbid):
         ''' Updates Movie status.
         imdbid (str): imdb identification number (tt123456)
 
@@ -927,7 +926,7 @@ class Manage(object):
         if core.CONFIG['Downloader']['Sources']['torrentenabled']:
             t += ['torrent', 'magnet']
 
-        cmd = 'SELECT DISTINCT status FROM SEARCHRESULTS WHERE imdbid="{}" AND type IN ("{}")'.format(imdbid, '", "'.join(t))
+        cmd = 'SELECT DISTINCT status FROM SEARCHRESULTS WHERE imdbid="{}" AND type IN ("import", "{}")'.format(imdbid, '", "'.join(t))
 
         try:
             result_status = [i['status'] for i in core.sql.execute([cmd]).fetchall()] or []
@@ -942,7 +941,7 @@ class Manage(object):
         elif 'Available' in result_status:
             new_status = 'Found'
         else:
-            new_status = 'Wanted' if self.searcher.verify(movie) else 'Waiting'
+            new_status = 'Wanted' if searcher.verify(movie) else 'Waiting'
 
         logging.info('Setting MOVIES {} status to {}.'.format(imdbid, new_status))
         if core.sql.update('MOVIES', 'status', new_status, 'imdbid', imdbid):
@@ -951,7 +950,8 @@ class Manage(object):
             logging.error('Could not set {} to {}'.format(imdbid, new_status))
             return ''
 
-    def get_stats(self):
+    @staticmethod
+    def get_stats():
         ''' Gets stats from database for graphing
         Formats data for use with Morris graphing library
 
@@ -1020,66 +1020,3 @@ class Manage(object):
         stats['added_dates'] = sorted([{'added_date': k, 'value': v} for k, v in added_dates.items() if v is not None], key=lambda k: k['added_date'])
         stats['scores'] = sorted([{'score': k, 'value': v} for k, v in scores.items()], key=lambda k: k['score'])
         return stats
-
-
-class Poster(object):
-
-    def __init__(self):
-        self.poster_folder = os.path.join(core.USERDATA, 'posters')
-
-        if not os.path.exists(self.poster_folder):
-            os.makedirs(self.poster_folder)
-
-    def save_poster(self, imdbid, poster):
-        ''' Saves poster locally
-        imdbid (str): imdb id #
-        poster (str): url of poster image.jpg
-
-        Saves poster as watcher/userdata/posters/[imdbid].jpg
-
-        Does not return
-        '''
-
-        logging.info('Downloading poster for {}.'.format(imdbid))
-
-        new_poster_path = os.path.join(self.poster_folder, '{}.jpg'.format(imdbid))
-
-        if os.path.exists(new_poster_path):
-            logging.warning('{} already exists.'.format(new_poster_path))
-            return
-        else:
-            logging.info('Saving poster to {}'.format(new_poster_path))
-
-            try:
-                poster_bytes = Url.open(poster, stream=True).content
-            except (SystemExit, KeyboardInterrupt):
-                raise
-            except Exception as e:
-                logging.error('Poster save_poster get', exc_info=True)
-                return
-
-            try:
-                with open(new_poster_path, 'wb') as output:
-                    output.write(poster_bytes)
-                del poster_bytes
-            except (SystemExit, KeyboardInterrupt):
-                raise
-            except Exception as e:
-                logging.error('Unable to save poster to disk.', exc_info=True)
-                return
-
-            logging.info('Poster saved to {}'.format(new_poster_path))
-
-    def remove_poster(self, imdbid):
-        ''' Deletes poster from disk.
-        imdbid (str): imdb id #
-
-        Does not return
-        '''
-
-        logging.info('Removing poster for {}'.format(imdbid))
-        path = os.path.join(self.poster_folder, '{}.jpg'.format(imdbid))
-        if os.path.exists(path):
-            os.remove(path)
-        else:
-            logging.warning('{} doesn\'t exist, cannot remove.'.format(path))

@@ -1,5 +1,6 @@
 import core
-from core.movieinfo import TMDB
+from core.movieinfo import TheMovieDatabase
+from core.library import Manage
 import cherrypy
 import threading
 import os
@@ -160,10 +161,6 @@ def api_json_out(func):
 
 class API(object):
 
-    def __init__(self):
-        self.tmdb = TMDB()
-        return
-
     @cherrypy.expose()
     def default(self, **params):
         ''' Get handler for API calls
@@ -180,30 +177,22 @@ class API(object):
 
         if 'apikey' not in params:
             logging.warning('API request failed, no key supplied.')
-            return {'response': False, 'error': 'no api key supplied'}
+            return json.dumps({'response': False, 'error': 'no api key supplied'})
 
         if serverkey != params['apikey']:
             logging.warning('Invalid API key in request: {}'.format(params['apikey']))
-            return {'response': False, 'error': 'incorrect api key'}
+            return json.dumps({'response': False, 'error': 'incorrect api key'})
         params.pop('apikey')
 
         # find what we are going to do
         if 'mode' not in params:
-            return {'response': False, 'error': 'no api mode specified'}
+            return json.dumps({'response': False, 'error': 'no api mode specified'})
 
         mode = params.pop('mode')
         if not hasattr(self, mode):
             return {'response': False, 'error': 'unknown method call: {}'.format(mode)}
         else:
             return getattr(self, mode)(params)
-
-    @api_json_out
-    def putio_process(self, metadata):
-        ''' Method to handle post-processing callbacks from PutIO
-        metadata (dict): @todo: I don't know yet how this data is formatted
-        '''
-
-        return {}
 
     @api_json_out
     def liststatus(self, filters):
@@ -233,6 +222,8 @@ class API(object):
         ''' Add movie with default quality settings
         params (dict): params passed in request url
 
+        params must contain either 'imdbid' or 'tmdbid' key and value
+
         Returns dict {'status': 'success', 'message': 'X added to wanted list.'}
         '''
 
@@ -249,7 +240,7 @@ class API(object):
         if params.get('imdbid'):
             imdbid = params['imdbid']
             logging.info('API request add movie imdb {}'.format(imdbid))
-            movie = self.tmdb._search_imdbid(imdbid)
+            movie = TheMovieDatabase._search_imdbid(imdbid)
             if not movie:
                 return {'response': False, 'error': 'Cannot find {} on TMDB'.format(imdbid)}
             else:
@@ -258,7 +249,7 @@ class API(object):
         elif params.get('tmdbid'):
             tmdbid = params['tmdbid']
             logging.info('API request add movie tmdb {}'.format(tmdbid))
-            movie = self.tmdb._search_tmdbid(tmdbid)
+            movie = TheMovieDatabase._search_tmdbid(tmdbid)
 
             if not movie:
                 return {'response': False, 'error': 'Cannot find {} on TMDB'.format(tmdbid)}
@@ -269,7 +260,7 @@ class API(object):
         movie['status'] = 'Waiting'
         movie['origin'] = origin
 
-        return core.manage.add_movie(movie, full_metadata=True)
+        return Manage.add_movie(movie, full_metadata=True)
 
     @api_json_out
     def removemovie(self, params):
@@ -283,7 +274,7 @@ class API(object):
 
         logging.info('API request remove movie {}'.format(params['imdbid']))
 
-        return core.manage.remove_movie(params['imdbid'])
+        return Manage.remove_movie(params['imdbid'])
 
     def poster(self, params):
         ''' Return poster
@@ -331,5 +322,3 @@ class API(object):
     def server_restart(self, *args):
         threading.Timer(1, core.restart).start()
         return {'response': True}
-
-

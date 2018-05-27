@@ -7,7 +7,8 @@ import shutil
 
 import cherrypy
 import core
-from core import plugins, snatcher, library
+from core import plugins, snatcher
+from core.library import Metadata, Manage
 from core.downloaders import PutIO
 
 logging = logging.getLogger(__name__)
@@ -16,7 +17,6 @@ logging = logging.getLogger(__name__)
 class Postprocessing(object):
 
     def __init__(self):
-        self.metadata = library.Metadata()
         shutil.copystat = self.null
 
     def null(*args, **kwargs):
@@ -95,12 +95,12 @@ class Postprocessing(object):
             logging.info('Marking guid as Finished.')
             guid_result = {}
             if data['guid']:
-                if core.manage.searchresults(data['guid'], 'Finished'):
+                if Manage.searchresults(data['guid'], 'Finished'):
                     guid_result['update_SEARCHRESULTS'] = True
                 else:
                     guid_result['update_SEARCHRESULTS'] = False
 
-                if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+                if Manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
                     guid_result['update_MARKEDRESULTS'] = True
                 else:
                     guid_result['update_MARKEDRESULTS'] = False
@@ -334,7 +334,7 @@ class Postprocessing(object):
             logging.info('Unable to find local data for release. Using only data found from file.')
 
         if data and data.get('original_file'):
-            mdata = self.metadata.from_file(data['original_file'], imdbid=data.get('imdbid'))
+            mdata = Metadata.from_file(data['original_file'], imdbid=data.get('imdbid'))
             mdata.update(data)
             if not mdata.get('quality'):
                 data['quality'] = 'Default'
@@ -372,12 +372,12 @@ class Postprocessing(object):
         guid_result = {'url': data['guid']}
 
         if data['guid']:  # guid can be empty string
-            if core.manage.searchresults(data['guid'], 'Bad'):
+            if Manage.searchresults(data['guid'], 'Bad'):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if core.manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
+            if Manage.markedresults(data['guid'], 'Bad', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -389,12 +389,12 @@ class Postprocessing(object):
         if 'guid2' in data.keys():
             logging.info('Marking guid2 as Bad.')
             guid2_result = {'url': data['guid2']}
-            if core.manage.searchresults(data['guid2'], 'Bad'):
+            if Manage.searchresults(data['guid2'], 'Bad'):
                 guid2_result['update SEARCHRESULTS'] = True
             else:
                 guid2_result['update SEARCHRESULTS'] = False
 
-            if core.manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
+            if Manage.markedresults(data['guid2'], 'Bad', imdbid=data['imdbid'], ):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
                 guid2_result['update_MARKEDRESULTS'] = False
@@ -404,7 +404,7 @@ class Postprocessing(object):
         # set movie status
         if data['imdbid']:
             logging.info('Setting MOVIE status.')
-            r = core.manage.movie_status(data['imdbid'])
+            r = Manage.movie_status(data['imdbid'])
         else:
             logging.info('Imdbid not supplied or found, unable to update Movie status.')
             r = ''
@@ -479,14 +479,15 @@ class Postprocessing(object):
 
         # mark guid in both results tables
         logging.info('Marking guid as Finished.')
+        data['guid'] = data['guid'].lower()
         guid_result = {}
         if data['guid'] and data.get('imdbid'):
-            if core.manage.searchresults(data['guid'], 'Finished', movie_info=data):
+            if Manage.searchresults(data['guid'], 'Finished', movie_info=data):
                 guid_result['update_SEARCHRESULTS'] = True
             else:
                 guid_result['update_SEARCHRESULTS'] = False
 
-            if core.manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
+            if Manage.markedresults(data['guid'], 'Finished', imdbid=data['imdbid']):
                 guid_result['update_MARKEDRESULTS'] = True
             else:
                 guid_result['update_MARKEDRESULTS'] = False
@@ -498,13 +499,12 @@ class Postprocessing(object):
         if data.get('guid2') and data.get('imdbid'):
             logging.info('Marking guid2 as Finished.')
             guid2_result = {}
-            if core.manage.searchresults(data['guid2'], 'Finished', movie_info=data):
+            if Manage.searchresults(data['guid2'], 'Finished', movie_info=data):
                 guid2_result['update_SEARCHRESULTS'] = True
             else:
                 guid2_result['update_SEARCHRESULTS'] = False
 
-            if core.manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid'],
-                                         ):
+            if Manage.markedresults(data['guid2'], 'Finished', imdbid=data['imdbid']):
                 guid2_result['update_MARKEDRESULTS'] = True
             else:
                 guid2_result['update_MARKEDRESULTS'] = False
@@ -517,10 +517,10 @@ class Postprocessing(object):
             if not core.sql.row_exists('MOVIES', imdbid=data['imdbid']):
                 logging.info('{} not found in library, adding now.'.format(data.get('title')))
                 data['status'] = 'Disabled'
-                core.manage.add_movie(data)
+                Manage.add_movie(data)
 
             logging.info('Setting MOVIE status.')
-            r = core.manage.movie_status(data['imdbid'])
+            r = Manage.movie_status(data['imdbid'])
             db_update = {'finished_date': result['data']['finished_date'], 'finished_score': result['data'].get('finished_score')}
             core.sql.update_multiple_values('MOVIES', db_update, 'imdbid', data['imdbid'])
 
@@ -529,7 +529,7 @@ class Postprocessing(object):
             r = ''
         result['tasks']['update_movie_status'] = r
 
-        data.update(self.metadata.convert_to_db(data))
+        data.update(Metadata.convert_to_db(data))
 
         # mover. sets ['finished_file']
         if config['moverenabled']:

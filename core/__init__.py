@@ -44,10 +44,6 @@ SESSION_KEY = '_cp_username'                # Key to use when generating login s
 LANGUAGES = {}                              # Dict of language name: gettext object, ie {'es': <gettext_obj>}
 LANGUAGE = 'en'                             # Str first two letters of language code
 
-# Rate limiting
-TMDB_TOKENS = 35                            # Int begin amount of tokens for TMDB rate limiting
-TMDB_LAST_FILL = None                       # Obj datetime.datetime.now() of last time TMDB tokens have been filled
-
 # Global Media Constants
 SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P', 'BluRay-SD',
            'WebDL-4K', 'WebDL-1080P', 'WebDL-720P', 'WebDL-SD',
@@ -58,7 +54,6 @@ SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P', 'BluRay-SD',
 
 # Module instances
 sql = None
-manage = None
 updater = None
 
 # Plugin instances

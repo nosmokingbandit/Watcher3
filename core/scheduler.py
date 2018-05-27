@@ -15,12 +15,9 @@ from core.library import Metadata
 
 logging = logging.getLogger(__name__)
 
-md = Metadata()
+
 pp = postprocessing.Postprocessing()
-search = searcher.Searcher()
-imdb = imdb.ImdbRss()
-popular_feed = popularmovies.PopularMoviesFeed()
-trakt = trakt.Trakt()
+search = searcher
 
 
 def create_plugin():
@@ -190,7 +187,7 @@ class MetadataUpdate(object):
         logging.info('Updating metadata for: {}.'.format(', '.join([i['title'] for i in u])))
 
         for i in u:
-            md.update(i.get('imdbid'), tmdbid=i.get('tmdbid'), force_poster=False)
+            Metadata.update(i.get('imdbid'), tmdbid=i.get('tmdbid'), force_poster=False)
 
         return
 
@@ -268,7 +265,7 @@ class PopularMoviesSync(object):
         else:
             auto_start = False
 
-        SchedulerPlugin.ScheduledTask(hr, min, interval, popular_feed.get_feed, auto_start=auto_start, name='PopularMovies Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, popularmovies.sync_feed, auto_start=auto_start, name='PopularMovies Sync')
         return
 
 
@@ -293,5 +290,5 @@ class TraktSync(object):
         else:
             auto_start = False
 
-        SchedulerPlugin.ScheduledTask(hr, min, interval, trakt.trakt_sync, auto_start=auto_start, name='Trakt Sync')
+        SchedulerPlugin.ScheduledTask(hr, min, interval, trakt.sync, auto_start=auto_start, name='Trakt Sync')
         return

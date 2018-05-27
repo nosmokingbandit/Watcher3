@@ -72,10 +72,9 @@ if __name__ == '__main__':
         core.PLUGIN_DIR = passed_args.plugins
 
     # set up db connection
-    from core import sqldb, library
+    from core import sqldb
     core.sql = sqldb.SQL()
     core.sql.update_database()
-    core.manage = library.Manage()
 
     # set up config file on first launch
     from core import config

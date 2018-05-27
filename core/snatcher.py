@@ -5,6 +5,7 @@ import core
 from core import plugins
 from core import downloaders
 from core.helpers import Torrent
+from core.library import Manage
 
 logging = logging.getLogger(__name__)
 
@@ -276,15 +277,15 @@ def update_status_snatched(guid, imdbid):
     '''
     logging.info('Updating {} to Snatched.'.format(imdbid))
 
-    if not core.manage.searchresults(guid, 'Snatched'):
+    if not Manage.searchresults(guid, 'Snatched'):
         logging.error('Unable to update search result status to Snatched.')
         return False
 
-    if not core.manage.markedresults(guid, 'Snatched', imdbid=imdbid):
+    if not Manage.markedresults(guid, 'Snatched', imdbid=imdbid):
         logging.error('Unable to store marked search result as Snatched.')
         return False
 
-    if not core.manage.movie_status(imdbid):
+    if not Manage.movie_status(imdbid):
         logging.error('Unable to update movie status to Snatched.')
         return False
 
