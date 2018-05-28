@@ -12,7 +12,6 @@ window.addEventListener('DOMContentLoaded', function(){
 
     // Set select option's values
     each(document.getElementsByTagName('select'), function(select, i){
-        // @todo can remove var and make single line when downloader.js is updated
         var s = select.querySelector('option[value="'+select.getAttribute('value')+'"]')
         if(s){
             s.setAttribute('selected', true);
