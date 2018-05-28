@@ -403,7 +403,7 @@ function open_info_modal(event, elem){
                               </li>`;
         }
         var modal = format_template(templates.info, movie);
-	movie['title_escape'] = movie['title'].replace(/'/g, "\\'");
+	    movie['title_escape'] = movie['title'].replace(/'/g, "\\'");
         $movie_status_modal = $(modal);
 
         $movie_status_modal.data("movie", movie);
@@ -421,6 +421,10 @@ function open_info_modal(event, elem){
         }
 
         $movie_status_modal.modal("show");
+        $movie_status_modal.on('hidden.bs.modal', function(){
+            this.parentNode.removeChild(this);
+        })
+
     })
     .fail(function(data){
         var err = data.status + " " + data.statusText
@@ -452,7 +456,7 @@ function _results_table(results){
 }
 
 function manual_search(event, button, imdbid){
-    $i = button.querySelector('i.mdi');
+    var $i = button.querySelector('i.mdi');
 
     $i.classList.remove("mdi-magnify");
     $i.classList.add("mdi-circle");
