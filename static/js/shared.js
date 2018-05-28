@@ -44,7 +44,7 @@ $.notifyDefaults({type: "success",
                     });
 
 function remove_notif(){
-    var index = this.dataset.index;
+    var index = this[0].dataset.index;
     if(index === undefined){
         return false;
     }
