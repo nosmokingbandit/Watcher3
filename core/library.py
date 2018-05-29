@@ -705,6 +705,70 @@ class Manage(object):
     '''
 
     @staticmethod
+    def verify(movie, today=None):
+        ''' Checks for verfied releases based on config
+        movie (dict): movie info
+        today (obj): datetime.datetime.today() object   <optional - default calls datetime.dateimte.today()>
+
+        Checks (in order):
+            If verify releases is enabled
+            If movie has a theatrical release date
+            If theatrical release date is older than skip weeks per user config
+            If predb verification -- check predb
+            If home media release verification - check if release is in the past
+
+            If all enabled conditions fail, return False
+
+        Returns Bool
+        '''
+        today = today or datetime.datetime.today()
+
+        if core.CONFIG['Search']['verifyreleases'] == '':
+            verified = True
+        elif not movie.get('release_date'):
+            logging.info('{} does not have a theatrical release date, skipping verification check as Unverified.'.format(movie['title']))
+            verified = False
+        elif core.CONFIG['Search']['verifyreleasesskip'] and datetime.datetime.strptime(movie['release_date'], '%Y-%m-%d') + datetime.timedelta(days=7 * core.CONFIG['Search']['verifyreleasesskipweeks']) < today:
+            logging.info('{} is older than {}, skipping verification check as Verified.'.format(movie['title'], core.CONFIG['Search']['verifyreleasesskipweeks']))
+            verified = True
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'predb':
+            if movie.get('predb') == 'found':
+                verified = True
+            else:
+                verified = False
+
+        elif core.CONFIG['Search']['verifyreleases'] == 'mediareleasedate':
+            if not movie.get('predb') and movie.get('predb_backlog'):
+                logging.debug('Resetting predb backlog status for unfound movie {} {}'.format(movie['title'], movie['year']))
+                core.sql.update('MOVIES', 'predb_backlog', None, 'imdbid', movie['imdbid'])
+            if not movie.get('media_release_date'):
+                logging.info('{} does not yet have a home media release date.'.format(movie['title']))
+                verified = False
+            else:
+                media_release = datetime.datetime.strptime(movie['media_release_date'], '%Y-%m-%d')
+                if media_release < today:
+                    verified = True
+                else:
+                    verified = False
+        else:
+            verified = False
+
+        if verified and movie['status'] == 'Waiting':
+            logging.info('Verification criteria met for {} {}, setting status to Wanted'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Wanted', 'imdbid', movie['imdbid'])
+        elif not verified and movie['status'] not in ('Waiting', 'Disabled'):
+            logging.info('Verified criteria not met for {} {}, resetting setting status to Waiting'.format(movie['title'], movie['year']))
+            core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', movie['imdbid'])
+
+        if verified:
+            logging.info('{} passes verification checks, will include title in search.'.format(movie['title']))
+        else:
+            logging.info('{} does not pass verification checks, will ignore for now.'.format(movie['title']))
+
+        return verified
+
+    @staticmethod
     def add_movie(movie, full_metadata=False):
         ''' Adds movie to Wanted list.
         movie (dict): movie info to add to database.
@@ -937,7 +1001,7 @@ class Manage(object):
         elif 'Available' in result_status:
             new_status = 'Found'
         else:
-            new_status = 'Wanted' if searcher.verify(movie) else 'Waiting'
+            new_status = 'Wanted' if Manage.verify(movie) else 'Waiting'
 
         logging.info('Setting MOVIES {} status to {}.'.format(imdbid, new_status))
         if core.sql.update('MOVIES', 'status', new_status, 'imdbid', imdbid):
