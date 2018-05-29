@@ -26,7 +26,7 @@ def grab_all():
     ''' Grabs best result for all movies in library
 
     Automatically determines which movies can be grabbed or re-grabbed and
-        executes get_best_release() to find best result then sends release
+        executes best_release() to find best result then sends release
         dict to download()
 
     Returns bool (False is no movies to grab, True if any movies were attempted)
@@ -52,7 +52,7 @@ def grab_all():
 
         if status == 'Found':
             logging.info('{} status is Found. Running automatic snatcher.'.format(title))
-            best_release = get_best_release(movie)
+            best_release = best_release(movie)
             if best_release:
                 download(best_release)
             continue
@@ -65,7 +65,7 @@ def grab_all():
             if finished_date_obj + keepsearchingdelta >= today:
                 minscore = (movie.get('finished_score') or 0) + keepsearchingscore
                 logging.info('{} {} was marked Finished on {}. Checking for a better release (min score {}).'.format(title, year, finished_date, minscore))
-                best = get_best_release(movie, minscore=minscore)
+                best = best_release(movie, minscore=minscore)
                 if best:
                     download(best)
                 continue
@@ -76,7 +76,7 @@ def grab_all():
     logging.info('######### Automatic search/snatch complete #########')
 
 
-def get_best_release(movie, minscore=0):
+def best_release(movie, minscore=0):
     ''' Grabs the best scoring result that isn't 'Bad'
     movie (dict): movie info from local db
     minscore (int): minimum acceptable score for best release   <optional - default 0>
