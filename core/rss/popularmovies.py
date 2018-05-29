@@ -68,5 +68,6 @@ def _sync_new_movies(movies):
         movie['quality'] = 'Default'
         movie['origin'] = 'PopularMovies'
         added = Manage.add_movie(movie)
-        if added['response'] and core.CONFIG['Search']['searchafteradd']:
+
+        if added['response'] and core.CONFIG['Search']['searchafteradd'] and movie['year'] != 'N/A':
             searcher.search(imdbid, movie['title'], movie['year'], movie['quality'])

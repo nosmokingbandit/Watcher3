@@ -1,6 +1,7 @@
 import core
 from core.movieinfo import TheMovieDatabase
 from core.library import Manage
+from core import searcher
 import cherrypy
 import threading
 import os
@@ -260,7 +261,11 @@ class API(object):
         movie['status'] = 'Waiting'
         movie['origin'] = origin
 
-        return Manage.add_movie(movie, full_metadata=True)
+        response = Manage.add_movie(movie, full_metadata=True)
+        if response['response'] and core.CONFIG['Search']['searchafteradd'] and movie['year'] != 'N/A':
+            threading.Thread(target=searcher._t_search_grab, args=(movie,)).start()
+
+        return response
 
     @api_json_out
     def removemovie(self, params):

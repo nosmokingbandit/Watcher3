@@ -4,7 +4,7 @@ import datetime
 import logging
 import csv
 import threading
-from core import searchresults, plugins, searcher
+from core import searchresults, plugins
 import core
 from core.movieinfo import TheMovieDatabase, Poster
 from core.helpers import Url
@@ -760,20 +760,16 @@ class Manage(object):
         if not core.sql.write('MOVIES', movie):
             response['response'] = False
             response['error'] = _('Could not write to database.')
-            return response
         else:
             if poster_path:
                 poster_url = 'http://image.tmdb.org/t/p/w300/{}'.format(poster_path)
                 threading.Thread(target=Poster.save, args=(movie['imdbid'], poster_url)).start()
 
-            if movie['status'] != 'Disabled' and movie['year'] != 'N/A':  # disable immediately grabbing new release for imports
-                threading.Thread(target=searcher._t_search_grab, args=(movie,)).start()
-
             response['response'] = True
             response['message'] = _('{} {} added to library.').format(movie['title'], movie['year'])
             plugins.added(movie['title'], movie['year'], movie['imdbid'], movie['quality'])
 
-            return response
+        return response
 
     @staticmethod
     def remove_movie(imdbid):

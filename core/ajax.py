@@ -133,7 +133,12 @@ class Ajax(object):
         '''
         movie = json.loads(data)
 
-        return Manage.add_movie(movie, full_metadata=False)
+        response = Manage.add_movie(movie, full_metadata=False)
+
+        if response['response'] and core.CONFIG['Search']['searchafteradd'] and movie['year'] != 'N/A':
+            threading.Thread(target=searcher._t_search_grab, args=(movie,)).start()
+
+        return response
 
     @cherrypy.expose
     @cherrypy.tools.json_out()

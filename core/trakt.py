@@ -52,11 +52,12 @@ def sync():
     for i in movies:
         imdbid = i['ids']['imdb']
         logging.info('Adding movie {} {} from Trakt'.format(i['title'], imdbid))
+
         added = Manage.add_movie({'id': i['ids']['tmdb'],
                                   'imdbid': i['ids']['imdb'],
                                   'title': i['title'],
                                   'origin': 'Trakt'})
-        if added['response'] and core.CONFIG['Search']['searchafteradd']:
+        if added['response'] and core.CONFIG['Search']['searchafteradd'] and i['year'] != 'N/A':
             searcher.search(imdbid, i['title'], i['year'], core.config.default_profile())
 
     return success
@@ -114,7 +115,11 @@ def sync_rss():
                     if movie:
                         movie['origin'] = 'Trakt'
                         logging.info('Found new watchlist movie {} {}'.format(title, year))
-                        Manage.add_movie(movie)
+
+                        r = Manage.add_movie(movie)
+
+                        if r['response'] and core.CONFIG['Search']['searchafteradd'] and movie['year'] != 'N/A':
+                            searcher.search(movie['imdbid'], movie['title'], movie['year'], core.config.default_profile())
                     else:
                         logging.warning('Unable to find {} {} on TheMovieDatabase'.format(title, year))
 
