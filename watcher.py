@@ -96,7 +96,7 @@ if __name__ == '__main__':
     try:
         print('Clearing Mako cache.')
         shutil.rmtree(core.MAKO_CACHE)
-    except FileNotFoundError:
+    except FileNotFoundError:  # noqa: F821 : Flake8 doesn't know about some built-in exceptions
         pass
     except Exception as e:
         print('\033[31m Unable to clear Mako cache. \033[0m')
