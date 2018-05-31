@@ -399,7 +399,7 @@ function open_info_modal(event, elem){
             movie["table"] = _results_table(response["results"]);
         } else {
             movie["table"] = `<li class="search_result list-group-item">
-                                  <span>Nothing found yet. Next search sheduled for ${response["next"]}.</span>
+                                  <span>Nothing found yet. Next search scheduled for ${response["next"]}.</span>
                               </li>`;
         }
         var modal = format_template(templates.info, movie);
@@ -475,7 +475,7 @@ function manual_search(event, button, imdbid){
             $search_results_table.innerHTML = _results_table(response["results"]);
         } else if(response["response"] == true && response["results"].length == 0){
             table = `<div class="search_result list-group-item">
-                         <span>Nothing found yet. Next search sheduled for ${response["next"]}.</span>
+                         <span>Nothing found yet. Next search scheduled for ${response["next"]}.</span>
                      </div>`;
             $search_results_table.innerHTML = table;
         } else {
