@@ -2,9 +2,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib'))
 
-MIN_PYTHON = (3, 0, 0)
-if sys.version_info < MIN_PYTHON:
-    print('Python {} or newer required.'.format('.'.join(MIN_PYTHON)))
+if sys.version_info < (3, 0, 0):
+    print('Python 3.0 or newer required. Currently {}.'.format(sys.version.split(' ')[0]))
     sys.exit(1)
 
 import core         # noqa
