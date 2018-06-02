@@ -611,6 +611,9 @@ class Metadata(object):
         else:
             movie['sort_title'] = movie['title']
 
+        if not movie.get('filters'):
+            movie['filters'] = '{"preferredwords": "", "requiredwords": "", "ignoredwords": ""}'
+
         for k, v in movie.items():
             if isinstance(v, str):
                 movie[k] = v.strip()
