@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 8
+current_version = 9
 
 
 class SQL(object):
@@ -973,5 +973,20 @@ class DatabaseUpdate(object):
     def update_8():
         ''' Add filters column to MOVIES '''
         core.sql.update_tables()
+
+    @staticmethod
+    def update_9():
+        values = []
+
+        d = core.sql.dump('MOVIES')
+        l = len(d)
+
+        for ind, i in enumerate(d):
+            print('{}%\r'.format(int((ind + 1) / l * 100)), end='')
+            if not i['filters']:
+                values.append({'imdbid': i['imdbid'], 'filters': '{"preferredwords": "", "requiredwords": "", "ignoredwords": ""}'})
+        if values:
+            core.sql.update_multiple_rows('MOVIES', values, 'imdbid')
+        print()
 
     # Adding a new method? Remember to update the current_version #
