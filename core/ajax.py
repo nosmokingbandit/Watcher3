@@ -464,20 +464,21 @@ class Ajax(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def update_movie_options(self, quality, status, imdbid):
+    def update_movie_options(self, quality, status, filters, imdbid):
         ''' Updates quality settings for individual title
         quality (str): name of new quality
         status (str): management state ('automatic', 'disabled')
+        filters (str): JSON.stringified dict of filter words
         imdbid (str): imdb identification number
 
         Returns dict ajax-style response
         '''
 
-        success = {'response': True, 'message': _('Movie settings updated.')}
+        success = {'response': True, 'message': _('Movie options updated.')}
 
-        logging.info('Updating quality profile to {} for {}.'.format(quality, imdbid))
+        logging.info('Setting Quality and filters for {}.'.format(imdbid))
 
-        if not core.sql.update('MOVIES', 'quality', quality, 'imdbid', imdbid):
+        if not core.sql.update_multiple_values('MOVIES', {'quality': quality, 'filters': filters}, 'imdbid', imdbid):
             return {'response': False, 'error': Errors.database_write}
 
         logging.info('Updating status to {} for {}.'.format(status, imdbid))

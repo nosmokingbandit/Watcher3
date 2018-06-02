@@ -30,6 +30,7 @@ i.mdi{
     user-select: none;
     cursor: pointer;
     transition: none;
+    text-align: center;
 }
 
 i.mdi.animated{
@@ -170,6 +171,10 @@ ul.dropdown-menu > li{
 /* Bootstrap Overrides */
 table.table th{
     padding: .4rem;
+}
+
+h5{
+    display: inline-block;
 }
 
 /* Always hide hacks at the bottom and hope nobody sees it */

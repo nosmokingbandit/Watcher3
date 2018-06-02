@@ -4,6 +4,7 @@ import datetime
 from base64 import b16encode
 import core
 from core.helpers import Url
+import json
 
 logging = logging.getLogger(__name__)
 
@@ -66,9 +67,11 @@ def score(releases, imdbid=None, imported=False):
 
     sources = quality['Sources']
 
-    required_groups = [i.split('&') for i in quality['requiredwords'].lower().replace(' ', '').split(',') if i != '']
-    preferred_groups = [i.split('&') for i in quality['preferredwords'].lower().replace(' ', '').split(',') if i != '']
-    ignored_groups = [i.split('&') for i in quality['ignoredwords'].lower().replace(' ', '').split(',') if i != '']
+    filters = json.loads(movie_details['filters'])
+
+    required_groups = [i.split('&') for i in (quality['requiredwords'] + ',' + filters['requiredwords']).lower().replace(' ', '').split(',') if i != '']
+    preferred_groups = [i.split('&') for i in (quality['preferredwords'] + ',' + filters['preferredwords']).lower().replace(' ', '').split(',') if i != '']
+    ignored_groups = [i.split('&') for i in (quality['ignoredwords'] + ',' + filters['ignoredwords']).lower().replace(' ', '').split(',') if i != '']
 
     # Begin scoring and filtering
     reset(releases)

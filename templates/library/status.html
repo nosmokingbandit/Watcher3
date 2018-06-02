@@ -3,9 +3,9 @@
 
 <head>
     ${head}
-    <link href="${url_base}/static/css/library/status.css?v=010" rel="stylesheet">
+    <link href="${url_base}/static/css/library/status.css?v=011" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=010" type="text/javascript"></script>
-    <script src="${url_base}/static/js/library/status.js?v=017" type="text/javascript"></script>
+    <script src="${url_base}/static/js/library/status.js?v=018" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
     <meta name="finished_count" content="${finished_count}" />
 </head>
@@ -147,45 +147,80 @@
                                 <img src="{url_base}/posters/{poster}" class="img-fluid poster">
                             </div>
                             <div class="col-md-4">
+                                <div id='movie_actions'>
+                                    <div class="btn-group d-flex mb-4">
+                                        <button class="btn btn-secondary w-100" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </button>
+                                        <button class="btn btn-secondary w-100" title="Update Metadata" onclick="update_metadata(event, this, '{imdbid}', '{tmdbid}')">
+                                            <i class="mdi mdi-tag-text-outline"></i>
+                                        </button>
+                                        <button class="btn btn-secondary w-100" title="Remove from Library" onclick="remove_movie(event, this, '{imdbid}')">
+                                            <i class="mdi mdi-delete"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <p class="plot">{plot}</p>
                             </div>
 
-                            <div id='movie_actions' class="col-md-5">
-                                <div class="btn-group d-flex mb-5">
-                                    <button class="btn btn-secondary w-100" title="Force Backlog Search" onclick="manual_search(event, this, '{imdbid}')">
-                                        <i class="mdi mdi-magnify"></i>
-                                    </button>
-                                    <button class="btn btn-secondary w-100" title="Update Metadata" onclick="update_metadata(event, this, '{imdbid}', '{tmdbid}')">
-                                        <i class="mdi mdi-tag-text-outline"></i>
-                                    </button>
-                                    <button class="btn btn-secondary w-100" title="Remove from Library" onclick="remove_movie(event, this, '{imdbid}')">
-                                        <i class="mdi mdi-delete"></i>
-                                    </button>
+                            <div class="col-md-5">
+
+                                <div class="col-md-12 p-0">
+                                    <h5>Options</h5>
+                                    <i id="switch_settings" class="mdi mdi-plus float-right" title="Advanced Settings" onclick="swap_settings(event)" data-open="basic"></i>
                                 </div>
 
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">
-                                            <i class="mdi mdi-video" title="${_('Quality Profile')}"></i>
-                                        </span>
+                                <div id="settings_basic">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="mdi mdi-video" title="${_('Quality Profile')}"></i>
+                                            </span>
+                                        </div>
+                                        <select id="movie_quality" class="btn border btn-light border form-control">
+                                            %for i in profiles:
+                                            <option value="${i}">${i}</option>
+                                            %endfor
+                                        </select>
                                     </div>
-                                    <select id="movie_quality" class="btn border btn-light border form-control">
-                                        %for i in profiles:
-                                        <option value="${i}">${i}</option>
-                                        %endfor
-                                    </select>
-                                </div>
 
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">
-                                            <i class="mdi mdi-label-outline" title="${_('Status')}"></i>
-                                        </span>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="mdi mdi-label-outline" title="${_('Status')}"></i>
+                                            </span>
+                                        </div>
+                                        <select id="movie_status" class="btn btn-light border border form-control">
+                                            <option value="Automatic">${_('Automatic')}</option>
+                                            <option value="Disabled">${_('Finished')}</option>
+                                        </select>
                                     </div>
-                                    <select id="movie_status" class="btn btn-light border border form-control">
-                                        <option value="Automatic">${_('Automatic')}</option>
-                                        <option value="Disabled">${_('Finished')}</option>
-                                    </select>
+                                </div>
+                                <div id="settings_advanced" class="hide" title="${_('Group words with ampersands and split groups with commas')}">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                    ${_('Required Words')}
+                                            </span>
+                                        </div>
+                                        <input type="text" id="requiredwords" class="form-control" value="{requiredwords}">
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                    ${_('Preferred Words')}
+                                            </span>
+                                        </div>
+                                        <input type="text" id="preferredwords" class="form-control" placeholder='this&is&a&group, one, two, three' value="{preferredwords}">
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                    ${_('Ignored Words')}
+                                            </span>
+                                        </div>
+                                        <input type="text" id="ignoredwords" class="form-control" value="{ignoredwords}">
+                                    </div>
                                 </div>
 
                                 <button id="update_movie_options" class="btn btn-success border btn-block mt-3" onclick="update_movie_options(event, this, '{imdbid}')">

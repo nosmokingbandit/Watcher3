@@ -384,6 +384,8 @@ function open_info_modal(event, elem){
     event.preventDefault();
 
     var movie = JSON.parse(elem.dataset.movie);
+    Object.assign(movie, JSON.parse(movie.filters)); // Merges filters column from db into movies object for templating
+
     if(movie["origin"] === null){
         movie["origin"] = ""
     }
@@ -403,6 +405,7 @@ function open_info_modal(event, elem){
                               </li>`;
         }
         var modal = format_template(templates.info, movie);
+
 	    movie['title_escape'] = movie['title'].replace(/'/g, "\\'");
         $movie_status_modal = $(modal);
 
@@ -613,9 +616,15 @@ function update_movie_options(event, elem, imdbid){
     var quality = document.getElementById('movie_quality').value;
     var status = document.getElementById('movie_status').value;
 
+    var filters = {};
+    each(document.querySelectorAll('#settings_advanced input'), function(input){
+        filters[input.id] = input.value;
+    });
+
     $.post(url_base+"/ajax/update_movie_options", {
         "quality": quality,
         "status": status,
+        "filters": JSON.stringify(filters),
         "imdbid": imdbid
     })
     .done(function(response){
@@ -744,6 +753,27 @@ function update_release_status(guid, status){
     if(label){
         label.textContent = status;
         label.classList = `badge badge-${status_colors[status]} status`;
+    }
+
+}
+
+function swap_settings(event){
+    // Changes modal between basic and advanced settings
+
+    var $i = event.target;
+    var $basic = document.getElementById('settings_basic');
+    var $advanced = document.getElementById('settings_advanced');
+
+    if($i.dataset.open == 'basic'){
+        $i.style.transform = 'rotate(-135deg)';
+        $advanced.classList.remove('hide');
+        $basic.classList.add('hide');
+        $i.dataset.open = 'advanced';
+    } else {
+        $i.style.transform = 'rotate(0deg)';
+        $advanced.classList.add('hide');
+        $basic.classList.remove('hide');
+        $i.dataset.open = 'basic';
     }
 
 }

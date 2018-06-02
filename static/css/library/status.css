@@ -150,16 +150,35 @@ img.poster{
     max-height: 18em;
 }
 
-div#movie_actions{
-    text-align: center;
-}
-
-div#movie_actions > div{
-    margin: 0.25em 0;
-}
-
 div.modal-body p.plot{
     text-indent: 1.5em;
+}
+
+i#switch_settings{
+    transition: 0.25s;
+}
+
+div#settings_basic,
+div#settings_advanced{
+    transition: 0.75s;
+    opacity: 1.0;
+    max-height: 13.5em;
+    overflow-y: hidden;
+}
+
+div#settings_basic > div,
+div#settings_advanced > div{
+    margin-bottom: 1em;
+}
+
+div#settings_basic.hide,
+div#settings_advanced.hide{
+    opacity: 0.0;
+    max-height: 0em;
+}
+
+div#settings_advanced span.input-group-text{
+    font-size: 0.8em;
 }
 
 /* Search Results table */

@@ -10,7 +10,7 @@ import sqlalchemy as sqla
 
 logging = logging.getLogger(__name__)
 
-current_version = 7
+current_version = 8
 
 
 class SQL(object):
@@ -60,7 +60,8 @@ class SQL(object):
                                  sqla.Column('alternative_titles', sqla.TEXT),
                                  sqla.Column('media_release_date', sqla.TEXT),
                                  sqla.Column('origin', sqla.TEXT),
-                                 sqla.Column('sort_title', sqla.TEXT)
+                                 sqla.Column('sort_title', sqla.TEXT),
+                                 sqla.Column('filters', sqla.TEXT)
                                  )
         self.SEARCHRESULTS = sqla.Table('SEARCHRESULTS', self.metadata,
                                         sqla.Column('score', sqla.SMALLINT),
@@ -967,5 +968,10 @@ class DatabaseUpdate(object):
         if values:
             core.sql.update_multiple_rows('SEARCHRESULTS', values, 'guid')
         print()
+
+    @staticmethod
+    def update_8():
+        ''' Add filters column to MOVIES '''
+        core.sql.update_tables()
 
     # Adding a new method? Remember to update the current_version #
