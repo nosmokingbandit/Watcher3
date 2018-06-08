@@ -166,6 +166,7 @@ def keep_required(releases, group_list):
     keep = []
 
     logging.info('Filtering Required Words.')
+    logging.debug('Required Words: {}'.format(str(group_list)))
     for r in releases:
         if r['type'] == 'import' and r not in keep:
             keep.append(r)

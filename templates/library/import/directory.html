@@ -3,7 +3,7 @@
     <head>
         ${head}
         <link href="${url_base}/static/css/library/import/directory.css?v=010" rel="stylesheet">
-        <script src="${url_base}/static/js/library/import/shared.js?v=010" type="text/javascript"></script>
+        <script src="${url_base}/static/js/library/import/shared.js?v=011" type="text/javascript"></script>
         <script src="${url_base}/static/js/library/import/directory.js?v=011" type="text/javascript"></script>
     </head>
     <body>
@@ -78,7 +78,20 @@
                 </div>
 
                 <div id="complete_movies" class="hidden">
-                    <h3 class="ml-3">${_('Found Movies')}</h3>
+                    <h3 class="ml-3 d-inline-block">
+                        ${_('Found Movies')}
+                    </h3>
+                    <div class="btn-group float-right mr-3 mb-3">
+                        <button class="btn btn-sm btn-light border" onclick="select_all('complete_movies')" title="Select All">
+                            <i class="mdi mdi-checkbox-multiple-marked"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" onclick="select_none('complete_movies')" title="De-Select All">
+                            <i class="mdi mdi-checkbox-multiple-blank-outline"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" onclick="select_inverse('complete_movies')" title="Invert Selection">
+                            <i class="mdi mdi-minus-box"></i>
+                        </button>
+                    </div>
                     <table class="table table-hover table-sm">
                         <thead>
                             <tr>
@@ -95,8 +108,21 @@
                     </table>
                 </div>
                 <div id="incomplete_movies" class="hidden">
-                    <h3 class="ml-3">${_('Incomplete Movies')}</h3>
-                    <p class="mx-3">${_('The following movies are missing key information. Review and correct as needed.')}</p>
+                    <h3 class="ml-3">
+                        ${_('Incomplete Movies')}
+                    </h3>
+                    <span class="mx-3 d-inline-block">${_('The following movies are missing key information. Review and correct as needed.')}</span>
+                    <div class="btn-group float-right mr-3 mb-3">
+                        <button class="btn btn-sm btn-light border" onclick="select_all('incomplete_movies')" title="Select All">
+                            <i class="mdi mdi-checkbox-multiple-marked"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" onclick="select_none('incomplete_movies')" title="De-Select All">
+                            <i class="mdi mdi-checkbox-multiple-blank-outline"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" onclick="select_inverse('incomplete_movies')" title="Invert Selection">
+                            <i class="mdi mdi-minus-box"></i>
+                        </button>
+                    </div>
                     <table class="table table-hover table-sm">
                         <thead>
                             <tr>

@@ -46,3 +46,47 @@ function set_stepper(value){
         }
     })
 }
+
+function select_all(table){
+    // table (str): table id to apply select to
+    event.preventDefault();
+    var $checkboxes = document.querySelectorAll(`div#${table} > table i.c_box`);
+    each($checkboxes, function(checkbox){
+        checkbox.setAttribute('value', 'False');
+        checkbox_switch({target: checkbox});
+    });
+}
+
+function select_none(table){
+    // table (str): table id to apply select to
+    event.preventDefault();
+    var $checkboxes = document.querySelectorAll(`div#${table} > table i.c_box`);
+    each($checkboxes, function(checkbox){
+        checkbox.setAttribute('value', 'True');
+        checkbox_switch({target: checkbox});
+    });
+}
+
+function select_inverse(table){
+    // table (str): table id to apply select to
+    event.preventDefault();
+    var $checkboxes = document.querySelectorAll(`div#${table} > table i.c_box`);
+    each($checkboxes, function(checkbox){
+        checkbox_switch({target: checkbox});
+    });
+}
+
+function checkbox_switch(event){
+    var checkbox = event.target;
+    // turn on
+    if(checkbox.getAttribute("value") == "False"){
+        checkbox.setAttribute("value", "True");
+        checkbox.classList.remove("mdi-checkbox-blank-outline");
+        checkbox.classList.add("mdi-checkbox-marked");
+    // turn off
+    } else if(checkbox.getAttribute("value") == "True"){
+        checkbox.setAttribute('value', 'False');
+        checkbox.classList.remove("mdi-checkbox-marked");
+        checkbox.classList.add("mdi-checkbox-blank-outline");
+    }
+};
