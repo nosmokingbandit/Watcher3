@@ -48,6 +48,7 @@ def score(releases, imdbid=None, imported=False):
         titles = []
         check_size = False
         movie_details = {'year': '\n'}
+        filters = {'requiredwords': '', 'preferredwords': '', 'ignoredwords': ''}
         quality = import_quality()
     else:
         movie_details = core.sql.get_movie_details('imdbid', imdbid)
@@ -65,9 +66,9 @@ def score(releases, imdbid=None, imported=False):
         else:
             quality = core.CONFIG['Quality']['Profiles'][core.config.default_profile()]
 
-    sources = quality['Sources']
+        filters = json.loads(movie_details['filters'])
 
-    filters = json.loads(movie_details['filters'])
+    sources = quality['Sources']
 
     required_groups = [i.split('&') for i in (quality['requiredwords'] + ',' + filters['requiredwords']).lower().replace(' ', '').split(',') if i != '']
     preferred_groups = [i.split('&') for i in (quality['preferredwords'] + ',' + filters['preferredwords']).lower().replace(' ', '').split(',') if i != '']
