@@ -249,8 +249,9 @@ class Postprocessing(object):
                         if size > s:
                             biggestfile = f
                             s = size
-            except Exception as e:
+            except Exception as e:  # noqa
                 logging.warning('Unable to find file to process.', exc_info=True)
+                return None
 
             if biggestfile:
                 minsize = core.CONFIG['Postprocessing']['Scanner']['minsize'] * 1048576
@@ -660,6 +661,7 @@ class Postprocessing(object):
 
         Returns str new file name (blank string on failure)
         '''
+        logging.info('## Renaming Downloaded Files')
 
         config = core.CONFIG['Postprocessing']
 
@@ -693,7 +695,7 @@ class Postprocessing(object):
             os.rename(data['finished_file'], os.path.join(path, new_name))
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception as e:
+        except Exception as e:  # noqa
             logging.error('Renamer failed: Could not rename file.', exc_info=True)
             return ''
 
@@ -726,12 +728,12 @@ class Postprocessing(object):
                 os.remove(os.path.join(recycle_bin, file_name))
             shutil.move(abs_filepath, recycle_bin)
             return True
-        except Exception as e:
+        except Exception as e:  # noqa
             logging.error('Recycling failed: Could not move file.', exc_info=True)
             return False
 
     def remove_additional_files(self, movie_file):
-        ''' Removes addtional associated file of movie_file
+        ''' Removes addtional associated files of movie_file
         movie_file (str): absolute file path of old movie file
 
         Removes any file in original_file's directory that share the same file name
@@ -741,7 +743,7 @@ class Postprocessing(object):
         Returns bool
         '''
 
-        logging.info('Removing additional files for {}'.format(movie_file))
+        logging.info('## Removing additional files for {}'.format(movie_file))
 
         path, file_name = os.path.split(movie_file)
 
@@ -752,7 +754,7 @@ class Postprocessing(object):
                 logging.info('Removing additional file {}'.format(i))
                 try:
                     os.remove(os.path.join(path, i))
-                except Exception as e:
+                except Exception as e:  # noqa
                     logging.warning('Unable to remove {}'.format(i), exc_info=True)
                     return False
         return True
@@ -772,6 +774,7 @@ class Postprocessing(object):
 
         Returns str new file location (blank string on failure)
         '''
+        logging.info('## Moving Downloaded Files')
 
         config = core.CONFIG['Postprocessing']
         if config['recyclebinenabled']:
@@ -886,7 +889,7 @@ class Postprocessing(object):
                         try:
                             logging.info('Moving {} to {}'.format(old_abs_path, target_file))
                             shutil.copyfile(old_abs_path, target_file)
-                        except Exception as e:
+                        except Exception as e:  # noqa
                             logging.error('Moving additional files failed: Could not copy {}.'.format(old_abs_path), exc_info=True)
         return new_file_location
 
@@ -912,7 +915,7 @@ class Postprocessing(object):
             try:
                 os.remove(path)
                 return True
-            except Exception as e:
+            except Exception as e:  # noqa
                 logging.error('Could not delete path.', exc_info=True)
                 return False
         else:
