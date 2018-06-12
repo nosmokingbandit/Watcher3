@@ -180,11 +180,6 @@ class Postprocessing(object):
 
         # get the actual movie file name
         data['original_file'] = self.get_movie_file(data['path'], check_size=False if data['mode'] == 'failed' else True)
-        if not data['original_file']:
-            logging.warning('Unable to find movie file to process.')
-            return {'response': False, 'error': 'No files to process'}
-
-        data['parent_dir'] = os.path.basename(os.path.dirname(data['original_file']))
 
         # Get possible local data or get TMDB data to merge with self.params.
         logging.info('Gathering release information.')
@@ -542,7 +537,7 @@ class Postprocessing(object):
                 result['tasks']['mover']['response'] = True
         else:
             logging.info('Mover disabled.')
-            data['finished_file'] = data['original_file']
+            data['finished_file'] = data.get('original_file')
             result['tasks']['mover'] = {'enabled': False}
 
         # renamer
@@ -693,7 +688,7 @@ class Postprocessing(object):
 
         new_name = new_name + ext
 
-        logging.info('Renaming {} to {}'.format(os.path.basename(data['original_file']), new_name))
+        logging.info('Renaming {} to {}'.format(os.path.basename(data.get('original_file')), new_name))
         try:
             os.rename(data['finished_file'], os.path.join(path, new_name))
         except (SystemExit, KeyboardInterrupt):
