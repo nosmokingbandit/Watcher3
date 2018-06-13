@@ -94,7 +94,7 @@ def best_release(movie, minscore=0):
         year = movie['year']
         title = movie['title']
         release_date = movie['release_date']
-    except Exception as e:
+    except Exception as e:  # noqa
         logging.error('Invalid movie data.', exc_info=True)
         return {}
 

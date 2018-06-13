@@ -1,7 +1,7 @@
 import logging
 import json
 import core
-from core.helpers import Torrent, Url
+from core.helpers import Url
 from urllib.parse import quote as urlquote
 
 cookie = None
@@ -184,7 +184,7 @@ def get_task_id(url_base, uri):
         for i in response['data']['tasks']:
             if i['additional']['detail']['uri'] == uri:
                 return i['id']
-    except Exception as e:
+    except Exception as e:  # noqa
         return ''
 
 
@@ -210,7 +210,7 @@ def cancel_download(downloadid):
             response = json.loads(response.text)
     except (SystemExit, KeyboardInterrupt):
         raise
-    except Exception as e:
+    except Exception as e:  # noqa
         logging.error('DownloadStation cancel_download', exc_info=True)
         return False
 
