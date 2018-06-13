@@ -37,7 +37,7 @@ def _t_search_grab(movie):
         return
 
     if core.CONFIG['Search']['searchafteradd'] and search(imdbid, title, year, quality) and core.CONFIG['Search']['autograb']:
-        best_release = snatcher.best_release(movie)
+        best_release = snatcher.get_best_release(movie)
         if best_release:
             snatcher.download(best_release)
 

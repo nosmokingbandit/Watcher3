@@ -423,7 +423,7 @@ class Postprocessing(object):
             result['tasks']['autograb'] = {'enabled': True}
             logging.info('Grabbing the next best release.')
             if data.get('imdbid') and data.get('quality'):
-                best_release = snatcher.best_release(data)
+                best_release = snatcher.get_best_release(data)
                 if best_release and snatcher.download(best_release):
                     r = True
                 else:
