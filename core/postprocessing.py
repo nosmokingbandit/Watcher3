@@ -180,7 +180,7 @@ class Postprocessing(object):
 
         # get the actual movie file name
         data['original_file'] = self.get_movie_file(data['path'], check_size=False if data['mode'] == 'failed' else True)
-        data['parent_dir'] = os.path.basename(os.path.dirname(data['original_file'])) if data.get('original_files') else ''
+        data['parent_dir'] = os.path.basename(os.path.dirname(data['original_file'])) if data.get('original_file') else ''
 
 
         # Get possible local data or get TMDB data to merge with self.params.
