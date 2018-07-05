@@ -12,6 +12,7 @@ os.chdir(core.PROG_PATH)
 core.SCRIPT_PATH = os.path.join(core.PROG_PATH, os.path.basename(__file__))
 if os.name == 'nt':
     core.PLATFORM = 'windows'
+    from core.cp_plugins import systray
 else:
     core.PLATFORM = '*nix'
 
@@ -120,8 +121,6 @@ if __name__ == '__main__':
     if core.CONFIG['Server']['customwebroot']:
         core.URL_BASE = core.CONFIG['Server']['customwebrootpath']
 
-    core.SERVER_URL = 'http://{}:{}{}'.format(core.SERVER_ADDRESS, core.SERVER_PORT, core.URL_BASE)
-
     root = cherrypy.tree.mount(App(), '{}/'.format(core.URL_BASE), 'core/conf_app.ini')
 
     # Start plugins
@@ -129,9 +128,7 @@ if __name__ == '__main__':
         if core.PLATFORM == '*nix':
             Daemonizer(cherrypy.engine).subscribe()
         elif core.PLATFORM == 'windows':
-            from cherrypysytray import SysTrayPlugin  # noqa
-            menu_options = (('Open Browser', None, lambda *args: webbrowser.open(core.SERVER_URL)),)
-            systrayplugin = SysTrayPlugin(cherrypy.engine, 'core/favicon.ico', 'Watcher', menu_options)
+            systrayplugin = systray.SysTrayPlugin(cherrypy.engine)
             systrayplugin.subscribe()
             systrayplugin.start()
 

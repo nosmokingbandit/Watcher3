@@ -1,6 +1,8 @@
 import sys
+import webbrowser
 
 import cherrypy
+import core
 from cherrypy.process import plugins
 from infi.systray import SysTrayIcon
 
@@ -10,13 +12,13 @@ class SysTrayPlugin(plugins.SimplePlugin):
     CherryPy plugin that creates a system tray icon for Windows.
 
     Because SysTrayIcon always fires off on_quit, we can't have on_quit
-        execute cherrypy.engine.exit() if cherrypy.engine.exit() is what
-        triggered SysTrayIcon to close. So conditions are set to only fire
-        on_quit when the quit_method == 'men'.
+        execute cherrypy.engine.exit() if the exit command is what triggered
+        SysTrayIcon to close. So conditions are set to only fire on_quit when
+        the quit_method == 'men'.
 
     This way, when the menu option is called, it destroys SysTrayIcon then
         closes cherrypy. Cherrypy will try to close SysTrayIcon by calling
-        stop(), so _on_quit() gets reassigned to None.
+        stop(), so stop() gets reassigned to None.
 
     If the app is closed by cherrypy (whether catching a kb interrupt or the GUI
         shutdown button), cherrypy stops the plugin by calling stop(). Stop()
@@ -44,13 +46,11 @@ class SysTrayPlugin(plugins.SimplePlugin):
 
     '''
 
-    def __init__(self, bus, icon, name, menu_options, on_quit=lambda: None):
-        if not callable(on_quit):
-            raise TypeError('on_quit not a callable object.')
-        self.on_quit = on_quit
-
+    def __init__(self, bus):
         plugins.SimplePlugin.__init__(self, bus)
-        self.systray = SysTrayIcon(icon, name, menu_options, on_quit=self._on_quit)
+        menu_options = (('Open Browser', None, self.open),)
+        self.systray = SysTrayIcon('core/favicon.ico', 'Watcher',
+                                   menu_options, on_quit=self.on_quit)
         self.quit_method = None
         return
 
@@ -66,8 +66,13 @@ class SysTrayPlugin(plugins.SimplePlugin):
             self.systray.shutdown()
             return
 
-    def _on_quit(self, systray):
-        self.on_quit()
+    def on_quit(self, systray):
         self.quit_method = 'men'
         cherrypy.engine.exit()
         sys.exit(0)
+
+    # sys tray functions:
+    def open(self, systray):
+        webbrowser.open('http://{}:{}{}'.format(
+            core.SERVER_ADDRESS, core.SERVER_PORT, core.URL_BASE))
+        return

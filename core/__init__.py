@@ -25,7 +25,6 @@ GIT_API = 'https://api.github.com/repos/nosmokingbandit/watcher3'
 SERVER_ADDRESS = None
 SERVER_PORT = None
 URL_BASE = ''
-SERVER_URL = ''
 
 # Update info
 UPDATE_STATUS = None                        # Dict of git update status ie {'status': 'current'}

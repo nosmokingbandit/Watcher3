@@ -9,7 +9,7 @@ from base64 import b16encode
 
 from core import searcher, postprocessing
 from core.rss import imdb, popularmovies
-from lib.cherrypyscheduler import SchedulerPlugin
+from core.cp_plugins.taskscheduler import SchedulerPlugin
 from core import trakt
 from core.library import Metadata
 
