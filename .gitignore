@@ -1,4 +1,4 @@
-#  User's Files   #
+# User's Files
 userdata/*
 !userdata/gitkeep
 logs/*
@@ -8,17 +8,17 @@ core/rss/imdb
 db/*
 core/cp_plugins/tasks.json
 
-# Compiled #
+# Compiled
 *.pyc
 __pycache__
-/templates/cache
+templates/cache
 
-# System Files #
+# System Files
 desktop.ini
 Thumbs.db
 TODO
 .*
 
-# Readme #
+# Readme
 README.md
 ISSUE_TEMPLATE.md
