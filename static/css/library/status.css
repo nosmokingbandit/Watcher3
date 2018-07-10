@@ -32,12 +32,8 @@ span.score > i{
     width: 0.75em;
 }
 
-ul#movie_list{
-    margin: 0 1.5em 1.5em 1.5em;
-}
-
-/* Poster style layout */
-ul#movie_list.posters{
+ul#movie_list {
+    margin: 0 0 1.5em 0;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -55,17 +51,42 @@ ul#movie_list.posters li{
 }
 
 /* List style layout */
-ul#movie_list.list li div.card{
-    width: 100%;
-    text-align: left;
-    height: 5em;
-    line-height: 1.75em;
-    position: relative;
-    margin: 0.25em 0;
-    display: inline-block;
-    border-radius: 0;
+ul#movie_list.list > li{
+    flex-basis: 28em;
 }
 
+ul#movie_list.list > li div.card{
+    width: 100%;
+    display: inline-block;
+    margin-bottom: 0.5em;
+}
+
+ul#movie_list.list > li img{
+    box-shadow: none;
+    float: left;
+    width: 3.5em;
+    border-radius: .25rem;
+    margin-right: 0.5em;
+}
+
+ul#movie_list.list > li h6{
+    font-size: 1.125em;
+    line-height: 1.4em;
+}
+
+ul#movie_list.list > li span.badge{
+    position: absolute;
+    bottom: 0.75em;
+    left: 5.5em;
+}
+
+ul#movie_list.list > li span.score{
+    position: absolute;
+    bottom: 0.5em;
+    right: 0.5em;
+}
+
+/*
 ul#movie_list.list li img{
     height: 4.95em;
     box-shadow: none;
@@ -75,20 +96,21 @@ ul#movie_list.list li img{
     border-radius: 0;
 }
 
-ul#movie_list.list li div.card-body,
-ul#movie_list.list li h6.card-title{
+ul#movie_list.list li div.card-body{
     padding: 0;
     margin: 0;
 }
 
-ul#movie_list.list li .card-title{
-    line-height: 2em;
-    font-size: 1.25em;
-}
+ul#movie_list.list h6{
+    padding: 0;
+    margin: 0;
+} */
+
 
 /* Compact style layout */
-ul#movie_list.compact div.card{
-    border-radius: 0;
+ul#movie_list.compact > li{
+    flex-basis: 28em;
+    margin-bottom: 0.25em;
 }
 
 ul#movie_list.compact li:not(:last-child) div.card{
@@ -105,18 +127,22 @@ ul#movie_list.compact li img{
 
 ul#movie_list.compact li span.badge.status{
     margin: .25em 1em .25em .25em;
-    float: left;
-}
-
-ul#movie_list.compact li h6.card-title{
-    display: inline-block;
-    margin: 0;
-}
-
-ul#movie_list.compact li span.score{
     float: right;
 }
 
+ul#movie_list.compact li h6.card-title{
+    max-width: calc(100% - 5.5em);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    display: inline-block;
+    margin-left: 0.5em;
+}
+
+ul#movie_list.compact li span.score{
+    display: none;
+}
 
 div#hidden_count{
     text-align: center;

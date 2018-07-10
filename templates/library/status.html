@@ -3,7 +3,7 @@
 
 <head>
     ${head}
-    <link href="${url_base}/static/css/library/status.css?v=011" rel="stylesheet">
+    <link href="${url_base}/static/css/library/status.css?v=012" rel="stylesheet">
     <script src="${url_base}/static/js/lib/echo.min.js?v=010" type="text/javascript"></script>
     <script src="${url_base}/static/js/library/status.js?v=018" type="text/javascript"></script>
     <meta name="movie_count" content="${movie_count}" />
@@ -62,8 +62,8 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <ul id="movie_list" class="striped">
+    <div class="">
+        <ul id="movie_list" class="">
         </ul>
         <div class="text-center">
             <i id="hide_finished_movies" class="mdi mdi-checkbox-blank-outline c_box" value="False"></i>
@@ -77,7 +77,9 @@
                 <img data-echo="{url_base}/posters/{poster}" src="{url_base}/static/images/missing_poster.jpg" class="card-img-top">
                 <div class="card-body">
                     <h6 class="card-title">
-                        {title}
+                        <span class="title" title="{title}">
+                            {title}
+                        </span>
                         <span class="year">
                             {year}
                         </span>
