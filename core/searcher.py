@@ -147,7 +147,7 @@ default status Available.
                 results[idx] = result
 
     for idx, result in enumerate(results):
-        results[idx]['resolution'] = get_source(result)
+        results[idx]['resolution'] = get_source(result, year)
 
     scored_results = searchresults.score(results, imdbid=imdbid)
 
@@ -236,7 +236,7 @@ def rss_sync(movies):
 
         # Get source media and resolution
         for idx, result in enumerate(new_results):
-            new_results[idx]['resolution'] = get_source(result)
+            new_results[idx]['resolution'] = get_source(result, year)
 
         scored_results = searchresults.score(new_results, imdbid=imdbid)
 
@@ -326,22 +326,26 @@ default False>
         return True
 
 
-def get_source(result):
+def get_source(result, year):
     ''' Parses release resolution and source from title.
     result (dict): individual search result info
+    year (int): year of movie release
+
+    year is used to split the release name into the title and scene data
+    This scene data is used exlcusively for source parsing
 
     Returns str source based on core.SOURCES
     '''
 
     logging.info('Determining source media for {}'.format(result['title']))
 
-    title = result['title']
+    scene_data = result['title'].split(str(year), 1)[-1].lower()
 
-    if any(i in title.upper() for i in ('4K', 'UHD', '2160P')):
+    if any(i in scene_data for i in ('4k', 'uhd', '2160p')):
         resolution = '4K'
-    elif '1080' in title:
+    elif '1080' in scene_data:
         resolution = '1080P'
-    elif '720' in title:
+    elif '720' in scene_data:
         resolution = '720P'
     else:
         resolution = 'SD'
@@ -350,7 +354,7 @@ def get_source(result):
     for source, aliases in core.CONFIG['Quality']['Aliases'].items():
         for a in aliases:
             aliases_delimited = ['{}{}'.format(d, a) for d in delimiters]
-            if any(i in title.lower() for i in aliases_delimited):
+            if any(i in scene_data for i in aliases_delimited):
                 src = '{}-{}'.format(source, resolution)
                 logging.info('Source media determined as {}'.format(src))
                 return src
