@@ -871,6 +871,11 @@ class Ajax(object):
 
         for movie in movies:
 
+            if not movie['imdbid']:
+                yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format("NONE")})
+                progress += 1
+                continue
+
             tmdb_data = TheMovieDatabase._search_imdbid(movie['imdbid'])
             if not tmdb_data or not tmdb_data[0].get('id'):
                 yield json.dumps({'response': False, 'movie': movie, 'progress': [progress, length], 'error': Errors.tmdb_not_found.format(movie['imdbid'])})
