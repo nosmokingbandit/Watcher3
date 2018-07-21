@@ -342,7 +342,12 @@ base_profile = json.loads('''
         "WebRip-720P": [
             true,
             8
+        ],
+        "Unknown": [
+            false,
+            14
         ]
+
     },
     "ignoredwords": "subs,german,dutch,french,truefrench,danish,swedish,spanish,italian,korean,dubbed,swesub,korsub,dksubs,vain,HC,blurred",
     "preferredwords": "",

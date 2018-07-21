@@ -145,6 +145,7 @@ class ImportKodiLibrary(object):
             movie['audiocodec'] = i['streamdetails']['audio'][0].get('codec') if i['streamdetails']['audio'] else ''
             if movie['audiocodec'] == 'dca' or movie['audiocodec'].startswith('dts'):
                 movie['audiocodec'] = 'DTS'
+            movie['resolution'] = 'Unknown'
             if i['streamdetails']['video']:
                 movie['videocodec'] = i['streamdetails']['video'][0].get('codec')
                 width = i['streamdetails']['video'][0]['width']
@@ -157,7 +158,7 @@ class ImportKodiLibrary(object):
                 else:
                     movie['resolution'] = 'DVD-SD'
             else:
-                movie['videocodec'] = movie['resolution'] = ''
+                movie['videocodec'] = ''
 
             movies.append(movie)
 
