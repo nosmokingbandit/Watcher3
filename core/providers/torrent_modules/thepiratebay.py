@@ -100,4 +100,3 @@ def _parse(html, imdbid):
 
     logging.info('Found {} results from ThePirateBay.'.format(len(results)))
     return results
-

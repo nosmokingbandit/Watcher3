@@ -127,7 +127,7 @@ class SQL(object):
         ''' Creates database and recreates self.engine
         DB_NAME (str): absolute file path to database
 
-        Does not return. DO NOT supress exceptions, this MUST succeed for Watcer to start.
+        Does not return. DO NOT supress exceptions, this MUST succeed for Watcher to start.
         '''
         logging.info('Creating Database tables.')
         print('Creating tables.')

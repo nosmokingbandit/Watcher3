@@ -53,8 +53,6 @@ def _parse(results, imdbid=None):
     '''
 
     logging.info('Parsing {} DanishBits results.'.format(len(results)))
-    item_keep = ('size', 'pubdate', 'title', 'indexer', 'info_link', 'guid', 'torrentfile', 'resolution', 'type', 'seeders')
-
     parsed_results = []
 
     for result in results:

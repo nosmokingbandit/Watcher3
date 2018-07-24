@@ -35,7 +35,7 @@ def check_all():
         _search_rss(rss_movies)
 
 
-def backlog_search( movie):
+def backlog_search(movie):
     ''' Searches predb for releases and marks row in MOVIES
     data (dict): data from row in MOVIES
 
