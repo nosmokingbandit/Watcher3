@@ -13,6 +13,15 @@ logging = logging.getLogger(__name__)
 current_version = 9
 
 
+def proxy_to_dict(p):
+    ''' Conversts sqla resultproxy to dict
+    p (resultproxy): response from sqla call
+
+    returns list of dicts
+    '''
+    return [dict(i) for i in p]
+
+
 class SQL(object):
     '''
     Class to handle all database interactions
@@ -149,8 +158,7 @@ class SQL(object):
         tries = 0
         while tries < 5:
             try:
-                result = self.engine.execute(*command)
-                return result
+                return self.engine.execute(*command)
 
             except Exception as e:
                 logging.error('SQL Database Query: {}.'.format(command), exc_info=True)
@@ -340,7 +348,7 @@ class SQL(object):
         result = self.execute([command])
 
         if result:
-            return [dict(i) for i in result]
+            return proxy_to_dict(result)
         else:
             logging.error('Unable to get list of user\'s movies.')
             return []
@@ -429,8 +437,7 @@ class SQL(object):
         results = self.execute(command)
 
         if results:
-            res = results.fetchall()
-            return [dict(i) for i in res]
+            return proxy_to_dict(results.fetchall())
         else:
             return []
 
@@ -802,7 +809,7 @@ class SQL(object):
 
         Returns list of dicts
         '''
-        return [dict(i) for i in self.execute(['SELECT * FROM {}'.format(table)])]
+        return proxy_to_dict(self.execute(['SELECT * FROM {}'.format(table)]))
 
     def system(self, name):
         ''' Gets 'data' column from SYSTEM table for name

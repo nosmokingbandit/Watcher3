@@ -715,7 +715,7 @@ class Manage(object):
             logging.warning('Unable to read database.')
             return
 
-        movies = [dict(i) for i in movies]
+        movies = core.sql.proxy_to_dict(movies)
 
         action = core.CONFIG['System']['FileManagement']['missingfileaction']
         db_update_values = []
