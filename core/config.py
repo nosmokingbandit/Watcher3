@@ -271,6 +271,15 @@ def restart_scheduler(diff):
             auto_start = core.CONFIG['Postprocessing']['Scanner']['enabled']
             core.scheduler_plugin.task_list['PostProcessing Scan'].reload(hr, min, interval, auto_start=auto_start)
 
+    if 'System' in diff:
+        d = diff['System']['FileManagement'].keys()
+        if any(i in d for i in ('scanmissingfiles', 'scanmissinghour', 'scanmissingmin')):
+            hr = core.CONFIG['System']['FileManagement']['scanmissinghour']
+            min = core.CONFIG['System']['FileManagement']['scanmissingmin']
+            interval = 24 * 3600
+            auto_start = core.CONFIG['System']['FileManagement']['scanmissingfiles']
+            core.scheduler_plugin.task_list['Missing Files Scan'].reload(hr, min, interval, auto_start=auto_start)
+
 
 '''
 base_profile is used as the template quality profile if none is present.

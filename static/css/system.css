@@ -1,6 +1,19 @@
+h1 {
+    display: block;
+    width: 100%;
+}
+h3{
+    margin-left: 0.5em;
+}
+
 h5{
     display: inline-block;
     margin: 0;
+}
+
+table#tasks{
+    margin: 0 1em;
+    width: calc(100% - 2em);
 }
 
 #donate{

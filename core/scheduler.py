@@ -11,7 +11,7 @@ from core import searcher, postprocessing
 from core.rss import imdb, popularmovies
 from lib.cherrypyscheduler import SchedulerPlugin
 from core import trakt
-from core.library import Metadata
+from core.library import Metadata, Manage
 
 logging = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ def create_plugin():
     PopularMoviesSync.create()
     PostProcessingScan.create()
     TraktSync.create()
+    FileScan.create()
     core.scheduler_plugin.subscribe()
 
 
@@ -291,4 +292,20 @@ class TraktSync(object):
             auto_start = False
 
         SchedulerPlugin.ScheduledTask(hr, min, interval, trakt.sync, auto_start=auto_start, name='Trakt Sync')
+        return
+
+
+class FileScan(object):
+    ''' Scheduled task to automatically sync selected Trakt lists '''
+
+    @staticmethod
+    def create():
+        interval = 24 * 3600
+
+        hr = core.CONFIG['System']['FileManagement']['scanmissinghour']
+        min = core.CONFIG['System']['FileManagement']['scanmissingmin']
+
+        auto_start = core.CONFIG['System']['FileManagement']['scanmissingfiles']
+
+        SchedulerPlugin.ScheduledTask(hr, min, interval, Manage.scanmissingfiles, auto_start=auto_start, name='Missing Files Scan')
         return

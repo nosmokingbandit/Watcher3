@@ -708,6 +708,41 @@ class Manage(object):
     '''
 
     @staticmethod
+    def scanmissingfiles():
+        movies = core.sql.execute(['SELECT * FROM MOVIES WHERE finished_file is not null'])
+
+        if movies is None:
+            logging.warning('Unable to read database.')
+            return
+
+        movies = [dict(i) for i in movies]
+
+        action = core.CONFIG['System']['FileManagement']['missingfileaction']
+        db_update_values = []
+        for i in movies:
+            if not os.path.exists(i['finished_file']):
+                logging.info('File {} is missing for movie {}'.format(i['finished_file'], i['title']))
+
+                if action == 'remove':
+                    if Manage.remove_movie(i['imdbid'])['response'] is False:
+                        logging.error('Unable to remove {} from library'.format(i['title']))
+                elif action == 'revert':
+                    db_update_values.append({'imdbid': i['imdbid'],
+                                             'finished_file': None,
+                                             'finished_date': None,
+                                             'status': 'Wanted',
+                                             'backlog': 0})
+
+                    if core.sql.delete('MARKEDRESULTS', 'imdbid', i['imdbid']) is None or \
+                       core.sql.delete('SEARCHRESULTS', 'imdbid', i['imdbid']) is None:
+                        logging.warning('Unable to remove marked releases. Status change may be incorrect.')
+
+        if len(db_update_values) > 0:
+            core.sql.update_multiple_rows('MOVIES', db_update_values, 'imdbid')
+
+        return
+
+    @staticmethod
     def verify(movie, today=None):
         ''' Checks for verfied releases based on config
         movie (dict): movie info

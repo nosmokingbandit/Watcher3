@@ -15,7 +15,54 @@ window.addEventListener("DOMContentLoaded", function(){
     $restore_modal.addEventListener('hidden.bs.modal', function(){
         $restore_modal.innerHTML = restore_modal_html;
     })
+
+    each(document.querySelectorAll('input[type="time"]'), function(input){
+        var hr = input.dataset.hour.toString().padStart(2, 0);
+        var min = input.dataset.minute.toString().padStart(2, 0);
+        input.value = hr + ':' + min;
+    })
+
 });
+
+function _get_settings(){
+
+    var settings = {};
+    settings["FileManagement"] = {};
+    var blanks = false;
+
+// FILEMANAGEMENT
+    var required_fields = []
+
+    each(document.querySelectorAll("form[data-category='filemanagement'] i.c_box"), function(checkbox){
+        settings['FileManagement'][checkbox.id] = is_checked(checkbox);
+    })
+
+    if(settings['scanmissingfiles']){
+        required_fields.push("scanmissinghour", "scanmissingmin");
+    }
+
+    each(document.querySelector("form[data-category='filemanagement']").querySelectorAll('input, select'), function(input){
+        if(input.value == "" && required_fields.includes(input.id)){
+            input.classList.add('border-danger');
+            blanks = true;
+            return
+        } else if(input.id == 'scanmissingtime'){
+            var [hour, min] = input.value.split(":").map(function(item){
+                return parseInt(item);
+            });
+            settings['FileManagement']['scanmissinghour'] = hour;
+            settings['FileManagement']['scanmissingmin'] = min;
+            return
+        }
+
+        settings['FileManagement'][input.id] = parse_input(input);
+    })
+
+    if(blanks == true){
+        return false;
+    };
+    return {"System": settings}
+}
 
 function _render_task_row(task){
     /* renders row in task table

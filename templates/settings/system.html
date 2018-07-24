@@ -2,8 +2,9 @@
 <html>
     <head>
         ${head}
-        <link href="${url_base}/static/css/system.css?v=010" rel="stylesheet">
-        <script src="${url_base}/static/js/system.js?v=011" type="text/javascript"></script>
+        <link href="${url_base}/static/css/system.css?v=011" rel="stylesheet">
+        <link href="${url_base}/static/css/settings/shared.css?v=010" rel="stylesheet">
+        <script src="${url_base}/static/js/system.js?v=012" type="text/javascript"></script>
         <script src="${url_base}/static/js/settings/shared.js?v=012" type="text/javascript"></script>
         <script src="${url_base}/static/js/lib/liteuploader.min.js?v=010" type="text/javascript"></script>
 
@@ -14,9 +15,40 @@
         ${navbar}
         <div class="container">
 
-            <h2>${_('System Information')}</h2>
+            <h1>${_('File Management')}</h1>
+            <form class="form-group row bg-light rounded mx-auto py-3 py-3" data-category="filemanagement">
+                <div class="col-md-6">
+                    <label>${_('Scan Library for Missing Files At')}</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i id="scanmissingfiles" class="mdi mdi-checkbox-blank-outline c_box" value="${config['FileManagement']['scanmissingfiles']}"></i>
+                            </span>
+                        </div>
+                        <input type="time" id="scanmissingtime" class="form-control" data-hour="${config['FileManagement']['scanmissinghour']}" data-minute="${config['FileManagement']['scanmissingmin']}" value="">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label>${_('If Movie File is Missing:')}</label>
+                    <select id="missingfileaction" class="form-control select-sm" value="${config['FileManagement']['missingfileaction']}">
+                        <option value="remove">${_('Remove from Library')}</option>
+                        <option value="revert">${_('Revert Status to Wanted')}</option>
+                    </select>
+                </div>
+            </form>
+
             <div class="row">
-                <div class="col-md-6 my-3">
+                <div class="col-md-12 pr-3">
+                    <button id="save_settings" class="btn btn-success float-right" onclick="save_settings(event, this)">
+                        <i class="mdi mdi-content-save"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h1>${_('System Information')}</h1>
+            <div class="row mx-3 mb-3">
+                <div class="col-md-6 my-1 px-1">
                     <div class="card">
                         <div class="card-header">
                             <h5>
@@ -29,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 my-3">
+                <div class="col-md-6 my-1 px-1">
                     <div class="card">
                         <div class="card-header">
                             <h5>
@@ -42,7 +74,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 my-3">
+                <div class="col-md-6 my-1 px-1">
                     <div class="card">
                         <div class="card-header">
                             <h5>
@@ -56,7 +88,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 my-3">
+                <div class="col-md-6 my-1 px-1">
                     <div class="card">
                         <div class="card-header">
                             <h5>
@@ -69,7 +101,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 my-3">
+                <div class="col-md-6 my-1 px-1">
                     <div class="card">
                         <div class="card-header">
                             <h5>
@@ -85,7 +117,7 @@
                 </div>
             </div>
 
-            <h2>${_('Backup')}</h2>
+            <h3>${_('Backup')}</h3>
             <div class="col-md-12">
                 <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modal_create_backup">
                     <i class="mdi mdi-package-variant-closed"></i>
@@ -98,7 +130,7 @@
             </div>
             </br/>
 
-            <h2>${_('Task Scheduler')}</h2>
+            <h3>${_('Task Scheduler')}</h3>
             <table id="tasks" class="table table-hover">
                 <thead class="thead-light">
                     <tr>
