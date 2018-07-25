@@ -195,7 +195,7 @@ class App(object):
             t = int(time.time())
             dt = time.strftime('%a, %B %d, %Y %H:%M:%S %z', time.localtime(t))
 
-            return App.system_template.render(tasks=json.dumps(tasks), system=system, server_time=[dt, t], **self.defaults())
+            return App.system_template.render(config=core.CONFIG['System'], tasks=json.dumps(tasks), system=system, server_time=[dt, t], **self.defaults())
         else:
             return self.error_page_404()
     settings._cp_config = {}
