@@ -795,7 +795,7 @@ class Manage(object):
         if verified and movie['status'] == 'Waiting':
             logging.info('Verification criteria met for {} {}, setting status to Wanted'.format(movie['title'], movie['year']))
             core.sql.update('MOVIES', 'status', 'Wanted', 'imdbid', movie['imdbid'])
-        elif not verified and movie['status'] not in ('Waiting', 'Disabled'):
+        elif not verified and movie['status'] not in ('Waiting', 'Disabled', 'Finished'):
             logging.info('Verified criteria not met for {} {}, resetting setting status to Waiting'.format(movie['title'], movie['year']))
             core.sql.update('MOVIES', 'status', 'Waiting', 'imdbid', movie['imdbid'])
 
