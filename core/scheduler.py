@@ -117,7 +117,7 @@ class PostProcessingScan(object):
             if r:
                 logging.info('Found match for {} in releases: {}.'.format(fname, r['title']))
             else:
-                r['guid'] = 'POSTPROCESSING{}'.format(b16encode(fname.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+                r['guid'] = 'postprocessing{}'.format(b16encode(fname.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16]).lower()
                 logging.info('Unable to find match in database for {}, release cannot be marked as Finished.'.format(fname))
 
             d = {'apikey': core.CONFIG['Server']['apikey'],

@@ -481,6 +481,6 @@ def generate_simulacrum(movie):
 
     result['title'] = title
 
-    result['guid'] = movie.get('guid') or 'IMPORT{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16])
+    result['guid'] = movie.get('guid') or 'import{}'.format(b16encode(title.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16]).lower()
 
     return result
