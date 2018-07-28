@@ -11,6 +11,7 @@ watcheraddress = 'http://localhost:9090'
 
 import json
 import sys
+import os
 
 if sys.version_info.major < 3:
     import urllib
@@ -41,7 +42,7 @@ name = input('Name (Folder name of download): ')
 
 data['downloadid'] = input('Downloadid (optional): ') or guid
 data['name'] = name
-data['path'] = u'{}/{}'.format(download_dir, name)
+data['path'] = os.path.join(download_dir, name)
 data['guid'] = guid
 print('Mode:')
 print('  1 Complete (default)')
