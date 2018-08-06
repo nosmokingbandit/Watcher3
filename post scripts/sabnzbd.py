@@ -11,7 +11,8 @@ conf = {
     'watcheraddress': 'http://localhost:9090/',
     'sabkey': 'SABAPIKEY',
     'sabhost': 'localhost',
-    'sabport': '8080'
+    'sabport': '8080',
+    'verifyssl': True   # may need to change to False if using self-signed ssl cert
 }
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
@@ -19,6 +20,7 @@ conf = {
 
 import json
 import sys
+import ssl
 
 if sys.version_info.major < 3:
     import urllib
@@ -34,6 +36,11 @@ else:
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
     urlquote = urllib.parse.quote
+
+ctx = ssl.create_default_context()
+if not conf['verifyssl']:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
 # Gather info
 try:
@@ -55,7 +62,7 @@ name = urlquote(sys.argv[3], safe='')
 url = u'http://{}:{}/sabnzbd/api?apikey={}&mode=history&output=json&search={}'.format(sabhost, sabport, sabkey, name)
 
 req = request(url, headers={'User-Agent': 'Mozilla/5.0'})
-response = urlopen(req, timeout=60).read().decode('utf-8')
+response = urlopen(req, timeout=60, context=ctx).read().decode('utf-8')
 
 slots = json.loads(response)['history']['slots']
 
@@ -79,7 +86,7 @@ url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
 req = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(req, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(req, timeout=600, context=ctx).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(0)

@@ -8,10 +8,12 @@
 
 watcherapi = ''
 watcheraddress = 'http://localhost:9090'
+verifyssl = True    # may need to change to False if using self-signed ssl cert
 
 import json
 import sys
 import os
+import ssl
 
 if sys.version_info.major < 3:
     import urllib
@@ -26,6 +28,11 @@ else:
     request = urllib.request.Request
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
+
+ctx = ssl.create_default_context()
+if not verifyssl:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
 data = {}
 
@@ -67,7 +74,7 @@ if input('  [Y, N]: ').lower() == 'n':
 	sys.exit(0)
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(request, timeout=600, context=ctx).read().decode('utf-8'))
 
 print(json.dumps(response, indent=2, sort_keys=True))
 

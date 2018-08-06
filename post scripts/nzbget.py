@@ -20,12 +20,20 @@
 # Watcher address.
 #Host=http://localhost:9090/
 
+
+# Verify origin of Watcher's SSL certificate (enabled, disabled).
+#  enabled    - Certificates must be valid (self-signed certs may fail)
+#  disabled   - All certificates will be accepted
+#VerifySSL=enabled
+
 ### NZBGET POST-PROCESSING SCRIPT ###
 #####################################
+
 
 import json
 import os
 import sys
+import ssl
 
 if sys.version_info.major < 3:
     import urllib
@@ -39,6 +47,11 @@ else:
     request = urllib.request.Request
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
+
+ctx = ssl.create_default_context()
+if os.environ['NZBPO_VERIFYSSL'] != 'enabled':
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
 POSTPROCESS_SUCCESS = 93
 POSTPROCESS_ERROR = 94
@@ -69,7 +82,7 @@ url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(request, timeout=600, context=ctx).read().decode('utf-8'))
 
 if response.get('status') == 'finished':
     sys.exit(POSTPROCESS_SUCCESS)

@@ -5,6 +5,7 @@
 # Add api information to conf:
 watcherapi = 'apikey'
 watcheraddress = 'http://localhost:9090/'
+verifyssl = True    # may need to change to False if using self-signed ssl cert
 
 # Must use full path of download directory
 destination = '/volume1/Downloads/Watcher'
@@ -15,20 +16,20 @@ delay = 5
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
 # ======================================== #
-import json
+
 import os
 import sys
-import time
-
-time.sleep(delay)
-
-# Gather info
 args = os.environ
 
 if not args['TR_TORRENT_NAME'] in os.listdir(destination):
     # Not a Watcher download
     sys.exit(0)
 
+import json
+import time
+import ssl
+
+time.sleep(delay)
 if sys.version_info.major < 3:
     import urllib
     import urllib2
@@ -42,6 +43,12 @@ else:
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
 
+ctx = ssl.create_default_context()
+if not verifyssl:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+# Gather info
 data = {}
 data['apikey'] = watcherapi
 data['path'] = os.path.join(destination, args['TR_TORRENT_NAME'])
@@ -55,7 +62,7 @@ url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(request, timeout=600, context=ctx).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)

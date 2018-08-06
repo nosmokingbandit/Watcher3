@@ -10,11 +10,19 @@
 watcherapi = 'APIKEY'
 watcheraddress = u'http://localhost:9090/'
 label = 'Watcher'
+verifyssl = True    # may need to change to False if using self-signed ssl cert
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
 # ======================================== #
-import json
 import sys
+script, rtor_label, name, downloadid, path = sys.argv
+
+if label != rtor_label:
+    print('Label doesn\'t match config. Ignoring this download.')
+    sys.exit(0)
+
+import json
+import ssl
 
 if sys.version_info.major < 3:
     import urllib
@@ -29,17 +37,14 @@ else:
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
 
+ctx = ssl.create_default_context()
+if not verifyssl:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+
 # Gather info
 data = {}
-
-args = sys.argv
-
-script, tor_label, name, downloadid, path = sys.argv
-
-if label != tor_label:
-    print('Label doesn\'t match config. Ignoring this download.')
-    sys.exit(0)
-
 
 while path[-1] in ('/', '\\'):
     path = path[:-1]
@@ -57,7 +62,7 @@ url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(request, timeout=600, context=ctx).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)

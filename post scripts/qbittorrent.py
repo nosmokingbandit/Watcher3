@@ -10,12 +10,25 @@
 watcherapi = 'APIKEY'
 watcheraddress = 'http://localhost:9090/'
 category = 'Watcher'
+verifyssl = True    # may need to change to False if using self-signed ssl cert
 
 #  DO NOT TOUCH ANYTHING BELOW THIS LINE!  #
 # ======================================== #
-import json
-import os
+
 import sys
+import os
+
+download_dir = sys.argv[2]          # %D
+
+while download_dir[-1] in ('/', '\\'):
+    download_dir = download_dir[:-1]
+parent_folder = os.path.split(download_dir)[-1]
+if parent_folder.lower() != category.lower():
+    # Not watcher category
+    sys.exit(0)
+
+import json
+import ssl
 
 if sys.version_info.major < 3:
     import urllib
@@ -30,29 +43,20 @@ else:
     urlencode = urllib.parse.urlencode
     urlopen = urllib.request.urlopen
 
+ctx = ssl.create_default_context()
+if not verifyssl:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
 # Gather info
 data = {}
 
-args = sys.argv
-
-download_dir = args[2]          # %D
-
-while download_dir[-1] in ('/', '\\'):
-    download_dir = download_dir[:-1]
-
-parent_folder = os.path.split(download_dir)[-1]
-
-if parent_folder.lower() != category.lower():
-    # Not watcher category
-    sys.exit(0)
-
-
 data['apikey'] = watcherapi
 
-data['name'] = args[1]          # %N
-data['path'] = args[3]          # %R
-data['downloadid'] = args[4]    # %I
-data['guid'] = args[4]
+data['name'] = sys.argv[1]          # %N
+data['path'] = sys.argv[3]          # %R
+data['downloadid'] = sys.argv[4]    # %I
+data['guid'] = sys.argv[4]
 data['mode'] = 'complete'
 
 # Send info
@@ -60,7 +64,7 @@ url = u'{}/postprocessing/'.format(watcheraddress)
 post_data = urlencode(data).encode('ascii')
 
 request = request(url, post_data, headers={'User-Agent': 'Mozilla/5.0'})
-response = json.loads(urlopen(request, timeout=600).read().decode('utf-8'))
+response = json.loads(urlopen(request, timeout=600, context=ctx).read().decode('utf-8'))
 
 if response['status'] == 'finished':
     sys.exit(0)
