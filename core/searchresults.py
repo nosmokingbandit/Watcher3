@@ -51,16 +51,12 @@ def score(releases, imdbid=None, imported=False):
         filters = {'requiredwords': '', 'preferredwords': '', 'ignoredwords': ''}
         quality = import_quality()
     else:
-        movie_details = core.sql.get_movie_details('imdbid', imdbid)
-        year = movie_details.get('year')
         quality_profile = movie_details['quality']
         logging.debug('Scoring based on quality profile {}'.format(quality_profile))
-
-        titles = [movie_details['title']]
-        if movie_details['alternative_titles']:
-            titles += movie_details['alternative_titles'].split(',')
-
         check_size = True
+        movie_details = core.sql.get_movie_details('imdbid', imdbid)
+        year = movie_details.get('year')
+
         if quality_profile in core.CONFIG['Quality']['Profiles']:
             quality = core.CONFIG['Quality']['Profiles'][quality_profile]
         else:
@@ -94,6 +90,9 @@ def score(releases, imdbid=None, imported=False):
     releases = score_sources(releases, sources, check_size=check_size)
 
     if quality['scoretitle']:
+        titles = [movie_details['title']]
+        if movie_details['alternative_titles']:
+            titles += movie_details['alternative_titles'].split(',')
         releases = fuzzy_title(releases, titles, year=year)
 
     if preferred_groups and preferred_groups != ['']:
