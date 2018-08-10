@@ -943,7 +943,7 @@ class Manage(object):
 
             search_result = searchresults.score([search_result], imported=True)[0]
 
-            required_keys = ('score', 'size', 'status', 'pubdate', 'title', 'imdbid', 'indexer', 'date_found', 'info_link', 'guid', 'torrentfile', 'resoluion', 'type', 'downloadid', 'freeleech')
+            required_keys = ('score', 'size', 'status', 'pubdate', 'title', 'imdbid', 'indexer', 'date_found', 'info_link', 'guid', 'torrentfile', 'resolution', 'type', 'downloadid', 'freeleech')
 
             search_result = {k: v for k, v in search_result.items() if k in required_keys}
 
