@@ -51,10 +51,10 @@ def score(releases, imdbid=None, imported=False):
         filters = {'requiredwords': '', 'preferredwords': '', 'ignoredwords': ''}
         quality = import_quality()
     else:
+        movie_details = core.sql.get_movie_details('imdbid', imdbid)
         quality_profile = movie_details['quality']
         logging.debug('Scoring based on quality profile {}'.format(quality_profile))
         check_size = True
-        movie_details = core.sql.get_movie_details('imdbid', imdbid)
         year = movie_details.get('year')
 
         if quality_profile in core.CONFIG['Quality']['Profiles']:
