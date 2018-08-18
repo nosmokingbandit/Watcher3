@@ -51,7 +51,7 @@ SOURCES = ('BluRay-4K', 'BluRay-1080P', 'BluRay-720P', 'BluRay-SD',
            'WebRip-4K', 'WebRip-1080P', 'WebRip-720P', 'WebRip-SD',
            'DVD-SD',
            'Screener-1080P', 'Screener-720P',
-           'Telesync-SD', 'CAM-SD')
+           'Telesync-SD', 'CAM-SD', 'Unknown')
 
 # Module instances
 sql = None

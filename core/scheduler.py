@@ -5,7 +5,7 @@ import cherrypy
 import core
 import os
 import time
-from base64 import b16encode
+import hashlib
 
 from core import searcher, postprocessing
 from core.rss import imdb, popularmovies
@@ -117,7 +117,7 @@ class PostProcessingScan(object):
             if r:
                 logging.info('Found match for {} in releases: {}.'.format(fname, r['title']))
             else:
-                r['guid'] = 'postprocessing{}'.format(b16encode(fname.encode('ascii', errors='ignore')).decode('utf-8').zfill(16)[:16]).lower()
+                r['guid'] = 'postprocessing{}'.format(hashlib.md5(fname.encode('ascii', errors='ignore')).hexdigest()).lower()
                 logging.info('Unable to find match in database for {}, release cannot be marked as Finished.'.format(fname))
 
             d = {'apikey': core.CONFIG['Server']['apikey'],

@@ -74,7 +74,7 @@ def _login(url, account, password):
             cookie = None
             return '{}: {}'.format(response.status_code, response.reason)
 
-        response = json.loads(response.content)
+        response = json.loads(response.text)
         if not response['success']:
             cookie = None
             return 'Invalid Credentials'
