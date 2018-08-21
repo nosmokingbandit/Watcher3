@@ -76,9 +76,9 @@ def add_torrent(torrent):
     download_path = '{}/{}'.format(def_download_path, conf['category'])
 
     priority_keys = {
-        'Normal': 0,
-        'High': 128,
-        'Max': 255
+        'Low': 64,
+        'Normal': 128,
+        'High': 255,
     }
 
     options = {}

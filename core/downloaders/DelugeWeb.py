@@ -52,9 +52,9 @@ def add_torrent(data):
     url = '{}:{}/json'.format(host, port)
 
     priority_keys = {
-        'Normal': 0,
-        'High': 128,
-        'Max': 255
+        'Low': 64,
+        'Normal': 128,
+        'High': 255,
     }
 
     if cookie is None:
