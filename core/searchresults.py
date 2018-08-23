@@ -90,8 +90,8 @@ def score(releases, imdbid=None, imported=False):
     releases = score_sources(releases, sources, check_size=check_size)
 
     if quality['scoretitle']:
-        titles = [movie_details['title']]
-        if movie_details['alternative_titles']:
+        titles = [movie_details.get('title')]
+        if movie_details.get('alternative_titles'):
             titles += movie_details['alternative_titles'].split(',')
         releases = fuzzy_title(releases, titles, year=year)
 
@@ -303,7 +303,7 @@ def fuzzy_title(releases, titles, year='\n'):
     logging.info('Checking title match.')
 
     keep = []
-    if titles == []:
+    if titles == [] or titles == [None]:
         logging.debug('No titles available to compare, scoring all as perfect match.')
         for result in releases:
             result['score'] += 20
