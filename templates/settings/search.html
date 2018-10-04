@@ -70,7 +70,7 @@
                     <input type="number" id="rsssyncfrequency" class="form-control" min="15" placeholder="120" value="${config['rsssyncfrequency']}">
                 </div>
 
-                <div class="col-md-12 separator"></div>
+                <hr/>
 
                 <div class="col-md-6">
                     <label>${_('Wait [X] Days To Grab')}</label>
@@ -107,7 +107,7 @@
                     <input type="number" id="keepsearchingscore" class="form-control" min="0" placeholder="10" value="${config['keepsearchingscore']}">
                 </div>
 
-                <div class="col-md-12 separator"></div>
+                <hr/>
 
                 <div class="col-md-6">
                     <label>${_('Preferred Source')}</label>
@@ -139,6 +139,23 @@
                         </div>
                     </div>
                 </div>
+
+                <hr>
+
+                <div class="col-md-6">
+                    <label>${_('Allow Adult')}</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i id="allowadult" class="mdi mdi-checkbox-blank-outline c_box" value="${config['allowadult']}"></i>
+                            </span>
+                        </div>
+                        <span class="input-group-item form-control">
+                            ${_('Allow movies tagged as Adult')}
+                        </span>
+                    </div>
+                </div>
+
             </form>
 
             <h1>${_('Watchlists')}</h1>
@@ -161,7 +178,7 @@
                     <input type="text" id="imdbcsv" class="form-control" placeholder="http://www.imdb.com/list/ls0123456789/export" value="${', '.join(config['Watchlists']['imdbcsv'])}" data-toggle="tooltip" title="${_('Separate lists with commas')}">
                 </div>
 
-                <div class="col-md-12 separator"></div>
+                <hr/>
 
                 <div class="col-md-6">
                     <label>${_('Sync Popular Movies Every Day At')}
@@ -179,7 +196,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-12 separator"></div>
+                <hr/>
 
                 <div class="col-md-6">
                     <label>${_('Sync Trakt Lists Every [X] Minutes')}</label>

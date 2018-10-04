@@ -177,6 +177,12 @@ h5{
     display: inline-block;
 }
 
+hr {
+    width: 70%;
+    margin: 1em 15% 1.5em 15%;
+    border-top: 1px solid rgba(128, 128, 128, 0.25)
+}
+
 /* Always hide hacks at the bottom and hope nobody sees it */
 
 /* Bootstrap adds a padding-right of 17px when opening modals. I'm not sure why.

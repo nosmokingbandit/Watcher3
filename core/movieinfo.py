@@ -87,7 +87,7 @@ class TheMovieDatabase(object):
 
         title = Url.normalize(title)
 
-        url = 'https://api.themoviedb.org/3/search/movie?page=1&include_adult=false&'
+        url = 'https://api.themoviedb.org/3/search/movie?page=1&include_adult={}&'.format('true' if core.CONFIG['Search']['allowadult'] else 'false')
         if title[-4:].isdigit():
             query = 'query={}&year={}'.format(title[:-5], title[-4:])
         else:
@@ -195,7 +195,7 @@ class TheMovieDatabase(object):
             title = Url.normalize(title)
             year = Url.normalize(year)
 
-            url = 'https://api.themoviedb.org/3/search/movie?api_key={}&language=en-US&query={}&year={}&page=1&include_adult=false'.format(_k(b'tmdb'), title, year)
+            url = 'https://api.themoviedb.org/3/search/movie?api_key={}&language=en-US&query={}&year={}&page=1&include_adult={}'.format(_k(b'tmdb'), title, year, 'true' if core.CONFIG['Search']['allowadult'] else 'false')
 
             TheMovieDatabase._use_token()
 
