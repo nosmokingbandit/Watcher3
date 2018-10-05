@@ -2,6 +2,7 @@ from xml.etree.cElementTree import fromstring
 from xmljson import yahoo
 import logging
 import re
+import urllib.parse
 
 import core
 from core.helpers import Url
@@ -135,11 +136,25 @@ class NewzNabProvider(object):
                 for i in item['{ns}attr']:
                     item['attr'][i['name']] = i['value']
 
+                if(self.feed_type == 'torrent'):
+                    # Jackett doesn't properly encode query string params so we do it here.
+                    rt, qs = item.get('link', '?').split('?')
+                    if rt == qs == '':
+                        guid = None
+                    else:
+                        rt = rt + '?'
+                        qsprs = urllib.parse.parse_qs(qs)
+                        for k in qsprs:
+                            rt += '{}={}&'.format(k, urllib.parse.quote(qsprs[k][0]))
+                        guid = rt[:-1]
+                else:
+                    guid = item.get('link')
+
                 result = {
                     "download_client": None,
                     "downloadid": None,
                     "freeleech": 1 if item['attr'].get('downloadvolumefactor', 1) == 0 else 0,
-                    "guid": item.get('link'),
+                    "guid": guid,
                     "indexer": indexer,
                     "info_link": item.get('comments', '').split('#')[0],
                     "imdbid": imdbid if imdbid is not None else 'tt{}'.format(item['attr'].get('imdb')),
